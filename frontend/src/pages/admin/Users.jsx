@@ -1,50 +1,92 @@
-import React from 'react'
-import mockUsers from '../../data/mockUsers'
+import mockUsers from "../../data/mockUsers";
+
 function Users() {
   return (
     <div>
-        <header>
+      {/* Page heading */}
+      <div className="mb-8 flex items-center justify-between">
         <div>
-            <h2>Admin Panel</h2>
-            <p>Welcome, Admin!</p>
+          <h1 className="text-2xl font-bold text-slate-900">
+            User Management
+          </h1>
 
+          <p className="mt-1 text-sm text-slate-500">
+            Manage registered users and their accounts.
+          </p>
         </div>
-        <div>
-           <input type="text" placeholder="Search admin tools..." />
+
+        <button className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700">
+          + Add Account
+        </button>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 p-4">
+          <input
+            type="text"
+            placeholder="Search users..."
+            className="w-full max-w-sm rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+          />
         </div>
-      
-    </header>
-    <div>
-        <div>
-            <h2>user Management</h2>
-        </div>
-        <div>
-            <button>Add Account</button>
-        </div>
-    </div>
-    <div>
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            {mockUsers.map((user) => (
-                <tr key={user.id}>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
-                    <td>{user.status}</td>
-                    <td>
-                        <button>Edit</button>
-                        <button>Delete</button>
-                    </td>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+              <tr>
+                <th className="px-6 py-4 font-semibold">Name</th>
+                <th className="px-6 py-4 font-semibold">Email</th>
+                <th className="px-6 py-4 font-semibold">Role</th>
+                <th className="px-6 py-4 font-semibold">Status</th>
+                <th className="px-6 py-4 font-semibold">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-slate-100">
+              {mockUsers.map((user) => (
+                <tr
+                  key={user.id}
+                  className="transition hover:bg-slate-50"
+                >
+                  <td className="px-6 py-4 font-medium text-slate-900">
+                    {user.name}
+                  </td>
+
+                  <td className="px-6 py-4 text-slate-500">
+                    {user.email}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium capitalize text-blue-700">
+                      {user.role}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium capitalize text-green-700">
+                      {user.status}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="flex gap-2">
+                      <button className="rounded-md px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50">
+                        Edit
+                      </button>
+
+                      <button className="rounded-md px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50">
+                        Delete
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-            ))}
-        </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    </div>
-  )
+  );
 }
 
-export default Users
+export default Users;
