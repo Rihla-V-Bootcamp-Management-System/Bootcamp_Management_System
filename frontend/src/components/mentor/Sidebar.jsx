@@ -13,7 +13,7 @@ function Sidebar({ activePage, setActivePage }) {
       <h1 className="text-xl font-bold mb-8">
         Mentor Dashboard
       </h1>
-
+      
       <nav className="space-y-2">
         {menuItems.map((item) => (
           <button
@@ -24,7 +24,7 @@ function Sidebar({ activePage, setActivePage }) {
                 ? "bg-purple-100 text-purple-700"
                 : "hover:bg-gray-100"
             }`}
-          >
+            >
             {item}
           </button>
         ))}

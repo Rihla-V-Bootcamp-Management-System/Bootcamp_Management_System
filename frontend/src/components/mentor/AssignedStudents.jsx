@@ -115,7 +115,6 @@ function AssignedStudents() {
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
         <p>Showing 1 to 4 of 24 students</p>
         <div className="flex gap-2">
