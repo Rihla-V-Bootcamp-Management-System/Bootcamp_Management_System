@@ -1,10 +1,10 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const router = express.Router();
 
-// Register
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -29,7 +29,7 @@ router.post("/register", async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: role || "employee",
+      role: role || "student",
     });
 
     res.status(201).json({
@@ -49,7 +49,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -70,8 +69,20 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
+
     res.json({
       message: "Login successful",
+      token,
       user: {
         id: user._id,
         name: user.name,
@@ -85,6 +96,18 @@ router.post("/login", async (req, res) => {
       error: error.message,
     });
   }
+});
+
+router.post("/logout", (req, res) => {
+  res.json({
+    message: "Logout successful",
+  });
+});
+
+router.get("/", (req, res) => {
+  res.json({
+    message: "Auth API is working",
+  });
 });
 
 module.exports = router;
