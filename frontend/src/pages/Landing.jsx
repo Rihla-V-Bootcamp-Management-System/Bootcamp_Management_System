@@ -1,8 +1,9 @@
+import { Link } from "react-router-dom";
 function Landing() {
   return (
     <main className="min-h-screen bg-gray-50 text-gray-900">
 
-      {/* Header */}
+    
       <header className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
 
@@ -33,19 +34,17 @@ function Landing() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <a
-              href="/login"
+            <Link to="/login"
               className="px-4 py-2 text-sm hover:text-blue-600"
             >
               Login
-            </a>
+            </Link>
 
-            <a
-              href="/register"
+            <Link to="/register"
               className="px-5 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700"
             >
               Register
-            </a>
+            </Link>
           </div>
 
         </div>
