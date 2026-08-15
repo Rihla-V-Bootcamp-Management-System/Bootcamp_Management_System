@@ -1,6 +1,8 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const authMiddleware = require("../middleware/authMiddleware");
+const roleMiddleware = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
@@ -49,6 +51,8 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
+  console.log("LOGIN ROUTE HIT");
+
   try {
     const { email, password } = req.body;
 
@@ -85,7 +89,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
 
@@ -104,5 +108,22 @@ router.get("/:id", async (req, res) => {
     });
   }
 });
+
+router.get(
+  "/admin/test",
+  authMiddleware,
+  roleMiddleware("admin"),
+  (req, res) => {
+    res.json({
+      message: "Admin access granted",
+      user: {
+        id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role,
+      },
+    });
+  }
+);
 
 module.exports = router;
