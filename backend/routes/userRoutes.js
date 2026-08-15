@@ -4,7 +4,6 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// Register
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -29,7 +28,7 @@ router.post("/register", async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: role || "employee",
+      role: role || "student",
     });
 
     res.status(201).json({
@@ -49,7 +48,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -83,6 +81,26 @@ router.post("/login", async (req, res) => {
     res.status(500).json({
       message: "Login failed",
       error: error.message,
+    });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Invalid user ID",
     });
   }
 });
