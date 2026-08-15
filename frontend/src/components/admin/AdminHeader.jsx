@@ -17,7 +17,7 @@ function AdminHeader() {
           className="w-64 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
         />
 
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#071629] text-sm font-bold text-white">
           A
         </div>
       </div>

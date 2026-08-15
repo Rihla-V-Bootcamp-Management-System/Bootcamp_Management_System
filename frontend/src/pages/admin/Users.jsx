@@ -1,9 +1,11 @@
 import mockUsers from "../../data/mockUsers";
-
+import { useState } from "react";
 function Users() {
+    const [users, setUsers] = useState(mockUsers);
+    const [search, setSearch] = useState("");
   return (
     <div>
-      {/* Page heading */}
+      
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
@@ -15,17 +17,19 @@ function Users() {
           </p>
         </div>
 
-        <button className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700">
+        <button className="rounded-lg bg-[#242827] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700">
           + Add Account
         </button>
       </div>
 
-      {/* Table */}
+      
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 p-4">
           <input
             type="text"
             placeholder="Search users..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full max-w-sm rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
           />
         </div>
@@ -43,7 +47,13 @@ function Users() {
             </thead>
 
             <tbody className="divide-y divide-slate-100">
-              {mockUsers.map((user) => (
+              {users
+                .filter((user) =>
+                    `${user.name} ${user.email} ${user.role}`
+                    .toLowerCase()
+                    .includes(search.toLowerCase())
+                )
+                .map((user) => (
                 <tr
                   key={user.id}
                   className="transition hover:bg-slate-50"
@@ -70,13 +80,22 @@ function Users() {
 
                   <td className="px-6 py-4">
                     <div className="flex gap-2">
-                      <button className="rounded-md px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50">
-                        Edit
-                      </button>
+                                <button
+            onClick={() => {
+                const confirmed = window.confirm(
+                `Are you sure you want to delete ${user.name}?`
+                );
 
-                      <button className="rounded-md px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50">
-                        Delete
-                      </button>
+                if (confirmed) {
+                setUsers((currentUsers) =>
+                    currentUsers.filter((item) => item.id !== user.id)
+                );
+                }
+            }}
+            className="rounded-md px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+            >
+            Delete
+            </button>
                     </div>
                   </td>
                 </tr>
