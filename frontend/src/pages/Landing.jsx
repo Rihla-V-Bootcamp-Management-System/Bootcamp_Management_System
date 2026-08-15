@@ -1,248 +1,165 @@
 import { Link } from "react-router-dom";
+import loginImage from "../assets/login-image.png";
+import { useState } from "react";
+import Login from "./Login";
+import Register from "./Register";
 function Landing() {
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
   return (
     <main className="min-h-screen bg-gray-50 text-gray-900">
 
-    
-      <header className="bg-white border-b">
+      <header className="bg-gray-900 border-b">
         <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
 
-          <h1 className="text-2xl font-bold">
+          <Link to="/" className="text-2xl font-bold text-white">
             ASTU MSJ
-          </h1>
+          </Link>
 
-          <nav className="flex items-center gap-8 text-sm">
-            <span className="text-2xl cursor-pointer hover:text-blue-600">
+          <nav className="hidden md:flex items-center  gap-10">
+
+            <a
+              href="#about"
+              className="text-gray-600 hover:text-white"
+            >
               About
-            </span>
+            </a>
 
-            <span className="text-2xl cursor-pointer hover:text-blue-600">
+            <a
+              href="#tracks"
+              className="text-gray-600 hover:text-white"
+            >
               Tracks
-            </span>
+            </a>
 
-            <span className="text-2xl cursor-pointer hover:text-blue-600">
+            <a
+              href="#mentors"
+              className="text-gray-600 hover:text-white"
+            >
               Mentors
-            </span>
+            </a>
 
-            <span className=" text-2xl cursor-pointer hover:text-blue-600">
+            <a
+              href="#faq"
+              className="text-gray-600 hover:text-white"
+            >
               FAQ
-            </span>
+            </a>
 
-            <span className="text-2xl cursor-pointer hover:text-blue-600">
-              Contact
-            </span>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Link to="/login"
-              className="px-4 py-2 text-sm hover:text-blue-600"
+            <button
+              onClick={() => {
+              setAuthMode("login");
+              setLoginOpen(true);
+              }}
+              className="text-white hover:text-gray-600 font-medium"
             >
               Login
-            </Link>
-
-            <Link to="/register"
-              className="px-5 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-            >
-              Register
-            </Link>
-          </div>
+            </button>
+             <button
+           onClick={() => {
+           setAuthMode("register");
+          setLoginOpen(true);
+          }}
+         className="bg-yellow-900 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-gray-800"
+         >
+        Get Started
+       </button>
+           
+          </nav>
 
         </div>
       </header>
+      {loginOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
 
+    <div className="relative w-[90%] max-w-5xl bg-white rounded-2xl overflow-hidden shadow-2xl">
 
-     
-      <section className="max-w-7xl mx-auto px-8 py-28 text-center">
+  {/* Close button */}
+  <button
+    onClick={() => setLoginOpen(false)}
+    className="absolute top-5 right-5 z-20 text-gray-500 hover:text-gray-900 text-xl"
+  >
+    ✕
+  </button>
 
-        <p className="text-sm font-semibold text-blue-600 mb-4">
-          ASTU MSJ BOOTCAMP
-        </p>
+   {/* Modal content */}
+<div className="grid md:grid-cols-2 min-h-[550px]">
 
-        <h2 className="text-5xl font-bold leading-tight">
-          Learn. Build. Grow.
-        </h2>
+ {/* Left side - Image */}
+<div className="relative hidden md:block overflow-hidden">
 
-        <p className="max-w-2xl mx-auto mt-6 text-lg text-gray-600">
-          Develop your skills, work on real projects, and grow
-          together with the ASTU MSJ community.
-        </p>
+  <img
+    src={loginImage}
+    alt="ASTU MSJ Bootcamp"
+    className="absolute inset-0 w-full h-full object-cover"
+  />
+  <div className="absolute inset-5 
+  border-4 rounded-3xl border-white/70 pointer-events-none"></div>
+  {/* Text over image */}
+  <div className="absolute bottom-0 left-0 right-0 p-10 text-white">
+       <p className="mt-4 mb-2 font-medium">
+     ASTU MSJ SUMMER BOOTCAMP
+    </p>
 
-        <div className="mt-8 flex justify-center gap-4">
+    <h2 className="text-2xl font-extrabold leading-tight">
+      Learn.  Build. Grow. Together.
+    </h2>
 
-          <a
-            href="/register"
-            className="px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-          >
-            Get Started
-          </a>
+   
+  </div>
 
-          <button className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-white">
-            Learn More
-          </button>
+</div>
 
-        </div>
+  {/* Right side */}
+  <div className="p-10">
 
-      </section>
+    {/* Login / Register buttons */}
+    <div className="flex rounded-lg bg-gray-100 p-1 mb-8">
 
+      <button
+        onClick={() => setAuthMode("login")}
+        className={`flex-1 py-2.5 rounded-md font-medium transition ${
+          authMode === "login"
+            ? "bg-gray-900 rounded-full text-white shadow "
+            : "text-gray-600 hover:text-gray-900"
+        }`}
+      >
+        Login
+      </button>
 
-      
-      <section className="bg-white px-8 py-20">
+      <button
+        onClick={() => setAuthMode("register")}
+        className={`flex-1 py-2.5 rounded-md font-medium transition ${
+          authMode === "register"
+            ? "bg-gray-900 text-white shadow rounded-full"
+            : "text-gray-600 hover:text-gray-900"
+        }`}
+      >
+        Register
+      </button>
 
-        <div className="max-w-5xl mx-auto text-center">
+    </div>
 
-          <h2 className="text-3xl font-bold">
-            About ASTU MSJ
-          </h2>
+    {/* Form */}
+    <div className="w-full">
+      {authMode === "login" ? (
+        <Login onRegister={() => setAuthMode("register")} />
+      ) : (
+        <Register onLogin={() => setAuthMode("login")} />
+      )}
+    </div>
 
-          <p className="max-w-2xl mx-auto mt-5 text-gray-600">
-            ASTU MSJ is a learning community designed to help
-            students develop technical skills, collaborate on
-            projects, and prepare for real-world opportunities.
-          </p>
+  </div>
 
-        </div>
-
-      </section>
-
-
-      
-      <section className="max-w-7xl mx-auto px-8 py-20">
-
-        <div className="text-center mb-12">
-
-          <h2 className="text-3xl font-bold">
-            Learning Tracks
-          </h2>
-
-          <p className="mt-3 text-gray-600">
-            Explore different areas and build your skills.
-          </p>
-
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-
-          <div className="bg-white p-6 rounded-xl border hover:shadow-lg">
-            <h3 className="text-xl font-semibold">
-              Frontend Development
-            </h3>
-
-            <p className="mt-3 text-gray-600">
-              Learn how to build modern and responsive web
-              interfaces.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl border hover:shadow-md">
-            <h3 className="text-xl font-semibold">
-              Backend Development
-            </h3>
-
-            <p className="mt-3 text-gray-600">
-              Learn APIs, databases, authentication, and
-              server-side development.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl border hover:shadow-md">
-            <h3 className="text-xl font-semibold">
-              Full Stack Development
-            </h3>
-
-            <p className="mt-3 text-gray-600">
-              Combine frontend and backend skills to build
-              complete applications.
-            </p>
-          </div>
-
-        </div>
-
-      </section>
-
-
-      
-      <section className="bg-white px-8 py-20">
-
-        <div className="max-w-5xl mx-auto text-center">
-
-          <h2 className="text-3xl font-bold">
-            Our Mentors
-          </h2>
-
-          <p className="mt-4 text-gray-600">
-            Learn from experienced developers and mentors.
-          </p>
-
-        </div>
-
-      </section>
-
-
+</div>
     
-      <section className="max-w-5xl mx-auto px-8 py-20">
 
-        <h2 className="text-3xl font-bold text-center">
-          Frequently Asked Questions
-        </h2>
+  
 
-        <div className="mt-10 space-y-4">
+</div>
 
-          <div className="bg-white border rounded-lg p-5">
-            <h3 className="font-semibold">
-              Who can join the bootcamp?
-            </h3>
-
-            <p className="mt-2 text-gray-600">
-              Students interested in developing their technical
-              and software development skills.
-            </p>
-          </div>
-
-          <div className="bg-white border rounded-lg p-5">
-            <h3 className="font-semibold">
-              Do I need previous experience?
-            </h3>
-
-            <p className="mt-2 text-gray-600">
-              No. The program can help you build your skills
-              step by step.
-            </p>
-          </div>
-
-        </div>
-
-      </section>
-
-
-    
-      <section className="bg-gray-900 text-white px-8 py-20">
-
-        <div className="max-w-5xl mx-auto text-center">
-
-          <h2 className="text-3xl font-bold">
-            Contact Us
-          </h2>
-
-          <p className="mt-4 text-gray-300">
-            Have questions? Get in touch with the ASTU MSJ team.
-          </p>
-
-          <button className="mt-7 px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700">
-            Contact Us
-          </button>
-
-        </div>
-
-      </section>
-
-
-      
-      <footer className="bg-gray-950 text-gray-400 text-center py-6">
-        <p className="text-sm">
-          © 2026 ASTU MSJ. All rights reserved.
-        </p>
-      </footer>
-
+  </div>
+)}
     </main>
   );
 }
