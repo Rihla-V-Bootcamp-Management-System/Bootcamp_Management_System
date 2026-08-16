@@ -12,12 +12,12 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import AdminDashboard from "../pages/AdminDashboard";
 import MentorDashboard from "../pages/MentorDashboard";
 import StudentDashboard from "../pages/StudentDashboard";
-
+import PublicApplication from "../pages/PublicApplication";
 function AppRoutes() {
   return (
     <Routes>
 
-      {/* Public pages */}
+      <Route path="/apply" element={<PublicApplication />} />
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />

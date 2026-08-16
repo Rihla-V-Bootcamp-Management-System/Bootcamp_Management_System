@@ -32,7 +32,7 @@ function AdminDashboard() {
         </NavLink>
 
         <NavLink
-          to="/test-admin"
+          to="/admin/users"
           className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
         >
           <Users size={20} />
@@ -40,7 +40,7 @@ function AdminDashboard() {
         </NavLink>
 
         <NavLink
-          to="/test-admin/batches"
+          to="/admin/batches"
           className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
         >
           <Layers size={20} />
