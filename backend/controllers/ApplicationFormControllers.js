@@ -1,5 +1,19 @@
 const ApplicationForm = require("../models/ApplicationForm");
 
+const getApplicationForm = async (req, res) => {
+  try {
+    const { seasonId } = req.params;
+    const form = await ApplicationForm.findOne({ seasonId });
+
+    if (!form) {
+      return res.status(404).json({ message: "Application form not found." });
+    }
+
+    res.status(200).json(form);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 const createApplicationForm = async (req, res) => {
   try {
     const { seasonId, fields } = req.body;
@@ -43,6 +57,7 @@ const updateApplicationForm = async (req, res) => {
 };
 
 module.exports = {
+  getApplicationForm,
   createApplicationForm,
   updateApplicationForm
 };

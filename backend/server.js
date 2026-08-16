@@ -23,7 +23,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/attendance", attendanceRoutes);
-app.use("api/progress", progressRoutes);
+app.use("/api/progress", progressRoutes);
 app.use("/api/application-forms", applicationFormRoutes);
 mongoose
   .connect(process.env.MONGO_URI)
