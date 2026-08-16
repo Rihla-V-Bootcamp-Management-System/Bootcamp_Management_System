@@ -41,6 +41,7 @@ const getAttendancePercentage = async (req, res) => {
       });
     }
 
+
     const presentCount = records.filter(
       (record) =>
         record.status === "Present" || record.status === "Late"
@@ -57,9 +58,43 @@ const getAttendancePercentage = async (req, res) => {
     });
   }
 };
+const updateAttendance = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updatedRecord = await Attendance.findByIdAndUpdate(
+      id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedRecord) {
+      return res.status(404).json({
+        success: false,
+        message: `No record found with ID: ${id}`,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Attendance record updated successfully",
+      data: updatedRecord,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to update attendance record",
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   createAttendance,
   getAttendanceByStudent,
   getAttendancePercentage,
+  updateAttendance,
 };
+
+
