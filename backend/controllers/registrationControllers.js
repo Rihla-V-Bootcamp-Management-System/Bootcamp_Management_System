@@ -4,17 +4,45 @@ const ApplicationForm = require("../models/ApplicationForm");
 const createRegistration = async (req, res) => {
   try {
     const {
-      fullName,
-      email,
-      phone,
-      batchId,
       seasonId,
-      responses
+      batchId,
+      fullName,
+      gender,
+      email,
+      phoneNumber,
+      telegramUsername,
+      educationLevel,
+      educationInstitution,
+      fieldOfStudy,
+      studentId,
+      programmingExperience,
+      githubLink,
+      codeforcesLink,
+      leetcodeLink,
+      hoursPerWeek,
+      canCommitFiveHoursPerDay,
+      motivation,
     } = req.body;
 
-    if (!fullName || !email || !phone || !batchId || !seasonId || !responses) {
+    if (
+      !seasonId ||
+      !batchId ||
+      !fullName ||
+      !gender ||
+      !email ||
+      !phoneNumber ||
+      !telegramUsername ||
+      educationLevel === undefined ||
+      !educationInstitution ||
+      !fieldOfStudy ||
+      !studentId ||
+      !programmingExperience ||
+      hoursPerWeek === undefined ||
+      canCommitFiveHoursPerDay === undefined ||
+      !motivation
+    ) {
       return res.status(400).json({
-        message: "Required fields are missing"
+        message: "All required fields must be provided",
       });
     }
 
@@ -22,62 +50,72 @@ const createRegistration = async (req, res) => {
 
     if (!applicationForm) {
       return res.status(404).json({
-        message: "Application form not found"
+        message: "Application form not found",
       });
     }
 
-    for (const field of applicationForm.fields) {
-      const value = responses[field.id];
+    if (!["Male", "Female"].includes(gender)) {
+      return res.status(400).json({
+        message: "Gender must be Male or Female",
+      });
+    }
 
-      if (
-        field.required &&
-        (value === undefined || value === null || value === "")
-      ) {
-        return res.status(400).json({
-          message: `${field.label} is required`
-        });
-      }
+    if (educationLevel < 1 || educationLevel > 5) {
+      return res.status(400).json({
+        message: "Education level must be between 1 and 5",
+      });
+    }
 
-      if (value === undefined || value === null || value === "") {
-        continue;
-      }
+    if (hoursPerWeek < 25) {
+      return res.status(400).json({
+        message: "Hours per week must be at least 25",
+      });
+    }
 
-      if (field.type === "number" && typeof value !== "number") {
-        return res.status(400).json({
-          message: `${field.label} must be a number`
-        });
-      }
+    if (canCommitFiveHoursPerDay !== true) {
+      return res.status(400).json({
+        message: "Applicant must be able to commit at least 5 hours per day",
+      });
+    }
 
-      if (
-        ["select", "radio"].includes(field.type) &&
-        field.options.length > 0 &&
-        !field.options.includes(value)
-      ) {
-        return res.status(400).json({
-          message: `${field.label} has an invalid option`
-        });
-      }
+    if (motivation.length < 20 || motivation.length > 1000) {
+      return res.status(400).json({
+        message: "Motivation must be between 20 and 1000 characters",
+      });
     }
 
     const registration = await Registration.create({
-      fullName,
-      email,
-      phone,
+      seasonId,
       batchId,
-      responses
+      fullName,
+      gender,
+      email,
+      phoneNumber,
+      telegramUsername,
+      educationLevel,
+      educationInstitution,
+      fieldOfStudy,
+      studentId,
+      programmingExperience,
+      githubLink,
+      codeforcesLink,
+      leetcodeLink,
+      hoursPerWeek,
+      canCommitFiveHoursPerDay,
+      motivation,
     });
 
     res.status(201).json({
-      message: "Registration submitted successfully",
-      registration
+      message: "Application submitted successfully",
+      registration,
     });
   } catch (error) {
     res.status(500).json({
-      message: error.message
+      message: error.message,
     });
   }
 };
 
 module.exports = {
-  createRegistration
+  createRegistration,
 };
