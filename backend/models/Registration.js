@@ -2,17 +2,6 @@ const mongoose = require("mongoose");
 
 const registrationSchema = new mongoose.Schema(
   {
-    seasonId: {
-      type: String,
-      required: true,
-    },
-
-    batchId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Batch",
-      required: true,
-    },
-
     fullName: {
       type: String,
       required: true,
@@ -48,19 +37,33 @@ const registrationSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 1,
-      max: 3,
+      max: 5,
     },
 
     educationInstitution: {
       type: String,
       required: true,
-      trim: true,
+      enum: [
+        "Adama University",
+        "Addis Ababa University",
+        "Jimma University",
+        "Hawassa University",
+        "Bahir Dar University",
+        "Mekelle University",
+        "Gondar University",
+        "Other",
+      ],
     },
 
     fieldOfStudy: {
       type: String,
       required: true,
-      trim: true,
+      enum: [
+        "Software Engineering",
+        "Computer Science",
+        "Electrical Engineering",
+        "Other",
+      ],
     },
 
     studentId: {
@@ -98,21 +101,15 @@ const registrationSchema = new mongoose.Schema(
       default: "",
     },
 
-    hoursPerday: {
+    hoursPerWeek: {
       type: Number,
       required: true,
-      min: 5,
+      min: 35,
     },
 
     canCommitFiveHoursPerDay: {
       type: Boolean,
       required: true,
-      validate: {
-        validator: function (value) {
-          return value === true;
-        },
-        message: "Applicant must be able to commit at least 5 hours per day.",
-      },
     },
 
     motivation: {
@@ -123,20 +120,43 @@ const registrationSchema = new mongoose.Schema(
       maxlength: 1000,
     },
 
-    status: {
-      type: String,
-      enum: ["Submitted"],
-      default: "Submitted",
+    seasonId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Season",
+      required: true,
     },
 
-    submittedAt: {
+    status: {
+      type: String,
+      enum: ["SUBMITTED", "SHORTLISTED", "REJECTED"],
+      default: "SUBMITTED",
+    },
+
+    reviewedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    reviewedAt: {
       type: Date,
-      default: Date.now,
+      default: null,
+    },
+
+    rejectionReason: {
+      type: String,
+      default: "",
+      trim: true,
     },
   },
   {
     timestamps: true,
   }
+);
+
+registrationSchema.index(
+  { email: 1, seasonId: 1 },
+  { unique: true }
 );
 
 module.exports = mongoose.model("Registration", registrationSchema);

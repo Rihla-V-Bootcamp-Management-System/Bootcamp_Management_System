@@ -1,63 +1,125 @@
-const ApplicationForm = require("../models/ApplicationForm");
+const Registration = require("../models/Registration");
 
-const getApplicationForm = async (req, res) => {
+const createRegistration = async (req, res) => {
   try {
-    const { seasonId } = req.params;
-    const form = await ApplicationForm.findOne({ seasonId });
-
-    if (!form) {
-      return res.status(404).json({ message: "Application form not found." });
-    }
-
-    res.status(200).json(form);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-const createApplicationForm = async (req, res) => {
-  try {
-    const { seasonId, fields } = req.body;
-
-    const form = await ApplicationForm.create({
+    const {
       seasonId,
-      fields
-    });
+      batchId,
+      fullName,
+      gender,
+      email,
+      phoneNumber,
+      telegramUsername,
+      educationLevel,
+      educationInstitution,
+      fieldOfStudy,
+      studentId,
+      programmingExperience,
+      githubLink,
+      codeforcesLink,
+      leetcodeLink,
+      hoursPerWeek,
+      canCommitFiveHoursPerDay,
+      motivation,
+    } = req.body;
 
-    res.status(201).json(form);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message
-    });
-  }
-};
-
-const updateApplicationForm = async (req, res) => {
-  try {
-    const { seasonId } = req.params;
-    const { fields } = req.body;
-
-    const form = await ApplicationForm.findOneAndUpdate(
-      { seasonId },
-      { fields },
-      { new: true, runValidators: true }
-    );
-
-    if (!form) {
-      return res.status(404).json({
-        message: "Application form not found"
+    if (
+      !seasonId ||
+      !batchId ||
+      !fullName ||
+      !gender ||
+      !email ||
+      !phoneNumber ||
+      !telegramUsername ||
+      educationLevel === undefined ||
+      !educationInstitution ||
+      !fieldOfStudy ||
+      !studentId ||
+      !programmingExperience ||
+      hoursPerWeek === undefined ||
+      canCommitFiveHoursPerDay === undefined ||
+      !motivation
+    ) {
+      return res.status(400).json({
+        message: "All required fields must be provided",
       });
     }
 
-    res.json(form);
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingRegistration = await Registration.findOne({
+      email: normalizedEmail,
+      seasonId,
+    });
+
+    if (existingRegistration) {
+      return res.status(409).json({
+        message: "You have already applied for this season.",
+      });
+    }
+
+    if (!["Male", "Female"].includes(gender)) {
+      return res.status(400).json({
+        message: "Gender must be Male or Female",
+      });
+    }
+
+    if (educationLevel < 1 || educationLevel > 3) {
+      return res.status(400).json({
+        message: "Education level must be between 1 and 3",
+      });
+    }
+
+    if (hoursPerWeek < 5) {
+      return res.status(400).json({
+        message: "Hours per week must be at least 5",
+      });
+    }
+
+    if (canCommitFiveHoursPerDay !== true) {
+      return res.status(400).json({
+        message: "Applicant must be able to commit at least 5 hours per day",
+      });
+    }
+
+    if (motivation.length < 20 || motivation.length > 1000) {
+      return res.status(400).json({
+        message: "Motivation must be between 20 and 1000 characters",
+      });
+    }
+
+    const registration = await Registration.create({
+      seasonId,
+      batchId,
+      fullName,
+      gender,
+      email: normalizedEmail,
+      phoneNumber,
+      telegramUsername,
+      educationLevel,
+      educationInstitution,
+      fieldOfStudy,
+      studentId,
+      programmingExperience,
+      githubLink,
+      codeforcesLink,
+      leetcodeLink,
+      hoursPerWeek,
+      canCommitFiveHoursPerDay,
+      motivation,
+    });
+
+    return res.status(201).json({
+      message: "Application submitted successfully",
+      registration,
+    });
   } catch (error) {
-    res.status(500).json({
-      message: error.message
+    return res.status(500).json({
+      message: error.message,
     });
   }
 };
 
 module.exports = {
-  getApplicationForm,
-  createApplicationForm,
-  updateApplicationForm
+  createRegistration,
 };
