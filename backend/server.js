@@ -1,13 +1,15 @@
-const dotenv = require("dotenv");
-dotenv.config();
-
 const express = require("express");
 const cors = require("cors");
+const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const registrationRoutes = require("./routes/registrationRoutes");
+const formQuestionRoutes = require("./routes/formQuestionRoutes");
+const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
+
+dotenv.config();
 
 const app = express();
 
@@ -26,6 +28,8 @@ app.get("/api/health", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/registrations", registrationRoutes);
+app.use("/api/form-questions", formQuestionRoutes);
+app.use("/api/registration-settings", registrationSettingsRoutes);
 
 app.get("/", (req, res) => {
   res.json({

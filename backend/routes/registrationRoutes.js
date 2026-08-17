@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const Registration = require("../models/Registration");
+const RegistrationSettings = require("../models/RegistrationSettings");
 const User = require("../models/User");
 
 const {
@@ -20,6 +21,14 @@ const allowedTransitions = {
 
 router.post("/", async (req, res) => {
   try {
+    const settings = await RegistrationSettings.findOne();
+
+    if (!settings || !settings.registrationOpen) {
+      return res.status(403).json({
+        message: "Registration is currently closed",
+      });
+    }
+
     const registration = await Registration.create({
       fullName: req.body.fullName,
       email: req.body.email,
