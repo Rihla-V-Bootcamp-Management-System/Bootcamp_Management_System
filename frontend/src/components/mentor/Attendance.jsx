@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState } from "react";
 function Attendance() {
   const [students, setStudents] = useState([
     {
@@ -25,7 +25,10 @@ function Attendance() {
         attendance: 80,
         status: "Excused",
     },
-  ])
+  ]);
+  const [date, setDate] = useState("");
+  const [topic, setTopic] = useState("");
+
   const updateStatus = (id, status) => {
     setStudents(
       students.map((student) =>
@@ -33,14 +36,26 @@ function Attendance() {
           ? { ...student, status }
           : student
       )
-    )
-  }
+    );
+  };
   const presentCount = students.filter(
-    (student) => student.status === "Present"
+    (student) =>
+        student.status === "Present" ||
+        student.status === "Late"   
   ).length
   const attendanceRate = Math.round(
     (presentCount / students.length) * 100
-  )
+  );
+  const saveAttendance = () => {
+    const attendanceData = {
+        date: date,
+        topic: topic,
+        students: students,
+    };
+    console.log("Attendance saved:", attendanceData);
+    alert("Attendance saved successfully!");
+  };
+
   return (
     <div>
       <div className="mb-8 flex items-center justify-between">
@@ -50,9 +65,12 @@ function Attendance() {
             Record and manage session attendance.
           </p>
         </div>
-        <button className="rounded-lg bg-purple-600 px-5 py-3 font-medium text-white hover:bg-purple-700">
-          Save Attendance
+        <button
+        onClick={saveAttendance}
+        className="rounded-lg bg-purple-600 px-5 py-3 font-medium text-white hover:bg-purple-700">
+            Save Attendance
         </button>
+
       </div>
       <div className="mb-6 grid grid-cols-1 gap-4 rounded-xl bg-white p-5 shadow md:grid-cols-4">
         <div>
@@ -61,7 +79,8 @@ function Attendance() {
           </label>
           <input
             type="date"
-            defaultValue="2026-08-14"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
             className="w-full rounded-lg border px-3 py-2"/>
         </div>
 
@@ -72,6 +91,8 @@ function Attendance() {
           <input
             type="text"
             placeholder="Enter session topic"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
             className="w-full rounded-lg border px-3 py-2"/>
         </div>
 
@@ -183,6 +204,6 @@ function Attendance() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 export default Attendance
