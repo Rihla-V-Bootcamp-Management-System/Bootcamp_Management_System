@@ -2,11 +2,13 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useAuth from "../context/useAuth";
 
+import { Eye, EyeOff } from "lucide-react";
 
 function Login({ onRegister}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -39,11 +41,11 @@ function Login({ onRegister}) {
 
       <div className="w-full max-w-md rounded-xl bg-white p-8 shadow">
 
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-3xl text-black  font-bold">
           Welcome Back
         </h1>
 
-        <p className="mt-4 text-gray-600 ">
+        <p className="mt-4 text-gray-900 ">
           Log in to your ASTU MSJ Bootcamp account.
         </p>
 
@@ -58,7 +60,7 @@ function Login({ onRegister}) {
           className="mt-8 space-y-5"
         >
           <div>
-            <label className="block mb-2 font-medium">
+            <label className=" text-black block mb-2 font-medium">
               Email
             </label>
 
@@ -67,22 +69,32 @@ function Login({ onRegister}) {
               placeholder="you@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border px-4 py-3 outline-none focus:border-blue-600"
+              className=" text-gray-600  border-gray-600 hover:border-red-300 w-full rounded-lg border px-4 py-3 outline-none focus:border-blue-600"
             />
           </div>
 
           <div>
-            <label className="block mb-2 font-medium">
+            <label className=" text-black block mb-2 font-medium">
               Password
             </label>
+<div className="relative">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Enter your password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className="w-full rounded-lg border border-gray-700 px-4 py-3 pr-12 outline-none focus:border-blue-600"
+  />
 
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border px-4 py-3 outline-none focus:border-blue-600"
-            />
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+  >
+    {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+  </button>
+</div>
+           
           </div>
 
           <div className="text-right">
@@ -101,18 +113,6 @@ function Login({ onRegister}) {
             Login
           </button>
         </form>
-
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account?{" "}
-          <button
-            type="button"
-            onClick={onRegister}
-            className="text-blue-600 hover:underline"
-               >
-  Register
-</button>
-        </p>
-
       </div>
     </main>
   );

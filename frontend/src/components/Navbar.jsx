@@ -67,7 +67,7 @@ function Navbar({ onLogin, onRegister }) {
             onClick={onRegister}
             className="rounded-md bg-[#1769e0] px-5 py-2.5 font-semibold text-white transition hover:bg-[#2878ed]"
           >
-            Register
+            Apply now
           </button>
         </div>
 

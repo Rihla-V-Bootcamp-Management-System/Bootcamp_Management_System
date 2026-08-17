@@ -1,9 +1,9 @@
 import { Routes, Route } from "react-router-dom";
-
+import FirstLogin from "../pages/FirstLogin";
 import Landing from "../pages/Landing";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-
+import SetPassword from "../pages/SetPassword";
 import ProtectedRoute from "../components/ProtectedRoute";
 import RoleRoute from "../components/RoleRoute";
 
@@ -16,7 +16,8 @@ import PublicApplication from "../pages/PublicApplication";
 function AppRoutes() {
   return (
     <Routes>
-
+      <Route path="/set-password" element={<SetPassword />} />
+      <Route path="/first-login" element={<FirstLogin />} />
       <Route path="/apply" element={<PublicApplication />} />
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
