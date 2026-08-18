@@ -36,7 +36,7 @@ const registrationSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 1,
-      max: 5,
+      max: 3,
     },
     educationInstitution: {
       type: String,
@@ -91,7 +91,7 @@ const registrationSchema = new mongoose.Schema(
     hoursPerWeek: {
       type: Number,
       required: true,
-      min: 25,
+      min: 35,
     },
     canCommitFiveHoursPerDay: {
       type: Boolean,
