@@ -5,6 +5,7 @@ const createRegistration = async (req, res) => {
   try {
     const {
       seasonId,
+      batchId,
       fullName,
       gender,
       email,
@@ -25,6 +26,7 @@ const createRegistration = async (req, res) => {
 
     if (
       !seasonId ||
+      !batchId ||
       !fullName ||
       !gender ||
       !email ||
