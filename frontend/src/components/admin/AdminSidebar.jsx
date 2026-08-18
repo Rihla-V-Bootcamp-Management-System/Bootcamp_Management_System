@@ -17,6 +17,14 @@ function AdminSidebar() {
       name: "Announcements",
       path: "/admin/announcements",
     },
+    {
+      name: "Registrations",
+      path: "/admin/registrations",
+    },
+    {
+      name: "Applications",
+      path: "/admin/applications",
+    },
   ];
 
   return (
