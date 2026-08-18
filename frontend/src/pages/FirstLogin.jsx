@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { KeyRound, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import apiClient from "../services/apiClient";
 
 function FirstLogin() {
   const navigate = useNavigate();
@@ -27,17 +28,30 @@ function FirstLogin() {
 
     setLoading(true);
 
-    // Temporary simulation until backend is ready
-    setTimeout(() => {
+    try {
+      const response = await apiClient.post("/auth/verify-otp", {
+        userID: userId.trim(),
+        otp: otp.trim(),
+      });
+
+      if (response.data.verified) {
+        navigate("/set-password", {
+          state: {
+            userID: userId.trim(),
+            otp: otp.trim(),
+          },
+        });
+      }
+    } catch (error) {
+      console.error("OTP verification failed:", error);
+
+      setError(
+        error.response?.data?.message ||
+          "OTP verification failed. Please try again."
+      );
+    } finally {
       setLoading(false);
-
-      // Clear the fields
-      setUserId("");
-      setOtp("");
-
-      // Go to Set Password page
-      navigate("/set-password");
-    }, 1000);
+    }
   };
 
   return (
@@ -62,7 +76,6 @@ function FirstLogin() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
 
-          {/* User ID */}
           <div>
             <label
               htmlFor="userId"
@@ -88,7 +101,6 @@ function FirstLogin() {
             </div>
           </div>
 
-          {/* OTP */}
           <div>
             <label
               htmlFor="otp"

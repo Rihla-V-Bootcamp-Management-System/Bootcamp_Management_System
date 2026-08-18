@@ -8,7 +8,11 @@ export function AuthProvider({ children }) {
     const savedUser = localStorage.getItem("user");
 
     if (savedUser) {
-      return JSON.parse(savedUser);
+      try {
+        return JSON.parse(savedUser);
+      } catch {
+        localStorage.removeItem("user");
+      }
     }
 
     return null;
@@ -18,14 +22,14 @@ export function AuthProvider({ children }) {
     return localStorage.getItem("token");
   });
 
+  
   const login = async (email, password) => {
     const response = await apiClient.post("/auth/login", {
       email,
       password,
     });
 
-    const user = response.data.user;
-    const token = response.data.token;
+    const { user, token } = response.data;
 
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
@@ -34,6 +38,15 @@ export function AuthProvider({ children }) {
     setToken(token);
 
     return response.data;
+  };
+
+  
+  const completeFirstLogin = (user, token) => {
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+
+    setUser(user);
+    setToken(token);
   };
 
   const logout = () => {
@@ -50,6 +63,7 @@ export function AuthProvider({ children }) {
         user,
         token,
         login,
+        completeFirstLogin,
         logout,
       }}
     >

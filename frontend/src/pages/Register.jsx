@@ -11,14 +11,17 @@ function Register() {
 
   const navigate = useNavigate();
 
+  
+  const seasonId = "PUT_REAL_2026_SEASON_ID_HERE";
+
   useEffect(() => {
     const fetchApplicationForm = async () => {
       try {
         const response = await apiClient.get(
-          "/application-forms/2026"
+          `/application-forms/${seasonId}`
         );
 
-        setSchema(response.data.fields);
+        setSchema(response.data.fields || []);
       } catch (error) {
         console.error("Failed to fetch form:", error);
 
@@ -32,28 +35,38 @@ function Register() {
     };
 
     fetchApplicationForm();
-  }, []);
+  }, [seasonId]);
 
   const handleSubmit = async (responses) => {
     try {
       setError("");
       setSuccess("");
 
+      /*
+        The dynamic form should contain these
+        fixed registration fields:
+
+        fullName
+        email
+        phone
+        batchId
+
+        Everything else belongs inside responses.
+      */
+
+      const { fullName, email, phone, batchId, ...dynamicResponses } =
+        responses;
+
       const registrationData = {
-        // Temporary until we get the real Season ObjectId
-        seasonId: "2026",
-
-        // Temporary until the real Batch ID is provided
-        batchId: "PUT_BATCH_ID_HERE",
-
-        // Send the application fields directly
-        ...responses,
+        seasonId,
+        fullName,
+        email,
+        phone,
+        batchId,
+        responses: dynamicResponses,
       };
 
-      console.log(
-        "Sending registration:",
-        registrationData
-      );
+      console.log("Sending registration:", registrationData);
 
       const response = await apiClient.post(
         "/registrations",
@@ -71,10 +84,7 @@ function Register() {
 
       return true;
     } catch (error) {
-      console.error(
-        "Registration failed:",
-        error
-      );
+      console.error("Registration failed:", error);
 
       setError(
         error.response?.data?.message ||

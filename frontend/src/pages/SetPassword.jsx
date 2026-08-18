@@ -1,18 +1,30 @@
 import { useState } from "react";
 import { LockKeyhole } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import apiClient from "../services/apiClient";
 
 function SetPassword() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+
+  const userID = location.state?.userID;
+  const otp = location.state?.otp;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setError("");
+
+    if (!userID || !otp) {
+      setError("Your OTP verification session is missing.");
+      return;
+    }
 
     if (!password) {
       setError("Please enter a new password.");
@@ -24,40 +36,52 @@ function SetPassword() {
       return;
     }
 
-    if (!confirmPassword) {
-      setError("Please confirm your password.");
-      return;
-    }
-
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
 
-    setLoading(true);
+    try {
+      setLoading(true);
 
-   setTimeout(() => {
-  setLoading(false);
+      const response = await apiClient.post(
+        "/auth/set-password",
+        {
+          userID,
+          otp,
+          newPassword: password,
+        }
+      );
 
-  setPassword("");
-  setConfirmPassword("");
+      const { token, user } = response.data;
 
-  navigate("/student");
-}, 1000);
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      setPassword("");
+      setConfirmPassword("");
+
+      navigate("/student");
+    } catch (error) {
+      setError(
+        error.response?.data?.message ||
+          "Failed to set password."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
 
-       
         <div className="flex justify-center mb-5">
           <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
             <LockKeyhole className="w-7 h-7 text-blue-600" />
           </div>
         </div>
 
-       
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">
             Set New Password
@@ -70,7 +94,6 @@ function SetPassword() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
 
-          
           <div>
             <label
               htmlFor="password"
@@ -91,12 +114,11 @@ function SetPassword() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter new password"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
-          
           <div>
             <label
               htmlFor="confirmPassword"
@@ -115,31 +137,30 @@ function SetPassword() {
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) =>
+                  setConfirmPassword(e.target.value)
+                }
                 placeholder="Confirm new password"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
-         
           {error && (
             <p className="text-sm text-red-500">
               {error}
             </p>
           )}
 
-         
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
             {loading ? "Setting Password..." : "Set Password"}
           </button>
         </form>
 
-      
         <p className="text-xs text-gray-400 text-center mt-6">
           Your password must contain at least 8 characters.
         </p>
