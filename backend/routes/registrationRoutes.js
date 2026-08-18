@@ -247,4 +247,12 @@ router.patch("/:id/status", async (req, res) => {
   }
 });
 
+const {
+  createRegistration,
+} = require("../controllers/registrationControllers");
+
+const router = express.Router();
+
+router.post("/", createRegistration);
+
 module.exports = router;
