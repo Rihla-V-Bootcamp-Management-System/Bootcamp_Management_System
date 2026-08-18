@@ -146,6 +146,12 @@ router.post("/verify-otp", async (req, res) => {
       });
     }
 
+    if (user.otpVerified === true) {
+      return res.status(400).json({
+        message: "OTP has already been used",
+      });
+    }
+
     if (!user.otp || !user.otpExpiresAt) {
       return res.status(400).json({
         message: "No valid OTP found",
@@ -164,9 +170,21 @@ router.post("/verify-otp", async (req, res) => {
       });
     }
 
+    user.otpVerified = true;
+
+    await user.save();
+
+    const verifiedUser = await User.findOne({ userID });
+
+    if (!verifiedUser || verifiedUser.otpVerified !== true) {
+      return res.status(500).json({
+        message: "OTP verification could not be saved",
+      });
+    }
+
     res.json({
       message: "OTP verified successfully",
-      userID: user.userID,
+      userID: verifiedUser.userID,
       verified: true,
     });
   } catch (error) {
@@ -227,12 +245,19 @@ router.post("/set-password", async (req, res) => {
       });
     }
 
+    if (!user.otpVerified) {
+      return res.status(400).json({
+        message: "OTP verification is required first",
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     user.password = hashedPassword;
     user.mustResetPassword = false;
-    user.otp = undefined;
-    user.otpExpiresAt = undefined;
+    user.otp = null;
+    user.otpExpiresAt = null;
+    user.otpVerified = false;
 
     await user.save();
 

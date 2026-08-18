@@ -29,14 +29,36 @@ router.post("/", async (req, res) => {
       });
     }
 
+    const { fullName, email, phone, batchId, department, experience } =
+      req.body;
+
+    if (!fullName || !email || !phone || !batchId) {
+      return res.status(400).json({
+        message: "Full name, email, phone, and batch ID are required",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingRegistration = await Registration.findOne({
+      email: normalizedEmail,
+      batchId,
+    });
+
+    if (existingRegistration) {
+      return res.status(409).json({
+        message: "You have already registered for this batch",
+      });
+    }
+
     const registration = await Registration.create({
-      fullName: req.body.fullName,
-      email: req.body.email,
-      phone: req.body.phone,
-      batchId: req.body.batchId,
+      fullName: fullName.trim(),
+      email: normalizedEmail,
+      phone: phone.trim(),
+      batchId: batchId.trim(),
       responses: {
-        department: req.body.department || "",
-        experience: req.body.experience || "",
+        department: department || "",
+        experience: experience || "",
       },
       status: "Submitted",
     });
@@ -47,6 +69,12 @@ router.post("/", async (req, res) => {
     });
   } catch (error) {
     console.error("Registration error:", error);
+
+    if (error.code === 11000) {
+      return res.status(409).json({
+        message: "This email has already been registered for this batch",
+      });
+    }
 
     res.status(500).json({
       message: "Server error",
@@ -159,14 +187,9 @@ router.patch("/:id/status", async (req, res) => {
       try {
         await sendAcceptedEmail(registration, createdUser);
         emailSent = true;
-        console.log(
-          `Accepted email sent to ${registration.email}`
-        );
+        console.log(`Accepted email sent to ${registration.email}`);
       } catch (emailError) {
-        console.error(
-          "Accepted email error:",
-          emailError.message
-        );
+        console.error("Accepted email error:", emailError.message);
       }
 
       return res.status(200).json({
@@ -195,23 +218,16 @@ router.patch("/:id/status", async (req, res) => {
       if (status === "Shortlisted") {
         await sendShortlistedEmail(registration);
         emailSent = true;
-        console.log(
-          `Shortlisted email sent to ${registration.email}`
-        );
+        console.log(`Shortlisted email sent to ${registration.email}`);
       }
 
       if (status === "Rejected") {
         await sendRejectedEmail(registration);
         emailSent = true;
-        console.log(
-          `Rejected email sent to ${registration.email}`
-        );
+        console.log(`Rejected email sent to ${registration.email}`);
       }
     } catch (emailError) {
-      console.error(
-        "Status email error:",
-        emailError.message
-      );
+      console.error("Status email error:", emailError.message);
     }
 
     res.status(200).json({
