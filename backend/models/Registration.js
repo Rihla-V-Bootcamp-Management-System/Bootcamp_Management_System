@@ -2,15 +2,18 @@ const mongoose = require("mongoose");
 
 const registrationSchema = new mongoose.Schema(
   {
+
     seasonId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
+
     fullName: {
       type: String,
       required: true,
       trim: true,
     },
+
     gender: {
       type: String,
       required: true,
@@ -23,10 +26,17 @@ const registrationSchema = new mongoose.Schema(
       trim: true,
     },
     phoneNumber: {
+
       type: String,
       required: true,
       trim: true,
     },
+
+    batchId: {
+      type: String,
+      required: true,
+    },
+
     telegramUsername: {
       type: String,
       required: true,
@@ -149,6 +159,7 @@ const registrationSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+
     decidedAt: {
       type: Date,
       default: null,

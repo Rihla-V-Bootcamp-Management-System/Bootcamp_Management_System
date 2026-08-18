@@ -1,13 +1,14 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const authMiddleware = require("../middleware/authMiddleware");
+const roleMiddleware = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
-// Register
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -29,7 +30,7 @@ router.post("/register", async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: role || "employee",
+      role: "student",
     });
 
     res.status(201).json({
@@ -49,8 +50,9 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login
 router.post("/login", async (req, res) => {
+  console.log("LOGIN ROUTE HIT");
+
   try {
     const { email, password } = req.body;
 
@@ -86,5 +88,42 @@ router.post("/login", async (req, res) => {
     });
   }
 });
+
+router.get("/:id", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Invalid user ID",
+    });
+  }
+});
+
+router.get(
+  "/admin/test",
+  authMiddleware,
+  roleMiddleware("admin"),
+  (req, res) => {
+    res.json({
+      message: "Admin access granted",
+      user: {
+        id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role,
+      },
+    });
+  }
+);
 
 module.exports = router;

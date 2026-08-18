@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    userID: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
     name: {
       type: String,
       required: true,
@@ -23,8 +29,28 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["admin", "supervisor", "employee"],
-      default: "employee",
+      enum: ["admin", "mentor", "student"],
+      default: "student",
+    },
+
+    mustResetPassword: {
+      type: Boolean,
+      default: false,
+    },
+
+    otp: {
+      type: String,
+      default: null,
+    },
+
+    otpExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    otpVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   {
