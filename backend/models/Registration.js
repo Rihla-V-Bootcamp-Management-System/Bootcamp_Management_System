@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const registrationSchema = new mongoose.Schema(
   {
+    seasonId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
+
     fullName: {
       type: String,
       required: true,
@@ -11,7 +16,7 @@ const registrationSchema = new mongoose.Schema(
     gender: {
       type: String,
       required: true,
-      enum: ["Male", "Female"],
+      enum: ["Male", "Female", "Other", "Prefer not to say"],
     },
 
     email: {
@@ -47,10 +52,6 @@ const registrationSchema = new mongoose.Schema(
         "Adama University",
         "Addis Ababa University",
         "Jimma University",
-        "Hawassa University",
-        "Bahir Dar University",
-        "Mekelle University",
-        "Gondar University",
         "Other",
       ],
     },
@@ -85,31 +86,26 @@ const registrationSchema = new mongoose.Schema(
 
     githubLink: {
       type: String,
+      required: true,
       trim: true,
-      default: "",
     },
 
     codeforcesLink: {
       type: String,
+      required: true,
       trim: true,
-      default: "",
     },
 
     leetcodeLink: {
       type: String,
+      required: true,
       trim: true,
-      default: "",
     },
 
     hoursPerWeek: {
       type: Number,
       required: true,
       min: 35,
-    },
-
-    canCommitFiveHoursPerDay: {
-      type: Boolean,
-      required: true,
     },
 
     motivation: {
@@ -120,16 +116,27 @@ const registrationSchema = new mongoose.Schema(
       maxlength: 1000,
     },
 
-    seasonId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Season",
-      required: true,
+    responses: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
 
     status: {
       type: String,
-      enum: ["SUBMITTED", "SHORTLISTED", "REJECTED"],
+      enum: [
+        "SUBMITTED",
+        "SHORTLISTED",
+        "INTERVIEWED",
+        "ACCEPTED",
+        "REJECTED",
+      ],
       default: "SUBMITTED",
+    },
+
+    interviewNotes: {
+      type: String,
+      trim: true,
+      default: "",
     },
 
     reviewedBy: {
@@ -148,6 +155,16 @@ const registrationSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+
+    submittedAt: {
+      type: Date,
+      default: Date.now,
+    },
+
+    decidedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -159,4 +176,7 @@ registrationSchema.index(
   { unique: true }
 );
 
-module.exports = mongoose.model("Registration", registrationSchema);
+module.exports = mongoose.model(
+  "Registration",
+  registrationSchema
+);

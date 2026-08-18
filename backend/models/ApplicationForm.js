@@ -4,14 +4,17 @@ const fieldSchema = new mongoose.Schema(
   {
     id: {
       type: String,
-      required: true
+      required: true,
+      trim: true,
     },
     label: {
       type: String,
-      required: true
+      required: true,
+      trim: true,
     },
     type: {
       type: String,
+      required: true,
       enum: [
         "text",
         "textarea",
@@ -19,18 +22,17 @@ const fieldSchema = new mongoose.Schema(
         "radio",
         "checkbox",
         "number",
-        "date"
+        "date",
       ],
-      required: true
     },
     required: {
       type: Boolean,
-      default: false
+      default: false,
     },
     options: {
       type: [String],
-      default: []
-    }
+      default: [],
+    },
   },
   { _id: false }
 );
@@ -38,17 +40,17 @@ const fieldSchema = new mongoose.Schema(
 const applicationFormSchema = new mongoose.Schema(
   {
     seasonId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
-      unique: true
+      unique: true,
     },
     fields: {
       type: [fieldSchema],
-      required: true
-    }
+      default: [],
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 

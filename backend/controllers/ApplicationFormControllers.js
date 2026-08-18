@@ -1,125 +1,113 @@
-const Registration = require("../models/Registration");
+const ApplicationForm = require("../models/ApplicationForm");
 
-const createRegistration = async (req, res) => {
+const createApplicationForm = async (req, res) => {
   try {
-    const {
-      seasonId,
-      batchId,
-      fullName,
-      gender,
-      email,
-      phoneNumber,
-      telegramUsername,
-      educationLevel,
-      educationInstitution,
-      fieldOfStudy,
-      studentId,
-      programmingExperience,
-      githubLink,
-      codeforcesLink,
-      leetcodeLink,
-      hoursPerWeek,
-      canCommitFiveHoursPerDay,
-      motivation,
-    } = req.body;
+    const { seasonId } = req.params;
+    const { fields } = req.body;
 
-    if (
-      !seasonId ||
-      !batchId ||
-      !fullName ||
-      !gender ||
-      !email ||
-      !phoneNumber ||
-      !telegramUsername ||
-      educationLevel === undefined ||
-      !educationInstitution ||
-      !fieldOfStudy ||
-      !studentId ||
-      !programmingExperience ||
-      hoursPerWeek === undefined ||
-      canCommitFiveHoursPerDay === undefined ||
-      !motivation
-    ) {
+    if (!seasonId) {
       return res.status(400).json({
-        message: "All required fields must be provided",
+        message: "seasonId is required",
       });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    if (!Array.isArray(fields)) {
+      return res.status(400).json({
+        message: "fields must be an array",
+      });
+    }
 
-    const existingRegistration = await Registration.findOne({
-      email: normalizedEmail,
+    const existingForm = await ApplicationForm.findOne({
       seasonId,
     });
 
-    if (existingRegistration) {
+    if (existingForm) {
       return res.status(409).json({
-        message: "You have already applied for this season.",
+        message: "Application form already exists for this season",
       });
     }
 
-    if (!["Male", "Female"].includes(gender)) {
-      return res.status(400).json({
-        message: "Gender must be Male or Female",
-      });
-    }
-
-    if (educationLevel < 1 || educationLevel > 3) {
-      return res.status(400).json({
-        message: "Education level must be between 1 and 3",
-      });
-    }
-
-    if (hoursPerWeek < 5) {
-      return res.status(400).json({
-        message: "Hours per week must be at least 5",
-      });
-    }
-
-    if (canCommitFiveHoursPerDay !== true) {
-      return res.status(400).json({
-        message: "Applicant must be able to commit at least 5 hours per day",
-      });
-    }
-
-    if (motivation.length < 20 || motivation.length > 1000) {
-      return res.status(400).json({
-        message: "Motivation must be between 20 and 1000 characters",
-      });
-    }
-
-    const registration = await Registration.create({
+    const applicationForm = await ApplicationForm.create({
       seasonId,
-      batchId,
-      fullName,
-      gender,
-      email: normalizedEmail,
-      phoneNumber,
-      telegramUsername,
-      educationLevel,
-      educationInstitution,
-      fieldOfStudy,
-      studentId,
-      programmingExperience,
-      githubLink,
-      codeforcesLink,
-      leetcodeLink,
-      hoursPerWeek,
-      canCommitFiveHoursPerDay,
-      motivation,
+      fields,
     });
 
     return res.status(201).json({
-      message: "Application submitted successfully",
-      registration,
+      message: "Application form created successfully",
+      applicationForm,
     });
   } catch (error) {
     return res.status(500).json({
-      message: error.message,
+      message: "Failed to create application form",
+      error: error.message,
+    });
+  }
+};
+
+const updateApplicationForm = async (req, res) => {
+  try {
+    const { seasonId } = req.params;
+    const { fields } = req.body;
+
+    if (!Array.isArray(fields)) {
+      return res.status(400).json({
+        message: "fields must be an array",
+      });
+    }
+
+    const applicationForm =
+      await ApplicationForm.findOneAndUpdate(
+        { seasonId },
+        { fields },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+    if (!applicationForm) {
+      return res.status(404).json({
+        message: "Application form not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Application form updated successfully",
+      applicationForm,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to update application form",
+      error: error.message,
+    });
+  }
+};
+
+const getApplicationForm = async (req, res) => {
+  try {
+    const { seasonId } = req.params;
+
+    const applicationForm = await ApplicationForm.findOne({
+      seasonId,
+    });
+
+    if (!applicationForm) {
+      return res.status(404).json({
+        message: "Application form not found",
+      });
+    }
+
+    return res.status(200).json(applicationForm);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to get application form",
+      error: error.message,
     });
   }
 };
 
 module.exports = {
-  createRegistration,
+  createApplicationForm,
+  updateApplicationForm,
+  getApplicationForm,
 };

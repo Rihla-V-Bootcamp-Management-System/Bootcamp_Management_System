@@ -6,9 +6,8 @@ require('dotenv').config();
 const userRoutes = require('./routes/userRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const progressRoutes = require('./routes/progressRoutes');
-const applicationFormRoutes = require('./routes/ApplicationFormRoutes');
-const registrationRoutes = require('./routes/registrationRoutes');
-
+const applicationFormRoutes = require("./routes/ApplicationFormRoutes");
+const registrationRoutes = require("./routes/registrationRoutes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 

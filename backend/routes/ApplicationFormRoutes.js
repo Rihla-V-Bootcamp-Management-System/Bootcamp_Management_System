@@ -1,7 +1,15 @@
 const express = require("express");
-const registrationControllers = require("../controllers/registrationControllers");
+
+const {
+  createApplicationForm,
+  updateApplicationForm,
+  getApplicationForm,
+} = require("../controllers/ApplicationFormControllers");
+
 const router = express.Router();
 
-router.post("/", registrationControllers.createRegistration);
+router.post("/:seasonId", createApplicationForm);
+router.patch("/:seasonId", updateApplicationForm);
+router.get("/:seasonId", getApplicationForm);
 
 module.exports = router;
