@@ -13,6 +13,10 @@ import AdminDashboard from "../pages/AdminDashboard";
 import MentorDashboard from "../pages/MentorDashboard";
 import StudentDashboard from "../pages/StudentDashboard";
 import PublicApplication from "../pages/PublicApplication";
+import StudentAttendance from "../pages/StudentAttendance";
+import StudentProgress from "../pages/StudentProgress";
+import StudentGrades from "../pages/StudentGrades";
+
 function AppRoutes() {
   return (
     <Routes>
@@ -106,8 +110,24 @@ function AppRoutes() {
       </Route>
 
 
-     
-      <Route
+     {/* TEMPORARY: Attendance UI testing */}
+<Route
+  path="/test-student-attendance"
+  element={<StudentAttendance />}
+/>
+     <Route
+  path="/test-progress"
+  element={<StudentProgress />}
+/>
+<Route
+  path="/test-dashboard"
+  element={<StudentDashboard />}
+/>
+<Route
+  path="/test-grades"
+  element={<StudentGrades />}
+/>
+     <Route
         element={
           <ProtectedRoute>
             <RoleRoute allowedRoles={["student"]}>
@@ -120,12 +140,12 @@ function AppRoutes() {
 
         <Route
           path="/student/attendance"
-          element={<div>Attendance Page</div>}
+          element={<StudentAttendance />}
         />
 
         <Route
           path="/student/progress"
-          element={<div>Progress Page</div>}
+          element={<StudentProgress />}
         />
 
         <Route
@@ -135,7 +155,7 @@ function AppRoutes() {
 
         <Route
           path="/student/grades"
-          element={<div>Grades Page</div>}
+          element={<StudentGrades />}
         />
 
         <Route

@@ -24,7 +24,7 @@ function DashboardLayout({ role }) {
 
         <Header />
 
-        <main className="flex-1 p-8 bg-gray-50">
+        <main className="flex-1 bg-slate-100 p-8">
           <Outlet />
         </main>
 
