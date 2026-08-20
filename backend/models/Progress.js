@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const progressSchema = new mongoose.Schema(
   {
-    member: {
+    student: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Member",
+      ref: "User",
       required: true,
     },
 

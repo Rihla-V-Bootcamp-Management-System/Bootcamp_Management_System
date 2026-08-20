@@ -45,16 +45,9 @@ function FirstLogin() {
             otp: otp.trim(),
           },
         });
-
-        return;
       }
-
-      setError("OTP verification was not successful.");
     } catch (error) {
-      console.error(
-        "OTP verification failed:",
-        error
-      );
+      console.error("OTP verification failed:", error);
 
       setError(
         error.response?.data?.message ||

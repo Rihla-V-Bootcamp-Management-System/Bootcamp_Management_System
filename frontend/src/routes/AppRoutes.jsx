@@ -10,9 +10,18 @@ import RoleRoute from "../components/RoleRoute";
 import DashboardLayout from "../layouts/DashboardLayout";
 
 import AdminDashboard from "../pages/AdminDashboard";
-import MentorDashboard from "../pages/MentorDashboard";
+
 import MentorAttendance from "../pages/MentorAttendance";
 
+import AdminDashboard from "../pages/admin/AdminDashboard";
+
+import Users from "../pages/admin/Users";
+import Applications from "../pages/admin/Applications";
+import Batches from "../pages/admin/Batches";
+import Registration from "../pages/admin/Registration";
+import BatchDetails from "../pages/admin/BatchDetails";
+
+import MentorDashboard from "../pages/MentorDashboard";
 import StudentDashboard from "../pages/StudentDashboard";
 import PublicApplication from "../pages/PublicApplication";
 function AppRoutes() {
@@ -34,47 +43,58 @@ function AppRoutes() {
             </RoleRoute>
           </ProtectedRoute>
         }
-      >
+      />
         <Route path="/admin" element={<AdminDashboard />} />
 
-        <Route
-          path="/admin/users"
-          element={<div>Users Page</div>}
-        />
+    <Route
+      path="/admin/users"
+      element={<Users />}
+    />
 
-        <Route
-          path="/admin/batches"
-          element={<div>Batches Page</div>}
-        />
+    <Route
+      path="/admin/applications"
+      element={<Applications />}
+    />
 
-        <Route
-          path="/admin/announcements"
-          element={<div>Announcements Page</div>}
-        />
+    <Route
+      path="/admin/batches"
+      element={<Batches />}
+    />
 
-        <Route
-          path="/admin/analytics"
-          element={<div>Analytics Page</div>}
-        />
+    <Route
+      path="/admin/batches/:id"
+      element={<BatchDetails />}
+    />
 
-        <Route
-          path="/admin/settings"
-          element={<div>Settings Page</div>}
-        />
-      </Route>
+    <Route
+      path="/admin/registrations"
+      element={<Registration />}
+    />
+
+    <Route
+      path="/admin/announcements"
+      element={<div>Announcements Page</div>}
+    />
+
+    <Route
+      path="/admin/analytics"
+      element={<div>Analytics Page</div>}
+    />
+
+    <Route
+      path="/admin/settings"
+      element={<div>Settings Page</div>}
+    />
 
 
-     
 
-      <Route element={<DashboardLayout role="mentor" />}>
-        // element={
-        //   <ProtectedRoute>
-        //     <RoleRoute allowedRoles={["mentor"]}>
-        //       <DashboardLayout role="mentor" />
-        //     </RoleRoute>
-        //   </ProtectedRoute>
-        }
-      
+
+        {/* <Route element={ <ProtectedRoute>
+         <RoleRoute allowedRoles={["mentor"]}> 
+         <DashboardLayout role="mentor" /> 
+         </RoleRoute> 
+         </ProtectedRoute> } /> */}
+
         <Route path="/mentor" element={<MentorDashboard />} />
 
         <Route
@@ -106,10 +126,8 @@ function AppRoutes() {
           path="/mentor/announcements"
           element={<div>Announcements Page</div>}
         />
-      </Route>
 
-
-     
+                
       <Route
         element={
           <ProtectedRoute>

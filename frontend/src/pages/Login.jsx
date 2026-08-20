@@ -23,7 +23,6 @@ function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");

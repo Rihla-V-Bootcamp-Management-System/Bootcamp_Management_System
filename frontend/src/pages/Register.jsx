@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import DynamicForm from "../components/DynamicForm";
 import apiClient from "../services/apiClient";
@@ -6,90 +5,45 @@ import { useNavigate } from "react-router-dom";
 
 function Register() {
   const [schema, setSchema] = useState([]);
-  const [registrationOpen, setRegistrationOpen] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const navigate = useNavigate();
 
-  
-  const seasonId = "2026";
-
   useEffect(() => {
-    const fetchRegistrationData = async () => {
+    const fetchApplicationForm = async () => {
       try {
-        setLoading(true);
-        setError("");
-
-        
-        const settingsResponse = await apiClient.get(
-          "/registration-settings"
+        const response = await apiClient.get(
+          "/application-forms"
         );
 
-        const isOpen = settingsResponse.data.registrationOpen;
-
-        setRegistrationOpen(isOpen);
-
-        
-        if (!isOpen) {
-          return;
-        }
-
-       
-        const formResponse = await apiClient.get(
-          `/application-forms/${seasonId}`
-        );
-
-        setSchema(formResponse.data.fields || []);
+        setSchema(response.data.fields || []);
       } catch (error) {
         console.error(
-          "Failed to load registration:",
+          "Failed to fetch application form:",
           error
         );
 
         setError(
           error.response?.data?.message ||
-            "Failed to load registration."
+            "Failed to load application form"
         );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRegistrationData();
-  }, [seasonId]);
+    fetchApplicationForm();
+  }, []);
 
   const handleSubmit = async (responses) => {
     try {
       setError("");
       setSuccess("");
 
-      
-      const {
-        fullName,
-        email,
-        phone,
-        batchId,
-        ...dynamicResponses
-      } = responses;
-
-     
-      if (!fullName || !email || !phone || !batchId) {
-        setError(
-          "Full name, email, phone, and batch are required."
-        );
-
-        return false;
-      }
-
       const registrationData = {
-        seasonId,
-        fullName,
-        email,
-        phone,
-        batchId,
-        responses: dynamicResponses,
+        ...responses,
       };
 
       console.log(
@@ -127,11 +81,12 @@ function Register() {
     }
   };
 
+  
 
   if (loading) {
     return (
       <div className="py-10 text-center">
-        Checking registration status...
+        Loading application form...
       </div>
     );
   }
@@ -183,11 +138,17 @@ function Register() {
         Please complete the application form below.
       </p>
 
+      {/* ==============================
+          SUCCESS MESSAGE
+      ============================== */}
+
       {success && (
         <div className="mt-6 rounded-lg bg-green-100 px-4 py-3 text-green-700">
           {success}
         </div>
       )}
+
+   
 
       {error && (
         <div className="mt-6 rounded-lg bg-red-100 px-4 py-3 text-red-700">
@@ -195,12 +156,18 @@ function Register() {
         </div>
       )}
 
+   
+
       <div className="mt-8">
         <DynamicForm
           schema={schema}
           onSubmit={handleSubmit}
         />
       </div>
+
+      {/* ==============================
+          FIRST LOGIN
+      ============================== */}
 
       <div className="mt-8 border-t border-gray-200 pt-6 text-center">
         <p className="text-sm text-gray-500">
@@ -224,4 +191,3 @@ function Register() {
 }
 
 export default Register;
-

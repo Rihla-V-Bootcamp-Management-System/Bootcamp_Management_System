@@ -6,8 +6,6 @@ import { toast } from "react-hot-toast";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const navigate = useNavigate();
-
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
 
