@@ -251,7 +251,7 @@ const {
   createRegistration,
 } = require("../controllers/registrationControllers");
 
-const router = express.Router();
+
 
 router.post("/", createRegistration);
 
