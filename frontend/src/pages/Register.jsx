@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import DynamicForm from "../components/DynamicForm";
 import apiClient from "../services/apiClient";
@@ -5,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 function Register() {
   const [schema, setSchema] = useState([]);
+  const [registrationOpen, setRegistrationOpen] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -12,29 +14,50 @@ function Register() {
   const navigate = useNavigate();
 
   
-  const seasonId = "PUT_REAL_2026_SEASON_ID_HERE";
+  const seasonId = "2026";
 
   useEffect(() => {
-    const fetchApplicationForm = async () => {
+    const fetchRegistrationData = async () => {
       try {
-        const response = await apiClient.get(
+        setLoading(true);
+        setError("");
+
+        
+        const settingsResponse = await apiClient.get(
+          "/registration-settings"
+        );
+
+        const isOpen = settingsResponse.data.registrationOpen;
+
+        setRegistrationOpen(isOpen);
+
+        
+        if (!isOpen) {
+          return;
+        }
+
+       
+        const formResponse = await apiClient.get(
           `/application-forms/${seasonId}`
         );
 
-        setSchema(response.data.fields || []);
+        setSchema(formResponse.data.fields || []);
       } catch (error) {
-        console.error("Failed to fetch form:", error);
+        console.error(
+          "Failed to load registration:",
+          error
+        );
 
         setError(
           error.response?.data?.message ||
-            "Failed to load application form"
+            "Failed to load registration."
         );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchApplicationForm();
+    fetchRegistrationData();
   }, [seasonId]);
 
   const handleSubmit = async (responses) => {
@@ -42,20 +65,23 @@ function Register() {
       setError("");
       setSuccess("");
 
-      /*
-        The dynamic form should contain these
-        fixed registration fields:
+      
+      const {
+        fullName,
+        email,
+        phone,
+        batchId,
+        ...dynamicResponses
+      } = responses;
 
-        fullName
-        email
-        phone
-        batchId
+     
+      if (!fullName || !email || !phone || !batchId) {
+        setError(
+          "Full name, email, phone, and batch are required."
+        );
 
-        Everything else belongs inside responses.
-      */
-
-      const { fullName, email, phone, batchId, ...dynamicResponses } =
-        responses;
+        return false;
+      }
 
       const registrationData = {
         seasonId,
@@ -66,7 +92,10 @@ function Register() {
         responses: dynamicResponses,
       };
 
-      console.log("Sending registration:", registrationData);
+      console.log(
+        "Sending registration:",
+        registrationData
+      );
 
       const response = await apiClient.post(
         "/registrations",
@@ -84,7 +113,10 @@ function Register() {
 
       return true;
     } catch (error) {
-      console.error("Registration failed:", error);
+      console.error(
+        "Registration failed:",
+        error
+      );
 
       setError(
         error.response?.data?.message ||
@@ -95,18 +127,48 @@ function Register() {
     }
   };
 
+
   if (loading) {
     return (
       <div className="py-10 text-center">
-        Loading application form...
+        Checking registration status...
       </div>
     );
   }
 
-  if (error && schema.length === 0) {
+  
+  if (error && schema.length === 0 && registrationOpen) {
     return (
       <div className="py-10 text-center text-red-600">
         {error}
+      </div>
+    );
+  }
+
+ 
+  if (!registrationOpen) {
+    return (
+      <div className="w-full py-16 text-center">
+        <h1 className="text-3xl font-bold text-gray-900">
+          Registration is Closed
+        </h1>
+
+        <p className="mt-4 text-gray-600">
+          The bootcamp application period is currently
+          closed.
+        </p>
+
+        <p className="mt-2 text-sm text-gray-500">
+          Please check back when registration opens.
+        </p>
+
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="mt-6 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
+        >
+          Back to Home
+        </button>
       </div>
     );
   }
@@ -162,3 +224,4 @@ function Register() {
 }
 
 export default Register;
+

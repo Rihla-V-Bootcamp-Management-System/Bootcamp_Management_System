@@ -11,6 +11,8 @@ import DashboardLayout from "../layouts/DashboardLayout";
 
 import AdminDashboard from "../pages/AdminDashboard";
 import MentorDashboard from "../pages/MentorDashboard";
+import MentorAttendance from "../pages/MentorAttendance";
+
 import StudentDashboard from "../pages/StudentDashboard";
 import PublicApplication from "../pages/PublicApplication";
 function AppRoutes() {
@@ -64,15 +66,15 @@ function AppRoutes() {
 
      
 
-      <Route
-        element={
-          <ProtectedRoute>
-            <RoleRoute allowedRoles={["mentor"]}>
-              <DashboardLayout role="mentor" />
-            </RoleRoute>
-          </ProtectedRoute>
+      <Route element={<DashboardLayout role="mentor" />}>
+        // element={
+        //   <ProtectedRoute>
+        //     <RoleRoute allowedRoles={["mentor"]}>
+        //       <DashboardLayout role="mentor" />
+        //     </RoleRoute>
+        //   </ProtectedRoute>
         }
-      >
+      
         <Route path="/mentor" element={<MentorDashboard />} />
 
         <Route
@@ -82,7 +84,7 @@ function AppRoutes() {
 
         <Route
           path="/mentor/attendance"
-          element={<div>Attendance Page</div>}
+          element={<MentorAttendance />}
         />
 
         <Route

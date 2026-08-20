@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { KeyRound, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -29,21 +30,31 @@ function FirstLogin() {
     setLoading(true);
 
     try {
-      const response = await apiClient.post("/auth/verify-otp", {
-        userID: userId.trim(),
-        otp: otp.trim(),
-      });
+      const response = await apiClient.post(
+        "/auth/verify-otp",
+        {
+          userID: userId.trim(),
+          otp: otp.trim(),
+        }
+      );
 
-      if (response.data.verified) {
+      if (response.data.verified === true) {
         navigate("/set-password", {
           state: {
             userID: userId.trim(),
             otp: otp.trim(),
           },
         });
+
+        return;
       }
+
+      setError("OTP verification was not successful.");
     } catch (error) {
-      console.error("OTP verification failed:", error);
+      console.error(
+        "OTP verification failed:",
+        error
+      );
 
       setError(
         error.response?.data?.message ||
@@ -74,8 +85,10 @@ function FirstLogin() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5"
+        >
           <div>
             <label
               htmlFor="userId"
@@ -94,7 +107,9 @@ function FirstLogin() {
                 id="userId"
                 type="text"
                 value={userId}
-                onChange={(e) => setUserId(e.target.value)}
+                onChange={(e) =>
+                  setUserId(e.target.value)
+                }
                 placeholder="Enter your User ID"
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
@@ -114,9 +129,12 @@ function FirstLogin() {
               type="text"
               inputMode="numeric"
               value={otp}
-              onChange={(e) => setOtp(e.target.value)}
+              onChange={(e) =>
+                setOtp(e.target.value)
+              }
               placeholder="Enter your OTP"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              maxLength={6}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -131,12 +149,15 @@ function FirstLogin() {
             disabled={loading}
             className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
-            {loading ? "Verifying..." : "Verify OTP"}
+            {loading
+              ? "Verifying..."
+              : "Verify OTP"}
           </button>
         </form>
 
         <p className="text-xs text-gray-400 text-center mt-6">
-          Your OTP was provided when your application was accepted.
+          Your OTP was provided when your application
+          was accepted.
         </p>
       </div>
     </main>
@@ -144,3 +165,4 @@ function FirstLogin() {
 }
 
 export default FirstLogin;
+
