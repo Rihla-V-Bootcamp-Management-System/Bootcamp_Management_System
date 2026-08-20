@@ -11,14 +11,15 @@ import {
   ShieldCheck,
   FileText,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
-
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -27,10 +28,24 @@ function Login() {
     e.preventDefault();
     setError("");
 
-    try {
-      const response = await login(email, password);
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter your email and password.");
+      return;
+    }
 
-      const user = response.user;
+    try {
+      setLoading(true);
+
+      const response = await login(
+        email.trim(),
+        password
+      );
+
+      const user = response?.user;
+
+      if (!user) {
+        throw new Error("Invalid login response.");
+      }
 
       if (user.role === "admin") {
         navigate("/admin");
@@ -38,103 +53,121 @@ function Login() {
         navigate("/mentor");
       } else if (user.role === "student") {
         navigate("/student");
+      } else {
+        setError("Your account role is not recognized.");
       }
     } catch (error) {
       setError(
-        error.response?.data?.message || "Login failed"
+        error.response?.data?.message ||
+          error.message ||
+          "Login failed. Please check your email and password."
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="w-full h-[620px] max-w-[1350px] rounded-2xl overflow-hidden bg-white shadow-2xl flex">
+    <div className="w-full">
 
-      {/* ================= LEFT SIDE ================= */}
-
-      <section
-        className="hidden md:flex w-1/2 relative bg-cover bg-center"
-        style={{
-          // backgroundImage: `url(${loginBackground})`,
-        }}
-      >
-
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-[#06103D]/20" />
-
-        <div className="relative z-10 w-full p-10 flex flex-col justify-between">
+      
+      <div className="grid w-full grid-cols-1 overflow-hidden rounded-2xl shadow-2xl md:grid-cols-2">
 
         
 
-          <div className="flex items-center gap-4">
+        <section className="relative flex min-h-[620px] overflow-hidden bg-[#06103D]">
 
-            <div className="w-14 h-14 rounded-xl border-2 border-blue-400 bg-[#07133F]/70 flex items-center justify-center">
-              <span className="text-3xl font-bold text-white">
-                A
-              </span>
-            </div>
+          
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
 
-            <div>
-              <h2 className="text-xl font-bold text-white">
-                ASTU MSJ
-              </h2>
+          <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-blue-400/10 blur-3xl" />
 
-              <p className="text-xs tracking-widest text-blue-300 font-semibold">
-                SUMMER BOOTCAMP
-              </p>
-            </div>
+          <div className="relative z-10 flex w-full flex-col justify-between p-8 sm:p-10 lg:p-12">
 
-          </div>
-
-        
-
-          <div className="max-w-md">
-
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-blue-300">
-              ASTU MSJ Bootcamp
-            </p>
-
-            <h1 className="text-5xl xl:text-6xl font-bold leading-[1] text-white">
-              Learn.
-              <br />
-              Build.
-              <br />
-              Grow.
-              <br />
-
-              <span className="text-blue-400">
-                Together.
-              </span>
-            </h1>
-
-            <p className="mt-6 max-w-sm text-sm leading-6 text-gray-200">
-              Develop your skills, build real projects,
-              and grow together with the ASTU MSJ community.
-            </p>
-
-          </div>
-
-         
-
-          <div className="max-w-md rounded-xl border border-blue-400/30 bg-[#07133F]/80 backdrop-blur-sm p-5">
+            {/* ================= BRAND ================= */}
 
             <div className="flex items-center gap-4">
 
-              <div className="w-11 h-11 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                <FileText
-                  size={23}
-                  className="text-blue-300"
-                />
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-blue-400/60 bg-blue-950/70 shadow-lg">
+
+                <span className="text-3xl font-bold text-white">
+                  A
+                </span>
+
               </div>
 
               <div>
 
-                <p className="font-semibold text-white">
-                  Join the community
+                <h2 className="text-xl font-bold text-white">
+                  ASTU MSJ
+                </h2>
+
+                <p className="mt-1 text-xs font-semibold tracking-[0.2em] text-blue-300">
+                  SUMMER BOOTCAMP
                 </p>
 
-                <p className="mt-1 text-sm text-gray-300">
-                  Learn, collaborate, and build together.
-                </p>
+              </div>
+
+            </div>
+
+           
+            <div className="max-w-md">
+
+              <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-blue-300">
+                ASTU MSJ Bootcamp
+              </p>
+
+              <h1 className="text-5xl font-bold leading-[1.05] text-white lg:text-6xl">
+
+                Learn.
+                <br />
+
+                Build.
+                <br />
+
+                Grow.
+                <br />
+
+                <span className="text-blue-400">
+                  Together.
+                </span>
+
+              </h1>
+
+              <p className="mt-6 max-w-md text-sm leading-7 text-gray-300">
+                Develop your skills, build real projects,
+                collaborate with your peers, and grow
+                together with the ASTU MSJ community.
+              </p>
+
+            </div>
+
+            
+
+            <div className="max-w-md rounded-xl border border-blue-400/20 bg-blue-950/70 p-5 shadow-lg">
+
+              <div className="flex items-center gap-4">
+
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-500/15">
+
+                  <FileText
+                    size={22}
+                    className="text-blue-300"
+                  />
+
+                </div>
+
+                <div>
+
+                  <p className="font-semibold text-white">
+                    Join the community
+                  </p>
+
+                  <p className="mt-1 text-sm text-gray-300">
+                    Learn, collaborate, and build together.
+                  </p>
+
+                </div>
 
               </div>
 
@@ -142,201 +175,257 @@ function Login() {
 
           </div>
 
-        </div>
+        </section>
 
-      </section>
+       
 
-     
+        <section className="flex min-h-[620px] items-center justify-center bg-[#F5F0E8] p-7 sm:p-9 lg:p-10">
 
-      <section className="w-full md:w-1/2 bg-white flex items-center justify-center">
-
-        <div className="w-full max-w-[470px] px-8">
-
-      
-
-          <h1 className="text-3xl font-bold text-[#071333]">
-            Welcome back 
-          </h1>
-
-          <p className="mt-2 text-sm text-gray-500">
-            Sign in to your ASTU MSJ Bootcamp account.
-          </p>
-
-         
-          {error && (
-            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
-              {error}
-            </div>
-          )}
+          <div className="w-full max-w-[440px]">
 
           
 
-          <form
-            onSubmit={handleSubmit}
-            className="mt-7 space-y-4"
-          >
+            <div className="mb-7">
 
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                Welcome back
+              </h1>
 
-            <div>
-
-              <label className="block mb-2 text-sm font-semibold text-gray-800">
-                Email address
-              </label>
-
-              <div className="relative">
-
-                <Mail
-                  size={18}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-
-                <input
-                  type="email"
-                  placeholder="you@gmail.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full h-12 rounded-lg border border-gray-200 pl-11 pr-4 text-sm text-gray-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                />
-
-              </div>
+              <p className="mt-2 text-sm leading-6 text-gray-500">
+                Sign in to your ASTU MSJ Bootcamp account.
+              </p>
 
             </div>
 
-            
+           
 
-            <div>
+            {error && (
+              <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
 
-              <label className="block mb-2 text-sm font-semibold text-gray-800">
-                Password
-              </label>
+           
 
-              <div className="relative">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-5"
+            >
 
-                <LockKeyhole
-                  size={18}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-                />
+              
 
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full h-12 rounded-lg border border-gray-200 pl-11 pr-11 text-sm text-gray-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                />
+              <div>
 
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                <label
+                  htmlFor="email"
+                  className="mb-2 block text-sm font-semibold text-gray-800"
                 >
-                  {showPassword ? (
-                    <Eye size={18} />
-                  ) : (
-                    <EyeOff size={18} />
-                  )}
-                </button>
+                  Email address
+                </label>
 
-              </div>
+                <div className="relative">
 
-            </div>
+                  <Mail
+                    size={18}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
 
-            
-
-            <div className="flex justify-end">
-
-              <Link
-                to="/forgot-password"
-                className="text-xs font-semibold text-blue-700 hover:underline"
-              >
-                Forgot password?
-              </Link>
-
-            </div>
-
-            
-
-            <button
-              type="submit"
-              className="w-full h-12 rounded-lg bg-blue-600 text-sm font-semibold text-white flex items-center justify-center gap-2 hover:bg-blue-700 transition"
-            >
-              <LogIn size={18} />
-              Sign in
-            </button>
-
-           
-
-            <div className="flex items-center gap-3 py-1">
-
-              <div className="flex-1 h-px bg-gray-200" />
-
-              <span className="text-xs text-gray-400">
-                or
-              </span>
-
-              <div className="flex-1 h-px bg-gray-200" />
-
-            </div>
-
-           
-            <button
-              type="button"
-              className="w-full h-12 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700 flex items-center justify-center gap-2 hover:bg-gray-50 transition"
-            >
-              <ShieldCheck
-                size={18}
-                className="text-blue-600"
-              />
-
-              Login with OTP
-            </button>
-
-           
-
-            <div className="rounded-xl bg-[#F3F6FF] p-4">
-
-              <div className="flex items-center gap-3">
-
-                <div className="w-10 h-10 shrink-0 rounded-lg bg-blue-100 flex items-center justify-center">
-
-                  <FileText
-                    size={20}
-                    className="text-blue-600"
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="you@gmail.com"
+                    value={email}
+                    onChange={(e) =>
+                      setEmail(e.target.value)
+                    }
+                    disabled={loading}
+                    autoComplete="email"
+                    required
+                    className="h-12 w-full rounded-lg border border-gray-300 bg-white pl-11 pr-4 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 hover:border-gray-400 focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10 disabled:bg-gray-100"
                   />
 
                 </div>
 
-                <div className="flex-1">
+              </div>
 
-                  <p className="text-xs font-semibold text-gray-900">
-                    Don't have an account?
-                  </p>
+             
 
-                  <p className="mt-1 text-[11px] text-gray-500">
-                    Apply for the ASTU MSJ Bootcamp.
-                  </p>
+              <div>
+
+                <label
+                  htmlFor="password"
+                  className="mb-2 block text-sm font-semibold text-gray-800"
+                >
+                  Password
+                </label>
+
+                <div className="relative">
+
+                  <LockKeyhole
+                    size={18}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
+
+                  <input
+                    id="password"
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) =>
+                      setPassword(e.target.value)
+                    }
+                    disabled={loading}
+                    autoComplete="current-password"
+                    required
+                    className="h-12 w-full rounded-lg border border-gray-300 bg-white pl-11 pr-11 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 hover:border-gray-400 focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10 disabled:bg-gray-100"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowPassword(
+                        (prev) => !prev
+                      )
+                    }
+                    disabled={loading}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-800"
+                  >
+
+                    {showPassword ? (
+                      <Eye size={18} />
+                    ) : (
+                      <EyeOff size={18} />
+                    )}
+
+                  </button>
 
                 </div>
 
+              </div>
+
+            
+
+              <div className="flex justify-end">
+
                 <Link
-                  to="/register"
-                  className="shrink-0 flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-900"
+                  to="/forgot-password"
+                  className="text-xs font-semibold text-gray-700 transition hover:text-gray-900 hover:underline"
                 >
-                  Apply Now
-                  <ArrowRight size={14} />
+                  Forgot password?
                 </Link>
 
               </div>
 
-            </div>
+             
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-gray-900 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-70"
+              >
 
-          </form>
+                {loading ? (
+                  <>
+                    <Loader2
+                      size={18}
+                      className="animate-spin"
+                    />
 
-        </div>
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    <LogIn size={18} />
 
-      </section>
+                    Sign in
+                  </>
+                )}
+
+              </button>
+
+              {/* ================= DIVIDER ================= */}
+
+              <div className="flex items-center gap-3 py-1">
+
+                <div className="h-px flex-1 bg-gray-300" />
+
+                <span className="text-xs text-gray-400">
+                  or
+                </span>
+
+                <div className="h-px flex-1 bg-gray-300" />
+
+              </div>
+
+             
+
+              <button
+                type="button"
+                disabled={loading}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60"
+              >
+
+                <ShieldCheck
+                  size={18}
+                  className="text-gray-800"
+                />
+
+                Login with OTP
+
+              </button>
+
+             
+
+              <div className="rounded-xl bg-[#EAE3D8] p-4">
+
+                <div className="flex items-center gap-3">
+
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
+
+                    <FileText
+                      size={19}
+                      className="text-gray-800"
+                    />
+
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+
+                    <p className="text-xs font-semibold text-gray-900">
+                      Don't have an account?
+                    </p>
+
+                    <p className="mt-1 text-[11px] text-gray-500">
+                      Apply for the ASTU MSJ Bootcamp.
+                    </p>
+
+                  </div>
+
+                  <Link
+                    to="/register"
+                    className="flex shrink-0 items-center gap-1 text-xs font-semibold text-gray-800 transition hover:text-gray-600"
+                  >
+
+                    Apply Now
+
+                    <ArrowRight size={14} />
+
+                  </Link>
+
+                </div>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </section>
+
+      </div>
 
     </div>
   );

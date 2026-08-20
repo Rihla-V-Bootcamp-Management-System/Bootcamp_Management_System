@@ -2,23 +2,38 @@ import { useEffect, useState } from "react";
 import DynamicForm from "../components/DynamicForm";
 import apiClient from "../services/apiClient";
 import { useNavigate } from "react-router-dom";
+import { CheckCircle2, Loader2 } from "lucide-react";
 
 function Register() {
   const [schema, setSchema] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const navigate = useNavigate();
 
+  // =====================================================
+  // GET APPLICATION FORM
+  // =====================================================
+
   useEffect(() => {
     const fetchApplicationForm = async () => {
       try {
+        setLoading(true);
+        setError("");
+
         const response = await apiClient.get(
           "/application-forms"
         );
 
-        setSchema(response.data.fields || []);
+        console.log(
+          "APPLICATION FORM:",
+          response.data
+        );
+
+        setSchema(response.data?.fields || []);
+
       } catch (error) {
         console.error(
           "Failed to fetch application form:",
@@ -27,8 +42,9 @@ function Register() {
 
         setError(
           error.response?.data?.message ||
-            "Failed to load application form"
+            "Failed to load application form. Please try again."
         );
+
       } finally {
         setLoading(false);
       }
@@ -37,8 +53,17 @@ function Register() {
     fetchApplicationForm();
   }, []);
 
+  // =====================================================
+  // SUBMIT REGISTRATION
+  // =====================================================
+
   const handleSubmit = async (responses) => {
+    if (submitting) {
+      return false;
+    }
+
     try {
+      setSubmitting(true);
       setError("");
       setSuccess("");
 
@@ -47,7 +72,7 @@ function Register() {
       };
 
       console.log(
-        "Sending registration:",
+        "SENDING REGISTRATION:",
         registrationData
       );
 
@@ -57,119 +82,186 @@ function Register() {
       );
 
       console.log(
-        "Registration successful:",
+        "REGISTRATION SUCCESS:",
         response.data
       );
 
       setSuccess(
-        "Application submitted successfully!"
+        response.data?.message ||
+          "Application submitted successfully!"
       );
 
       return true;
+
     } catch (error) {
       console.error(
-        "Registration failed:",
+        "REGISTRATION ERROR:",
         error
       );
 
-      setError(
+      const message =
         error.response?.data?.message ||
-          "Registration failed. Please try again."
-      );
+        error.response?.data?.error ||
+        "Registration failed. Please check your information and try again.";
+
+      setError(message);
 
       return false;
+
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  
+  // =====================================================
+  // LOADING
+  // =====================================================
 
   if (loading) {
     return (
-      <div className="py-10 text-center">
-        Loading application form...
+      <div className="flex min-h-[300px] items-center justify-center">
+
+        <div className="text-center">
+
+          <Loader2
+            size={32}
+            className="mx-auto animate-spin text-gray-700"
+          />
+
+          <p className="mt-4 text-sm text-gray-500">
+            Loading application form...
+          </p>
+
+        </div>
+
       </div>
     );
   }
 
-  
-  if (error && schema.length === 0 && registrationOpen) {
+  // =====================================================
+  // FORM FAILED TO LOAD
+  // =====================================================
+
+  if (error && schema.length === 0) {
     return (
-      <div className="py-10 text-center text-red-600">
-        {error}
+      <div className="py-12 text-center">
+
+        <div className="mx-auto max-w-md rounded-xl border border-red-200 bg-red-50 p-6">
+
+          <h2 className="font-semibold text-red-800">
+            Unable to load application form
+          </h2>
+
+          <p className="mt-2 text-sm text-red-600">
+            {error}
+          </p>
+
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="mt-5 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+          >
+            Back to Home
+          </button>
+
+        </div>
+
       </div>
     );
   }
 
- 
-  if (!registrationOpen) {
+  // =====================================================
+  // SUCCESS
+  // =====================================================
+
+  if (success) {
     return (
-      <div className="w-full py-16 text-center">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Registration is Closed
-        </h1>
+      <div className="py-12">
 
-        <p className="mt-4 text-gray-600">
-          The bootcamp application period is currently
-          closed.
-        </p>
+        <div className="mx-auto max-w-lg rounded-2xl border border-green-200 bg-green-50 p-8 text-center shadow-sm">
 
-        <p className="mt-2 text-sm text-gray-500">
-          Please check back when registration opens.
-        </p>
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
 
-        <button
-          type="button"
-          onClick={() => navigate("/")}
-          className="mt-6 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
-        >
-          Back to Home
-        </button>
+            <CheckCircle2
+              size={30}
+              className="text-green-600"
+            />
+
+          </div>
+
+          <h1 className="mt-5 text-2xl font-bold text-gray-900">
+            Application Submitted
+          </h1>
+
+          <p className="mt-3 text-sm leading-6 text-gray-600">
+            {success}
+          </p>
+
+          <p className="mt-2 text-sm text-gray-500">
+            Please wait for the bootcamp team to review
+            your application.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="mt-6 rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+          >
+            Back to Home
+          </button>
+
+        </div>
+
       </div>
     );
   }
+
+  // =====================================================
+  // REGISTRATION PAGE
+  // =====================================================
 
   return (
     <div className="w-full">
-      <h1 className="text-3xl font-bold">
-        Bootcamp Application
-      </h1>
 
-      <p className="mt-4 text-gray-600">
-        Please complete the application form below.
-      </p>
+      {/* ================= HEADER ================= */}
 
-      {/* ==============================
-          SUCCESS MESSAGE
-      ============================== */}
+      <div className="mb-8">
 
-      {success && (
-        <div className="mt-6 rounded-lg bg-green-100 px-4 py-3 text-green-700">
-          {success}
-        </div>
-      )}
+        <h1 className="text-3xl font-bold text-gray-900">
+          Bootcamp Application
+        </h1>
 
-   
+        <p className="mt-2 text-sm leading-6 text-gray-600">
+          Please complete the application form below
+          with your correct information.
+        </p>
+
+      </div>
+
+      {/* ================= ERROR ================= */}
 
       {error && (
-        <div className="mt-6 rounded-lg bg-red-100 px-4 py-3 text-red-700">
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-   
+      {/* ================= FORM ================= */}
 
-      <div className="mt-8">
+      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
+
         <DynamicForm
           schema={schema}
           onSubmit={handleSubmit}
+          submitting={submitting}
         />
+
       </div>
 
-      {/* ==============================
-          FIRST LOGIN
-      ============================== */}
+      {/* ================= FIRST LOGIN ================= */}
 
       <div className="mt-8 border-t border-gray-200 pt-6 text-center">
+
         <p className="text-sm text-gray-500">
           Already accepted?
         </p>
@@ -181,11 +273,13 @@ function Register() {
         <button
           type="button"
           onClick={() => navigate("/first-login")}
-          className="mt-3 font-medium text-blue-600 hover:text-blue-700"
+          className="mt-3 text-sm font-semibold text-gray-800 transition hover:text-gray-600"
         >
           First-time login
         </button>
+
       </div>
+
     </div>
   );
 }

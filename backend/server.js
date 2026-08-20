@@ -1,5 +1,5 @@
 const dns = require("dns");
-dns.setServers(["192.168.1.1"]);
+dns.setServers(["8.8.8.8"]);
 
 const express = require("express");
 const cors = require("cors");

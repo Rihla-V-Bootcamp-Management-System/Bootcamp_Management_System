@@ -1,14 +1,13 @@
-import { useState } from "react";
 import {
   Check,
   X,
   Clock,
   CircleAlert,
-  Save,
   History,
+  CalendarCheck,
 } from "lucide-react";
 
-const initialStudents = [
+const students = [
   {
     id: 1,
     name: "Abebe Kebede",
@@ -32,250 +31,306 @@ const initialStudents = [
   },
 ];
 
-const statusOptions = [
-  {
-    value: "Present",
-    label: "Present",
-    icon: Check,
-  },
-  {
-    value: "Absent",
-    label: "Absent",
-    icon: X,
-  },
-  {
-    value: "Late",
-    label: "Late",
-    icon: Clock,
-  },
-  {
-    value: "Excused",
-    label: "Excused",
-    icon: CircleAlert,
-  },
-];
-
 function MentorAttendance() {
-  const [students, setStudents] = useState(initialStudents);
-  const [batch, setBatch] = useState("Batch 2026");
-  const [sessionDate, setSessionDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const batch = "Batch 2026";
+  const sessionDate = new Date().toISOString().split("T")[0];
 
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "Present":
+        return "bg-green-50 text-green-700 border-green-200";
 
-  const handleStatusChange = (studentId, status) => {
-    setStudents((currentStudents) =>
-      currentStudents.map((student) =>
-        student.id === studentId
-          ? { ...student, status }
-          : student
-      )
-    );
+      case "Absent":
+        return "bg-red-50 text-red-700 border-red-200";
 
-    setMessage("");
+      case "Late":
+        return "bg-orange-50 text-orange-700 border-orange-200";
+
+      case "Excused":
+        return "bg-blue-50 text-blue-700 border-blue-200";
+
+      default:
+        return "bg-gray-50 text-gray-600 border-gray-200";
+    }
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    setMessage("");
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "Present":
+        return <Check size={15} />;
 
-   
+      case "Absent":
+        return <X size={15} />;
 
-    setTimeout(() => {
-      setSaving(false);
-      setMessage("Attendance saved successfully.");
-    }, 800);
+      case "Late":
+        return <Clock size={15} />;
+
+      case "Excused":
+        return <CircleAlert size={15} />;
+
+      default:
+        return null;
+    }
   };
 
   return (
     <div className="space-y-6">
 
-      
+      {/* ========================= */}
+      {/* PAGE HEADER */}
+      {/* ========================= */}
+
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           Attendance
         </h1>
 
         <p className="mt-1 text-sm text-gray-500">
-          Mark and manage attendance for your assigned students.
+          View attendance records for your assigned students.
         </p>
       </div>
 
-      
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+      {/* ========================= */}
+      {/* BATCH + DATE */}
+      {/* ========================= */}
+
+      <div className="rounded-xl border border-gray-200 bg-white p-5">
+
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+          {/* Batch */}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
               Batch
             </label>
 
-            <select
-              value={batch}
-              onChange={(e) => setBatch(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option>Batch 2026</option>
-              <option>Batch 2025</option>
-            </select>
+            <div className="flex items-center gap-3 rounded-lg border border-gray-300 bg-gray-50 px-4 py-3">
+              <CalendarCheck
+                size={18}
+                className="text-gray-500"
+              />
+
+              <span className="text-sm font-medium text-gray-700">
+                {batch}
+              </span>
+            </div>
           </div>
 
+
+          {/* Session Date */}
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
               Session Date
             </label>
 
-            <input
-              type="date"
-              value={sessionDate}
-              onChange={(e) => setSessionDate(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+              {sessionDate}
+            </div>
           </div>
 
         </div>
       </div>
 
-     
-      {message && (
-        <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm">
-          {message}
-        </div>
-      )}
 
-    
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      {/* ========================= */}
+      {/* VIEW ONLY NOTICE */}
+      {/* ========================= */}
 
-        <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+      <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+
+        <div className="flex items-center gap-3">
+
+          <CalendarCheck
+            size={19}
+            className="text-blue-600"
+          />
+
           <div>
-            <h2 className="font-semibold text-gray-900">
-              Student Roster
-            </h2>
+            <p className="text-sm font-medium text-blue-800">
+              View-only attendance
+            </p>
 
-            <p className="text-sm text-gray-500 mt-1">
-              {students.length} students
+            <p className="mt-1 text-xs text-blue-700">
+              Attendance is managed by the administrator.
+              You can view attendance for your assigned students.
             </p>
           </div>
+
+        </div>
+
+      </div>
+
+
+      {/* ========================= */}
+      {/* STUDENT ROSTER */}
+      {/* ========================= */}
+
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+
+        {/* Header */}
+
+        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+
+          <div>
+
+            <h2 className="font-semibold text-gray-900">
+              Student Attendance
+            </h2>
+
+            <p className="mt-1 text-sm text-gray-500">
+              {students.length} assigned students
+            </p>
+
+          </div>
+
 
           <button
             type="button"
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
           >
             <History size={17} />
+
             View History
           </button>
+
         </div>
 
+
+        {/* Empty State */}
+
         {students.length === 0 ? (
+
           <div className="py-16 text-center">
-            <p className="text-gray-500">
-              No students assigned to this batch yet.
+
+            <CalendarCheck
+              className="mx-auto h-10 w-10 text-gray-300"
+            />
+
+            <p className="mt-4 font-medium text-gray-900">
+              No students assigned
             </p>
+
+            <p className="mt-1 text-sm text-gray-500">
+              Attendance records will appear here when students
+              are assigned to you.
+            </p>
+
           </div>
+
         ) : (
+
+          /* Student Table */
+
           <div className="overflow-x-auto">
 
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+
+              <thead className="border-b border-gray-200 bg-gray-50">
+
                 <tr>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">
+
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
                     Student
                   </th>
 
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">
-                    Attendance %
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
+                    Attendance
                   </th>
 
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">
-                    Status
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
+                    Today's Status
                   </th>
+
                 </tr>
+
               </thead>
+
 
               <tbody className="divide-y divide-gray-100">
 
                 {students.map((student) => (
-                  <tr key={student.id}>
+
+                  <tr
+                    key={student.id}
+                    className="transition hover:bg-gray-50"
+                  >
+
+                    {/* Student */}
 
                     <td className="px-5 py-4">
-                      <div className="font-medium text-gray-900">
+
+                      <p className="font-medium text-gray-900">
                         {student.name}
-                      </div>
+                      </p>
 
-                      <div className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500">
                         {student.studentId}
-                      </div>
+                      </p>
+
                     </td>
 
+
+                    {/* Percentage */}
+
                     <td className="px-5 py-4">
-                      <span className="font-medium text-gray-700">
-                        {student.percentage}%
+
+                      <div className="flex items-center gap-3">
+
+                        <div className="h-2 w-28 overflow-hidden rounded-full bg-gray-200">
+
+                          <div
+                            className="h-full rounded-full bg-green-500"
+                            style={{
+                              width: `${student.percentage}%`,
+                            }}
+                          />
+
+                        </div>
+
+                        <span className="text-sm font-medium text-gray-700">
+                          {student.percentage}%
+                        </span>
+
+                      </div>
+
+                    </td>
+
+
+                    {/* Status */}
+
+                    <td className="px-5 py-4">
+
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium ${getStatusStyle(
+                          student.status
+                        )}`}
+                      >
+
+                        {getStatusIcon(student.status)}
+
+                        {student.status}
+
                       </span>
-                    </td>
 
-                    <td className="px-5 py-4">
-                      <div className="flex flex-wrap gap-2">
-
-                        {statusOptions.map((option) => {
-                          const Icon = option.icon;
-                          const selected =
-                            student.status === option.value;
-
-                          return (
-                            <button
-                              key={option.value}
-                              type="button"
-                              onClick={() =>
-                                handleStatusChange(
-                                  student.id,
-                                  option.value
-                                )
-                              }
-                              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-medium transition ${
-                                selected
-                                  ? "border-blue-600 bg-blue-50 text-blue-700"
-                                  : "border-gray-200 text-gray-600 hover:bg-gray-50"
-                              }`}
-                            >
-                              <Icon size={15} />
-                              {option.label}
-                            </button>
-                          );
-                        })}
-
-                      </div>
                     </td>
 
                   </tr>
+
                 ))}
 
               </tbody>
+
             </table>
 
           </div>
-        )}
 
-       
-        {students.length > 0 && (
-          <div className="px-5 py-4 border-t border-gray-200 flex justify-end">
-
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
-            >
-              <Save size={17} />
-
-              {saving ? "Saving..." : "Save Attendance"}
-            </button>
-
-          </div>
         )}
 
       </div>
+
     </div>
   );
 }
