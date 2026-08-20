@@ -155,6 +155,7 @@ const registrationSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+
     submittedAt: {
       type: Date,
       default: Date.now,

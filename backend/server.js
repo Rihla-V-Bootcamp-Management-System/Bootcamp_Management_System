@@ -1,3 +1,6 @@
+const dns = require("dns");
+dns.setServers(["8.8.8.8"]);
+
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -44,6 +47,17 @@ app.use("/api/attendance", attendanceRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/application-forms", applicationFormRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("Server startup failed:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
