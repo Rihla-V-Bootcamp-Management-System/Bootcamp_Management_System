@@ -39,6 +39,11 @@ const fieldSchema = new mongoose.Schema(
 
 const applicationFormSchema = new mongoose.Schema(
   {
+    seasonId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      unique: true,
+    },
     fields: {
       type: [fieldSchema],
       default: [],

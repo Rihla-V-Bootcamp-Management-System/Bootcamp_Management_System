@@ -2,38 +2,52 @@ const mongoose = require("mongoose");
 
 const progressSchema = new mongoose.Schema(
   {
-    student: {
+    studentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    course: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Course",
+    topic: {
+      type: String,
       required: true,
-    },
-
-    progress: {
-      type: Number,
-      min: 0,
-      max: 100,
-      required: true,
+      trim: true,
     },
 
     status: {
       type: String,
-      enum: ["Not Started", "In Progress", "Completed"],
-      default: "Not Started",
+      enum: [
+        "Not Started",
+        "In Progress",
+        "Completed",
+        "Needs Improvement",
+      ],
+      required: true,
     },
 
-    note: {
+    notes: {
       type: String,
       trim: true,
+    },
+
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
   },
   {
     timestamps: true,
+  }
+);
+
+progressSchema.index(
+  {
+    studentId: 1,
+    topic: 1,
+  },
+  {
+    unique: true,
   }
 );
 

@@ -8,13 +8,8 @@ const {
 
 const router = express.Router();
 
-// Create form
-router.post("/", createApplicationForm);
-
-// Update form
-router.patch("/", updateApplicationForm);
-
-// Get form
-router.get("/", getApplicationForm);
+router.post("/:seasonId", createApplicationForm);
+router.patch("/:seasonId", updateApplicationForm);
+router.get("/:seasonId", getApplicationForm);
 
 module.exports = router;
