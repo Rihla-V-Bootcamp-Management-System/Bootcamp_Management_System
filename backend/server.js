@@ -9,7 +9,7 @@ const registrationRoutes = require("./routes/registrationRoutes");
 const formQuestionRoutes = require("./routes/formQuestionRoutes");
 const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
 
-dotenv.config();
+dotenv.config({ path: "./backend/.env" });
 
 const app = express();
 
