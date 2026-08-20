@@ -16,15 +16,18 @@ function DashboardLayout({ role }) {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="h-screen flex overflow-hidden">
 
+      
       {sidebar}
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
 
+       
         <Header />
 
-        <main className="flex-1 p-8 bg-gray-50">
+        
+        <main className="flex-1 overflow-y-auto p-8 bg-gray-50">
           <Outlet />
         </main>
 

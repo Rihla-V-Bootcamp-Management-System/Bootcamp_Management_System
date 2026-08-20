@@ -8,7 +8,6 @@ import {
   Megaphone,
   LogOut,
 } from "lucide-react";
-
 import { NavLink } from "react-router-dom";
 import useAuth from "../context/useAuth";
 

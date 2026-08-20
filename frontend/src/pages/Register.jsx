@@ -91,8 +91,8 @@ function Register() {
     );
   }
 
-
-  if (error && schema.length === 0) {
+  
+  if (error && schema.length === 0 && registrationOpen) {
     return (
       <div className="py-10 text-center text-red-600">
         {error}
@@ -100,7 +100,33 @@ function Register() {
     );
   }
 
-  
+ 
+  if (!registrationOpen) {
+    return (
+      <div className="w-full py-16 text-center">
+        <h1 className="text-3xl font-bold text-gray-900">
+          Registration is Closed
+        </h1>
+
+        <p className="mt-4 text-gray-600">
+          The bootcamp application period is currently
+          closed.
+        </p>
+
+        <p className="mt-2 text-sm text-gray-500">
+          Please check back when registration opens.
+        </p>
+
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="mt-6 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
+        >
+          Back to Home
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">

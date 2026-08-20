@@ -1,5 +1,7 @@
 import { createContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient";
+import { toast } from "react-hot-toast";
 
 const AuthContext = createContext(null);
 
@@ -12,6 +14,7 @@ export function AuthProvider({ children }) {
         return JSON.parse(savedUser);
       } catch {
         localStorage.removeItem("user");
+        localStorage.removeItem("token");
       }
     }
 
@@ -31,9 +34,11 @@ export function AuthProvider({ children }) {
 
     const { user, token } = response.data;
 
+    
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
 
+    
     setUser(user);
     setToken(token);
 
@@ -49,12 +54,19 @@ export function AuthProvider({ children }) {
     setToken(token);
   };
 
+  
   const logout = () => {
+    
     localStorage.removeItem("user");
     localStorage.removeItem("token");
 
+    
     setUser(null);
     setToken(null);
+
+       toast.success("Logged out successfully!");
+   
+    navigate("/");
   };
 
   return (

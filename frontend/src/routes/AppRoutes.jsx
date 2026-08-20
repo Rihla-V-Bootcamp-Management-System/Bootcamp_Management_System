@@ -8,6 +8,11 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import RoleRoute from "../components/RoleRoute";
 
 import DashboardLayout from "../layouts/DashboardLayout";
+
+import AdminDashboard from "../pages/AdminDashboard";
+
+import MentorAttendance from "../pages/MentorAttendance";
+
 import AdminDashboard from "../pages/admin/AdminDashboard";
 
 import Users from "../pages/admin/Users";
@@ -99,7 +104,7 @@ function AppRoutes() {
 
         <Route
           path="/mentor/attendance"
-          element={<div>Attendance Page</div>}
+          element={<MentorAttendance />}
         />
 
         <Route
