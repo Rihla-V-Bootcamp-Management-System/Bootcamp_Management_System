@@ -1,30 +1,22 @@
-import AdminSidebar from "../components/AdminSidebar";
-import MentorSidebar from "../components/MentorSidebar";
-import StudentSidebar from "../components/StudentSidebar";
-import Header from "../components/Header";
+import AdminSidebar from "../components/admin/AdminSidebar";
+import AdminHeader from "../components/admin/AdminHeader";
 import { Outlet } from "react-router-dom";
 
-function DashboardLayout({ role }) {
-  let sidebar;
-
-  if (role === "admin") {
-    sidebar = <AdminSidebar />;
-  } else if (role === "mentor") {
-    sidebar = <MentorSidebar />;
-  } else if (role === "student") {
-    sidebar = <StudentSidebar />;
-  }
-
+function DashboardLayout() {
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen bg-[#F7F5EF]">
 
-      {sidebar}
+      {/* Sidebar */}
+      <AdminSidebar />
 
-      <div className="flex-1 flex flex-col">
+      {/* Right side */}
+      <div className="ml-64 min-h-screen">
 
-        <Header />
+        {/* Header */}
+        <AdminHeader />
 
-        <main className="flex-1 p-8 bg-gray-50">
+        {/* Page content */}
+        <main className="p-8">
           <Outlet />
         </main>
 

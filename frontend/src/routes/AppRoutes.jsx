@@ -1,15 +1,18 @@
 import { Routes, Route } from "react-router-dom";
+
 import FirstLogin from "../pages/FirstLogin";
 import Landing from "../pages/Landing";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import SetPassword from "../pages/SetPassword";
+import PublicApplication from "../pages/PublicApplication";
+
 import ProtectedRoute from "../components/ProtectedRoute";
 import RoleRoute from "../components/RoleRoute";
 
 import DashboardLayout from "../layouts/DashboardLayout";
-import AdminDashboard from "../pages/admin/AdminDashboard";
 
+import AdminDashboard from "../pages/admin/AdminDashboard";
 import Users from "../pages/admin/Users";
 import Applications from "../pages/admin/Applications";
 import Batches from "../pages/admin/Batches";
@@ -18,111 +21,144 @@ import BatchDetails from "../pages/admin/BatchDetails";
 
 import MentorDashboard from "../pages/MentorDashboard";
 import StudentDashboard from "../pages/StudentDashboard";
-import PublicApplication from "../pages/PublicApplication";
+
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/set-password" element={<SetPassword />} />
-      <Route path="/first-login" element={<FirstLogin />} />
-      <Route path="/apply" element={<PublicApplication />} />
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
 
+      {/* ================= PUBLIC ROUTES ================= */}
 
       <Route
-        element={
-          <ProtectedRoute>
-            <RoleRoute allowedRoles={["admin"]}>
-              <DashboardLayout role="admin" />
-            </RoleRoute>
-          </ProtectedRoute>
-        }
+        path="/"
+        element={<Landing />}
       />
-        <Route path="/admin" element={<AdminDashboard />} />
 
-    <Route
-      path="/admin/users"
-      element={<Users />}
-    />
+      <Route
+        path="/login"
+        element={<Login />}
+      />
 
-    <Route
-      path="/admin/applications"
-      element={<Applications />}
-    />
+      <Route
+        path="/register"
+        element={<Register />}
+      />
 
-    <Route
-      path="/admin/batches"
-      element={<Batches />}
-    />
+      <Route
+        path="/set-password"
+        element={<SetPassword />}
+      />
 
-    <Route
-      path="/admin/batches/:id"
-      element={<BatchDetails />}
-    />
+      <Route
+        path="/first-login"
+        element={<FirstLogin />}
+      />
 
-    <Route
-      path="/admin/registrations"
-      element={<Registration />}
-    />
-
-    <Route
-      path="/admin/announcements"
-      element={<div>Announcements Page</div>}
-    />
-
-    <Route
-      path="/admin/analytics"
-      element={<div>Analytics Page</div>}
-    />
-
-    <Route
-      path="/admin/settings"
-      element={<div>Settings Page</div>}
-    />
+      <Route
+        path="/apply"
+        element={<PublicApplication />}
+      />
 
 
+      {/* ================= ADMIN ROUTES ================= */}
 
-
-        {/* <Route element={ <ProtectedRoute>
-         <RoleRoute allowedRoles={["mentor"]}> 
-         <DashboardLayout role="mentor" /> 
-         </RoleRoute> 
-         </ProtectedRoute> } /> */}
-
-        <Route path="/mentor" element={<MentorDashboard />} />
+      <Route element={<DashboardLayout />}>
 
         <Route
-          path="/mentor/students"
+          path="/admin"
+          element={<AdminDashboard />}
+        />
+
+        <Route
+          path="/admin/users"
+          element={<Users />}
+        />
+
+        <Route
+          path="/admin/applications"
+          element={<Applications />}
+        />
+
+        <Route
+          path="/admin/batches"
+          element={<Batches />}
+        />
+
+        <Route
+          path="/admin/batches/:id"
+          element={<BatchDetails />}
+        />
+
+        <Route
+          path="/admin/registrations"
+          element={<Registration />}
+        />
+
+        <Route
+          path="/admin/announcements"
+          element={
+            <div>Announcements Page</div>
+          }
+        />
+
+        <Route
+          path="/admin/analytics"
+          element={
+            <div>Analytics Page</div>
+          }
+        />
+
+        <Route
+          path="/admin/settings"
+          element={
+            <div>Settings Page</div>
+          }
+        />
+
+      </Route>
+
+
+      {/* ================= MENTOR ROUTES ================= */}
+
+      <Route path="/mentor">
+        <Route
+          index
+          element={<MentorDashboard />}
+        />
+
+        <Route
+          path="students"
           element={<div>My Students Page</div>}
         />
 
         <Route
-          path="/mentor/attendance"
+          path="attendance"
           element={<div>Attendance Page</div>}
         />
 
         <Route
-          path="/mentor/progress"
+          path="progress"
           element={<div>Progress Page</div>}
         />
 
         <Route
-          path="/mentor/assignments"
+          path="assignments"
           element={<div>Assignments Page</div>}
         />
 
         <Route
-          path="/mentor/submissions"
+          path="submissions"
           element={<div>Submissions Page</div>}
         />
 
         <Route
-          path="/mentor/announcements"
+          path="announcements"
           element={<div>Announcements Page</div>}
         />
+      </Route>
 
-                
+
+      {/* ================= STUDENT ROUTES ================= */}
+
       <Route
         element={
           <ProtectedRoute>
@@ -132,7 +168,11 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route path="/student" element={<StudentDashboard />} />
+
+        <Route
+          path="/student"
+          element={<StudentDashboard />}
+        />
 
         <Route
           path="/student/attendance"
@@ -163,6 +203,7 @@ function AppRoutes() {
           path="/student/profile"
           element={<div>Profile Page</div>}
         />
+
       </Route>
 
     </Routes>
