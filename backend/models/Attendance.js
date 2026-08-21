@@ -2,13 +2,19 @@ const mongoose = require("mongoose");
 
 const attendanceSchema = new mongoose.Schema(
   {
-    member: {
+    studentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Member",
+      ref: "User",
       required: true,
     },
 
-    date: {
+    batchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
+      required: true,
+    },
+
+    sessionDate: {
       type: Date,
       required: true,
     },
@@ -19,13 +25,30 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
 
-    note: {
+    markedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    notes: {
       type: String,
       trim: true,
     },
   },
   {
     timestamps: true,
+  }
+);
+
+attendanceSchema.index(
+  {
+    studentId: 1,
+    batchId: 1,
+    sessionDate: 1,
+  },
+  {
+    unique: true,
   }
 );
 

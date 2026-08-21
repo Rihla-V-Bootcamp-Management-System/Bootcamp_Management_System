@@ -95,4 +95,12 @@ router.patch(
   updateRegistrationStatus
 );
 
+const {
+  createRegistration,
+} = require("../controllers/registrationControllers");
+
+
+
+router.post("/", createRegistration);
+
 module.exports = router;
