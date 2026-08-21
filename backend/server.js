@@ -4,6 +4,9 @@ dns.setServers(["8.8.8.8"]);
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+
+dotenv.config();
+
 const connectDB = require("./config/db");
 
 const userRoutes = require("./routes/userRoutes");
@@ -16,6 +19,11 @@ const progressRoutes = require("./routes/progressRoutes");
 const applicationFormRoutes = require("./routes/ApplicationFormRoutes");
 
 dotenv.config();
+const studentDirectoryRoutes = require("./routes/studentDirectoryRoutes");
+const assignmentRoutes = require("./routes/assignmentRoutes");
+const gradingRoutes = require("./routes/gradingRoutes");
+const submissionRoutes = require("./routes/submissionRoutes");
+const superAdminRoutes = require("./routes/superAdminRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -61,3 +69,20 @@ const startServer = async () => {
 };
 
 startServer();
+app.use("/api/students", studentDirectoryRoutes);
+app.use("/api/assignments", assignmentRoutes);
+app.use("/api/grading", gradingRoutes);
+app.use("/api/submissions", submissionRoutes);
+app.use("/api/superadmin", superAdminRoutes);
+
+app.get("/", (req, res) => {
+  res.json({
+    message: "Bootcamp Management System API is running",
+  });
+});
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
