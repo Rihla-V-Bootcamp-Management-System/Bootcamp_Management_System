@@ -6,22 +6,25 @@ const createRegistration = async (req, res) => {
       fullName,
       email,
       phone,
+      gender,
       batchId,
+      responses,
       department,
       experience,
     } = req.body;
 
-    if (!fullName || !email || !phone || !batchId) {
+    if (!fullName || !email || !phone || !gender || !batchId) {
       return res.status(400).json({
-        message: "Full name, email, phone, and batch ID are required",
+        message: "Full name, email, phone, gender, and batch ID are required",
       });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+    const normalizedBatchId = batchId.trim();
 
     const existingRegistration = await Registration.findOne({
       email: normalizedEmail,
-      batchId,
+      batchId: normalizedBatchId,
     });
 
     if (existingRegistration) {
@@ -30,15 +33,21 @@ const createRegistration = async (req, res) => {
       });
     }
 
+    const registrationResponses =
+      responses && typeof responses === "object"
+        ? responses
+        : {
+            department: department || "",
+            experience: experience || "",
+          };
+
     const registration = await Registration.create({
       fullName: fullName.trim(),
       email: normalizedEmail,
       phone: phone.trim(),
-      batchId: batchId.trim(),
-      responses: {
-        department: department || "",
-        experience: experience || "",
-      },
+      gender,
+      batchId: normalizedBatchId,
+      responses: registrationResponses,
       status: "Submitted",
     });
 

@@ -4,11 +4,11 @@ const User = require("../models/User");
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, gender } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !gender) {
       return res.status(400).json({
-        message: "Name, email, and password are required",
+        message: "Name, email, password, and gender are required",
       });
     }
 
@@ -27,6 +27,7 @@ const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
       role: "student",
+      gender,
     });
 
     return res.status(201).json({
@@ -36,6 +37,7 @@ const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        gender: user.gender,
       },
     });
   } catch (error) {
@@ -105,6 +107,7 @@ const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        gender: user.gender,
       },
     });
   } catch (error) {
@@ -169,17 +172,9 @@ const verifyOtp = async (req, res) => {
 
     await user.save();
 
-    const verifiedUser = await User.findOne({ userID });
-
-    if (!verifiedUser || verifiedUser.otpVerified !== true) {
-      return res.status(500).json({
-        message: "OTP verification could not be saved",
-      });
-    }
-
     return res.json({
       message: "OTP verified successfully",
-      userID: verifiedUser.userID,
+      userID: user.userID,
       verified: true,
     });
   } catch (error) {
@@ -276,6 +271,7 @@ const setPassword = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        gender: user.gender,
       },
     });
   } catch (error) {

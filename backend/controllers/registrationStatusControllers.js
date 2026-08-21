@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const Registration = require("../models/Registration");
 const User = require("../models/User");
+const { createAuditLog } = require("../services/auditLogService");
 
 const {
   sendShortlistedEmail,
@@ -114,6 +115,7 @@ const updateRegistrationStatus = async (req, res) => {
         email: registration.email,
         password: temporaryPassword,
         role: "student",
+        gender: registration.gender,
         userID,
         otp,
         otpExpiresAt,
@@ -121,6 +123,23 @@ const updateRegistrationStatus = async (req, res) => {
       });
 
       await registration.save();
+
+      await createAuditLog({
+        actor: req.user._id,
+        actorRole: req.user.role,
+        action: "STATUS_CHANGE",
+        targetType: "Registration",
+        targetId: registration._id.toString(),
+        description: `${req.user.role} changed registration status from ${currentStatus} to Accepted`,
+        metadata: {
+          registrationId: registration._id.toString(),
+          applicantName: registration.fullName,
+          applicantEmail: registration.email,
+          previousStatus: currentStatus,
+          newStatus: "Accepted",
+          studentUserID: createdUser.userID,
+        },
+      });
 
       let emailSent = false;
 
@@ -149,6 +168,7 @@ const updateRegistrationStatus = async (req, res) => {
           name: createdUser.name,
           email: createdUser.email,
           role: createdUser.role,
+          gender: createdUser.gender,
           otp: createdUser.otp,
           otpExpiresAt: createdUser.otpExpiresAt,
           mustResetPassword: createdUser.mustResetPassword,
@@ -157,6 +177,22 @@ const updateRegistrationStatus = async (req, res) => {
     }
 
     await registration.save();
+
+    await createAuditLog({
+      actor: req.user._id,
+      actorRole: req.user.role,
+      action: "STATUS_CHANGE",
+      targetType: "Registration",
+      targetId: registration._id.toString(),
+      description: `${req.user.role} changed registration status from ${currentStatus} to ${status}`,
+      metadata: {
+        registrationId: registration._id.toString(),
+        applicantName: registration.fullName,
+        applicantEmail: registration.email,
+        previousStatus: currentStatus,
+        newStatus: status,
+      },
+    });
 
     let emailSent = false;
 

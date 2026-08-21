@@ -29,8 +29,20 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["admin", "mentor", "student"],
+      enum: ["superadmin", "admin", "mentor", "student"],
       default: "student",
+    },
+
+    assignedMentor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    gender: {
+      type: String,
+      enum: ["male", "female"],
+      default: null,
     },
 
     mustResetPassword: {

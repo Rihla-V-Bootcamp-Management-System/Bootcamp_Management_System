@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
+const Registration = require("../models/Registration");
 const RegistrationSettings = require("../models/RegistrationSettings");
 
 const {
@@ -10,6 +11,61 @@ const {
 const {
   updateRegistrationStatus,
 } = require("../controllers/registrationStatusControllers");
+
+const authMiddleware = require("../middleware/authMiddleware");
+const roleMiddleware = require("../middleware/roleMiddleware");
+
+router.get(
+  "/",
+  authMiddleware,
+  roleMiddleware("superadmin", "admin", "mentor"),
+  async (req, res) => {
+    try {
+      const registrations = await Registration.find().sort({
+        createdAt: -1,
+      });
+
+      res.json({
+        registrations,
+      });
+    } catch (error) {
+      console.error("GET REGISTRATIONS ERROR:", error);
+
+      res.status(500).json({
+        message: "Failed to get registrations",
+        error: error.message,
+      });
+    }
+  }
+);
+
+router.get(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("superadmin", "admin", "mentor"),
+  async (req, res) => {
+    try {
+      const registration = await Registration.findById(req.params.id);
+
+      if (!registration) {
+        return res.status(404).json({
+          message: "Registration not found",
+        });
+      }
+
+      res.json({
+        registration,
+      });
+    } catch (error) {
+      console.error("GET REGISTRATION ERROR:", error);
+
+      res.status(500).json({
+        message: "Failed to get registration",
+        error: error.message,
+      });
+    }
+  }
+);
 
 router.post("/", async (req, res) => {
   try {
@@ -32,6 +88,11 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.patch("/:id/status", updateRegistrationStatus);
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  roleMiddleware("superadmin", "admin", "mentor"),
+  updateRegistrationStatus
+);
 
 module.exports = router;

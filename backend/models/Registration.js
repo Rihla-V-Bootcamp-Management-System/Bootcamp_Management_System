@@ -20,7 +20,12 @@ const registrationSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-
+    gender: {
+      type: String,
+      enum: ["male", "female"],
+      required: true,
+    },
+                                                                                                                                               
     batchId: {
       type: String,
       required: true,
