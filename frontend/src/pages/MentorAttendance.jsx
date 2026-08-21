@@ -1,39 +1,30 @@
+import { useEffect, useState } from "react";
 import {
   Check,
   X,
   Clock,
   CircleAlert,
-  History,
   CalendarCheck,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 
-const students = [
-  {
-    id: 1,
-    name: "Abebe Kebede",
-    studentId: "STU-001",
-    status: "Present",
-    percentage: 95,
-  },
-  {
-    id: 2,
-    name: "Sara Ahmed",
-    studentId: "STU-002",
-    status: "Absent",
-    percentage: 88,
-  },
-  {
-    id: 3,
-    name: "Mohammed Ali",
-    studentId: "STU-003",
-    status: "Late",
-    percentage: 91,
-  },
-];
+import apiClient from "../services/apiClient";
 
 function MentorAttendance() {
-  const batch = "Batch 2026";
-  const sessionDate = new Date().toISOString().split("T")[0];
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [batchName, setBatchName] = useState("Batch 2026");
+
+  // TEMPORARY TEST BATCH
+  // We will replace this later with the mentor's
+  // assigned batch from the backend.
+  const batchId = "6a88511ab71105e54fe97098";
+
+  // ==========================================
+  // STATUS STYLE
+  // ==========================================
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -54,6 +45,10 @@ function MentorAttendance() {
     }
   };
 
+  // ==========================================
+  // STATUS ICON
+  // ==========================================
+
   const getStatusIcon = (status) => {
     switch (status) {
       case "Present":
@@ -73,12 +68,140 @@ function MentorAttendance() {
     }
   };
 
+  // ==========================================
+  // FETCH ASSIGNED STUDENTS
+  // ==========================================
+
+  const fetchAttendance = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      console.log("Fetching mentor attendance...");
+      console.log("Batch ID:", batchId);
+
+      const response = await apiClient.get(
+        `/attendance?batchId=${encodeURIComponent(batchId)}`
+      );
+
+      console.log("Backend response:", response.data);
+
+      // ========================================
+      // BACKEND RETURNS:
+      //
+      // {
+      //   batch: {...},
+      //   attendancePercentage: 80,
+      //   totalRecords: 10,
+      //   students: [...]
+      // }
+      // ========================================
+
+      const data = response.data;
+
+      if (data.batch?.name) {
+        setBatchName(data.batch.name);
+      }
+
+      if (!Array.isArray(data.students)) {
+        throw new Error(
+          "Backend did not return a students array."
+        );
+      }
+
+      setStudents(data.students);
+    } catch (err) {
+      console.error(
+        "================================"
+      );
+      console.error("MENTOR ATTENDANCE ERROR");
+      console.error(
+        "================================"
+      );
+      console.error("Message:", err.message);
+      console.error(
+        "Status:",
+        err.response?.status
+      );
+      console.error(
+        "Response:",
+        err.response?.data
+      );
+      console.error(
+        "URL:",
+        err.config?.url
+      );
+      console.error(
+        "================================"
+      );
+
+      if (err.response?.status === 401) {
+        setError(
+          "Your session has expired. Please log in again."
+        );
+      } else if (err.response?.status === 403) {
+        setError(
+          err.response?.data?.message ||
+            "You are not assigned to this batch."
+        );
+      } else if (err.response?.status === 404) {
+        setError(
+          err.response?.data?.message ||
+            "Batch or attendance endpoint was not found."
+        );
+      } else if (err.response?.status === 500) {
+        setError(
+          err.response?.data?.message ||
+            "Server error while loading attendance."
+        );
+      } else {
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Failed to load attendance."
+        );
+      }
+
+      setStudents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ==========================================
+  // INITIAL LOAD
+  // ==========================================
+
+  useEffect(() => {
+    fetchAttendance();
+  }, []);
+
+  // ==========================================
+  // RETRY
+  // ==========================================
+
+  const handleRetry = () => {
+    fetchAttendance();
+  };
+
+  // ==========================================
+  // TODAY
+  // ==========================================
+
+  const sessionDate = new Date()
+    .toISOString()
+    .split("T")[0];
+
+  // ==========================================
+  // UI
+  // ==========================================
+
   return (
     <div className="space-y-6">
 
-      {/* ========================= */}
+      {/* ====================================== */}
       {/* PAGE HEADER */}
-      {/* ========================= */}
+      {/* ====================================== */}
 
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
@@ -86,20 +209,20 @@ function MentorAttendance() {
         </h1>
 
         <p className="mt-1 text-sm text-gray-500">
-          View attendance records for your assigned students.
+          View attendance for students assigned to
+          your batch.
         </p>
       </div>
 
-
-      {/* ========================= */}
+      {/* ====================================== */}
       {/* BATCH + DATE */}
-      {/* ========================= */}
+      {/* ====================================== */}
 
       <div className="rounded-xl border border-gray-200 bg-white p-5">
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
 
-          {/* Batch */}
+          {/* BATCH */}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -107,19 +230,20 @@ function MentorAttendance() {
             </label>
 
             <div className="flex items-center gap-3 rounded-lg border border-gray-300 bg-gray-50 px-4 py-3">
+
               <CalendarCheck
                 size={18}
                 className="text-gray-500"
               />
 
               <span className="text-sm font-medium text-gray-700">
-                {batch}
+                {batchName}
               </span>
+
             </div>
           </div>
 
-
-          {/* Session Date */}
+          {/* DATE */}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -134,10 +258,9 @@ function MentorAttendance() {
         </div>
       </div>
 
-
-      {/* ========================= */}
-      {/* VIEW ONLY NOTICE */}
-      {/* ========================= */}
+      {/* ====================================== */}
+      {/* NOTICE */}
+      {/* ====================================== */}
 
       <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
 
@@ -149,185 +272,260 @@ function MentorAttendance() {
           />
 
           <div>
+
             <p className="text-sm font-medium text-blue-800">
               View-only attendance
             </p>
 
             <p className="mt-1 text-xs text-blue-700">
               Attendance is managed by the administrator.
-              You can view attendance for your assigned students.
+              You can only view attendance for students
+              assigned to your batch.
             </p>
+
           </div>
 
         </div>
-
       </div>
 
-
-      {/* ========================= */}
-      {/* STUDENT ROSTER */}
-      {/* ========================= */}
+      {/* ====================================== */}
+      {/* ATTENDANCE CARD */}
+      {/* ====================================== */}
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
 
-        {/* Header */}
+        {/* HEADER */}
 
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
 
           <div>
 
             <h2 className="font-semibold text-gray-900">
-              Student Attendance
+              Assigned Students
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              {students.length} assigned students
+              {students.length} assigned student
+              {students.length !== 1 ? "s" : ""}
             </p>
 
           </div>
 
-
           <button
             type="button"
-            className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+            onClick={handleRetry}
+            disabled={loading}
+            className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <History size={17} />
 
-            View History
+            {loading ? (
+              <Loader2
+                size={17}
+                className="animate-spin"
+              />
+            ) : (
+              <RefreshCw size={17} />
+            )}
+
+            Refresh
+
           </button>
 
         </div>
 
+        {/* ====================================== */}
+        {/* LOADING */}
+        {/* ====================================== */}
 
-        {/* Empty State */}
+        {loading && (
+          <div className="flex items-center justify-center gap-3 py-16 text-gray-500">
 
-        {students.length === 0 ? (
-
-          <div className="py-16 text-center">
-
-            <CalendarCheck
-              className="mx-auto h-10 w-10 text-gray-300"
+            <Loader2
+              className="animate-spin"
+              size={22}
             />
 
-            <p className="mt-4 font-medium text-gray-900">
-              No students assigned
-            </p>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Attendance records will appear here when students
-              are assigned to you.
-            </p>
+            <span>
+              Loading assigned students...
+            </span>
 
           </div>
+        )}
 
-        ) : (
+        {/* ====================================== */}
+        {/* ERROR */}
+        {/* ====================================== */}
 
-          /* Student Table */
+        {!loading && error && (
+          <div className="px-5 py-12 text-center">
 
-          <div className="overflow-x-auto">
+            <CircleAlert
+              className="mx-auto text-red-500"
+              size={36}
+            />
 
-            <table className="w-full">
+            <p className="mt-4 font-medium text-red-600">
+              {error}
+            </p>
 
-              <thead className="border-b border-gray-200 bg-gray-50">
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="mt-4 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+            >
+              Try Again
+            </button>
 
-                <tr>
+          </div>
+        )}
 
-                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
-                    Student
-                  </th>
+        {/* ====================================== */}
+        {/* EMPTY */}
+        {/* ====================================== */}
 
-                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
-                    Attendance
-                  </th>
+        {!loading &&
+          !error &&
+          students.length === 0 && (
+            <div className="py-16 text-center">
 
-                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
-                    Today's Status
-                  </th>
+              <CalendarCheck
+                className="mx-auto h-10 w-10 text-gray-300"
+              />
 
-                </tr>
+              <p className="mt-4 font-medium text-gray-900">
+                No students assigned
+              </p>
 
-              </thead>
+              <p className="mt-1 text-sm text-gray-500">
+                Students assigned to this batch will
+                appear here.
+              </p>
 
+            </div>
+          )}
 
-              <tbody className="divide-y divide-gray-100">
+        {/* ====================================== */}
+        {/* TABLE */}
+        {/* ====================================== */}
 
-                {students.map((student) => (
+        {!loading &&
+          !error &&
+          students.length > 0 && (
+            <div className="overflow-x-auto">
 
-                  <tr
-                    key={student.id}
-                    className="transition hover:bg-gray-50"
-                  >
+              <table className="w-full">
 
-                    {/* Student */}
+                <thead className="border-b border-gray-200 bg-gray-50">
 
-                    <td className="px-5 py-4">
+                  <tr>
 
-                      <p className="font-medium text-gray-900">
-                        {student.name}
-                      </p>
+                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
+                      Student
+                    </th>
 
-                      <p className="text-sm text-gray-500">
-                        {student.studentId}
-                      </p>
+                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
+                      Attendance
+                    </th>
 
-                    </td>
-
-
-                    {/* Percentage */}
-
-                    <td className="px-5 py-4">
-
-                      <div className="flex items-center gap-3">
-
-                        <div className="h-2 w-28 overflow-hidden rounded-full bg-gray-200">
-
-                          <div
-                            className="h-full rounded-full bg-green-500"
-                            style={{
-                              width: `${student.percentage}%`,
-                            }}
-                          />
-
-                        </div>
-
-                        <span className="text-sm font-medium text-gray-700">
-                          {student.percentage}%
-                        </span>
-
-                      </div>
-
-                    </td>
-
-
-                    {/* Status */}
-
-                    <td className="px-5 py-4">
-
-                      <span
-                        className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium ${getStatusStyle(
-                          student.status
-                        )}`}
-                      >
-
-                        {getStatusIcon(student.status)}
-
-                        {student.status}
-
-                      </span>
-
-                    </td>
+                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
+                      Latest Status
+                    </th>
 
                   </tr>
 
-                ))}
+                </thead>
 
-              </tbody>
+                <tbody className="divide-y divide-gray-100">
 
-            </table>
+                  {students.map((student) => {
 
-          </div>
+                    const percentage = Number(
+                      student.attendancePercentage || 0
+                    );
 
-        )}
+                    return (
+                      <tr
+                        key={student.id}
+                        className="transition hover:bg-gray-50"
+                      >
+
+                        {/* STUDENT */}
+
+                        <td className="px-5 py-4">
+
+                          <p className="font-medium text-gray-900">
+                            {student.name}
+                          </p>
+
+                          <p className="text-sm text-gray-500">
+                            {student.userID ||
+                              student.email ||
+                              student.id}
+                          </p>
+
+                        </td>
+
+                        {/* ATTENDANCE */}
+
+                        <td className="px-5 py-4">
+
+                          <div className="flex items-center gap-3">
+
+                            <div className="h-2 w-28 overflow-hidden rounded-full bg-gray-200">
+
+                              <div
+                                className="h-full rounded-full bg-green-500"
+                                style={{
+                                  width: `${Math.min(
+                                    Math.max(
+                                      percentage,
+                                      0
+                                    ),
+                                    100
+                                  )}%`,
+                                }}
+                              />
+
+                            </div>
+
+                            <span className="text-sm font-semibold text-gray-700">
+                              {percentage}%
+                            </span>
+
+                          </div>
+
+                        </td>
+
+                        {/* STATUS */}
+
+                        <td className="px-5 py-4">
+
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium ${getStatusStyle(
+                              student.latestStatus
+                            )}`}
+                          >
+
+                            {getStatusIcon(
+                              student.latestStatus
+                            )}
+
+                            {student.latestStatus}
+
+                          </span>
+
+                        </td>
+
+                      </tr>
+                    );
+                  })}
+
+                </tbody>
+
+              </table>
+
+            </div>
+          )}
 
       </div>
 

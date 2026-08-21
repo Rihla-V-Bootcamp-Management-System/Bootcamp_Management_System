@@ -14,78 +14,64 @@ import useAuth from "../context/useAuth";
 function MentorSidebar() {
   const { logout } = useAuth();
 
-  return (
-    <aside className="w-56 bg-gray-900 text-white p-6 flex flex-col">
+  const linkClass =
+    "flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-gray-800";
 
-      <h2 className="text-xl font-bold mb-8">
+  return (
+    <aside className="flex h-screen w-56 shrink-0 flex-col bg-gray-900 p-6 text-white">
+
+      {/* LOGO / NAME */}
+      <h2 className="mb-8 text-xl font-bold">
         ASTU MSJ
       </h2>
 
+      {/* NAVIGATION */}
       <nav className="flex flex-col gap-2">
 
-        <NavLink
-          to="/mentor"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
-        >
+        <NavLink to="/mentor" className={linkClass}>
           <LayoutDashboard size={20} />
           Dashboard
         </NavLink>
 
-        <NavLink
-          to="/mentor/students"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
-        >
+        <NavLink to="/mentor/students" className={linkClass}>
           <Users size={20} />
           My Students
         </NavLink>
 
-        <NavLink
-          to="/mentor/attendance"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
-        >
+        <NavLink to="/mentor/attendance" className={linkClass}>
           <CalendarCheck size={20} />
           Attendance
         </NavLink>
 
-        <NavLink
-          to="/mentor/progress"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
-        >
+        <NavLink to="/mentor/progress" className={linkClass}>
           <ChartNoAxesColumn size={20} />
           Progress
         </NavLink>
 
-        <NavLink
-          to="/mentor/assignments"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
-        >
+        <NavLink to="/mentor/assignments" className={linkClass}>
           <ClipboardList size={20} />
           Assignments
         </NavLink>
 
-        <NavLink
-          to="/mentor/submissions"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
-        >
+        <NavLink to="/mentor/submissions" className={linkClass}>
           <Upload size={20} />
           Submissions
         </NavLink>
 
-        <NavLink
-          to="/mentor/announcements"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
-        >
+        <NavLink to="/mentor/announcements" className={linkClass}>
           <Megaphone size={20} />
           Announcements
         </NavLink>
 
       </nav>
 
-      <div className="mt-auto pt-6 border-t border-gray-700">
+      {/* LOGOUT */}
+      <div className="mt-auto border-t border-gray-700 pt-6">
 
         <button
+          type="button"
           onClick={logout}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-left hover:bg-gray-800"
+          className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left hover:bg-gray-800"
         >
           <LogOut size={20} />
           Logout

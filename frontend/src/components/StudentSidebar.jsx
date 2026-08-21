@@ -15,18 +15,30 @@ import useAuth from "../context/useAuth";
 function StudentSidebar() {
   const { logout } = useAuth();
 
-  return (
-    <aside className="w-56 bg-gray-900 text-white p-6 flex flex-col">
+  const navClass = ({ isActive }) =>
+    `flex items-center gap-3 rounded-lg border px-4 py-3 transition ${
+      isActive
+        ? "border-white bg-gray-800 text-white font-semibold"
+        : "border-transparent text-gray-300 hover:border-gray-700 hover:bg-gray-800 hover:text-white"
+    }`;
 
-      <h2 className="text-xl font-bold mb-8">
+  return (
+    <aside className="flex w-56 flex-col bg-gray-900 p-6 text-white">
+
+      {/* LOGO */}
+
+      <h2 className="mb-8 text-xl font-bold">
         ASTU MSJ
       </h2>
+
+      {/* NAVIGATION */}
 
       <nav className="flex flex-col gap-2">
 
         <NavLink
           to="/student"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          end
+          className={navClass}
         >
           <LayoutDashboard size={20} />
           Dashboard
@@ -34,7 +46,7 @@ function StudentSidebar() {
 
         <NavLink
           to="/student/attendance"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          className={navClass}
         >
           <CalendarCheck size={20} />
           Attendance
@@ -42,15 +54,15 @@ function StudentSidebar() {
 
         <NavLink
           to="/student/progress"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          className={navClass}
         >
           <ChartNoAxesColumn size={20} />
           Progress
         </NavLink>
 
         <NavLink
-          to="student/assignments"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          to="/student/assignments"
+          className={navClass}
         >
           <ClipboardList size={20} />
           Assignments
@@ -58,15 +70,15 @@ function StudentSidebar() {
 
         <NavLink
           to="/student/grades"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          className={navClass}
         >
           <Star size={20} />
           Grades
         </NavLink>
 
         <NavLink
-          to="student/announcements"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          to="/student/announcements"
+          className={navClass}
         >
           <Megaphone size={20} />
           Announcements
@@ -74,7 +86,7 @@ function StudentSidebar() {
 
         <NavLink
           to="/student/profile"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          className={navClass}
         >
           <User size={20} />
           Profile
@@ -82,12 +94,14 @@ function StudentSidebar() {
 
       </nav>
 
-      <div className="mt-auto pt-6 border-t border-gray-700">
+      {/* LOGOUT */}
+
+      <div className="mt-auto border-t border-gray-700 pt-6">
 
         <button
-          onClick=
-          {logout}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-left hover:bg-gray-800"
+          type="button"
+          onClick={logout}
+          className="flex w-full items-center gap-3 rounded-lg border border-transparent px-4 py-3 text-left text-gray-300 transition hover:border-gray-700 hover:bg-gray-800 hover:text-white"
         >
           <LogOut size={20} />
           Logout

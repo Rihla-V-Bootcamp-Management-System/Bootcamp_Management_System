@@ -28,10 +28,10 @@ export function AuthProvider({ children }) {
 
   
   const login = async (email, password) => {
-    const response = await apiClient.post("/auth/login", {
-      email,
-      password,
-    });
+   const response = await apiClient.post("/auth/login", {
+  email: email.trim().toLowerCase(),
+  password,
+});
 
     const { user, token } = response.data;
 

@@ -1,242 +1,133 @@
 import { Routes, Route } from "react-router-dom";
 
-// Public pages
-import FirstLogin from "../pages/FirstLogin";
-import Landing from "../pages/Landing";
-import Login from "../pages/Login";
-import Register from "../pages/Register";
-import SetPassword from "../pages/SetPassword";
-import PublicApplication from "../pages/PublicApplication";
-
-// Authentication
-import ProtectedRoute from "../components/ProtectedRoute";
-import RoleRoute from "../components/RoleRoute";
-
-// Layouts
 import DashboardLayout from "../layouts/DashboardLayout";
 
-// Admin
-import AdminDashboard from "../pages/AdminDashboard";
-import Users from "../pages/admin/Users";
-import Applications from "../pages/admin/Applications";
-import Batches from "../pages/admin/Batches";
-import Registration from "../pages/admin/Registration";
-import BatchDetails from "../pages/admin/BatchDetails";
+// ==========================================
+// MENTOR PAGES
+// ==========================================
 
-// Mentor
 import MentorDashboard from "../pages/MentorDashboard";
-import MentorAttendance from "../pages/MentorAttendance";
-import MentorProgress from "../pages/MentorProgress"
 import MentorStudents from "../pages/MentorStudents";
+import MentorAttendance from "../pages/MentorAttendance";
+import MentorProgress from "../pages/MentorProgress";
 import MentorAssignments from "../pages/MentorAssignments";
 import MentorSubmissions from "../pages/MentorSubmission";
-// Student
-import StudentDashboard from "../pages/StudentDashboard";
 
+// ==========================================
+// STUDENT PAGES
+// ==========================================
 
+import StudentAttendance from "../pages/StudentAttendance";
 
 function AppRoutes() {
   return (
     <Routes>
 
-      {/* ========================= */}
-      {/* PUBLIC ROUTES */}
-      {/* ========================= */}
+      {/* ====================================== */}
+      {/* MENTOR */}
+      {/* ====================================== */}
 
       <Route
-        path="/set-password"
-        element={<SetPassword />}
-      />
-
-      <Route
-        path="/first-login"
-        element={<FirstLogin />}
-      />
-
-      <Route
-        path="/apply"
-        element={<PublicApplication />}
-      />
-
-      <Route
-        path="/"
-        element={<Landing />}
-      />
-
-      <Route
-        path="/login"
-        element={<Login />}
-      />
-
-      <Route
-        path="/register"
-        element={<Register />}
-      />
-
-
-      {/* ========================= */}
-      {/* ADMIN ROUTES */}
-      {/* ========================= */}
-
-      <Route
-        element={
-          <ProtectedRoute>
-            <RoleRoute allowedRoles={["admin"]}>
-              <DashboardLayout role="admin" />
-            </RoleRoute>
-          </ProtectedRoute>
-        }
+        path="/mentor"
+        element={<DashboardLayout role="mentor" />}
       >
+
         <Route
-          path="/admin"
-          element={<AdminDashboard />}
+          index
+          element={<MentorDashboard />}
         />
 
         <Route
-          path="/admin/users"
-          element={<Users />}
+          path="students"
+          element={<MentorStudents />}
         />
 
         <Route
-          path="/admin/applications"
-          element={<Applications />}
+          path="attendance"
+          element={<MentorAttendance />}
         />
 
         <Route
-          path="/admin/batches"
-          element={<Batches />}
+          path="progress"
+          element={<MentorProgress />}
         />
 
         <Route
-          path="/admin/batches/:id"
-          element={<BatchDetails />}
+          path="assignments"
+          element={<MentorAssignments />}
         />
 
         <Route
-          path="/admin/registrations"
-          element={<Registration />}
+          path="submissions"
+          element={<MentorSubmissions />}
         />
 
         <Route
-          path="/admin/announcements"
-          element={<div>Announcements Page</div>}
+          path="announcements"
+          element={<div>Announcements</div>}
         />
 
-        <Route
-          path="/admin/analytics"
-          element={<div>Analytics Page</div>}
-        />
-
-        <Route
-          path="/admin/settings"
-          element={<div>Settings Page</div>}
-        />
       </Route>
 
-     {/* ========================= */}
-{/* MENTOR ROUTES */}
-{/* ========================= */}
 
-{/* <Route
-  element={
-    <ProtectedRoute>
-      <RoleRoute allowedRoles={["mentor"]}>
-        <DashboardLayout role="mentor" />
-      </RoleRoute>
-    </ProtectedRoute>
-  }
-> */}
-
-<Route element={<DashboardLayout role="mentor" />}>
-  <Route
-    path="/mentor"
-    element={<MentorDashboard />}
-  />
-
-  <Route
-    path="/mentor"
-    element={<MentorDashboard />}
-  />
-
-  <Route
-    path="/mentor/students"
-    element={<MentorStudents/>}
-  />
-
-  <Route
-    path="/mentor/attendance"
-    element={<MentorAttendance />}
-  />
-
-  <Route
-    path="/mentor/progress"
-    element={<MentorProgress/>}
-  />
-
-  <Route
-    path="/mentor/assignments"
-    element={<MentorAssignments/>}
-  />
-
-  <Route
-    path="/mentor/submissions"
-    element={<MentorSubmissions/>}
-  />
-
-  <Route
-    path="/mentor/announcements"
-    element={<div>Announcements Page</div>}
-  />
-</Route>
-
-      
-      {/* ========================= */}
-      {/* STUDENT ROUTES */}
-      {/* ========================= */}
+      {/* ====================================== */}
+      {/* STUDENT */}
+      {/* ====================================== */}
 
       <Route
-        element={
-          <ProtectedRoute>
-            <RoleRoute allowedRoles={["student"]}>
-              <DashboardLayout role="student" />
-            </RoleRoute>
-          </ProtectedRoute>
-        }
+        path="/student"
+        element={<DashboardLayout role="student" />}
       >
-        <Route
-          path="/student"
-          element={<StudentDashboard />}
-        />
+
+        {/* /student */}
 
         <Route
-          path="/student/attendance"
-          element={<div>Attendance Page</div>}
+          index
+          element={<div>Student Dashboard</div>}
         />
 
-        <Route
-          path="/student/progress"
-          element={<div>Progress Page</div>}
-        />
+        {/* /student/attendance */}
 
         <Route
-          path="/student/assignments"
-          element={<div>Assignments Page</div>}
+          path="attendance"
+          element={<StudentAttendance />}
         />
 
-        <Route
-          path="/student/grades"
-          element={<div>Grades Page</div>}
-        />
+        {/* /student/progress */}
 
         <Route
-          path="/student/announcements"
-          element={<div>Announcements Page</div>}
+          path="progress"
+          element={<div>Student Progress</div>}
         />
 
+        {/* /student/assignments */}
+
         <Route
-          path="/student/profile"
-          element={<div>Profile Page</div>}
+          path="assignments"
+          element={<div>Student Assignments</div>}
         />
+
+        {/* /student/grades */}
+
+        <Route
+          path="grades"
+          element={<div>Student Grades</div>}
+        />
+
+        {/* /student/announcements */}
+
+        <Route
+          path="announcements"
+          element={<div>Student Announcements</div>}
+        />
+
+        {/* /student/profile */}
+
+        <Route
+          path="profile"
+          element={<div>Student Profile</div>}
+        />
+
       </Route>
 
     </Routes>

@@ -1,23 +1,84 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Outlet, useLocation } from "react-router-dom";
+
 import AdminSidebar from "../components/AdminSidebar";
 import MentorSidebar from "../components/MentorSidebar";
 import StudentSidebar from "../components/StudentSidebar";
 import Header from "../components/Header";
-import { Outlet } from "react-router-dom";
 
 function DashboardLayout({ role }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
-  let sidebar;
+  const getSidebar = () => {
+    if (role === "admin") return <AdminSidebar />;
+    if (role === "mentor") return <MentorSidebar />;
+    if (role === "student") return <StudentSidebar />;
 
-  if (role === "admin") {
-    sidebar = <AdminSidebar />;
-  } else if (role === "mentor") {
-    sidebar = <MentorSidebar />;
-  } else if (role === "student") {
-    sidebar = <StudentSidebar />;
-  }
+    return null;
+  };
+
+  const getPageInfo = () => {
+    const path = location.pathname;
+
+    if (path === "/mentor") {
+      return {
+        title: "Mentor Dashboard",
+        description:
+          "Monitor your students and stay up to date with their progress.",
+      };
+    }
+
+    if (path.includes("/mentor/students")) {
+      return {
+        title: "My Students",
+        description: "View and manage your assigned students.",
+      };
+    }
+
+    if (path.includes("/mentor/attendance")) {
+      return {
+        title: "Attendance",
+        description: "Monitor and manage student attendance.",
+      };
+    }
+
+    if (path.includes("/mentor/progress")) {
+      return {
+        title: "Progress",
+        description: "Track your students' learning progress.",
+      };
+    }
+
+    if (path.includes("/mentor/assignments")) {
+      return {
+        title: "Assignments",
+        description: "Create and manage student assignments.",
+      };
+    }
+
+    if (path.includes("/mentor/submissions")) {
+      return {
+        title: "Submissions",
+        description: "Review student submissions.",
+      };
+    }
+
+    if (path.includes("/mentor/announcements")) {
+      return {
+        title: "Announcements",
+        description: "View important bootcamp announcements.",
+      };
+    }
+
+    return {
+      title: "Dashboard",
+      description: "",
+    };
+  };
+
+  const pageInfo = getPageInfo();
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
@@ -25,62 +86,56 @@ function DashboardLayout({ role }) {
       {/* =========================
           DESKTOP SIDEBAR
       ========================== */}
-      <div className="hidden md:block">
-        {sidebar}
-      </div>
+      <aside className="hidden h-screen shrink-0 md:block">
+        {getSidebar()}
+      </aside>
 
       {/* =========================
           MOBILE SIDEBAR
       ========================== */}
       {sidebarOpen && (
         <>
-          {/* Overlay */}
           <div
             className="fixed inset-0 z-40 bg-black/40 md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
 
-          {/* Sidebar */}
-          <div className="fixed left-0 top-0 z-50 h-screen md:hidden">
-            {sidebar}
-          </div>
+          <aside className="fixed left-0 top-0 z-50 h-screen md:hidden">
+            {getSidebar()}
+          </aside>
         </>
       )}
 
       {/* =========================
           MAIN AREA
       ========================== */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex h-screen min-w-0 flex-1 flex-col">
 
-        {/* =========================
-            MOBILE TOP BAR
-        ========================== */}
+        {/* MOBILE MENU */}
         <div className="flex h-12 shrink-0 items-center bg-gray-50 px-4 md:hidden">
-
           <button
             type="button"
             onClick={() => setSidebarOpen((prev) => !prev)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-700 transition hover:bg-gray-200"
-            aria-label="Toggle sidebar"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-700 hover:bg-gray-200"
           >
-            {sidebarOpen ? (
-              <X size={22} />
-            ) : (
-              <Menu size={22} />
-            )}
+            {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
-
         </div>
 
         {/* =========================
-            HEADER
+            FIXED HEADER
         ========================== */}
-        <Header />
+        <div className="shrink-0">
+          <Header
+            title={pageInfo.title}
+            description={pageInfo.description}
+          />
+        </div>
 
         {/* =========================
-            PAGE CONTENT
+            ONLY THIS AREA SCROLLS
         ========================== */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-8">
+        <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
           <Outlet />
         </main>
 
