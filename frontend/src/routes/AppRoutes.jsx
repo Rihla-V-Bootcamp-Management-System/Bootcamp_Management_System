@@ -16,6 +16,8 @@ import PublicApplication from "../pages/PublicApplication";
 import StudentAttendance from "../pages/StudentAttendance";
 import StudentProgress from "../pages/StudentProgress";
 import StudentGrades from "../pages/StudentGrades";
+import StudentAnnouncements from "../pages/StudentAnnouncements";
+import StudentProfile from "../pages/StudentProfile";
 
 function AppRoutes() {
   return (
@@ -127,6 +129,14 @@ function AppRoutes() {
   path="/test-grades"
   element={<StudentGrades />}
 />
+<Route
+  path="/test-announcements"
+  element={<StudentAnnouncements />}
+/>
+<Route
+  path="/test-profile"
+  element={<StudentProfile />}
+/>
      <Route
         element={
           <ProtectedRoute>
@@ -160,12 +170,12 @@ function AppRoutes() {
 
         <Route
           path="/student/announcements"
-          element={<div>Announcements Page</div>}
+          element={<StudentAnnouncements />}
         />
 
         <Route
           path="/student/profile"
-          element={<div>Profile Page</div>}
+          element={<StudentProfile />}
         />
       </Route>
 
