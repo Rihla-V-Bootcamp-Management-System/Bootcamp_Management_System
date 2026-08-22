@@ -38,9 +38,7 @@ export function AuthProvider({ children }) {
     const responseToken = response.data?.token;
 
     if (!responseUser || !responseToken) {
-      throw new Error(
-        "Login response is missing user or token."
-      );
+      throw new Error("Login response is missing user or token.");
     }
 
     localStorage.setItem(
@@ -61,9 +59,7 @@ export function AuthProvider({ children }) {
     responseToken
   ) => {
     if (!responseUser || !responseToken) {
-      throw new Error(
-        "User and token are required."
-      );
+      throw new Error("User and token are required.");
     }
 
     localStorage.setItem(

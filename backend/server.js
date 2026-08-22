@@ -15,29 +15,39 @@ const connectDB = require("./config/db");
 
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
-const registrationRoutes = require("./routes/registrationRoutes");
-const formQuestionRoutes = require("./routes/formQuestionRoutes");
-const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
-const attendanceRoutes = require("./routes/attendanceRoutes");
-const progressRoutes = require("./routes/progressRoutes");
-const applicationFormRoutes = require("./routes/ApplicationFormRoutes");
+
+// ==========================================
+// OLD ROUTES - TEMPORARILY DISABLED
+// ==========================================
+
+// const registrationRoutes = require("./routes/registrationRoutes");
+// const formQuestionRoutes = require("./routes/formQuestionRoutes");
+// const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
+// const attendanceRoutes = require("./routes/attendanceRoutes");
+// const progressRoutes = require("./routes/progressRoutes");
+// const applicationFormRoutes = require("./routes/ApplicationFormRoutes");
+// const studentDirectoryRoutes = require("./routes/studentDirectoryRoutes");
+// const gradingRoutes = require("./routes/gradingRoutes");
+
+// ==========================================
+// ACTIVE ROUTES
+// ==========================================
+
 const mentorRoutes = require("./routes/mentorRoutes");
 const seasonRoutes = require("./routes/seasonRoutes");
-const batchRoutes = require(
-  "./routes/batchRoutes"
-);
-// ==========================================
-// CONFIG
-// ==========================================
+const batchRoutes = require("./routes/batchRoutes");
 
-dotenv.config();
-const studentDirectoryRoutes = require("./routes/studentDirectoryRoutes");
-const assignmentRoutes = require("./routes/assignmentRoutes");
-const gradingRoutes = require("./routes/gradingRoutes");
-const submissionRoutes = require("./routes/submissionRoutes");
+const assignmentRoutes = require("./routes/AssignmentRoutes");
+const submissionRoutes = require("./routes/SubmissionRoutes");
+
 const superAdminRoutes = require("./routes/superAdminRoutes");
 
+// ==========================================
+// APP CONFIG
+// ==========================================
+
 const app = express();
+
 const PORT = process.env.PORT || 5000;
 
 // ==========================================
@@ -49,13 +59,16 @@ app.use(cors());
 app.use(express.json());
 
 // ==========================================
-// TEST ROUTES
+// TEST / HEALTH ROUTES
 // ==========================================
-app.get("/api/test-application-form", (req, res) => {
-  res.json({
-    message: "APPLICATION FORM ROUTE IS WORKING",
-  });
-});
+
+// OLD APPLICATION FORM TEST ROUTE - TEMPORARILY DISABLED
+
+// app.get("/api/test-application-form", (req, res) => {
+//   res.json({
+//     message: "APPLICATION FORM ROUTE IS WORKING",
+//   });
+// });
 
 app.get("/", (req, res) => {
   res.json({
@@ -71,30 +84,53 @@ app.get("/api/health", (req, res) => {
 });
 
 // ==========================================
-// API ROUTES
+// ACTIVE API ROUTES
 // ==========================================
+
 app.use("/api/seasons", seasonRoutes);
+
 app.use("/api/users", userRoutes);
+
 app.use("/api/auth", authRoutes);
+
 app.use("/api/mentor", mentorRoutes);
 
-app.use("/api/registrations", registrationRoutes);
+app.use("/api/assignments", assignmentRoutes);
 
-app.use("/api/form-questions", formQuestionRoutes);
+app.use("/api/submissions", submissionRoutes);
+
 app.use("/api/batches", batchRoutes);
-app.use(
-  "/api/registration-settings",
-  registrationSettingsRoutes
-);
 
-app.use("/api/attendance", attendanceRoutes);
+app.use("/api/super-admin", superAdminRoutes);
 
-app.use("/api/progress", progressRoutes);
+// ==========================================
+// OLD API ROUTES - TEMPORARILY DISABLED
+// ==========================================
 
-app.use(
-  "/api/application-forms",
-  applicationFormRoutes
-);
+// app.use("/api/registrations", registrationRoutes);
+
+// app.use("/api/form-questions", formQuestionRoutes);
+
+// app.use(
+//   "/api/registration-settings",
+//   registrationSettingsRoutes
+// );
+
+// app.use("/api/attendance", attendanceRoutes);
+
+// app.use("/api/progress", progressRoutes);
+
+// app.use(
+//   "/api/application-forms",
+//   applicationFormRoutes
+// );
+
+// app.use(
+//   "/api/student-directory",
+//   studentDirectoryRoutes
+// );
+
+// app.use("/api/grading", gradingRoutes);
 
 // ==========================================
 // START SERVER

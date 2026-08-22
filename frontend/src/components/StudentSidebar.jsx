@@ -90,6 +90,15 @@ function StudentSidebar() {
             <span>Grades</span>
           </NavLink>
 
+                    
+          <NavLink
+            to="/student/submissions"
+            className={navClass}
+          >
+            <User size={19} />
+            <span>Submissions</span>
+          </NavLink>
+
           <NavLink
             to="/student/announcements"
             className={navClass}
@@ -105,6 +114,7 @@ function StudentSidebar() {
             <User size={19} />
             <span>Profile</span>
           </NavLink>
+          
 
         </div>
       </nav>
