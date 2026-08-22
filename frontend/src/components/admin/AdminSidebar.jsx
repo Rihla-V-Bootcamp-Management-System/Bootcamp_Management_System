@@ -43,6 +43,11 @@ function AdminSidebar() {
       icon: ClipboardList,
     },
     {
+      name: "Attendance",
+      path: "/admin/attendance",
+      icon: ClipboardList,
+    },
+    {
       name: "Applications",
       path: "/admin/applications",
       icon: FileText,

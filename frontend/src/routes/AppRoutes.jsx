@@ -22,11 +22,12 @@ import BatchDetails from "../pages/admin/BatchDetails";
 import MentorDashboard from "../pages/MentorDashboard";
 import StudentDashboard from "../pages/StudentDashboard";
 
+import Attendance from "../pages/admin/Attendance";
 function AppRoutes() {
   return (
     <Routes>
 
-      {/* ================= PUBLIC ROUTES ================= */}
+      
 
       <Route
         path="/"
@@ -59,8 +60,7 @@ function AppRoutes() {
       />
 
 
-      {/* ================= ADMIN ROUTES ================= */}
-
+      
       <Route element={<DashboardLayout />}>
 
         <Route
@@ -77,6 +77,10 @@ function AppRoutes() {
           path="/admin/applications"
           element={<Applications />}
         />
+          <Route
+      path="/admin/attendance"
+      element={<Attendance />}
+    />
 
         <Route
           path="/admin/batches"
