@@ -9,6 +9,10 @@ dotenv.config();
 
 const connectDB = require("./config/db");
 
+// ==========================================
+// ROUTES
+// ==========================================
+
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const registrationRoutes = require("./routes/registrationRoutes");
@@ -17,6 +21,14 @@ const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes"
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const progressRoutes = require("./routes/progressRoutes");
 const applicationFormRoutes = require("./routes/ApplicationFormRoutes");
+const mentorRoutes = require("./routes/mentorRoutes");
+const seasonRoutes = require("./routes/seasonRoutes");
+const batchRoutes = require(
+  "./routes/batchRoutes"
+);
+// ==========================================
+// CONFIG
+// ==========================================
 
 dotenv.config();
 const studentDirectoryRoutes = require("./routes/studentDirectoryRoutes");
@@ -28,10 +40,22 @@ const superAdminRoutes = require("./routes/superAdminRoutes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// ==========================================
+// MIDDLEWARE
+// ==========================================
+
 app.use(cors());
+
 app.use(express.json());
 
-connectDB();
+// ==========================================
+// TEST ROUTES
+// ==========================================
+app.get("/api/test-application-form", (req, res) => {
+  res.json({
+    message: "APPLICATION FORM ROUTE IS WORKING",
+  });
+});
 
 app.get("/", (req, res) => {
   res.json({
@@ -46,43 +70,53 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// ==========================================
+// API ROUTES
+// ==========================================
+app.use("/api/seasons", seasonRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/mentor", mentorRoutes);
+
 app.use("/api/registrations", registrationRoutes);
+
 app.use("/api/form-questions", formQuestionRoutes);
-app.use("/api/registration-settings", registrationSettingsRoutes);
+app.use("/api/batches", batchRoutes);
+app.use(
+  "/api/registration-settings",
+  registrationSettingsRoutes
+);
+
 app.use("/api/attendance", attendanceRoutes);
+
 app.use("/api/progress", progressRoutes);
-app.use("/api/application-forms", applicationFormRoutes);
+
+app.use(
+  "/api/application-forms",
+  applicationFormRoutes
+);
+
+// ==========================================
+// START SERVER
+// ==========================================
 
 const startServer = async () => {
   try {
     await connectDB();
 
     app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(
+        `Server running on http://localhost:${PORT}`
+      );
     });
   } catch (error) {
-    console.error("Server startup failed:", error.message);
+    console.error(
+      "Server startup failed:",
+      error.message
+    );
+
     process.exit(1);
   }
 };
 
 startServer();
-app.use("/api/students", studentDirectoryRoutes);
-app.use("/api/assignments", assignmentRoutes);
-app.use("/api/grading", gradingRoutes);
-app.use("/api/submissions", submissionRoutes);
-app.use("/api/superadmin", superAdminRoutes);
-
-app.get("/", (req, res) => {
-  res.json({
-    message: "Bootcamp Management System API is running",
-  });
-});
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});

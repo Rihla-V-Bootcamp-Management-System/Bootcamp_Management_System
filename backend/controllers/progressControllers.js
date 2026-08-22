@@ -1,5 +1,14 @@
+const mongoose = require("mongoose");
 const Progress = require("../models/Progress");
 const Batch = require("../models/Batch");
+
+// =========================================================
+// HELPERS
+// =========================================================
+
+const getRole = (user) => {
+  return String(user?.role || "").trim().toLowerCase();
+};
 
 const isMentorAssigned = (batch, mentorId) => {
   return batch.mentorIds.some(
@@ -13,42 +22,18 @@ const isStudentInBatch = (batch, studentId) => {
   );
 };
 
+// =========================================================
+// CREATE / SAVE PROGRESS
+// STUDENT ONLY
+// =========================================================
+
 const createProgress = async (req, res) => {
   try {
-    let targetStudentId;
+    const role = getRole(req.user);
 
-    if (req.user.role === "STUDENT") {
-      targetStudentId = req.user.id;
-    } else if (req.user.role === "MENTOR") {
-      targetStudentId = req.body.studentId;
-
-      if (!targetStudentId) {
-        return res.status(400).json({
-          message: "studentId is required",
-        });
-      }
-
-      const batches = await Batch.find({
-        mentorIds: req.user.id,
-        studentIds: targetStudentId,
-      });
-
-      if (batches.length === 0) {
-        return res.status(403).json({
-          message: "Student is not assigned to your batch",
-        });
-      }
-    } else if (req.user.role === "ADMIN") {
-      targetStudentId = req.body.studentId;
-
-      if (!targetStudentId) {
-        return res.status(400).json({
-          message: "studentId is required",
-        });
-      }
-    } else {
+    if (role !== "student") {
       return res.status(403).json({
-        message: "Access denied",
+        message: "Only students can update progress",
       });
     }
 
@@ -60,76 +45,125 @@ const createProgress = async (req, res) => {
       });
     }
 
+    const studentId = req.user._id;
+
     const progress = await Progress.findOneAndUpdate(
       {
-        studentId: targetStudentId,
+        studentId,
         topic,
       },
       {
-        status,
-        notes,
-        updatedBy: req.user.id,
+        $set: {
+          status,
+          notes: notes || "",
+          updatedBy: req.user._id,
+        },
       },
       {
         new: true,
         upsert: true,
         runValidators: true,
+        setDefaultsOnInsert: true,
       }
-    );
+    )
+      .populate("studentId", "name email")
+      .populate("updatedBy", "name");
 
     return res.status(200).json({
       message: "Progress saved successfully",
       progress,
     });
   } catch (error) {
+    console.error("Create progress error:", error);
+
     return res.status(500).json({
       message: error.message,
     });
   }
 };
 
+// =========================================================
+// GET PROGRESS
+// ADMIN -> all / specific student
+// MENTOR -> assigned students
+// STUDENT -> own progress
+// =========================================================
+
 const getProgress = async (req, res) => {
   try {
+    const role = getRole(req.user);
+
     const { studentId, topic } = req.query;
 
     const filter = {};
 
-    if (req.user.role === "STUDENT") {
-      filter.studentId = req.user.id;
+    // =====================================================
+    // STUDENT
+    // =====================================================
 
-      if (studentId && studentId !== req.user.id.toString()) {
+    if (role === "student") {
+      filter.studentId = req.user._id;
+
+      if (
+        studentId &&
+        studentId !== req.user._id.toString()
+      ) {
         return res.status(403).json({
           message: "You can only view your own progress",
         });
       }
-    } else if (req.user.role === "MENTOR") {
+    }
+
+    // =====================================================
+    // MENTOR
+    // =====================================================
+
+    else if (role === "mentor") {
       if (!studentId) {
         return res.status(400).json({
-          message: "studentId is required",
+          message:
+            "studentId is required when viewing a student's progress",
         });
       }
 
       const batches = await Batch.find({
-        mentorIds: req.user.id,
+        mentorIds: req.user._id,
         studentIds: studentId,
       });
 
       if (batches.length === 0) {
         return res.status(403).json({
-          message: "Student is not assigned to your batch",
+          message:
+            "This student is not assigned to your batch",
         });
       }
 
       filter.studentId = studentId;
-    } else if (req.user.role === "ADMIN") {
+    }
+
+    // =====================================================
+    // ADMIN
+    // =====================================================
+
+    else if (role === "admin") {
       if (studentId) {
         filter.studentId = studentId;
       }
-    } else {
+    }
+
+    // =====================================================
+    // UNKNOWN ROLE
+    // =====================================================
+
+    else {
       return res.status(403).json({
         message: "Access denied",
       });
     }
+
+    // =====================================================
+    // TOPIC FILTER
+    // =====================================================
 
     if (topic) {
       filter.topic = topic;
@@ -145,14 +179,28 @@ const getProgress = async (req, res) => {
       progress,
     });
   } catch (error) {
+    console.error("Get progress error:", error);
+
     return res.status(500).json({
       message: error.message,
     });
   }
 };
 
+// =========================================================
+// GET PROGRESS BY ID
+// =========================================================
+
 const getProgressById = async (req, res) => {
   try {
+    const role = getRole(req.user);
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        message: "Invalid progress ID",
+      });
+    }
+
     const progress = await Progress.findById(req.params.id)
       .populate("studentId", "name email")
       .populate("updatedBy", "name");
@@ -163,27 +211,45 @@ const getProgressById = async (req, res) => {
       });
     }
 
-    if (req.user.role === "STUDENT") {
+    // =====================================================
+    // STUDENT
+    // =====================================================
+
+    if (role === "student") {
       if (
         progress.studentId._id.toString() !==
-        req.user.id.toString()
+        req.user._id.toString()
       ) {
         return res.status(403).json({
-          message: "You can only view your own progress",
+          message:
+            "You can only view your own progress",
         });
       }
-    } else if (req.user.role === "MENTOR") {
+    }
+
+    // =====================================================
+    // MENTOR
+    // =====================================================
+
+    else if (role === "mentor") {
       const batches = await Batch.find({
-        mentorIds: req.user.id,
+        mentorIds: req.user._id,
         studentIds: progress.studentId._id,
       });
 
       if (batches.length === 0) {
         return res.status(403).json({
-          message: "Student is not assigned to your batch",
+          message:
+            "This student is not assigned to your batch",
         });
       }
-    } else if (req.user.role !== "ADMIN") {
+    }
+
+    // =====================================================
+    // ADMIN
+    // =====================================================
+
+    else if (role !== "admin") {
       return res.status(403).json({
         message: "Access denied",
       });
@@ -193,14 +259,35 @@ const getProgressById = async (req, res) => {
       progress,
     });
   } catch (error) {
+    console.error("Get progress by ID error:", error);
+
     return res.status(500).json({
       message: error.message,
     });
   }
 };
 
+// =========================================================
+// UPDATE PROGRESS
+// STUDENT ONLY
+// =========================================================
+
 const updateProgress = async (req, res) => {
   try {
+    const role = getRole(req.user);
+
+    if (role !== "student") {
+      return res.status(403).json({
+        message: "Only students can update progress",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        message: "Invalid progress ID",
+      });
+    }
+
     const progress = await Progress.findById(req.params.id);
 
     if (!progress) {
@@ -209,26 +296,13 @@ const updateProgress = async (req, res) => {
       });
     }
 
-    if (req.user.role === "STUDENT") {
-      if (progress.studentId.toString() !== req.user.id.toString()) {
-        return res.status(403).json({
-          message: "You can only update your own progress",
-        });
-      }
-    } else if (req.user.role === "MENTOR") {
-      const batches = await Batch.find({
-        mentorIds: req.user.id,
-        studentIds: progress.studentId,
-      });
-
-      if (batches.length === 0) {
-        return res.status(403).json({
-          message: "Student is not assigned to your batch",
-        });
-      }
-    } else if (req.user.role !== "ADMIN") {
+    if (
+      progress.studentId.toString() !==
+      req.user._id.toString()
+    ) {
       return res.status(403).json({
-        message: "Access denied",
+        message:
+          "You can only update your own progress",
       });
     }
 
@@ -242,15 +316,22 @@ const updateProgress = async (req, res) => {
       progress.notes = notes;
     }
 
-    progress.updatedBy = req.user.id;
+    progress.updatedBy = req.user._id;
 
     await progress.save();
 
+    const updatedProgress =
+      await Progress.findById(progress._id)
+        .populate("studentId", "name email")
+        .populate("updatedBy", "name");
+
     return res.status(200).json({
       message: "Progress updated successfully",
-      progress,
+      progress: updatedProgress,
     });
   } catch (error) {
+    console.error("Update progress error:", error);
+
     return res.status(500).json({
       message: error.message,
     });

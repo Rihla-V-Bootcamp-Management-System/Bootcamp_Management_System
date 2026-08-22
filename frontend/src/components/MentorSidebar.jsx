@@ -14,8 +14,12 @@ import useAuth from "../context/useAuth";
 function MentorSidebar() {
   const { logout } = useAuth();
 
-  const linkClass =
-    "flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-gray-800";
+  const linkClass = ({ isActive }) =>
+    `flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-gray-800 ${
+      isActive
+        ? "border border-white"
+        : "border border-transparent"
+    }`;
 
   return (
     <aside className="flex h-screen w-56 shrink-0 flex-col bg-gray-900 p-6 text-white">
@@ -28,37 +32,60 @@ function MentorSidebar() {
       {/* NAVIGATION */}
       <nav className="flex flex-col gap-2">
 
-        <NavLink to="/mentor" className={linkClass}>
+        {/* Dashboard - exact /mentor match only */}
+        <NavLink
+          to="/mentor"
+          end
+          className={linkClass}
+        >
           <LayoutDashboard size={20} />
           Dashboard
         </NavLink>
 
-        <NavLink to="/mentor/students" className={linkClass}>
+        <NavLink
+          to="/mentor/students"
+          className={linkClass}
+        >
           <Users size={20} />
           My Students
         </NavLink>
 
-        <NavLink to="/mentor/attendance" className={linkClass}>
+        <NavLink
+          to="/mentor/attendance"
+          className={linkClass}
+        >
           <CalendarCheck size={20} />
           Attendance
         </NavLink>
 
-        <NavLink to="/mentor/progress" className={linkClass}>
+        <NavLink
+          to="/mentor/progress"
+          className={linkClass}
+        >
           <ChartNoAxesColumn size={20} />
           Progress
         </NavLink>
 
-        <NavLink to="/mentor/assignments" className={linkClass}>
+        <NavLink
+          to="/mentor/assignments"
+          className={linkClass}
+        >
           <ClipboardList size={20} />
           Assignments
         </NavLink>
 
-        <NavLink to="/mentor/submissions" className={linkClass}>
+        <NavLink
+          to="/mentor/submissions"
+          className={linkClass}
+        >
           <Upload size={20} />
           Submissions
         </NavLink>
 
-        <NavLink to="/mentor/announcements" className={linkClass}>
+        <NavLink
+          to="/mentor/announcements"
+          className={linkClass}
+        >
           <Megaphone size={20} />
           Announcements
         </NavLink>

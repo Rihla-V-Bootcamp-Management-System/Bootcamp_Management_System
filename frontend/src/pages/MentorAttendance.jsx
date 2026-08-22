@@ -12,42 +12,42 @@ import {
 import apiClient from "../services/apiClient";
 
 function MentorAttendance() {
+  // =========================================================
+  // STATE
+  // =========================================================
+
+  const [batch, setBatch] = useState(null);
   const [students, setStudents] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [batchName, setBatchName] = useState("Batch 2026");
 
-  // TEMPORARY TEST BATCH
-  // We will replace this later with the mentor's
-  // assigned batch from the backend.
-  const batchId = "6a88511ab71105e54fe97098";
-
-  // ==========================================
+  // =========================================================
   // STATUS STYLE
-  // ==========================================
+  // =========================================================
 
   const getStatusStyle = (status) => {
     switch (status) {
       case "Present":
-        return "bg-green-50 text-green-700 border-green-200";
+        return "border-green-200 bg-green-50 text-green-700";
 
       case "Absent":
-        return "bg-red-50 text-red-700 border-red-200";
+        return "border-red-200 bg-red-50 text-red-700";
 
       case "Late":
-        return "bg-orange-50 text-orange-700 border-orange-200";
+        return "border-orange-200 bg-orange-50 text-orange-700";
 
       case "Excused":
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return "border-blue-200 bg-blue-50 text-blue-700";
 
       default:
-        return "bg-gray-50 text-gray-600 border-gray-200";
+        return "border-gray-200 bg-gray-50 text-gray-600";
     }
   };
 
-  // ==========================================
+  // =========================================================
   // STATUS ICON
-  // ==========================================
+  // =========================================================
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -68,72 +68,196 @@ function MentorAttendance() {
     }
   };
 
-  // ==========================================
-  // FETCH ASSIGNED STUDENTS
-  // ==========================================
+  // =========================================================
+  // CALCULATE ATTENDANCE PERCENTAGE
+  //
+  // Present = counted as attendance
+  // Late = counted as attendance
+  // Absent = not counted
+  // Excused = ignored
+  // =========================================================
+
+  const calculatePercentage = (records) => {
+    if (!Array.isArray(records) || records.length === 0) {
+      return 0;
+    }
+
+    const applicableRecords = records.filter(
+      (record) => record.status !== "Excused"
+    );
+
+    if (applicableRecords.length === 0) {
+      return 0;
+    }
+
+    const attendedRecords = applicableRecords.filter(
+      (record) =>
+        record.status === "Present" ||
+        record.status === "Late"
+    );
+
+    return Number(
+      (
+        (attendedRecords.length / applicableRecords.length) *
+        100
+      ).toFixed(1)
+    );
+  };
+
+  // =========================================================
+  // BUILD STUDENT LIST
+  // =========================================================
+
+  const buildStudents = (records) => {
+    if (!Array.isArray(records)) {
+      return [];
+    }
+
+    const studentsMap = new Map();
+
+    records.forEach((record) => {
+      if (!record?.studentId) {
+        return;
+      }
+
+      const student = record.studentId;
+
+      // -----------------------------------------------
+      // Populated student
+      // -----------------------------------------------
+
+      if (typeof student === "object") {
+        const studentId = student._id;
+
+        if (!studentId) {
+          return;
+        }
+
+        if (!studentsMap.has(studentId)) {
+          studentsMap.set(studentId, {
+            id: studentId,
+            name: student.name || "Unknown Student",
+            studentId:
+              student.userID ||
+              student.studentId ||
+              student.email ||
+              studentId,
+            records: [],
+          });
+        }
+
+        studentsMap.get(studentId).records.push(record);
+
+        return;
+      }
+
+      // -----------------------------------------------
+      // Non-populated ObjectId fallback
+      // -----------------------------------------------
+
+      const studentId = student.toString();
+
+      if (!studentsMap.has(studentId)) {
+        studentsMap.set(studentId, {
+          id: studentId,
+          name: "Unknown Student",
+          studentId,
+          records: [],
+        });
+      }
+
+      studentsMap.get(studentId).records.push(record);
+    });
+
+    // =====================================================
+    // FORMAT STUDENTS
+    // =====================================================
+
+    return Array.from(studentsMap.values()).map((student) => {
+      const sortedRecords = [...student.records].sort(
+        (a, b) => {
+          const dateA = new Date(
+            a.sessionDate || a.createdAt || 0
+          );
+
+          const dateB = new Date(
+            b.sessionDate || b.createdAt || 0
+          );
+
+          return dateB - dateA;
+        }
+      );
+
+      const latestRecord = sortedRecords[0];
+
+      return {
+        id: student.id,
+        name: student.name,
+        studentId: student.studentId,
+
+        percentage: calculatePercentage(
+          student.records
+        ),
+
+        status: latestRecord?.status || "No Record",
+      };
+    });
+  };
+
+  // =========================================================
+  // FETCH MENTOR ATTENDANCE
+  // =========================================================
 
   const fetchAttendance = async () => {
     try {
       setLoading(true);
       setError("");
 
-      console.log("Fetching mentor attendance...");
-      console.log("Batch ID:", batchId);
+      // -----------------------------------------------------
+      // STEP 1: GET MENTOR'S ASSIGNED BATCH
+      // -----------------------------------------------------
 
-      const response = await apiClient.get(
-        `/attendance?batchId=${encodeURIComponent(batchId)}`
+      const batchResponse = await apiClient.get(
+        "/mentor/my-batch"
       );
 
-      console.log("Backend response:", response.data);
+      const mentorBatch = batchResponse.data?.batch;
 
-      // ========================================
-      // BACKEND RETURNS:
-      //
-      // {
-      //   batch: {...},
-      //   attendancePercentage: 80,
-      //   totalRecords: 10,
-      //   students: [...]
-      // }
-      // ========================================
-
-      const data = response.data;
-
-      if (data.batch?.name) {
-        setBatchName(data.batch.name);
-      }
-
-      if (!Array.isArray(data.students)) {
+      if (!mentorBatch?._id) {
         throw new Error(
-          "Backend did not return a students array."
+          "No batch has been assigned to you."
         );
       }
 
-      setStudents(data.students);
+      setBatch(mentorBatch);
+
+      // -----------------------------------------------------
+      // STEP 2: GET ATTENDANCE FOR THAT BATCH
+      // -----------------------------------------------------
+
+      const attendanceResponse = await apiClient.get(
+        `/attendance?batchId=${mentorBatch._id}`
+      );
+
+      const records =
+        attendanceResponse.data?.attendance || [];
+
+      // -----------------------------------------------------
+      // STEP 3: BUILD STUDENTS
+      // -----------------------------------------------------
+
+      const formattedStudents =
+        buildStudents(records);
+
+      setStudents(formattedStudents);
     } catch (err) {
       console.error(
-        "================================"
+        "Failed to load mentor attendance:",
+        err
       );
-      console.error("MENTOR ATTENDANCE ERROR");
-      console.error(
-        "================================"
-      );
-      console.error("Message:", err.message);
-      console.error(
-        "Status:",
-        err.response?.status
-      );
-      console.error(
-        "Response:",
-        err.response?.data
-      );
-      console.error(
-        "URL:",
-        err.config?.url
-      );
-      console.error(
-        "================================"
-      );
+
+      setBatch(null);
+      setStudents([]);
 
       if (err.response?.status === 401) {
         setError(
@@ -142,17 +266,12 @@ function MentorAttendance() {
       } else if (err.response?.status === 403) {
         setError(
           err.response?.data?.message ||
-            "You are not assigned to this batch."
+            "You are not allowed to view this attendance."
         );
       } else if (err.response?.status === 404) {
         setError(
           err.response?.data?.message ||
-            "Batch or attendance endpoint was not found."
-        );
-      } else if (err.response?.status === 500) {
-        setError(
-          err.response?.data?.message ||
-            "Server error while loading attendance."
+            "No batch or attendance endpoint was found."
         );
       } else {
         setError(
@@ -161,47 +280,44 @@ function MentorAttendance() {
             "Failed to load attendance."
         );
       }
-
-      setStudents([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // ==========================================
+  // =========================================================
   // INITIAL LOAD
-  // ==========================================
+  // =========================================================
 
   useEffect(() => {
     fetchAttendance();
   }, []);
 
-  // ==========================================
-  // RETRY
-  // ==========================================
+  // =========================================================
+  // REFRESH
+  // =========================================================
 
-  const handleRetry = () => {
+  const handleRefresh = () => {
     fetchAttendance();
   };
 
-  // ==========================================
+  // =========================================================
   // TODAY
-  // ==========================================
+  // =========================================================
 
   const sessionDate = new Date()
     .toISOString()
     .split("T")[0];
 
-  // ==========================================
+  // =========================================================
   // UI
-  // ==========================================
+  // =========================================================
 
   return (
     <div className="space-y-6">
-
-      {/* ====================================== */}
-      {/* PAGE HEADER */}
-      {/* ====================================== */}
+      {/* =====================================================
+          PAGE HEADER
+      ====================================================== */}
 
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
@@ -209,20 +325,17 @@ function MentorAttendance() {
         </h1>
 
         <p className="mt-1 text-sm text-gray-500">
-          View attendance for students assigned to
-          your batch.
+          View attendance records for your assigned students.
         </p>
       </div>
 
-      {/* ====================================== */}
-      {/* BATCH + DATE */}
-      {/* ====================================== */}
+      {/* =====================================================
+          BATCH INFORMATION
+      ====================================================== */}
 
       <div className="rounded-xl border border-gray-200 bg-white p-5">
-
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-
-          {/* BATCH */}
+          {/* Batch */}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -230,20 +343,20 @@ function MentorAttendance() {
             </label>
 
             <div className="flex items-center gap-3 rounded-lg border border-gray-300 bg-gray-50 px-4 py-3">
-
               <CalendarCheck
                 size={18}
                 className="text-gray-500"
               />
 
               <span className="text-sm font-medium text-gray-700">
-                {batchName}
+                {loading
+                  ? "Loading..."
+                  : batch?.name || "No batch assigned"}
               </span>
-
             </div>
           </div>
 
-          {/* DATE */}
+          {/* Session Date */}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -254,70 +367,96 @@ function MentorAttendance() {
               {sessionDate}
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* ====================================== */}
-      {/* NOTICE */}
-      {/* ====================================== */}
+      {/* =====================================================
+          VIEW ONLY NOTICE
+      ====================================================== */}
 
       <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
-
         <div className="flex items-center gap-3">
-
           <CalendarCheck
             size={19}
-            className="text-blue-600"
+            className="shrink-0 text-blue-600"
           />
 
           <div>
-
             <p className="text-sm font-medium text-blue-800">
               View-only attendance
             </p>
 
             <p className="mt-1 text-xs text-blue-700">
               Attendance is managed by the administrator.
-              You can only view attendance for students
-              assigned to your batch.
+              Mentors can only view attendance for their
+              assigned students.
             </p>
-
           </div>
-
         </div>
       </div>
 
-      {/* ====================================== */}
-      {/* ATTENDANCE CARD */}
-      {/* ====================================== */}
+      {/* =====================================================
+          ERROR
+      ====================================================== */}
+
+      {!loading && error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-5">
+          <div className="flex items-start gap-3">
+            <CircleAlert
+              size={22}
+              className="mt-0.5 shrink-0 text-red-600"
+            />
+
+            <div>
+              <p className="font-medium text-red-800">
+                Unable to load attendance
+              </p>
+
+              <p className="mt-1 text-sm text-red-700">
+                {error}
+              </p>
+
+              <button
+                type="button"
+                onClick={handleRefresh}
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+              >
+                <RefreshCw size={16} />
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================
+          ATTENDANCE CARD
+      ====================================================== */}
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+        {/* Header */}
 
-        {/* HEADER */}
-
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
-
+        <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-
             <h2 className="font-semibold text-gray-900">
-              Assigned Students
+              Student Attendance
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              {students.length} assigned student
-              {students.length !== 1 ? "s" : ""}
+              {loading
+                ? "Loading attendance..."
+                : `${students.length} student${
+                    students.length === 1 ? "" : "s"
+                  } with attendance records`}
             </p>
-
           </div>
 
           <button
             type="button"
-            onClick={handleRetry}
+            onClick={handleRefresh}
             disabled={loading}
-            className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-
             {loading ? (
               <Loader2
                 size={17}
@@ -328,207 +467,152 @@ function MentorAttendance() {
             )}
 
             Refresh
-
           </button>
-
         </div>
 
-        {/* ====================================== */}
-        {/* LOADING */}
-        {/* ====================================== */}
+        {/* ===================================================
+            LOADING
+        ==================================================== */}
 
         {loading && (
           <div className="flex items-center justify-center gap-3 py-16 text-gray-500">
-
             <Loader2
-              className="animate-spin"
               size={22}
+              className="animate-spin"
             />
 
-            <span>
-              Loading assigned students...
-            </span>
-
+            <span>Loading attendance...</span>
           </div>
         )}
 
-        {/* ====================================== */}
-        {/* ERROR */}
-        {/* ====================================== */}
-
-        {!loading && error && (
-          <div className="px-5 py-12 text-center">
-
-            <CircleAlert
-              className="mx-auto text-red-500"
-              size={36}
-            />
-
-            <p className="mt-4 font-medium text-red-600">
-              {error}
-            </p>
-
-            <button
-              type="button"
-              onClick={handleRetry}
-              className="mt-4 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
-            >
-              Try Again
-            </button>
-
-          </div>
-        )}
-
-        {/* ====================================== */}
-        {/* EMPTY */}
-        {/* ====================================== */}
+        {/* ===================================================
+            EMPTY
+        ==================================================== */}
 
         {!loading &&
           !error &&
           students.length === 0 && (
             <div className="py-16 text-center">
-
               <CalendarCheck
-                className="mx-auto h-10 w-10 text-gray-300"
+                size={40}
+                className="mx-auto text-gray-300"
               />
 
               <p className="mt-4 font-medium text-gray-900">
-                No students assigned
+                No attendance records found
               </p>
 
               <p className="mt-1 text-sm text-gray-500">
-                Students assigned to this batch will
-                appear here.
+                There are currently no attendance records
+                for your assigned batch.
               </p>
 
+              <button
+                type="button"
+                onClick={handleRefresh}
+                className="mt-5 inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              >
+                <RefreshCw size={16} />
+                Refresh
+              </button>
             </div>
           )}
 
-        {/* ====================================== */}
-        {/* TABLE */}
-        {/* ====================================== */}
+        {/* ===================================================
+            TABLE
+        ==================================================== */}
 
         {!loading &&
           !error &&
           students.length > 0 && (
             <div className="overflow-x-auto">
-
               <table className="w-full">
-
                 <thead className="border-b border-gray-200 bg-gray-50">
-
                   <tr>
-
-                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
+                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                       Student
                     </th>
 
-                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
+                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                       Attendance
                     </th>
 
-                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
+                    <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                       Latest Status
                     </th>
-
                   </tr>
-
                 </thead>
 
                 <tbody className="divide-y divide-gray-100">
+                  {students.map((student) => (
+                    <tr
+                      key={student.id}
+                      className="transition hover:bg-gray-50"
+                    >
+                      {/* Student */}
 
-                  {students.map((student) => {
-
-                    const percentage = Number(
-                      student.attendancePercentage || 0
-                    );
-
-                    return (
-                      <tr
-                        key={student.id}
-                        className="transition hover:bg-gray-50"
-                      >
-
-                        {/* STUDENT */}
-
-                        <td className="px-5 py-4">
-
-                          <p className="font-medium text-gray-900">
-                            {student.name}
-                          </p>
-
-                          <p className="text-sm text-gray-500">
-                            {student.userID ||
-                              student.email ||
-                              student.id}
-                          </p>
-
-                        </td>
-
-                        {/* ATTENDANCE */}
-
-                        <td className="px-5 py-4">
-
-                          <div className="flex items-center gap-3">
-
-                            <div className="h-2 w-28 overflow-hidden rounded-full bg-gray-200">
-
-                              <div
-                                className="h-full rounded-full bg-green-500"
-                                style={{
-                                  width: `${Math.min(
-                                    Math.max(
-                                      percentage,
-                                      0
-                                    ),
-                                    100
-                                  )}%`,
-                                }}
-                              />
-
-                            </div>
-
-                            <span className="text-sm font-semibold text-gray-700">
-                              {percentage}%
-                            </span>
-
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 font-semibold text-blue-700">
+                            {student.name
+                              ?.charAt(0)
+                              ?.toUpperCase() || "?"}
                           </div>
 
-                        </td>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {student.name}
+                            </p>
 
-                        {/* STATUS */}
+                            <p className="text-sm text-gray-500">
+                              {student.studentId}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
 
-                        <td className="px-5 py-4">
+                      {/* Percentage */}
 
-                          <span
-                            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium ${getStatusStyle(
-                              student.latestStatus
-                            )}`}
-                          >
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-2 w-28 overflow-hidden rounded-full bg-gray-200">
+                            <div
+                              className="h-full rounded-full bg-green-500 transition-all"
+                              style={{
+                                width: `${Math.min(
+                                  student.percentage,
+                                  100
+                                )}%`,
+                              }}
+                            />
+                          </div>
 
-                            {getStatusIcon(
-                              student.latestStatus
-                            )}
-
-                            {student.latestStatus}
-
+                          <span className="text-sm font-medium text-gray-700">
+                            {student.percentage}%
                           </span>
+                        </div>
+                      </td>
 
-                        </td>
+                      {/* Latest Status */}
 
-                      </tr>
-                    );
-                  })}
+                      <td className="px-5 py-4">
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium ${getStatusStyle(
+                            student.status
+                          )}`}
+                        >
+                          {getStatusIcon(student.status)}
 
+                          {student.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
-
               </table>
-
             </div>
           )}
-
       </div>
-
     </div>
   );
 }

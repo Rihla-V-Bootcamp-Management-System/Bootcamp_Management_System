@@ -268,25 +268,6 @@ function StudentAttendance() {
   return (
     <div className="space-y-6">
 
-      {/* ====================================== */}
-      {/* HEADER */}
-      {/* ====================================== */}
-
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          My Attendance
-        </h1>
-
-        <p className="mt-1 text-sm text-gray-500">
-          View your attendance records and overall
-          attendance percentage.
-        </p>
-      </div>
-
-      {/* ====================================== */}
-      {/* ERROR */}
-      {/* ====================================== */}
-
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6">
 

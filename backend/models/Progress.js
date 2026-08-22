@@ -10,8 +10,16 @@ const progressSchema = new mongoose.Schema(
 
     topic: {
       type: String,
+      enum: [
+        "HTML/CSS",
+        "JavaScript",
+        "React",
+        "Node.js",
+        "Express.js",
+        "MongoDB",
+        "Git/GitHub",
+      ],
       required: true,
-      trim: true,
     },
 
     status: {
@@ -22,12 +30,13 @@ const progressSchema = new mongoose.Schema(
         "Completed",
         "Needs Improvement",
       ],
-      required: true,
+      default: "Not Started",
     },
 
     notes: {
       type: String,
       trim: true,
+      default: "",
     },
 
     updatedBy: {

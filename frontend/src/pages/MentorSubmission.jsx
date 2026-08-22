@@ -120,22 +120,7 @@ function MentorSubmission() {
   return (
     <div className="min-h-screen bg-gray-50 p-5 md:p-6">
 
-      {/* =========================
-          PAGE HEADER
-      ========================== */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Submissions
-        </h1>
-
-        <p className="mt-1 text-sm text-gray-500">
-          Review and grade your students' submissions.
-        </p>
-      </div>
-
-      {/* =========================
-          MAIN CONTENT
-      ========================== */}
+      
       <div className="grid max-w-6xl grid-cols-1 gap-7 lg:grid-cols-[minmax(0,1fr)_320px]">
 
         {/* =================================
