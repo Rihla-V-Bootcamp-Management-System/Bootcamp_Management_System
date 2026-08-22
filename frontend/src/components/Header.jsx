@@ -1,31 +1,85 @@
-import { Bell, User } from "lucide-react";
+import {
+  Search,
+  Bell,
+  UserCircle,
+  Menu,
+  X,
+} from "lucide-react";
 
-function Header() {
+function Header({
+  title,
+  description,
+  onMenuClick,
+  sidebarOpen,
+}) {
   return (
-    <header className="h-16 bg-white border-b flex items-center justify-between px-8">
+    <header className="shrink-0 bg-[#eef3f2]">
+      <div className="flex min-h-[78px] items-center justify-between px-4 sm:px-6 lg:px-8">
 
-      <h1 className="text-xl font-semibold">
-        Dashboard
-      </h1>
+        {/* LEFT */}
+        <div className="flex min-w-0 items-center gap-3">
 
-      <div className="flex items-center gap-5">
+          {/* MOBILE MENU */}
+          <button
+            type="button"
+            onClick={onMenuClick}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white md:hidden"
+            aria-label="Open menu"
+          >
+            {sidebarOpen ? (
+              <X size={20} />
+            ) : (
+              <Menu size={20} />
+            )}
+          </button>
 
-        <button className="relative">
-          <Bell size={21} />
-        </button>
+          {/* PAGE TITLE */}
+          <div className="min-w-0">
+            <h1 className="truncate text-xl font-bold text-slate-900 sm:text-2xl">
+              {title}
+            </h1>
 
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
-            <User size={19} />
+            {description && (
+              <p className="mt-1 hidden truncate text-sm text-slate-500 sm:block">
+                {description}
+              </p>
+            )}
           </div>
 
-          <span className="text-sm font-medium">
-            elham
-          </span>
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+
+          <button
+            type="button"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-white"
+            aria-label="Search"
+          >
+            <Search size={19} />
+          </button>
+
+          <button
+            type="button"
+            className="relative flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-white"
+            aria-label="Notifications"
+          >
+            <Bell size={19} />
+
+            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
+          </button>
+
+          <button
+            type="button"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-white"
+            aria-label="Profile"
+          >
+            <UserCircle size={22} />
+          </button>
+
         </div>
 
       </div>
-
     </header>
   );
 }

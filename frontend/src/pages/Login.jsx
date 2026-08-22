@@ -2,13 +2,24 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useAuth from "../context/useAuth";
 
-import { Eye, EyeOff } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  LockKeyhole,
+  LogIn,
+  ShieldCheck,
+  FileText,
+  ArrowRight,
+  Loader2,
+} from "lucide-react";
 
-function Login({ onRegister}) {
+function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -17,10 +28,24 @@ function Login({ onRegister}) {
     e.preventDefault();
     setError("");
 
-    try {
-      const response = await login(email, password);
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter your email and password.");
+      return;
+    }
 
-      const user = response.user;
+    try {
+      setLoading(true);
+
+      const response = await login(
+        email.trim(),
+        password
+      );
+
+      const user = response?.user;
+
+      if (!user) {
+        throw new Error("Invalid login response.");
+      }
 
       if (user.role === "admin") {
         navigate("/admin");
@@ -28,95 +53,382 @@ function Login({ onRegister}) {
         navigate("/mentor");
       } else if (user.role === "student") {
         navigate("/student");
+      } else {
+        setError("Your account role is not recognized.");
       }
     } catch (error) {
       setError(
-        error.response?.data?.message || "Login failed"
+        error.response?.data?.message ||
+          error.message ||
+          "Login failed. Please check your email and password."
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <main className="relative w-full bg-gray-100 flex items-center justify-center">
+    <div className="w-full">
 
-      <div className="w-full max-w-md rounded-xl bg-white p-8 shadow">
+      
+      <div className="grid w-full grid-cols-1 overflow-hidden rounded-2xl shadow-2xl md:grid-cols-2">
 
-        <h1 className="text-3xl text-black  font-bold">
-          Welcome Back
-        </h1>
+        
 
-        <p className="mt-4 text-gray-900 ">
-          Log in to your ASTU MSJ Bootcamp account.
-        </p>
+        <section className="relative flex min-h-[620px] overflow-hidden bg-[#06103D]">
 
-        {error && (
-          <p className="mt-4 text-sm text-red-600">
-            {error}
-          </p>
-        )}
+          
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
 
-        <form
-          onSubmit={handleSubmit}
-          className="mt-8 space-y-5"
-        >
-          <div>
-            <label className=" text-black block mb-2 font-medium">
-              Email
-            </label>
+          <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-blue-400/10 blur-3xl" />
 
-            <input
-              type="email"
-              placeholder="you@gmail.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className=" text-gray-600  border-gray-600 hover:border-red-300 w-full rounded-lg border px-4 py-3 outline-none focus:border-blue-600"
-            />
-          </div>
+          <div className="relative z-10 flex w-full flex-col justify-between p-8 sm:p-10 lg:p-12">
 
-          <div>
-            <label className=" text-black block mb-2 font-medium">
-              Password
-            </label>
-<div className="relative">
-  <input
-    type={showPassword ? "text" : "password"}
-    placeholder="Enter your password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    className="w-full rounded-lg border border-gray-700 px-4 py-3 pr-12 outline-none focus:border-blue-600 text-gray-600"
-  />
+            {/* ================= BRAND ================= */}
 
-  <button
-    type="button"
-    onClick={() => setShowPassword(!showPassword)}
-    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-  >
-    {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-  </button>
-</div>
+            <div className="flex items-center gap-4">
+
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-blue-400/60 bg-blue-950/70 shadow-lg">
+
+                <span className="text-3xl font-bold text-white">
+                  A
+                </span>
+
+              </div>
+
+              <div>
+
+                <h2 className="text-xl font-bold text-white">
+                  ASTU MSJ
+                </h2>
+
+                <p className="mt-1 text-xs font-semibold tracking-[0.2em] text-blue-300">
+                  SUMMER BOOTCAMP
+                </p>
+
+              </div>
+
+            </div>
+
            
+            <div className="max-w-md">
+
+              <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-blue-300">
+                ASTU MSJ Bootcamp
+              </p>
+
+              <h1 className="text-5xl font-bold leading-[1.05] text-white lg:text-6xl">
+
+                Learn.
+                <br />
+
+                Build.
+                <br />
+
+                Grow.
+                <br />
+
+                <span className="text-blue-400">
+                  Together.
+                </span>
+
+              </h1>
+
+              <p className="mt-6 max-w-md text-sm leading-7 text-gray-300">
+                Develop your skills, build real projects,
+                collaborate with your peers, and grow
+                together with the ASTU MSJ community.
+              </p>
+
+            </div>
+
+            
+
+            <div className="max-w-md rounded-xl border border-blue-400/20 bg-blue-950/70 p-5 shadow-lg">
+
+              <div className="flex items-center gap-4">
+
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-500/15">
+
+                  <FileText
+                    size={22}
+                    className="text-blue-300"
+                  />
+
+                </div>
+
+                <div>
+
+                  <p className="font-semibold text-white">
+                    Join the community
+                  </p>
+
+                  <p className="mt-1 text-sm text-gray-300">
+                    Learn, collaborate, and build together.
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
 
-          <div className="text-right">
-            <Link
-              to="/forgot-password"
-              className="text-sm text-gray-900 hover:underline"
+        </section>
+
+       
+
+        <section className="flex min-h-[620px] items-center justify-center bg-[#F5F0E8] p-7 sm:p-9 lg:p-10">
+
+          <div className="w-full max-w-[440px]">
+
+          
+
+            <div className="mb-7">
+
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                Welcome back
+              </h1>
+
+              <p className="mt-2 text-sm leading-6 text-gray-500">
+                Sign in to your ASTU MSJ Bootcamp account.
+              </p>
+
+            </div>
+
+           
+
+            {error && (
+              <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {error}
+              </div>
+            )}
+
+           
+
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-5"
             >
-              Forgot password?
-            </Link>
+
+              
+
+              <div>
+
+                <label
+                  htmlFor="email"
+                  className="mb-2 block text-sm font-semibold text-gray-800"
+                >
+                  Email address
+                </label>
+
+                <div className="relative">
+
+                  <Mail
+                    size={18}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
+
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="you@gmail.com"
+                    value={email}
+                    onChange={(e) =>
+                      setEmail(e.target.value)
+                    }
+                    disabled={loading}
+                    autoComplete="email"
+                    required
+                    className="h-12 w-full rounded-lg border border-gray-300 bg-white pl-11 pr-4 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 hover:border-gray-400 focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10 disabled:bg-gray-100"
+                  />
+
+                </div>
+
+              </div>
+
+             
+
+              <div>
+
+                <label
+                  htmlFor="password"
+                  className="mb-2 block text-sm font-semibold text-gray-800"
+                >
+                  Password
+                </label>
+
+                <div className="relative">
+
+                  <LockKeyhole
+                    size={18}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
+
+                  <input
+                    id="password"
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) =>
+                      setPassword(e.target.value)
+                    }
+                    disabled={loading}
+                    autoComplete="current-password"
+                    required
+                    className="h-12 w-full rounded-lg border border-gray-300 bg-white pl-11 pr-11 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 hover:border-gray-400 focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10 disabled:bg-gray-100"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowPassword(
+                        (prev) => !prev
+                      )
+                    }
+                    disabled={loading}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-800"
+                  >
+
+                    {showPassword ? (
+                      <Eye size={18} />
+                    ) : (
+                      <EyeOff size={18} />
+                    )}
+
+                  </button>
+
+                </div>
+
+              </div>
+
+            
+
+              <div className="flex justify-end">
+
+                <Link
+                  to="/forgot-password"
+                  className="text-xs font-semibold text-gray-700 transition hover:text-gray-900 hover:underline"
+                >
+                  Forgot password?
+                </Link>
+
+              </div>
+
+             
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-gray-900 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-70"
+              >
+
+                {loading ? (
+                  <>
+                    <Loader2
+                      size={18}
+                      className="animate-spin"
+                    />
+
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    <LogIn size={18} />
+
+                    Sign in
+                  </>
+                )}
+
+              </button>
+
+              {/* ================= DIVIDER ================= */}
+
+              <div className="flex items-center gap-3 py-1">
+
+                <div className="h-px flex-1 bg-gray-300" />
+
+                <span className="text-xs text-gray-400">
+                  or
+                </span>
+
+                <div className="h-px flex-1 bg-gray-300" />
+
+              </div>
+
+             
+
+              <button
+                type="button"
+                disabled={loading}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60"
+              >
+
+                <ShieldCheck
+                  size={18}
+                  className="text-gray-800"
+                />
+
+                Login with OTP
+
+              </button>
+
+             
+
+              <div className="rounded-xl bg-[#EAE3D8] p-4">
+
+                <div className="flex items-center gap-3">
+
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
+
+                    <FileText
+                      size={19}
+                      className="text-gray-800"
+                    />
+
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+
+                    <p className="text-xs font-semibold text-gray-900">
+                      Don't have an account?
+                    </p>
+
+                    <p className="mt-1 text-[11px] text-gray-500">
+                      Apply for the ASTU MSJ Bootcamp.
+                    </p>
+
+                  </div>
+
+                  <Link
+                    to="/register"
+                    className="flex shrink-0 items-center gap-1 text-xs font-semibold text-gray-800 transition hover:text-gray-600"
+                  >
+
+                    Apply Now
+
+                    <ArrowRight size={14} />
+
+                  </Link>
+
+                </div>
+
+              </div>
+
+            </form>
+
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-yellow-800 rounded-lg  py-3 text-white transition hover:bg-yellow-600"
-          >
-            Login
-          </button>
-        </form>
+        </section>
+
       </div>
-    </main>
+
+    </div>
   );
 }
 
 export default Login;
-

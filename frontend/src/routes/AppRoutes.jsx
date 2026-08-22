@@ -1,16 +1,36 @@
 import { Routes, Route } from "react-router-dom";
 
+import DashboardLayout from "../layouts/DashboardLayout";
+
+
+
+import MentorDashboard from "../pages/MentorDashboard";
+import MentorStudents from "../pages/MentorStudents";
+import MentorAttendance from "../pages/MentorAttendance";
+import MentorProgress from "../pages/MentorProgress";
+import MentorAssignments from "../pages/MentorAssignments";
+import MentorSubmissions from "../pages/MentorSubmission";
+
+
+import PublicApplication from "../pages/PublicApplication";
+
+import StudentAttendance from "../pages/StudentAttendance";
+import StudentProgress from "../pages/StudentProgress";
+import StudentWebProgress from "../pages/StudentWebProgress";
+import StudentCPProgress from "../pages/StudentCpProgress";
+
+
 import FirstLogin from "../pages/FirstLogin";
 import Landing from "../pages/Landing";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import SetPassword from "../pages/SetPassword";
-import PublicApplication from "../pages/PublicApplication";
+
 
 import ProtectedRoute from "../components/ProtectedRoute";
 import RoleRoute from "../components/RoleRoute";
 
-import DashboardLayout from "../layouts/DashboardLayout";
+
 
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import Users from "../pages/admin/Users";
@@ -19,7 +39,6 @@ import Batches from "../pages/admin/Batches";
 import Registration from "../pages/admin/Registration";
 import BatchDetails from "../pages/admin/BatchDetails";
 
-import MentorDashboard from "../pages/MentorDashboard";
 import StudentDashboard from "../pages/StudentDashboard";
 
 import Attendance from "../pages/admin/Attendance";
@@ -27,6 +46,13 @@ function AppRoutes() {
   return (
     <Routes>
 
+     
+     
+
+      <Route
+        path="/mentor"
+        element={<DashboardLayout role="mentor" />}
+      >
       
 
       <Route
@@ -131,32 +157,32 @@ function AppRoutes() {
 
         <Route
           path="students"
-          element={<div>My Students Page</div>}
+          element={<MentorStudents />}
         />
 
         <Route
           path="attendance"
-          element={<div>Attendance Page</div>}
+          element={<MentorAttendance />}
         />
 
         <Route
           path="progress"
-          element={<div>Progress Page</div>}
+          element={<MentorProgress />}
         />
 
         <Route
           path="assignments"
-          element={<div>Assignments Page</div>}
+          element={<MentorAssignments />}
         />
 
         <Route
           path="submissions"
-          element={<div>Submissions Page</div>}
+          element={<MentorSubmissions />}
         />
 
         <Route
           path="announcements"
-          element={<div>Announcements Page</div>}
+          element={<div>Announcements</div>}
         />
       </Route>
 
@@ -164,13 +190,8 @@ function AppRoutes() {
       {/* ================= STUDENT ROUTES ================= */}
 
       <Route
-        element={
-          <ProtectedRoute>
-            <RoleRoute allowedRoles={["student"]}>
-              <DashboardLayout role="student" />
-            </RoleRoute>
-          </ProtectedRoute>
-        }
+        path="/student"
+        element={<DashboardLayout role="student" />}
       >
 
         <Route
@@ -178,37 +199,66 @@ function AppRoutes() {
           element={<StudentDashboard />}
         />
 
+       
         <Route
-          path="/student/attendance"
-          element={<div>Attendance Page</div>}
+          index
+          element={<div>Student Dashboard</div>}
         />
 
+        
         <Route
-          path="/student/progress"
-          element={<div>Progress Page</div>}
+          path="attendance"
+          element={<StudentAttendance />}
         />
 
+       
         <Route
-          path="/student/assignments"
-          element={<div>Assignments Page</div>}
+          path="progress"
+          element={<StudentProgress />}
         />
 
+        
         <Route
-          path="/student/grades"
-          element={<div>Grades Page</div>}
+          path="progress/web"
+          element={<StudentWebProgress />}
         />
 
+        
         <Route
-          path="/student/announcements"
-          element={<div>Announcements Page</div>}
+          path="progress/cp"
+          element={<StudentCPProgress />}
         />
 
+       
         <Route
-          path="/student/profile"
-          element={<div>Profile Page</div>}
+          path="assignments"
+          element={<div>Student Assignments</div>}
+        />
+
+       
+        <Route
+          path="grades"
+          element={<div>Student Grades</div>}
+        />
+
+       
+        <Route
+          path="announcements"
+          element={<div>Student Announcements</div>}
+        />
+
+        
+        <Route
+          path="profile"
+          element={<div>Student Profile</div>}
         />
 
       </Route>
+
+      <Route
+  path="/apply"
+  element={<PublicApplication />}
+/>
 
     </Routes>
   );

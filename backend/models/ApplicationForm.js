@@ -7,11 +7,13 @@ const fieldSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     label: {
       type: String,
       required: true,
       trim: true,
     },
+
     type: {
       type: String,
       required: true,
@@ -23,12 +25,15 @@ const fieldSchema = new mongoose.Schema(
         "checkbox",
         "number",
         "date",
+        "email",
       ],
     },
+
     required: {
       type: Boolean,
       default: false,
     },
+
     options: {
       type: [String],
       default: [],

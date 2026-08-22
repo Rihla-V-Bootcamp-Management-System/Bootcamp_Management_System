@@ -2,10 +2,9 @@ const mongoose = require("mongoose");
 
 const registrationSchema = new mongoose.Schema(
   {
-    // Real Season document ID
+
     seasonId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Season",
       required: true,
     },
 
@@ -18,17 +17,16 @@ const registrationSchema = new mongoose.Schema(
     gender: {
       type: String,
       required: true,
-      enum: ["Male", "Female"],
+      enum: ["Male", "Female"]
     },
-
     email: {
       type: String,
       required: true,
       lowercase: true,
       trim: true,
     },
-
     phoneNumber: {
+
       type: String,
       required: true,
       trim: true,
@@ -37,7 +35,6 @@ const registrationSchema = new mongoose.Schema(
     batchId: {
       type: String,
       required: true,
-      trim: true,
     },
 
     telegramUsername: {
@@ -45,40 +42,37 @@ const registrationSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-
-    // University information
     educationLevel: {
       type: Number,
       required: true,
       min: 1,
-      max: 6,
+      max: 3,
     },
-
     educationInstitution: {
       type: String,
       required: true,
-      trim: true,
+      enum: [
+        "Adama University",
+        "Addis Ababa University",
+        "Jimma University",
+        "Other",
+      ],
     },
-
-    department: {
+    fieldOfStudy: {
       type: String,
       required: true,
-      trim: true,
+      enum: [
+        "Software Engineering",
+        "Computer Science",
+        "Electrical Engineering",
+        "Other",
+      ],
     },
-
-    studentYear: {
-      type: Number,
-      required: true,
-      min: 1,
-      max: 6,
-    },
-
     studentId: {
       type: String,
       required: true,
       trim: true,
     },
-
     programmingExperience: {
       type: String,
       required: true,
@@ -89,39 +83,37 @@ const registrationSchema = new mongoose.Schema(
         "Advanced",
       ],
     },
-
-    // Coding platform usernames
-    githubUsername: {
+    githubLink: {
       type: String,
       required: true,
       trim: true,
     },
-
-    codeforcesUsername: {
+    codeforcesLink: {
       type: String,
       required: true,
       trim: true,
     },
-
-    leetcodeUsername: {
+    leetcodeLink: {
       type: String,
       required: true,
       trim: true,
     },
-
-    // Commitment
-    hoursPerDay: {
-      type: Number,
-      required: true,
-      min: 5,
-    },
-
     hoursPerWeek: {
       type: Number,
       required: true,
       min: 35,
     },
-
+    canCommitFiveHoursPerDay: {
+      type: Boolean,
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value === true;
+        },
+        message:
+          "Applicant must be able to commit at least 5 hours per day.",
+      },
+    },
     motivation: {
       type: String,
       required: true,
@@ -129,14 +121,10 @@ const registrationSchema = new mongoose.Schema(
       minlength: 20,
       maxlength: 1000,
     },
-
-    // Dynamic form answers
     responses: {
       type: mongoose.Schema.Types.Mixed,
       default: {},
     },
-
-    // Application status
     status: {
       type: String,
       enum: [
@@ -148,24 +136,20 @@ const registrationSchema = new mongoose.Schema(
       ],
       default: "SUBMITTED",
     },
-
     interviewNotes: {
       type: String,
       trim: true,
       default: "",
     },
-
     reviewedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
     },
-
     reviewedAt: {
       type: Date,
       default: null,
     },
-
     rejectionReason: {
       type: String,
       default: "",
@@ -187,7 +171,6 @@ const registrationSchema = new mongoose.Schema(
   }
 );
 
-// One application per email for each season
 registrationSchema.index(
   { email: 1, seasonId: 1 },
   { unique: true }

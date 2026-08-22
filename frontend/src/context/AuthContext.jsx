@@ -1,52 +1,83 @@
 import { createContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient";
+import { toast } from "react-hot-toast";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
 
-    if (savedUser) {
-      try {
-        return JSON.parse(savedUser);
-      } catch {
-        localStorage.removeItem("user");
-      }
+    if (!savedUser) {
+      return null;
     }
 
-    return null;
+    try {
+      return JSON.parse(savedUser);
+    } catch {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      return null;
+    }
   });
 
   const [token, setToken] = useState(() => {
     return localStorage.getItem("token");
   });
 
-  
   const login = async (email, password) => {
     const response = await apiClient.post("/auth/login", {
-      email,
+      email: email.trim().toLowerCase(),
       password,
     });
 
-    const { user, token } = response.data;
+    const responseUser = response.data?.user;
+    const responseToken = response.data?.token;
 
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("token", token);
+    if (!responseUser || !responseToken) {
+      throw new Error(
+        "Login response is missing user or token."
+      );
+    }
 
-    setUser(user);
-    setToken(token);
+    localStorage.setItem(
+      "user",
+      JSON.stringify(responseUser)
+    );
+
+    localStorage.setItem("token", responseToken);
+
+    setUser(responseUser);
+    setToken(responseToken);
 
     return response.data;
   };
 
-  
-  const completeFirstLogin = (user, token) => {
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("token", token);
+  const completeFirstLogin = (
+    responseUser,
+    responseToken
+  ) => {
+    if (!responseUser || !responseToken) {
+      throw new Error(
+        "User and token are required."
+      );
+    }
 
-    setUser(user);
-    setToken(token);
+    localStorage.setItem(
+      "user",
+      JSON.stringify(responseUser)
+    );
+
+    localStorage.setItem(
+      "token",
+      responseToken
+    );
+
+    setUser(responseUser);
+    setToken(responseToken);
   };
 
   const logout = () => {
@@ -55,6 +86,10 @@ export function AuthProvider({ children }) {
 
     setUser(null);
     setToken(null);
+
+    toast.success("Logged out successfully!");
+
+    navigate("/");
   };
 
   return (
@@ -65,6 +100,7 @@ export function AuthProvider({ children }) {
         login,
         completeFirstLogin,
         logout,
+        isAuthenticated: Boolean(user && token),
       }}
     >
       {children}

@@ -8,25 +8,35 @@ import {
   Megaphone,
   LogOut,
 } from "lucide-react";
-
 import { NavLink } from "react-router-dom";
 import useAuth from "../context/useAuth";
 
 function MentorSidebar() {
   const { logout } = useAuth();
 
-  return (
-    <aside className="w-56 bg-gray-900 text-white p-6 flex flex-col">
+  const linkClass = ({ isActive }) =>
+    `flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-gray-800 ${
+      isActive
+        ? "border border-white"
+        : "border border-transparent"
+    }`;
 
-      <h2 className="text-xl font-bold mb-8">
+  return (
+    <aside className="flex h-screen w-56 shrink-0 flex-col bg-gray-900 p-6 text-white">
+
+      {/* LOGO / NAME */}
+      <h2 className="mb-8 text-xl font-bold">
         ASTU MSJ
       </h2>
 
+      {/* NAVIGATION */}
       <nav className="flex flex-col gap-2">
 
+        {/* Dashboard - exact /mentor match only */}
         <NavLink
           to="/mentor"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          end
+          className={linkClass}
         >
           <LayoutDashboard size={20} />
           Dashboard
@@ -34,7 +44,7 @@ function MentorSidebar() {
 
         <NavLink
           to="/mentor/students"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          className={linkClass}
         >
           <Users size={20} />
           My Students
@@ -42,7 +52,7 @@ function MentorSidebar() {
 
         <NavLink
           to="/mentor/attendance"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          className={linkClass}
         >
           <CalendarCheck size={20} />
           Attendance
@@ -50,7 +60,7 @@ function MentorSidebar() {
 
         <NavLink
           to="/mentor/progress"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          className={linkClass}
         >
           <ChartNoAxesColumn size={20} />
           Progress
@@ -58,7 +68,7 @@ function MentorSidebar() {
 
         <NavLink
           to="/mentor/assignments"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          className={linkClass}
         >
           <ClipboardList size={20} />
           Assignments
@@ -66,7 +76,7 @@ function MentorSidebar() {
 
         <NavLink
           to="/mentor/submissions"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          className={linkClass}
         >
           <Upload size={20} />
           Submissions
@@ -74,7 +84,7 @@ function MentorSidebar() {
 
         <NavLink
           to="/mentor/announcements"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-800"
+          className={linkClass}
         >
           <Megaphone size={20} />
           Announcements
@@ -82,11 +92,13 @@ function MentorSidebar() {
 
       </nav>
 
-      <div className="mt-auto pt-6 border-t border-gray-700">
+      {/* LOGOUT */}
+      <div className="mt-auto border-t border-gray-700 pt-6">
 
         <button
+          type="button"
           onClick={logout}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-left hover:bg-gray-800"
+          className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left hover:bg-gray-800"
         >
           <LogOut size={20} />
           Logout
