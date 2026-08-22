@@ -1,9 +1,7 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || "smtp.ethereal.email",
-  port: 587,
-  secure: false,
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -19,11 +17,8 @@ const sendEmail = async ({ to, subject, text, html }) => {
     html,
   });
 
-  const previewUrl = nodemailer.getTestMessageUrl(info);
-
-  if (previewUrl) {
-    console.log("EMAIL PREVIEW:", previewUrl);
-  }
+  console.log(`EMAIL SENT TO: ${to}`);
+  console.log(`MESSAGE ID: ${info.messageId}`);
 
   return info;
 };
@@ -109,10 +104,12 @@ const sendStaffInvitationEmail = async (user) => {
 
   return sendEmail({
     to: user.email,
-    subject: `Bootcamp Management System - ${roleName} Invitation`,
+    subject: `Welcome to Bootcamp Management System - ${roleName}`,
     text: `Dear ${user.name},
 
-You have been invited to join the Bootcamp Management System as a ${roleName}.
+Welcome to the Bootcamp Management System.
+
+You have been assigned as a ${roleName}.
 
 Your User ID is: ${user.userID}
 Your temporary OTP is: ${user.otp}
@@ -125,12 +122,28 @@ Best regards,
 Bootcamp Management System`,
     html: `
       <h2>Welcome, ${user.name}!</h2>
-      <p>You have been invited to join the <strong>Bootcamp Management System</strong> as a <strong>${roleName}</strong>.</p>
+
+      <p>
+        You have been assigned as a
+        <strong>${roleName}</strong>
+        in the Bootcamp Management System.
+      </p>
+
       <p><strong>User ID:</strong> ${user.userID}</p>
+
       <p><strong>Temporary OTP:</strong> ${user.otp}</p>
+
       <p><strong>OTP expires:</strong> ${user.otpExpiresAt}</p>
-      <p>Use your User ID and OTP to verify your invitation and create your password.</p>
-      <p>Best regards,<br>Bootcamp Management System</p>
+
+      <p>
+        Use your User ID and OTP to verify your invitation
+        and create your password.
+      </p>
+
+      <p>
+        Best regards,<br>
+        Bootcamp Management System
+      </p>
     `,
   });
 };

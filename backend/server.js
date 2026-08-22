@@ -11,10 +11,6 @@ const authRoutes = require("./routes/authRoutes");
 const registrationRoutes = require("./routes/registrationRoutes");
 const formQuestionRoutes = require("./routes/formQuestionRoutes");
 const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
-const studentDirectoryRoutes = require("./routes/studentDirectoryRoutes");
-const assignmentRoutes = require("./routes/assignmentRoutes");
-const gradingRoutes = require("./routes/gradingRoutes");
-const submissionRoutes = require("./routes/submissionRoutes");
 const superAdminRoutes = require("./routes/superAdminRoutes");
 
 const app = express();
@@ -36,10 +32,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/registrations", registrationRoutes);
 app.use("/api/form-questions", formQuestionRoutes);
 app.use("/api/registration-settings", registrationSettingsRoutes);
-app.use("/api/students", studentDirectoryRoutes);
-app.use("/api/assignments", assignmentRoutes);
-app.use("/api/grading", gradingRoutes);
-app.use("/api/submissions", submissionRoutes);
 app.use("/api/superadmin", superAdminRoutes);
 
 app.get("/", (req, res) => {
