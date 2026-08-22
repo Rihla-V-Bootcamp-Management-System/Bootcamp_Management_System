@@ -1,383 +1,741 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  BookOpen,
   CheckCircle2,
-  Circle,
   Clock3,
   AlertCircle,
-  TrendingUp,
-  UserRound,
+  User,
+  ChevronDown,
+  RefreshCw,
 } from "lucide-react";
 
 import apiClient from "../services/apiClient";
 
-const statusConfig = {
+// =========================================================
+// STATUS STYLES
+// =========================================================
+
+const STATUS_STYLES = {
   Completed: {
+    label: "Completed",
     icon: CheckCircle2,
-    className: "bg-green-50 text-green-600",
+    className: "bg-green-100 text-green-700",
   },
 
   "In Progress": {
+    label: "In Progress",
     icon: Clock3,
-    className: "bg-yellow-50 text-yellow-600",
+    className: "bg-blue-100 text-blue-700",
   },
 
   "Not Started": {
-    icon: Circle,
-    className: "bg-gray-100 text-gray-500",
+    label: "Not Started",
+    icon: Clock3,
+    className: "bg-gray-100 text-gray-600",
   },
 
   "Needs Improvement": {
+    label: "Needs Improvement",
     icon: AlertCircle,
-    className: "bg-red-50 text-red-600",
+    className: "bg-orange-100 text-orange-700",
   },
 };
 
-function StatCard({ title, value, icon: Icon, iconClass }) {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-500">{title}</p>
+// =========================================================
+// TOPICS
+// Must match the Progress model exactly
+// =========================================================
 
-          <p className="mt-2 text-2xl font-bold text-gray-900">
-            {value}
-          </p>
-        </div>
+const TOPICS = [
+  "HTML/CSS",
+  "JavaScript",
+  "React",
+  "Node.js",
+  "Express.js",
+  "MongoDB",
+  "Git/GitHub",
+];
 
-        <div className={`rounded-lg p-3 ${iconClass}`}>
-          <Icon size={22} />
-        </div>
-      </div>
-    </div>
-  );
-}
+// =========================================================
+// COMPONENT
+// =========================================================
 
-export default function MentorProgress() {
-  const [progress, setProgress] = useState([]);
+function MentorProgress() {
+  const [students, setStudents] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [progress, setProgress] = useState([]);
 
-  // Get progress from backend
+  const [studentsLoading, setStudentsLoading] = useState(true);
+  const [progressLoading, setProgressLoading] = useState(false);
+
+  const [studentsError, setStudentsError] = useState("");
+  const [progressError, setProgressError] = useState("");
+
+  // =======================================================
+  // LOAD MENTOR'S ASSIGNED STUDENTS
+  // =======================================================
+
   useEffect(() => {
-    const fetchProgress = async () => {
+    let cancelled = false;
+
+    const loadStudents = async () => {
       try {
-        setLoading(true);
-        setError("");
+        setStudentsLoading(true);
+        setStudentsError("");
 
-        const response = await apiClient.get("/progress");
+        // IMPORTANT:
+        // Backend route:
+        // app.use("/api/mentor", mentorRoutes)
+        //
+        // mentorRoutes:
+        // router.get("/my-students", ...)
+        //
+        // apiClient already contains /api
+        //
+        // Therefore:
+        // /mentor/my-students
+        const response = await apiClient.get(
+          "/mentor/my-students"
+        );
 
-        console.log("Progress response:", response.data);
+        if (cancelled) return;
 
-        setProgress(response.data.progress || []);
+        console.log(
+          "Mentor students response:",
+          response.data
+        );
+
+        const data = response.data;
+
+        const studentList = Array.isArray(data)
+          ? data
+          : data?.students || [];
+
+        setStudents(studentList);
+
+        // Automatically select first student
+        if (studentList.length > 0) {
+          const firstStudent = studentList[0];
+
+          const firstId =
+            firstStudent._id ||
+            firstStudent.id;
+
+          if (firstId) {
+            setSelectedStudentId(firstId);
+          }
+        } else {
+          setSelectedStudentId("");
+        }
       } catch (error) {
-        console.error("Error loading progress:", error);
+        if (cancelled) return;
 
-        setError(
+        console.error(
+          "MENTOR STUDENTS ERROR:",
+          error
+        );
+
+        setStudents([]);
+        setStudentsError(
           error.response?.data?.message ||
-            "Failed to load progress."
+            "Failed to load assigned students."
         );
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setStudentsLoading(false);
+        }
       }
     };
 
-    fetchProgress();
+    loadStudents();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // Create unique student list from progress records
-  const students = useMemo(() => {
-    const studentMap = new Map();
+  // =======================================================
+  // LOAD SELECTED STUDENT PROGRESS
+  // =======================================================
+
+  useEffect(() => {
+    if (!selectedStudentId) {
+      setProgress([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadProgress = async () => {
+      try {
+        setProgressLoading(true);
+        setProgressError("");
+
+        const response = await apiClient.get(
+          "/progress",
+          {
+            params: {
+              studentId: selectedStudentId,
+            },
+          }
+        );
+
+        if (cancelled) return;
+
+        console.log(
+          "Student progress response:",
+          response.data
+        );
+
+        const data = response.data;
+
+        const progressList = Array.isArray(data)
+          ? data
+          : data?.progress || [];
+
+        setProgress(progressList);
+      } catch (error) {
+        if (cancelled) return;
+
+        console.error(
+          "PROGRESS ERROR:",
+          error
+        );
+
+        setProgress([]);
+
+        setProgressError(
+          error.response?.data?.message ||
+            "Failed to load student progress."
+        );
+      } finally {
+        if (!cancelled) {
+          setProgressLoading(false);
+        }
+      }
+    };
+
+    loadProgress();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedStudentId]);
+
+  // =======================================================
+  // SELECTED STUDENT
+  // =======================================================
+
+  const selectedStudent = useMemo(() => {
+    return students.find(
+      (student) =>
+        (student._id || student.id) ===
+        selectedStudentId
+    );
+  }, [students, selectedStudentId]);
+
+  // =======================================================
+  // PROGRESS BY TOPIC
+  // =======================================================
+
+  const progressByTopic = useMemo(() => {
+    const map = {};
 
     progress.forEach((item) => {
-      if (!item.studentId) return;
-
-      const studentId =
-        typeof item.studentId === "object"
-          ? item.studentId._id
-          : item.studentId;
-
-      if (!studentId) return;
-
-      const studentName =
-        typeof item.studentId === "object"
-          ? item.studentId.name ||
-            item.studentId.fullName ||
-            item.studentId.email ||
-            `Student ${studentId}`
-          : `Student ${studentId}`;
-
-      if (!studentMap.has(studentId)) {
-        studentMap.set(studentId, {
-          id: studentId,
-          name: studentName,
-        });
+      if (item?.topic) {
+        map[item.topic] = item;
       }
     });
 
-    return Array.from(studentMap.values());
+    return map;
   }, [progress]);
 
-  // Get progress belonging to selected student
-  const selectedStudentProgress = useMemo(() => {
-    if (!selectedStudentId) return [];
+  // =======================================================
+  // PROGRESS COUNTS
+  // =======================================================
 
-    return progress.filter((item) => {
-      const studentId =
-        typeof item.studentId === "object"
-          ? item.studentId._id
-          : item.studentId;
-
-      return studentId === selectedStudentId;
-    });
-  }, [progress, selectedStudentId]);
-
-  const selectedStudent = students.find(
-    (student) => student.id === selectedStudentId
-  );
-
-  // Statistics
-  const completed = selectedStudentProgress.filter(
+  const completedCount = progress.filter(
     (item) => item.status === "Completed"
   ).length;
 
-  const inProgress = selectedStudentProgress.filter(
+  const inProgressCount = progress.filter(
     (item) => item.status === "In Progress"
   ).length;
 
-  const notStarted = selectedStudentProgress.filter(
-    (item) => item.status === "Not Started"
+  const needsImprovementCount = progress.filter(
+    (item) =>
+      item.status === "Needs Improvement"
   ).length;
 
-  const needsImprovement = selectedStudentProgress.filter(
-    (item) => item.status === "Needs Improvement"
-  ).length;
+  const totalTopics = TOPICS.length;
 
-  // Overall progress
-  const totalTopics = selectedStudentProgress.length;
-
-  const progressPercentage =
+  const overallProgress =
     totalTopics > 0
-      ? Math.round((completed / totalTopics) * 100)
+      ? Math.round(
+          (completedCount / totalTopics) * 100
+        )
       : 0;
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="animate-pulse">
-          <div className="h-8 w-56 rounded bg-gray-200" />
+  // =======================================================
+  // REFRESH PROGRESS
+  // =======================================================
 
-          <div className="mt-2 h-4 w-80 rounded bg-gray-200" />
+  const refreshProgress = async () => {
+    if (!selectedStudentId) return;
 
-          <div className="mt-6 h-28 rounded-xl bg-gray-200" />
-        </div>
-      </div>
-    );
-  }
+    try {
+      setProgressLoading(true);
+      setProgressError("");
+
+      const response = await apiClient.get(
+        "/progress",
+        {
+          params: {
+            studentId: selectedStudentId,
+          },
+        }
+      );
+
+      const data = response.data;
+
+      const progressList = Array.isArray(data)
+        ? data
+        : data?.progress || [];
+
+      setProgress(progressList);
+    } catch (error) {
+      console.error(
+        "REFRESH PROGRESS ERROR:",
+        error
+      );
+
+      setProgressError(
+        error.response?.data?.message ||
+          "Failed to refresh progress."
+      );
+    } finally {
+      setProgressLoading(false);
+    }
+  };
+
+  // =======================================================
+  // UI
+  // =======================================================
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Student Progress
-        </h1>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl">
 
-        <p className="mt-1 text-sm text-gray-500">
-          Track the progress of your assigned students.
-        </p>
-      </div>
+        {/* =================================================
+            STUDENT SELECTOR
+        ================================================= */}
 
-      {/* Error */}
-      {error && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          {error}
+        <div className="mb-6 rounded-2xl bg-white p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-2">
+            <User
+              size={20}
+              className="text-gray-700"
+            />
+
+            <h2 className="font-semibold text-gray-900">
+              Select Student
+            </h2>
+          </div>
+
+          {/* LOADING STUDENTS */}
+
+          {studentsLoading && (
+            <div className="flex items-center gap-2 py-3 text-sm text-gray-500">
+              <RefreshCw
+                size={16}
+                className="animate-spin"
+              />
+
+              Loading assigned students...
+            </div>
+          )}
+
+          {/* STUDENT ERROR */}
+
+          {!studentsLoading && studentsError && (
+            <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700">
+              <p className="font-medium">
+                {studentsError}
+              </p>
+            </div>
+          )}
+
+          {/* NO STUDENTS */}
+
+          {!studentsLoading &&
+            !studentsError &&
+            students.length === 0 && (
+              <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-500">
+                No students are currently assigned
+                to you.
+              </div>
+            )}
+
+          {/* STUDENT SELECT */}
+
+          {!studentsLoading &&
+            !studentsError &&
+            students.length > 0 && (
+              <div className="relative">
+                <select
+                  value={selectedStudentId}
+                  onChange={(event) =>
+                    setSelectedStudentId(
+                      event.target.value
+                    )
+                  }
+                  className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 text-sm font-medium text-gray-800 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-100"
+                >
+                  {students.map((student) => {
+                    const id =
+                      student._id ||
+                      student.id;
+
+                    const name =
+                      student.name ||
+                      student.fullName ||
+                      "Unnamed Student";
+
+                    const email =
+                      student.email || "";
+
+                    return (
+                      <option
+                        key={id}
+                        value={id}
+                      >
+                        {name}
+                        {email
+                          ? ` — ${email}`
+                          : ""}
+                      </option>
+                    );
+                  })}
+                </select>
+
+                <ChevronDown
+                  size={18}
+                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
+                />
+              </div>
+            )}
         </div>
-      )}
 
-      {/* Student Selector */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <div className="mb-3 flex items-center gap-2">
-          <UserRound size={18} className="text-gray-600" />
+        {/* =================================================
+            SELECTED STUDENT HEADER
+        ================================================= */}
 
-          <label
-            htmlFor="student"
-            className="text-sm font-semibold text-gray-800"
-          >
-            Select Student
-          </label>
-        </div>
+        {selectedStudent && (
+          <div className="mb-6 rounded-2xl bg-gray-900 p-5 text-white shadow-sm">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
 
-        <select
-          id="student"
-          value={selectedStudentId}
-          onChange={(event) =>
-            setSelectedStudentId(event.target.value)
-          }
-          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 md:w-96"
-        >
-          <option value="">Choose a student...</option>
-
-          {students.map((student) => (
-            <option key={student.id} value={student.id}>
-              {student.name}
-            </option>
-          ))}
-        </select>
-
-        {students.length === 0 && !error && (
-          <p className="mt-3 text-sm text-gray-500">
-            No progress records available.
-          </p>
-        )}
-      </div>
-
-      {/* Empty State */}
-      {!selectedStudent && (
-        <div className="mt-6 rounded-xl border border-dashed border-gray-300 bg-white py-16 text-center">
-          <TrendingUp
-            size={42}
-            className="mx-auto mb-4 text-gray-300"
-          />
-
-          <h2 className="text-lg font-semibold text-gray-700">
-            Select a student
-          </h2>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Choose a student above to view their progress.
-          </p>
-        </div>
-      )}
-
-      {/* Selected Student */}
-      {selectedStudent && (
-        <div className="mt-6 space-y-6">
-          {/* Student Overview */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  {selectedStudent.name}
+                <p className="text-sm text-gray-400">
+                  Selected Student
+                </p>
+
+                <h2 className="mt-1 text-xl font-bold">
+                  {selectedStudent.name ||
+                    selectedStudent.fullName ||
+                    "Unnamed Student"}
                 </h2>
 
-                <p className="mt-1 text-sm text-gray-500">
-                  {totalTopics} topics tracked
-                </p>
+                {selectedStudent.email && (
+                  <p className="mt-1 text-sm text-gray-400">
+                    {selectedStudent.email}
+                  </p>
+                )}
               </div>
 
-              <div className="w-full md:w-72">
-                <div className="mb-2 flex justify-between">
-                  <span className="text-sm font-medium text-gray-600">
-                    Overall Progress
-                  </span>
+              <button
+                type="button"
+                onClick={refreshProgress}
+                disabled={progressLoading}
+                className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <RefreshCw
+                  size={16}
+                  className={
+                    progressLoading
+                      ? "animate-spin"
+                      : ""
+                  }
+                />
 
-                  <span className="text-sm font-bold text-gray-900">
-                    {progressPercentage}%
-                  </span>
+                Refresh
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* =================================================
+            PROGRESS ERROR
+        ================================================= */}
+
+        {progressError && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl bg-red-50 p-4 text-sm text-red-700">
+            <AlertCircle
+              size={20}
+              className="mt-0.5 shrink-0"
+            />
+
+            <div>
+              <p className="font-semibold">
+                Unable to load progress
+              </p>
+
+              <p className="mt-1">
+                {progressError}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* =================================================
+            PROGRESS LOADING
+        ================================================= */}
+
+        {progressLoading ? (
+          <div className="flex min-h-[300px] items-center justify-center rounded-2xl bg-white shadow-sm">
+            <div className="text-center">
+              <RefreshCw
+                size={32}
+                className="mx-auto animate-spin text-gray-500"
+              />
+
+              <p className="mt-3 text-sm text-gray-500">
+                Loading student progress...
+              </p>
+            </div>
+          </div>
+        ) : selectedStudent ? (
+          <>
+            {/* =================================================
+                SUMMARY CARDS
+            ================================================= */}
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+              {/* OVERALL */}
+
+              <div className="rounded-2xl bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500">
+                      Overall Progress
+                    </p>
+
+                    <p className="mt-2 text-3xl font-bold text-gray-900">
+                      {overallProgress}%
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-gray-100 p-3">
+                    <BookOpen
+                      size={22}
+                      className="text-gray-700"
+                    />
+                  </div>
                 </div>
 
-                <div className="h-3 overflow-hidden rounded-full bg-gray-100">
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-gray-100">
                   <div
-                    className="h-full rounded-full bg-blue-600 transition-all"
+                    className="h-full rounded-full bg-gray-900 transition-all"
                     style={{
-                      width: `${progressPercentage}%`,
+                      width: `${overallProgress}%`,
                     }}
                   />
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Statistics */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              title="Completed"
-              value={completed}
-              icon={CheckCircle2}
-              iconClass="bg-green-50 text-green-600"
-            />
+              {/* COMPLETED */}
 
-            <StatCard
-              title="In Progress"
-              value={inProgress}
-              icon={Clock3}
-              iconClass="bg-yellow-50 text-yellow-600"
-            />
+              <div className="rounded-2xl bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500">
+                      Completed
+                    </p>
 
-            <StatCard
-              title="Not Started"
-              value={notStarted}
-              icon={Circle}
-              iconClass="bg-gray-100 text-gray-500"
-            />
+                    <p className="mt-2 text-3xl font-bold text-gray-900">
+                      {completedCount}
+                    </p>
+                  </div>
 
-            <StatCard
-              title="Needs Improvement"
-              value={needsImprovement}
-              icon={AlertCircle}
-              iconClass="bg-red-50 text-red-600"
-            />
-          </div>
-
-          {/* Topic Progress */}
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-            <div className="border-b border-gray-100 p-5">
-              <h2 className="font-semibold text-gray-900">
-                Topic Progress
-              </h2>
-
-              <p className="mt-1 text-sm text-gray-500">
-                Current progress for each topic.
-              </p>
-            </div>
-
-            <div>
-              {selectedStudentProgress.length === 0 ? (
-                <div className="p-8 text-center text-sm text-gray-500">
-                  No progress records found for this student.
+                  <div className="rounded-xl bg-green-100 p-3">
+                    <CheckCircle2
+                      size={22}
+                      className="text-green-600"
+                    />
+                  </div>
                 </div>
-              ) : (
-                selectedStudentProgress.map((item) => {
-                  const config =
-                    statusConfig[item.status] ||
-                    statusConfig["Not Started"];
 
-                  const Icon = config.icon;
+                <p className="mt-3 text-xs text-gray-500">
+                  Out of {totalTopics} topics
+                </p>
+              </div>
+
+              {/* IN PROGRESS */}
+
+              <div className="rounded-2xl bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500">
+                      In Progress
+                    </p>
+
+                    <p className="mt-2 text-3xl font-bold text-gray-900">
+                      {inProgressCount}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-blue-100 p-3">
+                    <Clock3
+                      size={22}
+                      className="text-blue-600"
+                    />
+                  </div>
+                </div>
+
+                <p className="mt-3 text-xs text-gray-500">
+                  Topics currently being learned
+                </p>
+              </div>
+
+              {/* NEEDS IMPROVEMENT */}
+
+              <div className="rounded-2xl bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500">
+                      Needs Improvement
+                    </p>
+
+                    <p className="mt-2 text-3xl font-bold text-gray-900">
+                      {needsImprovementCount}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-orange-100 p-3">
+                    <AlertCircle
+                      size={22}
+                      className="text-orange-600"
+                    />
+                  </div>
+                </div>
+
+                <p className="mt-3 text-xs text-gray-500">
+                  Topics requiring attention
+                </p>
+              </div>
+            </div>
+
+            {/* =================================================
+                TOPIC PROGRESS
+            ================================================= */}
+
+            <div className="mt-6 rounded-2xl bg-white shadow-sm">
+
+              <div className="border-b border-gray-100 p-5">
+                <h2 className="text-lg font-bold text-gray-900">
+                  Topic Progress
+                </h2>
+
+                <p className="mt-1 text-sm text-gray-500">
+                  Detailed progress for each bootcamp topic.
+                </p>
+              </div>
+
+              <div className="divide-y divide-gray-100">
+
+                {TOPICS.map((topic) => {
+                  const item =
+                    progressByTopic[topic];
+
+                  const status =
+                    item?.status ||
+                    "Not Started";
+
+                  const statusInfo =
+                    STATUS_STYLES[status] ||
+                    STATUS_STYLES["Not Started"];
+
+                  const StatusIcon =
+                    statusInfo.icon;
 
                   return (
                     <div
-                      key={item._id}
-                      className="flex flex-col gap-3 border-b border-gray-100 p-5 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
+                      key={topic}
+                      className="p-5 transition hover:bg-gray-50"
                     >
-                      <div>
-                        <p className="font-medium text-gray-800">
-                          {item.topic}
-                        </p>
+                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-                        {item.notes && (
-                          <p className="mt-1 text-sm text-gray-500">
-                            {item.notes}
-                          </p>
-                        )}
-                      </div>
+                        <div className="flex items-center gap-3">
+                          <div className="rounded-xl bg-gray-100 p-2.5">
+                            <BookOpen
+                              size={18}
+                              className="text-gray-600"
+                            />
+                          </div>
 
-                      <div
-                        className={`flex w-fit items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium ${config.className}`}
-                      >
-                        <Icon size={16} />
+                          <div>
+                            <h3 className="font-semibold text-gray-900">
+                              {topic}
+                            </h3>
 
-                        <span>{item.status}</span>
+                            {item?.notes && (
+                              <p className="mt-1 text-sm text-gray-500">
+                                {item.notes}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div
+                          className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${statusInfo.className}`}
+                        >
+                          <StatusIcon size={14} />
+
+                          {statusInfo.label}
+                        </div>
                       </div>
                     </div>
                   );
-                })
-              )}
+                })}
+              </div>
+            </div>
+          </>
+        ) : (
+          /* =================================================
+             NO STUDENT SELECTED
+          ================================================= */
+
+          <div className="flex min-h-[300px] items-center justify-center rounded-2xl bg-white shadow-sm">
+            <div className="text-center">
+              <User
+                size={40}
+                className="mx-auto text-gray-300"
+              />
+
+              <h3 className="mt-4 font-semibold text-gray-800">
+                Select a student
+              </h3>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Choose an assigned student to view
+                their progress.
+              </p>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
+
+export default MentorProgress;

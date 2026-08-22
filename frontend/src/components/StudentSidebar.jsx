@@ -16,97 +16,112 @@ function StudentSidebar() {
   const { logout } = useAuth();
 
   const navClass = ({ isActive }) =>
-    `flex items-center gap-3 rounded-lg border px-4 py-3 transition ${
+    `group flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition ${
       isActive
-        ? "border-white bg-gray-800 text-white font-semibold"
-        : "border-transparent text-gray-300 hover:border-gray-700 hover:bg-gray-800 hover:text-white"
+        ? "border border-white text-white"
+        : "border border-transparent text-slate-300 hover:bg-white/10 hover:text-white"
     }`;
 
   return (
-    <aside className="flex w-56 flex-col bg-gray-900 p-6 text-white">
+    <aside className="flex h-screen w-60 flex-col bg-[#111827] text-white">
 
-      {/* LOGO */}
+      {/* =========================
+          LOGO
+      ========================== */}
 
-      <h2 className="mb-8 text-xl font-bold">
-        ASTU MSJ
-      </h2>
+      <div className="flex h-[76px] shrink-0 items-center border-b border-white/10 px-5">
+        <div>
+          <p className="text-lg font-bold tracking-wide">
+            ASTU MSJ
+          </p>
 
-      {/* NAVIGATION */}
+          <p className="text-xs text-slate-400">
+            Bootcamp
+          </p>
+        </div>
+      </div>
 
-      <nav className="flex flex-col gap-2">
+      {/* =========================
+          NAVIGATION
+      ========================== */}
 
-        <NavLink
-          to="/student"
-          end
-          className={navClass}
-        >
-          <LayoutDashboard size={20} />
-          Dashboard
-        </NavLink>
+      <nav className="flex-1 overflow-y-auto px-3 py-5">
+        <div className="space-y-1">
 
-        <NavLink
-          to="/student/attendance"
-          className={navClass}
-        >
-          <CalendarCheck size={20} />
-          Attendance
-        </NavLink>
+          <NavLink
+            to="/student"
+            end
+            className={navClass}
+          >
+            <LayoutDashboard size={19} />
+            <span>Dashboard</span>
+          </NavLink>
 
-        <NavLink
-          to="/student/progress"
-          className={navClass}
-        >
-          <ChartNoAxesColumn size={20} />
-          Progress
-        </NavLink>
+          <NavLink
+            to="/student/attendance"
+            className={navClass}
+          >
+            <CalendarCheck size={19} />
+            <span>Attendance</span>
+          </NavLink>
 
-        <NavLink
-          to="/student/assignments"
-          className={navClass}
-        >
-          <ClipboardList size={20} />
-          Assignments
-        </NavLink>
+          <NavLink
+            to="/student/progress"
+            end
+            className={navClass}
+          >
+            <ChartNoAxesColumn size={19} />
+            <span>Progress</span>
+          </NavLink>
 
-        <NavLink
-          to="/student/grades"
-          className={navClass}
-        >
-          <Star size={20} />
-          Grades
-        </NavLink>
+          <NavLink
+            to="/student/assignments"
+            className={navClass}
+          >
+            <ClipboardList size={19} />
+            <span>Assignments</span>
+          </NavLink>
 
-        <NavLink
-          to="/student/announcements"
-          className={navClass}
-        >
-          <Megaphone size={20} />
-          Announcements
-        </NavLink>
+          <NavLink
+            to="/student/grades"
+            className={navClass}
+          >
+            <Star size={19} />
+            <span>Grades</span>
+          </NavLink>
 
-        <NavLink
-          to="/student/profile"
-          className={navClass}
-        >
-          <User size={20} />
-          Profile
-        </NavLink>
+          <NavLink
+            to="/student/announcements"
+            className={navClass}
+          >
+            <Megaphone size={19} />
+            <span>Announcements</span>
+          </NavLink>
 
+          <NavLink
+            to="/student/profile"
+            className={navClass}
+          >
+            <User size={19} />
+            <span>Profile</span>
+          </NavLink>
+
+        </div>
       </nav>
 
-      {/* LOGOUT */}
+      {/* =========================
+          LOGOUT
+      ========================== */}
 
-      <div className="mt-auto border-t border-gray-700 pt-6">
-
+      <div className="shrink-0 border-t border-white/10 p-3">
         <button
           type="button"
           onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg border border-transparent px-4 py-3 text-left text-gray-300 transition hover:border-gray-700 hover:bg-gray-800 hover:text-white"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
         >
-          <LogOut size={20} />
-          Logout
+          <LogOut size={19} />
+          <span>Logout</span>
         </button>
-
       </div>
 
     </aside>

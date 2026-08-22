@@ -15,7 +15,6 @@ function DashboardLayout({ role }) {
     if (role === "admin") return <AdminSidebar />;
     if (role === "mentor") return <MentorSidebar />;
     if (role === "student") return <StudentSidebar />;
-
     return null;
   };
 
@@ -33,14 +32,14 @@ function DashboardLayout({ role }) {
     if (path.includes("/mentor/students")) {
       return {
         title: "My Students",
-        description: "View and manage your assigned students.",
+        description: "View your assigned students.",
       };
     }
 
     if (path.includes("/mentor/attendance")) {
       return {
         title: "Attendance",
-        description: "Monitor and manage student attendance.",
+        description: "Monitor student attendance.",
       };
     }
 
@@ -72,6 +71,69 @@ function DashboardLayout({ role }) {
       };
     }
 
+    if (path === "/student") {
+      return {
+        title: "Student Dashboard",
+        description: "Track your bootcamp learning journey.",
+      };
+    }
+
+    if (path.includes("/student/attendance")) {
+      return {
+        title: "Attendance",
+        description: "View your attendance history.",
+      };
+    }
+
+    if (path.includes("/student/progress/web")) {
+      return {
+        title: "Web Development",
+        description: "Track your web development progress.",
+      };
+    }
+
+    if (path.includes("/student/progress/cp")) {
+      return {
+        title: "Competitive Programming",
+        description: "Track your competitive programming progress.",
+      };
+    }
+
+    if (path.includes("/student/progress")) {
+      return {
+        title: "Progress",
+        description: "Track your learning progress.",
+      };
+    }
+
+    if (path.includes("/student/assignments")) {
+      return {
+        title: "Assignments",
+        description: "View your assignments.",
+      };
+    }
+
+    if (path.includes("/student/grades")) {
+      return {
+        title: "Grades",
+        description: "View your grades.",
+      };
+    }
+
+    if (path.includes("/student/announcements")) {
+      return {
+        title: "Announcements",
+        description: "View bootcamp announcements.",
+      };
+    }
+
+    if (path.includes("/student/profile")) {
+      return {
+        title: "Profile",
+        description: "Manage your profile.",
+      };
+    }
+
     return {
       title: "Dashboard",
       description: "",
@@ -81,60 +143,52 @@ function DashboardLayout({ role }) {
   const pageInfo = getPageInfo();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-[#f5f7fa]">
 
-      {/* =========================
+      {/* ================================
           DESKTOP SIDEBAR
-      ========================== */}
-      <aside className="hidden h-screen shrink-0 md:block">
+      ================================= */}
+
+      <aside className="hidden h-screen w-60 shrink-0 md:flex">
         {getSidebar()}
       </aside>
 
-      {/* =========================
+      {/* ================================
           MOBILE SIDEBAR
-      ========================== */}
+      ================================= */}
+
       {sidebarOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/40 md:hidden"
+            className="fixed inset-0 z-40 bg-black/50 md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
 
-          <aside className="fixed left-0 top-0 z-50 h-screen md:hidden">
+          <aside className="fixed left-0 top-0 z-50 h-screen w-60 md:hidden">
             {getSidebar()}
           </aside>
         </>
       )}
 
-      {/* =========================
-          MAIN AREA
-      ========================== */}
-      <div className="flex h-screen min-w-0 flex-1 flex-col">
+      {/* ================================
+          RIGHT SIDE
+      ================================= */}
 
-        {/* MOBILE MENU */}
-        <div className="flex h-12 shrink-0 items-center bg-gray-50 px-4 md:hidden">
-          <button
-            type="button"
-            onClick={() => setSidebarOpen((prev) => !prev)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-700 hover:bg-gray-200"
-          >
-            {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
-        </div>
+      <div className="flex min-w-0 flex-1 flex-col">
 
-        {/* =========================
-            FIXED HEADER
-        ========================== */}
-        <div className="shrink-0">
-          <Header
-            title={pageInfo.title}
-            description={pageInfo.description}
-          />
-        </div>
+        {/* HEADER */}
 
-        {/* =========================
-            ONLY THIS AREA SCROLLS
-        ========================== */}
+        <Header
+          title={pageInfo.title}
+          description={pageInfo.description}
+          onMenuClick={() =>
+            setSidebarOpen((previous) => !previous)
+          }
+          sidebarOpen={sidebarOpen}
+        />
+
+        {/* CONTENT */}
+
         <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
           <Outlet />
         </main>

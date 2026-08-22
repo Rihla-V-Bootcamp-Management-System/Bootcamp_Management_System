@@ -10,13 +10,52 @@ const {
 } = require("../controllers/progressControllers");
 
 const authMiddleware = require("../middleware/authMiddleware");
+const roleMiddleware = require("../middleware/roleMiddleware");
 
-router.post("/", authMiddleware, createProgress);
+// ==========================================
+// STUDENT ONLY — CREATE / SAVE PROGRESS
+// ==========================================
 
-router.get("/", authMiddleware, getProgress);
+router.post(
+  "/",
+  authMiddleware,
+  roleMiddleware("student"),
+  createProgress
+);
 
-router.get("/:id", authMiddleware, getProgressById);
+// ==========================================
+// ALL ROLES — VIEW PROGRESS
+//
+// Student → own progress only
+// Mentor  → assigned students only
+// Admin   → any progress
+//
+// Controller handles the detailed checks.
+// ==========================================
 
-router.put("/:id", authMiddleware, updateProgress);
+router.get(
+  "/",
+  authMiddleware,
+  roleMiddleware("admin", "mentor", "student"),
+  getProgress
+);
+
+router.get(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin", "mentor", "student"),
+  getProgressById
+);
+
+// ==========================================
+// STUDENT ONLY — UPDATE OWN PROGRESS
+// ==========================================
+
+router.put(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("student"),
+  updateProgress
+);
 
 module.exports = router;
