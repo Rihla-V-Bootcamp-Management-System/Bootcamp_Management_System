@@ -1,77 +1,125 @@
+import {
+  LayoutDashboard,
+  Users,
+  Layers,
+  Megaphone,
+  ClipboardList,
+  FileText,
+  BarChart3,
+  Settings,
+  LogOut,
+} from "lucide-react";
+
 import { NavLink } from "react-router-dom";
+import useAuth from "../../context/useAuth";
+
 function AdminSidebar() {
+  const { logout } = useAuth();
+
   const links = [
     {
       name: "Dashboard",
       path: "/admin",
+      icon: LayoutDashboard,
     },
     {
       name: "Users",
       path: "/admin/users",
+      icon: Users,
     },
     {
       name: "Batches",
       path: "/admin/batches",
+      icon: Layers,
     },
     {
       name: "Announcements",
       path: "/admin/announcements",
+      icon: Megaphone,
     },
     {
       name: "Registrations",
       path: "/admin/registrations",
+      icon: ClipboardList,
+    },
+    {
+      name: "Attendance",
+      path: "/admin/attendance",
+      icon: ClipboardList,
     },
     {
       name: "Applications",
       path: "/admin/applications",
+      icon: FileText,
+    },
+    {
+      name: "Analytics",
+      path: "/admin/analytics",
+      icon: BarChart3,
+    },
+    {
+      name: "Settings",
+      path: "/admin/settings",
+      icon: Settings,
     },
   ];
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-62 border-r border-[#26364a] bg-[#071629]">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-[#26364a] bg-[#071629] text-white">
       <div className="flex h-full flex-col">
 
-        <div className="border-slate-200 px-6 py-5 flex items-center gap-3 ">
-              <img
-      src="/logo.jpg"
-      alt="Logo"
-      className="h-10 w-10 rounded-full object-contain"
-    />
-    <div>
-      <h1 className="text-20 font-bold text-white">
-            ASTU MSJ
-          </h1>
+        {/* Logo */}
+        <div className="flex items-center gap-3 border-b border-[#26364a] px-6 py-5">
+          <img
+            src="/logo.jpg"
+            alt="ASTU MSJ Logo"
+            className="h-10 w-10 rounded-full object-contain"
+          />
 
-          <p className="text-sm text-[#8f969e]">
-            Admin Portal
-          </p>
+          <div>
+            <h1 className="text-xl font-bold text-white">
+              ASTU MSJ
+            </h1>
+
+            <p className="text-sm text-[#8f969e]">
+              Admin Portal
+            </p>
+          </div>
         </div>
 
-    </div>
-          
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-3 py-5">
+          <div className="space-y-1">
 
-        <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-">
+            {links.map((link) => {
+              const Icon = link.icon;
 
-          {links.map((link) => (
-            <NavLink
-              key={link.path}
-              to={link.path}
-              className={({ isActive }) =>
-                `block rounded-lg px-4 py-3 text-sm transition ${
-                  isActive
-                    ? "bg-[#242827] text-white"
-                    : "text-[#aeb5bd] hover:bg-[#101f31] hover:text-white"
-                }`
-              }
-            >
-              {link.name}
-            </NavLink>
-          ))}
+              return (
+                <NavLink
+                  key={link.path}
+                  to={link.path}
+                  end={link.path === "/admin"}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                      isActive
+                        ? "bg-[#18273a] text-white shadow-sm"
+                        : "text-[#aeb5bd] hover:bg-[#101f31] hover:text-white"
+                    }`
+                  }
+                >
+                  <Icon size={19} strokeWidth={1.8} />
+                  <span>{link.name}</span>
+                </NavLink>
+              );
+            })}
 
+          </div>
         </nav>
 
-        <div className="border-gray-600 bg-[#071629] p-4">
-          <div className="rounded-lg bg-[#18273a] px-4 py-3">
+        {/* Admin profile */}
+        <div className="border-t border-[#26364a] p-4">
+
+          <div className="mb-3 rounded-lg bg-[#18273a] px-4 py-3">
             <p className="text-sm font-semibold text-white">
               Admin
             </p>
@@ -80,6 +128,17 @@ function AdminSidebar() {
               Administrator
             </p>
           </div>
+
+          {/* Logout */}
+          <button
+            onClick={logout}
+            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium text-[#aeb5bd] transition-all duration-200 hover:bg-[#101f31] hover:text-white"
+          >
+            <LogOut size={19} strokeWidth={1.8} />
+
+            <span>Logout</span>
+          </button>
+
         </div>
 
       </div>
