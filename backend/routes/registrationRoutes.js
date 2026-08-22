@@ -15,6 +15,7 @@ const {
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 
+// GET all registrations
 router.get(
   "/",
   authMiddleware,
@@ -39,6 +40,7 @@ router.get(
   }
 );
 
+// GET single registration
 router.get(
   "/:id",
   authMiddleware,
@@ -67,6 +69,7 @@ router.get(
   }
 );
 
+// CREATE registration
 router.post("/", async (req, res) => {
   try {
     const settings = await RegistrationSettings.findOne();
@@ -88,6 +91,7 @@ router.post("/", async (req, res) => {
   }
 });
 
+// UPDATE registration status
 router.patch(
   "/:id/status",
   authMiddleware,
