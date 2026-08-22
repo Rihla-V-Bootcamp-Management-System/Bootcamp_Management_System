@@ -23,6 +23,7 @@ function SuperAdminUsers() {
   const [role, setRole] = useState("mentor");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
 
   const loadUsers = async () => {
     try {
@@ -47,7 +48,9 @@ function SuperAdminUsers() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to load users");
+        throw new Error(
+          data.message || "Failed to load users"
+        );
       }
 
       setUsers(data.users || []);
@@ -101,13 +104,15 @@ function SuperAdminUsers() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to assign user");
+        throw new Error(
+          data.message || "Failed to assign user"
+        );
       }
 
       setMessage(
         data.emailSent
-          ? `${role} assigned successfully. Invitation email sent.`
-          : `${role} assigned successfully.`
+          ? `${role} assigned successfully and invitation email sent.`
+          : `${role} assigned successfully, but invitation email failed.`
       );
 
       setName("");
@@ -116,9 +121,61 @@ function SuperAdminUsers() {
 
       await loadUsers();
     } catch (err) {
-      setError(err.message || "Failed to assign user");
+      setError(
+        err.message || "Failed to assign user"
+      );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId, userName) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${userName}?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeletingId(userId);
+      setMessage("");
+      setError("");
+
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Authentication required");
+      }
+
+      const response = await fetch(
+        `http://localhost:5000/api/superadmin/users/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to delete user"
+        );
+      }
+
+      setMessage(data.message);
+
+      await loadUsers();
+    } catch (err) {
+      setError(
+        err.message || "Failed to delete user"
+      );
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -127,15 +184,21 @@ function SuperAdminUsers() {
       const searchText = search.toLowerCase();
 
       const matchesSearch =
-        (user.name || "").toLowerCase().includes(searchText) ||
-        (user.email || "").toLowerCase().includes(searchText);
+        (user.name || "")
+          .toLowerCase()
+          .includes(searchText) ||
+        (user.email || "")
+          .toLowerCase()
+          .includes(searchText);
 
       const displayRole =
         user.role === "admin"
           ? "Admin"
           : user.role === "mentor"
             ? "Mentor"
-            : "Student";
+            : user.role === "superadmin"
+              ? "Super Admin"
+              : "Student";
 
       const displayStatus = user.mustResetPassword
         ? "Pending"
@@ -143,8 +206,10 @@ function SuperAdminUsers() {
 
       return (
         matchesSearch &&
-        (roleFilter === "All" || displayRole === roleFilter) &&
-        (statusFilter === "All" || displayStatus === statusFilter)
+        (roleFilter === "All" ||
+          displayRole === roleFilter) &&
+        (statusFilter === "All" ||
+          displayStatus === statusFilter)
       );
     });
   }, [users, search, roleFilter, statusFilter]);
@@ -176,6 +241,7 @@ function SuperAdminUsers() {
   const getRoleName = (roleValue) => {
     if (roleValue === "admin") return "Admin";
     if (roleValue === "mentor") return "Mentor";
+    if (roleValue === "superadmin") return "Super Admin";
     return "Student";
   };
 
@@ -183,10 +249,15 @@ function SuperAdminUsers() {
     <div className="users-page">
       <div className="users-heading">
         <div>
-          <p className="users-eyebrow">USER MANAGEMENT</p>
+          <p className="users-eyebrow">
+            USER MANAGEMENT
+          </p>
+
           <h2>Users</h2>
+
           <p>
-            Manage administrators, mentors, and students in the system.
+            Manage administrators, mentors, and students in
+            the system.
           </p>
         </div>
       </div>
@@ -195,8 +266,10 @@ function SuperAdminUsers() {
         <div className="users-assign-header">
           <div>
             <h3>Assign User</h3>
+
             <p>
-              Create an Admin or Mentor account and send an invitation.
+              Create an Admin or Mentor account and send an
+              invitation.
             </p>
           </div>
 
@@ -211,10 +284,13 @@ function SuperAdminUsers() {
         >
           <div className="users-assign-field">
             <label>Name</label>
+
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) =>
+                setName(e.target.value)
+              }
               placeholder="Enter full name"
               required
             />
@@ -222,10 +298,13 @@ function SuperAdminUsers() {
 
           <div className="users-assign-field">
             <label>Email</label>
+
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
               placeholder="Enter email address"
               required
             />
@@ -233,12 +312,20 @@ function SuperAdminUsers() {
 
           <div className="users-assign-field">
             <label>Role</label>
+
             <select
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) =>
+                setRole(e.target.value)
+              }
             >
-              <option value="mentor">Mentor</option>
-              <option value="admin">Admin</option>
+              <option value="mentor">
+                Mentor
+              </option>
+
+              <option value="admin">
+                Admin
+              </option>
             </select>
           </div>
 
@@ -248,7 +335,10 @@ function SuperAdminUsers() {
             disabled={saving}
           >
             <UserPlus size={16} />
-            {saving ? "Assigning..." : "Assign User"}
+
+            {saving
+              ? "Assigning..."
+              : "Assign User"}
           </button>
         </form>
 
@@ -270,6 +360,7 @@ function SuperAdminUsers() {
           <div className="users-summary-icon">
             <UserRound size={18} />
           </div>
+
           <div>
             <span>Total Users</span>
             <strong>{users.length}</strong>
@@ -280,6 +371,7 @@ function SuperAdminUsers() {
           <div className="users-summary-icon">
             <ShieldCheck size={18} />
           </div>
+
           <div>
             <span>Admins</span>
             <strong>{adminCount}</strong>
@@ -290,6 +382,7 @@ function SuperAdminUsers() {
           <div className="users-summary-icon">
             <UserRound size={18} />
           </div>
+
           <div>
             <span>Mentors</span>
             <strong>{mentorCount}</strong>
@@ -300,6 +393,7 @@ function SuperAdminUsers() {
           <div className="users-summary-icon">
             <GraduationCap size={18} />
           </div>
+
           <div>
             <span>Students</span>
             <strong>{studentCount}</strong>
@@ -311,27 +405,42 @@ function SuperAdminUsers() {
         <div className="users-toolbar">
           <div className="users-search">
             <Search size={18} />
+
             <input
               type="text"
               placeholder="Search users..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
             />
           </div>
 
           <div className="users-filters">
             <div className="users-filter">
               <Filter size={16} />
+
               <select
                 value={roleFilter}
                 onChange={(e) =>
                   setRoleFilter(e.target.value)
                 }
               >
-                <option value="All">All Roles</option>
-                <option value="Admin">Admin</option>
-                <option value="Mentor">Mentor</option>
-                <option value="Student">Student</option>
+                <option value="All">
+                  All Roles
+                </option>
+
+                <option value="Admin">
+                  Admin
+                </option>
+
+                <option value="Mentor">
+                  Mentor
+                </option>
+
+                <option value="Student">
+                  Student
+                </option>
               </select>
             </div>
 
@@ -342,9 +451,17 @@ function SuperAdminUsers() {
                 setStatusFilter(e.target.value)
               }
             >
-              <option value="All">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Pending">Pending</option>
+              <option value="All">
+                All Status
+              </option>
+
+              <option value="Active">
+                Active
+              </option>
+
+              <option value="Pending">
+                Pending
+              </option>
             </select>
           </div>
         </div>
@@ -373,11 +490,17 @@ function SuperAdminUsers() {
               ) : (
                 <>
                   {filteredUsers.map((user) => {
-                    const displayRole = getRoleName(user.role);
+                    const displayRole =
+                      getRoleName(user.role);
+
                     const displayStatus =
                       user.mustResetPassword
                         ? "Pending"
                         : "Active";
+
+                    const canDelete =
+                      user.role === "admin" ||
+                      user.role === "mentor";
 
                     return (
                       <tr key={user._id}>
@@ -390,8 +513,13 @@ function SuperAdminUsers() {
                             </div>
 
                             <div>
-                              <strong>{user.name}</strong>
-                              <span>{user.email}</span>
+                              <strong>
+                                {user.name}
+                              </strong>
+
+                              <span>
+                                {user.email}
+                              </span>
                             </div>
                           </div>
                         </td>
@@ -400,7 +528,10 @@ function SuperAdminUsers() {
                           <span
                             className={`user-role role-${user.role}`}
                           >
-                            {getRoleIcon(user.role)}
+                            {getRoleIcon(
+                              user.role
+                            )}
+
                             {displayRole}
                           </span>
                         </td>
@@ -414,12 +545,43 @@ function SuperAdminUsers() {
                           </span>
                         </td>
 
-                        <td>{user.userID || "—"}</td>
+                        <td>
+                          {user.userID || "—"}
+                        </td>
 
                         <td>
-                          <button className="user-action-button">
-                            <MoreHorizontal size={18} />
-                          </button>
+                          {canDelete ? (
+                            <button
+                              type="button"
+                              className="user-action-button"
+                              title="Delete user"
+                              disabled={
+                                deletingId ===
+                                user._id
+                              }
+                              onClick={() =>
+                                handleDeleteUser(
+                                  user._id,
+                                  user.name
+                                )
+                              }
+                            >
+                              <MoreHorizontal
+                                size={18}
+                              />
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="user-action-button"
+                              disabled
+                              title="No actions available"
+                            >
+                              <MoreHorizontal
+                                size={18}
+                              />
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );
@@ -442,13 +604,22 @@ function SuperAdminUsers() {
 
         <div className="users-pagination">
           <span>
-            Showing {filteredUsers.length} of {users.length} users
+            Showing {filteredUsers.length} of{" "}
+            {users.length} users
           </span>
 
           <div>
-            <button disabled>Previous</button>
-            <button className="active">1</button>
-            <button disabled>Next</button>
+            <button disabled>
+              Previous
+            </button>
+
+            <button className="active">
+              1
+            </button>
+
+            <button disabled>
+              Next
+            </button>
           </div>
         </div>
       </div>
