@@ -3,18 +3,14 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 
-const userRoutes = require("./routes/userRoutes");
-const authRoutes = require("./routes/authRoutes");
-const registrationRoutes = require("./routes/registrationRoutes");
-const formQuestionRoutes = require("./routes/formQuestionRoutes");
-const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
-const attendanceRoutes = require("./routes/attendanceRoutes");
-const progressRoutes = require("./routes/progressRoutes");
-const applicationFormRoutes = require("./routes/ApplicationFormRoutes");
+const assignmentRoutes = require("./routes/AssignmentRoutes");
+const submissionRoutes = require("./routes/SubmissionRoutes");
+const batchRoutes = require("./routes/batchRoutes");
 
 dotenv.config();
 
 const app = express();
+
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
@@ -35,14 +31,9 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.use("/api/users", userRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/registrations", registrationRoutes);
-app.use("/api/form-questions", formQuestionRoutes);
-app.use("/api/registration-settings", registrationSettingsRoutes);
-app.use("/api/attendance", attendanceRoutes);
-app.use("/api/progress", progressRoutes);
-app.use("/api/application-forms", applicationFormRoutes);
+app.use("/api/assignments", assignmentRoutes);
+app.use("/api/submissions", submissionRoutes);
+app.use("/api/batches", batchRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
