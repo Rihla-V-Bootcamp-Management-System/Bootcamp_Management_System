@@ -5,7 +5,7 @@ const {
   getAssignments,
   updateAssignment,
   deleteAssignment,
-} = require("../controllers/assignmentController");
+} = require("../controllers/assignmentControllers");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");

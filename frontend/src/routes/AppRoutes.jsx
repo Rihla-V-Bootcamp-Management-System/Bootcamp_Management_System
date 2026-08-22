@@ -39,6 +39,12 @@ import StudentSubmission from "../pages/StudentAssignments";
 import StudentAssignments from "../pages/StudentAssignments";
 import StudentAssignmentDetails from "../pages/StudentAssignmentDetails";
 import AdminAssignments from "../pages/AdminAssignments";
+import SuperAdminLayout from "../layouts/SuperAdminLayout";
+import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard";
+import SuperAdminUsers from "../pages/superadmin/SuperAdminUsers";
+import SuperAdminRegistrations from "../pages/superadmin/SuperAdminRegistrations";
+import SuperAdminAuditLogs from "../pages/superadmin/SuperAdminAuditLogs";
+import SuperAdminSettings from "../pages/superadmin/SuperAdminSettings";
 
 function AppRoutes() {
   return (
@@ -222,6 +228,37 @@ function AppRoutes() {
       </Route>
 
       {/* ================= GENERAL ASSIGNMENT ROUTES ================= */}
+      {/* ================= SUPERADMIN ROUTES ================= */}
+      <Route
+  path="/superadmin"
+  element={<SuperAdminLayout />}
+>
+  <Route
+    index
+    element={<SuperAdminDashboard />}
+  />
+
+  <Route
+    path="users"
+    element={<SuperAdminUsers />}
+  />
+
+  <Route
+    path="registrations"
+    element={<SuperAdminRegistrations />}
+  />
+
+  <Route
+    path="audit-logs"
+    element={<SuperAdminAuditLogs />}
+  />
+
+  <Route
+    path="settings"
+    element={<SuperAdminSettings />}
+  />
+</Route>
+
 
       
     </Routes>

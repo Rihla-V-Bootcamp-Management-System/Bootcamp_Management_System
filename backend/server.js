@@ -16,21 +16,36 @@ const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 
-// Registration routes
-const registrationRoutes = require("./routes/registrationRoutes");
-const formQuestionRoutes = require("./routes/formQuestionRoutes");
-const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
+// ==========================================
+// REGISTRATION ROUTES
+// TEMPORARILY DISABLED
+// Registration routes currently depend on
+// RegistrationSettings model which is missing.
+// ==========================================
 
-// Main system routes
+// const registrationRoutes = require("./routes/registrationRoutes");
+// const formQuestionRoutes = require("./routes/formQuestionRoutes");
+// const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
+
+// ==========================================
+// MAIN SYSTEM ROUTES
+// ==========================================
+
 const mentorRoutes = require("./routes/mentorRoutes");
 const seasonRoutes = require("./routes/seasonRoutes");
 const batchRoutes = require("./routes/batchRoutes");
 
-// Assignment & submission routes
+// ==========================================
+// ASSIGNMENT & SUBMISSION ROUTES
+// ==========================================
+
 const assignmentRoutes = require("./routes/AssignmentRoutes");
 const submissionRoutes = require("./routes/SubmissionRoutes");
 
-// Super admin
+// ==========================================
+// SUPER ADMIN
+// ==========================================
+
 const superAdminRoutes = require("./routes/superAdminRoutes");
 
 // ==========================================
@@ -45,7 +60,16 @@ const PORT = process.env.PORT || 5000;
 // MIDDLEWARE
 // ==========================================
 
-app.use(cors());
+// app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+app.use(express.json());
 
 app.use(express.json());
 
@@ -89,19 +113,24 @@ app.use("/api/assignments", assignmentRoutes);
 // Submissions
 app.use("/api/submissions", submissionRoutes);
 
-// Registration
-app.use("/api/registrations", registrationRoutes);
+// ==========================================
+// REGISTRATION ROUTES
+// TEMPORARILY DISABLED
+// ==========================================
 
-// Form questions
-app.use("/api/form-questions", formQuestionRoutes);
+// app.use("/api/registrations", registrationRoutes);
 
-// Registration settings
-app.use(
-  "/api/registration-settings",
-  registrationSettingsRoutes
-);
+// app.use("/api/form-questions", formQuestionRoutes);
 
-// Super admin
+// app.use(
+//   "/api/registration-settings",
+//   registrationSettingsRoutes
+// );
+
+// ==========================================
+// SUPER ADMIN
+// ==========================================
+
 app.use("/api/superadmin", superAdminRoutes);
 
 // ==========================================

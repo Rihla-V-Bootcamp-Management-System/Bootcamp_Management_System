@@ -8,9 +8,12 @@ import {
   LogOut,
   ShieldCheck,
 } from "lucide-react";
+import useAuth from "../context/useAuth";
 import "./SuperAdminLayout.css";
 
 function SuperAdminLayout() {
+  const { logout } = useAuth();
+
   const navigation = [
     {
       label: "Dashboard",
@@ -75,12 +78,19 @@ function SuperAdminLayout() {
           })}
         </nav>
 
-        <div className="superadmin-sidebar-bottom">
-          <button type="button" className="superadmin-logout">
-            <LogOut size={19} />
-            <span>Logout</span>
-          </button>
-        </div>
+           {/* LOGOUT */}
+      <div className="mt-auto border-t border-gray-700 pt-6">
+
+        <button
+          type="button"
+          onClick={logout}
+          className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left hover:bg-gray-200  "
+        >
+          <LogOut size={20} />
+          Logout
+        </button>
+
+      </div>
       </aside>
 
       <main className="superadmin-main">
