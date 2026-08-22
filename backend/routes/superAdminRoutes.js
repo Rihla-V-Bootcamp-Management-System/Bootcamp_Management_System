@@ -1,11 +1,14 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const Registration = require("../models/Registration");
+const AuditLog = require("../models/AuditLog");
+
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
+
 const { sendStaffInvitationEmail } = require("../services/emailService");
 const { createAuditLog } = require("../services/auditLogService");
-const AuditLog = require("../models/AuditLog");
 
 const router = express.Router();
 
@@ -61,7 +64,6 @@ router.post(
       }
 
       const year = new Date().getFullYear();
-
       const prefix = role === "admin" ? "ADM" : "MTR";
 
       const userID = `${prefix}-${year}-${String(nextNumber).padStart(
@@ -153,9 +155,9 @@ router.get(
   roleMiddleware("superadmin"),
   async (req, res) => {
     try {
-      const users = await User.find({
-        role: { $in: ["admin", "mentor"] },
-      }).select("-password -otp");
+      const users = await User.find({})
+        .select("-password -otp")
+        .sort({ createdAt: -1 });
 
       return res.json({
         count: users.length,
@@ -171,6 +173,79 @@ router.get(
     }
   }
 );
+
+router.delete(
+  "/users/:id",
+  authMiddleware,
+  roleMiddleware("superadmin"),
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id);
+
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
+
+      if (user._id.toString() === req.user._id.toString()) {
+        return res.status(403).json({
+          message: "You cannot delete your own account",
+        });
+      }
+
+      if (user.role === "superadmin") {
+        return res.status(403).json({
+          message: "Super Admin users cannot be deleted",
+        });
+      }
+
+      if (!["admin", "mentor"].includes(user.role)) {
+        return res.status(403).json({
+          message:
+            "Only Admin and Mentor users assigned by Super Admin can be deleted",
+        });
+      }
+
+      const deletedUser = {
+        id: user._id.toString(),
+        userID: user.userID,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      };
+
+      await User.findByIdAndDelete(user._id);
+
+      await createAuditLog({
+        actor: req.user._id,
+        actorRole: req.user.role,
+        action: "DELETE_STAFF",
+        targetType: "User",
+        targetId: deletedUser.id,
+        description: `Super Admin deleted ${deletedUser.role} ${deletedUser.name}`,
+        metadata: {
+          userID: deletedUser.userID,
+          email: deletedUser.email,
+          role: deletedUser.role,
+        },
+      });
+
+      return res.json({
+        message: `${deletedUser.role} deleted successfully`,
+        deletedUser,
+      });
+    } catch (error) {
+      console.error("SUPER ADMIN DELETE USER ERROR:", error);
+
+      return res.status(500).json({
+        message: "Failed to delete user",
+        error: error.message,
+      });
+    }
+  }
+);
+
 router.get(
   "/audit-logs",
   authMiddleware,
@@ -190,6 +265,41 @@ router.get(
 
       return res.status(500).json({
         message: "Failed to get audit logs",
+        error: error.message,
+      });
+    }
+  }
+);
+
+router.get(
+  "/stats",
+  authMiddleware,
+  roleMiddleware("superadmin"),
+  async (req, res) => {
+    try {
+      const [totalUsers, students, mentors, pendingApplications] =
+        await Promise.all([
+          User.countDocuments(),
+          User.countDocuments({ role: "student" }),
+          User.countDocuments({ role: "mentor" }),
+          Registration.countDocuments({
+            status: {
+              $in: ["Submitted", "Shortlisted"],
+            },
+          }),
+        ]);
+
+      return res.json({
+        totalUsers,
+        students,
+        mentors,
+        pendingApplications,
+      });
+    } catch (error) {
+      console.error("SUPER ADMIN STATS ERROR:", error);
+
+      return res.status(500).json({
+        message: "Failed to get dashboard statistics",
         error: error.message,
       });
     }
