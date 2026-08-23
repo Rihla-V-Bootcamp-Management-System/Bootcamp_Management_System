@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Outlet, useLocation } from "react-router-dom";
 
-import AdminSidebar from "../components/AdminSidebar";
+import AdminSidebar from "../components/admin/AdminSidebar";
 import MentorSidebar from "../components/MentorSidebar";
 import StudentSidebar from "../components/StudentSidebar";
 import Header from "../components/Header";

@@ -65,7 +65,7 @@ function AdminSidebar() {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-[#26364a] bg-[#071629] text-white">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-50 border-r border-[#26364a] bg-[#071629] text-white">
       <div className="flex h-full flex-col">
 
         {/* Logo */}

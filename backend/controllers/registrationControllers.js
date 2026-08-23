@@ -1,5 +1,4 @@
 const Registration = require("../models/Registration");
-const ApplicationForm = require("../models/ApplicationForm");
 
 const createRegistration = async (req, res) => {
   try {
@@ -171,9 +170,11 @@ const createRegistration = async (req, res) => {
       registration,
     });
   } catch (error) {
+    console.error("Registration error:", error);
+
     if (error.code === 11000) {
       return res.status(409).json({
-        message: "You have already applied for this season.",
+        message: "This email has already been registered for this batch",
       });
     }
 

@@ -2,12 +2,6 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    userID: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
-
     name: {
       type: String,
       required: true,
@@ -29,9 +23,17 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["admin", "mentor", "student"],
+      enum: ["superadmin", "admin", "mentor", "student"],
       default: "student",
+      required: true,
     },
+
+    assignedMentor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
 
     mustResetPassword: {
       type: Boolean,
@@ -39,23 +41,22 @@ const userSchema = new mongoose.Schema(
     },
 
     otp: {
+    gender: {
       type: String,
-      default: null,
+      enum: ["Male", "Female"],
+      required: function () {
+        return this.role === "student";
+      },
     },
 
-    otpExpiresAt: {
-      type: Date,
+    batchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
       default: null,
-    },
-
-    otpVerified: {
-      type: Boolean,
-      default: false,
     },
   },
-  {
-    timestamps: true,
-  }
+}
+  
 );
 
 module.exports = mongoose.model("User", userSchema);
