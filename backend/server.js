@@ -18,11 +18,9 @@ const authRoutes = require("./routes/authRoutes");
 
 // ==========================================
 // REGISTRATION ROUTES
-// TEMPORARILY DISABLED
-// Registration routes currently depend on
-// RegistrationSettings model which is missing.
 // ==========================================
 
+// Temporarily disabled
 // const registrationRoutes = require("./routes/registrationRoutes");
 // const formQuestionRoutes = require("./routes/formQuestionRoutes");
 // const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
@@ -36,10 +34,19 @@ const seasonRoutes = require("./routes/seasonRoutes");
 const batchRoutes = require("./routes/batchRoutes");
 
 // ==========================================
+// ATTENDANCE & PROGRESS
+// ==========================================
+
+const progressRoutes = require("./routes/progressRoutes");
+
+// If attendanceRoutes.js exists, uncomment this:
+// const attendanceRoutes = require("./routes/attendanceRoutes");
+
+// ==========================================
 // ASSIGNMENT & SUBMISSION ROUTES
 // ==========================================
 
-const assignmentRoutes = require("./routes/AssignmentRoutes");
+const assignmentRoutes = require("./routes/assignmentRoutes");
 const submissionRoutes = require("./routes/SubmissionRoutes");
 
 // ==========================================
@@ -60,18 +67,11 @@ const PORT = process.env.PORT || 5000;
 // MIDDLEWARE
 // ==========================================
 
-// app.use(cors());
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+app.use(cors());
 
 app.use(express.json());
 
-app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // ==========================================
 // TEST / HEALTH ROUTES
@@ -79,12 +79,14 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
   res.json({
+    success: true,
     message: "Bootcamp Management System API is running",
   });
 });
 
 app.get("/api/health", (req, res) => {
   res.json({
+    success: true,
     status: "OK",
     message: "Server is healthy",
   });
@@ -94,23 +96,55 @@ app.get("/api/health", (req, res) => {
 // API ROUTES
 // ==========================================
 
-// Users & authentication
+// ------------------------------------------
+// Users & Authentication
+// ------------------------------------------
+
 app.use("/api/users", userRoutes);
+
 app.use("/api/auth", authRoutes);
 
+// ------------------------------------------
 // Seasons
+// ------------------------------------------
+
 app.use("/api/seasons", seasonRoutes);
 
-// Mentor
+// ------------------------------------------
+// Mentors
+// ------------------------------------------
+
 app.use("/api/mentor", mentorRoutes);
 
+// ------------------------------------------
 // Batches
+// ------------------------------------------
+
 app.use("/api/batches", batchRoutes);
 
+// ------------------------------------------
+// Progress
+// ------------------------------------------
+
+app.use("/api/progress", progressRoutes);
+
+// ------------------------------------------
+// Attendance
+// ------------------------------------------
+
+// Uncomment this when attendanceRoutes.js exists
+// app.use("/api/attendance", attendanceRoutes);
+
+// ------------------------------------------
 // Assignments
+// ------------------------------------------
+
 app.use("/api/assignments", assignmentRoutes);
 
+// ------------------------------------------
 // Submissions
+// ------------------------------------------
+
 app.use("/api/submissions", submissionRoutes);
 
 // ==========================================
@@ -134,6 +168,30 @@ app.use("/api/submissions", submissionRoutes);
 app.use("/api/superadmin", superAdminRoutes);
 
 // ==========================================
+// 404 HANDLER
+// ==========================================
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.method} ${req.originalUrl}`,
+  });
+});
+
+// ==========================================
+// GLOBAL ERROR HANDLER
+// ==========================================
+
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal server error",
+  });
+});
+
+// ==========================================
 // START SERVER
 // ==========================================
 
@@ -142,15 +200,23 @@ const startServer = async () => {
     await connectDB();
 
     app.listen(PORT, () => {
+      console.log("==========================================");
+      console.log("Bootcamp Management System Backend");
+      console.log("==========================================");
+      console.log(`Server running on http://localhost:${PORT}`);
       console.log(
-        `Server running on http://localhost:${PORT}`
+        `Health check: http://localhost:${PORT}/api/health`
       );
+      console.log(
+        `Progress API: http://localhost:${PORT}/api/progress`
+      );
+      console.log("==========================================");
     });
   } catch (error) {
-    console.error(
-      "Server startup failed:",
-      error.message
-    );
+    console.error("==========================================");
+    console.error("Server startup failed:");
+    console.error(error.message);
+    console.error("==========================================");
 
     process.exit(1);
   }
