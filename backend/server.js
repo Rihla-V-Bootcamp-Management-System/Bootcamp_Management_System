@@ -37,10 +37,8 @@ const batchRoutes = require("./routes/batchRoutes");
 // ATTENDANCE & PROGRESS
 // ==========================================
 
+const attendanceRoutes = require("./routes/attendanceRoutes");
 const progressRoutes = require("./routes/progressRoutes");
-
-// If attendanceRoutes.js exists, uncomment this:
-// const attendanceRoutes = require("./routes/attendanceRoutes");
 
 // ==========================================
 // ASSIGNMENT & SUBMISSION ROUTES
@@ -123,17 +121,16 @@ app.use("/api/mentor", mentorRoutes);
 app.use("/api/batches", batchRoutes);
 
 // ------------------------------------------
+// Attendance
+// ------------------------------------------
+
+app.use("/api/attendance", attendanceRoutes);
+
+// ------------------------------------------
 // Progress
 // ------------------------------------------
 
 app.use("/api/progress", progressRoutes);
-
-// ------------------------------------------
-// Attendance
-// ------------------------------------------
-
-// Uncomment this when attendanceRoutes.js exists
-// app.use("/api/attendance", attendanceRoutes);
 
 // ------------------------------------------
 // Assignments
@@ -191,9 +188,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ==========================================
-// START SERVER
-// ==========================================
 
 const startServer = async () => {
   try {
@@ -206,6 +200,9 @@ const startServer = async () => {
       console.log(`Server running on http://localhost:${PORT}`);
       console.log(
         `Health check: http://localhost:${PORT}/api/health`
+      );
+      console.log(
+        `Attendance API: http://localhost:${PORT}/api/attendance`
       );
       console.log(
         `Progress API: http://localhost:${PORT}/api/progress`
