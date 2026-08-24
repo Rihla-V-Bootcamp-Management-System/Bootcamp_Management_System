@@ -10,30 +10,31 @@ const {
 } = require("../services/emailService");
 
 const allowedTransitions = {
-  Submitted: ["Shortlisted", "Rejected"],
-  Shortlisted: ["Interviewed", "Rejected"],
-  Interviewed: ["Accepted", "Rejected"],
-  Accepted: [],
-  Rejected: [],
+  SUBMITTED: ["SHORTLISTED", "REJECTED"],
+  SHORTLISTED: ["INTERVIEWED", "REJECTED"],
+  INTERVIEWED: ["ACCEPTED", "REJECTED"],
+  ACCEPTED: [],
+  REJECTED: [],
 };
 
 const updateRegistrationStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, rejectionReason } = req.body;
 
+    const validStatuses = [
+      "SUBMITTED",
+      "SHORTLISTED",
+      "INTERVIEWED",
+      "ACCEPTED",
+      "REJECTED",
+    ];
+
+    // 1. Validate status
     if (!status) {
       return res.status(400).json({
         message: "Status is required",
       });
     }
-
-    const validStatuses = [
-      "Submitted",
-      "Shortlisted",
-      "Interviewed",
-      "Accepted",
-      "Rejected",
-    ];
 
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
@@ -41,6 +42,7 @@ const updateRegistrationStatus = async (req, res) => {
       });
     }
 
+    // 2. Find registration
     const registration = await Registration.findById(req.params.id);
 
     if (!registration) {
@@ -49,7 +51,9 @@ const updateRegistrationStatus = async (req, res) => {
       });
     }
 
+    // 3. Check allowed transition
     const currentStatus = registration.status;
+
     const allowedNextStatuses =
       allowedTransitions[currentStatus] || [];
 
@@ -59,13 +63,18 @@ const updateRegistrationStatus = async (req, res) => {
       });
     }
 
-    registration.status = status;
+    // 4. Save reviewer information
+    registration.reviewedBy = req.user._id;
+    registration.reviewedAt = new Date();
 
-    if (status === "Accepted" || status === "Rejected") {
-      registration.decidedAt = new Date();
+    // 5. Handle rejection
+    if (status === "REJECTED") {
+      registration.rejectionReason =
+        rejectionReason?.trim() || "No reason provided";
     }
 
-    if (status === "Accepted") {
+    // 6. Handle accepted application
+    if (status === "ACCEPTED") {
       const existingUser = await User.findOne({
         email: registration.email,
       });
@@ -76,13 +85,14 @@ const updateRegistrationStatus = async (req, res) => {
         });
       }
 
+      // Generate student ID
       const lastUser = await User.findOne({
         userID: { $regex: /^STU-\d{4}-\d+$/ },
       }).sort({ userID: -1 });
 
       let nextNumber = 1;
 
-      if (lastUser && lastUser.userID) {
+      if (lastUser?.userID) {
         const match = lastUser.userID.match(/(\d+)$/);
 
         if (match) {
@@ -92,11 +102,11 @@ const updateRegistrationStatus = async (req, res) => {
 
       const year = new Date().getFullYear();
 
-      const userID = `STU-${year}-${String(nextNumber).padStart(
-        4,
-        "0"
-      )}`;
+      const userID = `STU-${year}-${String(
+        nextNumber
+      ).padStart(4, "0")}`;
 
+      // Generate OTP
       const otp = Math.floor(
         100000 + Math.random() * 900000
       ).toString();
@@ -105,11 +115,13 @@ const updateRegistrationStatus = async (req, res) => {
         Date.now() + 24 * 60 * 60 * 1000
       );
 
+      // Temporary password
       const temporaryPassword = await bcrypt.hash(
         Math.random().toString(36),
         10
       );
 
+      // Create student account
       const createdUser = await User.create({
         name: registration.fullName,
         email: registration.email,
@@ -122,34 +134,40 @@ const updateRegistrationStatus = async (req, res) => {
         mustResetPassword: true,
       });
 
+      // Update registration
+      registration.status = "ACCEPTED";
+      registration.decidedAt = new Date();
+
       await registration.save();
 
+      // Audit log
       await createAuditLog({
         actor: req.user._id,
         actorRole: req.user.role,
         action: "STATUS_CHANGE",
         targetType: "Registration",
         targetId: registration._id.toString(),
-        description: `${req.user.role} changed registration status from ${currentStatus} to Accepted`,
+        description: `${req.user.role} changed registration status from ${currentStatus} to ACCEPTED`,
         metadata: {
           registrationId: registration._id.toString(),
           applicantName: registration.fullName,
           applicantEmail: registration.email,
           previousStatus: currentStatus,
-          newStatus: "Accepted",
+          newStatus: "ACCEPTED",
           studentUserID: createdUser.userID,
         },
       });
 
+      // Send accepted email
       let emailSent = false;
 
       try {
-        await sendAcceptedEmail(registration, createdUser);
-        emailSent = true;
-
-        console.log(
-          `Accepted email sent to ${registration.email}`
+        await sendAcceptedEmail(
+          registration,
+          createdUser
         );
+
+        emailSent = true;
       } catch (emailError) {
         console.error(
           "Accepted email error:",
@@ -159,25 +177,60 @@ const updateRegistrationStatus = async (req, res) => {
 
       return res.status(200).json({
         message: emailSent
-          ? "Registration accepted, student account created, and email sent"
+          ? "Registration accepted and student account created"
           : "Registration accepted and student account created, but email failed",
-        registration,
+
         emailSent,
+
+        registration,
+
         user: {
           userID: createdUser.userID,
           name: createdUser.name,
           email: createdUser.email,
           role: createdUser.role,
           gender: createdUser.gender,
-          otp: createdUser.otp,
-          otpExpiresAt: createdUser.otpExpiresAt,
-          mustResetPassword: createdUser.mustResetPassword,
         },
       });
     }
 
+    // 7. For other statuses
+    registration.status = status;
+
+    if (
+      status === "SHORTLISTED" ||
+      status === "INTERVIEWED"
+    ) {
+      registration.rejectionReason = "";
+    }
+
+    if (status === "REJECTED") {
+      registration.decidedAt = new Date();
+    }
+
     await registration.save();
 
+    // 8. Send appropriate email
+    let emailSent = false;
+
+    try {
+      if (status === "SHORTLISTED") {
+        await sendShortlistedEmail(registration);
+        emailSent = true;
+      }
+
+      if (status === "REJECTED") {
+        await sendRejectedEmail(registration);
+        emailSent = true;
+      }
+    } catch (emailError) {
+      console.error(
+        "Status email error:",
+        emailError.message
+      );
+    }
+
+    // 9. Audit log
     await createAuditLog({
       actor: req.user._id,
       actorRole: req.user.role,
@@ -194,42 +247,19 @@ const updateRegistrationStatus = async (req, res) => {
       },
     });
 
-    let emailSent = false;
-
-    try {
-      if (status === "Shortlisted") {
-        await sendShortlistedEmail(registration);
-        emailSent = true;
-
-        console.log(
-          `Shortlisted email sent to ${registration.email}`
-        );
-      }
-
-      if (status === "Rejected") {
-        await sendRejectedEmail(registration);
-        emailSent = true;
-
-        console.log(
-          `Rejected email sent to ${registration.email}`
-        );
-      }
-    } catch (emailError) {
-      console.error(
-        "Status email error:",
-        emailError.message
-      );
-    }
-
     return res.status(200).json({
       message: emailSent
-        ? `Registration status changed from ${currentStatus} to ${status} and email sent`
-        : `Registration status changed from ${currentStatus} to ${status}, but email failed`,
+        ? `Registration status changed to ${status} and email sent`
+        : `Registration status changed to ${status}`,
+
       emailSent,
       registration,
     });
   } catch (error) {
-    console.error("Status update error:", error);
+    console.error(
+      "Status update error:",
+      error
+    );
 
     return res.status(500).json({
       message: "Server error",
