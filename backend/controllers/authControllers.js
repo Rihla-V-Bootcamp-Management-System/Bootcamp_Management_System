@@ -12,7 +12,11 @@ const registerUser = async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (existingUser) {
       return res.status(400).json({
@@ -23,11 +27,13 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password: hashedPassword,
       role: "student",
       gender,
+      accountStatus: "active",
+      mustResetPassword: false,
     });
 
     return res.status(201).json({
@@ -60,7 +66,11 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (!user) {
       return res.status(401).json({
@@ -68,11 +78,19 @@ const loginUser = async (req, res) => {
       });
     }
 
-    if (user.mustResetPassword) {
+    // Invited users must complete password setup first
+    if (user.accountStatus === "pending" || user.mustResetPassword) {
       return res.status(403).json({
-        message: "Password setup required",
+        message: "Please verify your invitation and set your password first",
         mustResetPassword: true,
+        accountStatus: user.accountStatus,
         userID: user.userID,
+      });
+    }
+
+    if (user.accountStatus !== "active") {
+      return res.status(403).json({
+        message: "Your account is not active",
       });
     }
 
@@ -108,6 +126,7 @@ const loginUser = async (req, res) => {
         email: user.email,
         role: user.role,
         gender: user.gender,
+        accountStatus: user.accountStatus,
       },
     });
   } catch (error) {
@@ -130,7 +149,9 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ userID });
+    const user = await User.findOne({
+      userID: userID.trim(),
+    });
 
     if (!user) {
       return res.status(404).json({
@@ -140,7 +161,7 @@ const verifyOtp = async (req, res) => {
 
     if (!user.mustResetPassword) {
       return res.status(400).json({
-        message: "OTP verification is not required",
+        message: "Invitation verification is not required",
       });
     }
 
@@ -162,7 +183,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-    if (user.otp !== otp) {
+    if (user.otp !== otp.trim()) {
       return res.status(400).json({
         message: "Invalid OTP",
       });
@@ -173,12 +194,13 @@ const verifyOtp = async (req, res) => {
     await user.save();
 
     return res.json({
-      message: "OTP verified successfully",
+      message: "Invitation verified successfully",
       userID: user.userID,
+      role: user.role,
       verified: true,
     });
   } catch (error) {
-    console.error("OTP verification error:", error);
+    console.error("OTP VERIFICATION ERROR:", error);
 
     return res.status(500).json({
       message: "OTP verification failed",
@@ -203,7 +225,9 @@ const setPassword = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ userID });
+    const user = await User.findOne({
+      userID: userID.trim(),
+    });
 
     if (!user) {
       return res.status(404).json({
@@ -229,7 +253,7 @@ const setPassword = async (req, res) => {
       });
     }
 
-    if (user.otp !== otp) {
+    if (user.otp !== otp.trim()) {
       return res.status(400).json({
         message: "Invalid OTP",
       });
@@ -245,6 +269,9 @@ const setPassword = async (req, res) => {
 
     user.password = hashedPassword;
     user.mustResetPassword = false;
+    user.accountStatus = "active";
+
+    // Clear temporary invitation credentials
     user.otp = null;
     user.otpExpiresAt = null;
     user.otpVerified = false;
@@ -272,6 +299,7 @@ const setPassword = async (req, res) => {
         email: user.email,
         role: user.role,
         gender: user.gender,
+        accountStatus: user.accountStatus,
       },
     });
   } catch (error) {

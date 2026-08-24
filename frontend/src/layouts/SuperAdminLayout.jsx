@@ -1,4 +1,4 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -11,6 +11,8 @@ import {
 import "./SuperAdminLayout.css";
 
 function SuperAdminLayout() {
+  const navigate = useNavigate();
+
   const navigation = [
     {
       label: "Dashboard",
@@ -38,6 +40,13 @@ function SuperAdminLayout() {
       icon: Settings,
     },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    navigate("/login", { replace: true });
+  };
 
   return (
     <div className="superadmin-layout">
@@ -76,7 +85,11 @@ function SuperAdminLayout() {
         </nav>
 
         <div className="superadmin-sidebar-bottom">
-          <button type="button" className="superadmin-logout">
+          <button
+            type="button"
+            className="superadmin-logout"
+            onClick={handleLogout}
+          >
             <LogOut size={19} />
             <span>Logout</span>
           </button>

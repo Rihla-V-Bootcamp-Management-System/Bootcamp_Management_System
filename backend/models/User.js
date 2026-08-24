@@ -50,6 +50,27 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
+    // Account activation status
+    accountStatus: {
+      type: String,
+      enum: ["pending", "active"],
+      default: "active",
+    },
+
+    // Secure invitation token
+    invitationToken: {
+      type: String,
+      default: null,
+    },
+
+    // Invitation token expiration time
+    invitationTokenExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    // Old OTP fields kept temporarily
+    // so the existing OTP system does not break
     otp: {
       type: String,
       default: null,
