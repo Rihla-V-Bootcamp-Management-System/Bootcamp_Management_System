@@ -43,6 +43,8 @@ router.post("/register", async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("REGISTER ERROR:", error);
+
     res.status(500).json({
       message: "Registration failed",
       error: error.message,
@@ -64,7 +66,10 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!passwordMatch) {
       return res.status(401).json({
@@ -82,6 +87,8 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("LOGIN ERROR:", error);
+
     res.status(500).json({
       message: "Login failed",
       error: error.message,
@@ -91,7 +98,12 @@ router.post("/login", async (req, res) => {
 
 router.get("/:id", authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select("-password");
+    const user = await User.findById(req.params.id)
+      .select("-password")
+      .populate(
+        "assignedMentor",
+        "userID name email role"
+      );
 
     if (!user) {
       return res.status(404).json({
@@ -103,6 +115,8 @@ router.get("/:id", authMiddleware, async (req, res) => {
       user,
     });
   } catch (error) {
+    console.error("GET USER ERROR:", error);
+
     res.status(400).json({
       message: "Invalid user ID",
     });
@@ -123,6 +137,74 @@ router.get(
         role: req.user.role,
       },
     });
+  }
+);
+
+router.patch(
+  "/students/:studentId/mentor",
+  authMiddleware,
+  roleMiddleware("admin"),
+  async (req, res) => {
+    try {
+      const { mentorId } = req.body;
+
+      if (!mentorId) {
+        return res.status(400).json({
+          message: "Mentor ID is required",
+        });
+      }
+
+      const student = await User.findById(req.params.studentId);
+
+      if (!student) {
+        return res.status(404).json({
+          message: "Student not found",
+        });
+      }
+
+      if (student.role !== "student") {
+        return res.status(400).json({
+          message: "This user is not a student",
+        });
+      }
+
+      const mentor = await User.findById(mentorId);
+
+      if (!mentor) {
+        return res.status(404).json({
+          message: "Mentor not found",
+        });
+      }
+
+      if (mentor.role !== "mentor") {
+        return res.status(400).json({
+          message: "This user is not a mentor",
+        });
+      }
+
+      student.assignedMentor = mentor._id;
+
+      await student.save();
+
+      const updatedStudent = await User.findById(student._id)
+        .select("-password")
+        .populate(
+          "assignedMentor",
+          "userID name email role"
+        );
+
+      return res.json({
+        message: "Mentor assigned successfully",
+        student: updatedStudent,
+      });
+    } catch (error) {
+      console.error("ASSIGN MENTOR ERROR:", error);
+
+      return res.status(500).json({
+        message: "Failed to assign mentor",
+        error: error.message,
+      });
+    }
   }
 );
 

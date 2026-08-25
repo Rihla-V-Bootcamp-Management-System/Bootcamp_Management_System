@@ -5,6 +5,8 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 
+dotenv.config();
+
 const connectDB = require("./config/db");
 
 // ==========================================
@@ -29,6 +31,11 @@ const batchRoutes = require(
 // ==========================================
 
 dotenv.config();
+const studentDirectoryRoutes = require("./routes/studentDirectoryRoutes");
+const assignmentRoutes = require("./routes/assignmentRoutes");
+const gradingRoutes = require("./routes/gradingRoutes");
+const submissionRoutes = require("./routes/submissionRoutes");
+const superAdminRoutes = require("./routes/superAdminRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;

@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.ethereal.email",
+  host: process.env.EMAIL_HOST || "smtp.ethereal.email",
   port: 587,
   secure: false,
   auth: {
@@ -103,8 +103,41 @@ Bootcamp Management System`,
   });
 };
 
+const sendStaffInvitationEmail = async (user) => {
+  const roleName =
+    user.role === "admin" ? "Administrator" : "Mentor";
+
+  return sendEmail({
+    to: user.email,
+    subject: `Bootcamp Management System - ${roleName} Invitation`,
+    text: `Dear ${user.name},
+
+You have been invited to join the Bootcamp Management System as a ${roleName}.
+
+Your User ID is: ${user.userID}
+Your temporary OTP is: ${user.otp}
+
+The OTP expires at: ${user.otpExpiresAt}
+
+Please use your User ID and OTP to verify your invitation and create your password.
+
+Best regards,
+Bootcamp Management System`,
+    html: `
+      <h2>Welcome, ${user.name}!</h2>
+      <p>You have been invited to join the <strong>Bootcamp Management System</strong> as a <strong>${roleName}</strong>.</p>
+      <p><strong>User ID:</strong> ${user.userID}</p>
+      <p><strong>Temporary OTP:</strong> ${user.otp}</p>
+      <p><strong>OTP expires:</strong> ${user.otpExpiresAt}</p>
+      <p>Use your User ID and OTP to verify your invitation and create your password.</p>
+      <p>Best regards,<br>Bootcamp Management System</p>
+    `,
+  });
+};
+
 module.exports = {
   sendShortlistedEmail,
   sendAcceptedEmail,
   sendRejectedEmail,
+  sendStaffInvitationEmail,
 };
