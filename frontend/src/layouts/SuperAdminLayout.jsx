@@ -1,4 +1,5 @@
 import { Outlet, NavLink } from "react-router-dom";
+
 import {
   LayoutDashboard,
   Users,
@@ -7,12 +8,15 @@ import {
   Settings,
   LogOut,
   ShieldCheck,
+  Boxes,
 } from "lucide-react";
+
 import useAuth from "../context/useAuth";
+
 import "./SuperAdminLayout.css";
 
 function SuperAdminLayout() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const navigation = [
     {
@@ -24,6 +28,11 @@ function SuperAdminLayout() {
       label: "Users",
       path: "/superadmin/users",
       icon: Users,
+    },
+    {
+      label: "Batches",
+      path: "/superadmin/batches",
+      icon: Boxes,
     },
     {
       label: "Registrations",
@@ -42,9 +51,25 @@ function SuperAdminLayout() {
     },
   ];
 
+  // Get initials for avatar
+  const getInitials = (name) => {
+    if (!name) return "SA";
+
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  };
+
   return (
     <div className="superadmin-layout">
+
+      {/* ================= SIDEBAR ================= */}
       <aside className="superadmin-sidebar">
+
+        {/* BRAND */}
         <div className="superadmin-brand">
           <div className="superadmin-brand-icon">
             <ShieldCheck size={22} />
@@ -56,8 +81,11 @@ function SuperAdminLayout() {
           </div>
         </div>
 
+        {/* NAVIGATION */}
         <nav className="superadmin-nav">
-          <p className="superadmin-nav-title">MAIN MENU</p>
+          <p className="superadmin-nav-title">
+            MAIN MENU
+          </p>
 
           {navigation.map((item) => {
             const Icon = item.icon;
@@ -68,57 +96,82 @@ function SuperAdminLayout() {
                 to={item.path}
                 end={item.path === "/superadmin"}
                 className={({ isActive }) =>
-                  `superadmin-nav-link ${isActive ? "active" : ""}`
+                  `superadmin-nav-link ${
+                    isActive ? "active" : ""
+                  }`
                 }
               >
                 <Icon size={19} />
-                <span>{item.label}</span>
+
+                <span>
+                  {item.label}
+                </span>
               </NavLink>
             );
           })}
         </nav>
 
-           {/* LOGOUT */}
-      <div className="mt-auto border-t border-gray-700 pt-6">
+        {/* LOGOUT */}
+        <div className="superadmin-logout">
+          <button
+            type="button"
+            onClick={logout}
+            className="superadmin-logout-button"
+          >
+            <LogOut size={20} />
 
-        <button
-          type="button"
-          onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left hover:bg-gray-200  "
-        >
-          <LogOut size={20} />
-          Logout
-        </button>
+            <span>
+              Logout
+            </span>
+          </button>
+        </div>
 
-      </div>
       </aside>
 
+      {/* ================= MAIN ================= */}
       <main className="superadmin-main">
+
+        {/* HEADER */}
         <header className="superadmin-header">
+
           <div>
-            <p className="superadmin-header-label">ADMINISTRATION</p>
-            <h1>Super Admin Panel</h1>
+            <p className="superadmin-header-label">
+              ADMINISTRATION
+            </p>
+
+            <h1>
+              Super Admin Panel
+            </h1>
           </div>
 
+          {/* PROFILE */}
           <div className="superadmin-profile">
-            <div className="superadmin-avatar">SA</div>
+
+            <div className="superadmin-avatar">
+              {getInitials(user?.name)}
+            </div>
 
             <div>
               <p className="superadmin-profile-name">
-                Super Admin
+                {user?.name || "Super Admin"}
               </p>
 
               <p className="superadmin-profile-role">
-                System Administrator
+                {user?.role || "System Administrator"}
               </p>
             </div>
+
           </div>
+
         </header>
 
+        {/* ================= PAGE CONTENT ================= */}
         <div className="superadmin-content">
           <Outlet />
         </div>
+
       </main>
+
     </div>
   );
 }

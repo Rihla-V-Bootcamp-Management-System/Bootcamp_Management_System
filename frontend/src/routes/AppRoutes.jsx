@@ -1,11 +1,13 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import DashboardLayout from "../layouts/DashboardLayout";
+import AdminLayout from "../layouts/AdminLayout";
 import SuperAdminLayout from "../layouts/SuperAdminLayout";
 
 // ============================================================
 // PUBLIC
 // ============================================================
+
 import Landing from "../pages/Landing";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -16,6 +18,7 @@ import PublicApplication from "../pages/PublicApplication";
 // ============================================================
 // MENTOR
 // ============================================================
+
 import MentorDashboard from "../pages/MentorDashboard";
 import MentorStudents from "../pages/MentorStudents";
 import MentorAttendance from "../pages/MentorAttendance";
@@ -33,6 +36,7 @@ import MentorAnnouncements from "../pages/MentorAnnouncements";
 // ============================================================
 // STUDENT
 // ============================================================
+
 import StudentDashboard from "../pages/StudentDashboard";
 import StudentAttendance from "../pages/StudentAttendance";
 import StudentProgress from "../pages/StudentProgress";
@@ -43,17 +47,21 @@ import StudentAssignments from "../pages/StudentAssignments";
 import StudentCourseAssignments from "../pages/StudentCourseAssignments";
 import StudentAssignmentDetails from "../pages/StudentAssignmentDetails";
 import StudentSubmission from "../pages/StudentSubmission";
-
 import StudentSubmissions from "../pages/StudentSubmissions";
 import StudentGrades from "../pages/StudentGrades";
 import StudentAnnouncements from "../pages/StudentAnnouncements";
-
-// ⭐ ANNOUNCEMENT NOTIFICATION
 import AnnouncementNotification from "../pages/AnnouncementNotification";
+
+// ============================================================
+// SHARED
+// ============================================================
+
+import Announcements from "../pages/Announcements";
 
 // ============================================================
 // ADMIN
 // ============================================================
+
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import Users from "../pages/admin/Users";
 import Applications from "../pages/admin/Applications";
@@ -62,26 +70,33 @@ import Registration from "../pages/admin/Registration";
 import BatchDetails from "../pages/admin/BatchDetails";
 import Attendance from "../pages/admin/Attendance";
 import AdminAssignments from "../pages/admin/AdminAssignments";
+import AdminAnnouncements from "../pages/admin/AdminAnnouncements";
+import CreateAnnouncement from "../pages/admin/CreateAnnouncement";
+import CreateSpecialAnnouncement from "../pages/admin/CreateSpecialAnnouncement";
 
 // ============================================================
 // SUPER ADMIN
 // ============================================================
+
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard";
 import SuperAdminUsers from "../pages/superadmin/SuperAdminUsers";
 import SuperAdminRegistrations from "../pages/superadmin/SuperAdminRegistrations";
 import SuperAdminAuditLogs from "../pages/superadmin/SuperAdminAuditLogs";
 import SuperAdminSettings from "../pages/superadmin/SuperAdminSettings";
+import SuperAdminBatches from "../pages/superadmin/SuperAdminBatches";
+import SuperAdminBatchDetails from "../pages/superadmin/SuperAdminBatchDetails";
 
 // ============================================================
 // APP ROUTES
 // ============================================================
+
 function AppRoutes() {
   return (
     <Routes>
 
-      {/* ========================================================
+      {/* ======================================================
           PUBLIC
-      ======================================================== */}
+      ====================================================== */}
 
       <Route path="/" element={<Landing />} />
 
@@ -89,30 +104,20 @@ function AppRoutes() {
 
       <Route path="/register" element={<Register />} />
 
-      <Route
-        path="/set-password"
-        element={<SetPassword />}
-      />
+      <Route path="/set-password" element={<SetPassword />} />
 
-      <Route
-        path="/first-login"
-        element={<FirstLogin />}
-      />
+      <Route path="/first-login" element={<FirstLogin />} />
 
-      <Route
-        path="/apply"
-        element={<PublicApplication />}
-      />
+      <Route path="/apply" element={<PublicApplication />} />
 
-      {/* ========================================================
+      {/* ======================================================
           ADMIN
-      ======================================================== */}
+      ====================================================== */}
 
       <Route
         path="/admin"
-        element={<DashboardLayout role="admin" />}
+        element={<AdminLayout />}
       >
-        {/* Dashboard */}
         <Route
           index
           element={<AdminDashboard />}
@@ -163,66 +168,47 @@ function AppRoutes() {
         {/* Announcements */}
         <Route
           path="announcements"
-          element={
-            <div className="min-h-full bg-slate-50 p-6">
-              <div className="mx-auto max-w-6xl">
-                <h1 className="text-2xl font-bold text-slate-900">
-                  Announcements
-                </h1>
+          element={<AdminAnnouncements />}
+        />
 
-                <p className="mt-1 text-sm text-slate-500">
-                  Manage announcements for your students.
-                </p>
-              </div>
-            </div>
-          }
+        <Route
+          path="announcements/create"
+          element={<CreateAnnouncement />}
+        />
+
+        <Route
+          path="announcements/create-special-event"
+          element={<CreateSpecialAnnouncement />}
         />
 
         {/* Analytics */}
         <Route
           path="analytics"
-          element={
-            <div className="min-h-full bg-slate-50 p-6">
-              <div className="mx-auto max-w-6xl">
-                <h1 className="text-2xl font-bold text-slate-900">
-                  Analytics
-                </h1>
-              </div>
-            </div>
-          }
+          element={<div>Analytics Page</div>}
         />
 
         {/* Settings */}
         <Route
           path="settings"
-          element={
-            <div className="min-h-full bg-slate-50 p-6">
-              <div className="mx-auto max-w-6xl">
-                <h1 className="text-2xl font-bold text-slate-900">
-                  Settings
-                </h1>
-              </div>
-            </div>
-          }
+          element={<div>Settings Page</div>}
         />
       </Route>
 
-      {/* ========================================================
+      {/* ======================================================
           MENTOR
-      ======================================================== */}
+      ====================================================== */}
 
       <Route
         path="/mentor"
         element={<DashboardLayout role="mentor" />}
       >
-
         {/* Dashboard */}
         <Route
           index
           element={<MentorDashboard />}
         />
 
-        {/* My Students */}
+        {/* Students */}
         <Route
           path="students"
           element={<MentorStudents />}
@@ -240,9 +226,9 @@ function AppRoutes() {
           element={<MentorProgress />}
         />
 
-        {/* ======================================================
+        {/* ====================================================
             ASSIGNMENTS
-        ====================================================== */}
+        ==================================================== */}
 
         <Route
           path="assignments"
@@ -269,9 +255,9 @@ function AppRoutes() {
           element={<MentorAssignmentSubmissions />}
         />
 
-        {/* ======================================================
+        {/* ====================================================
             SUBMISSIONS
-        ====================================================== */}
+        ==================================================== */}
 
         <Route
           path="submissions"
@@ -283,18 +269,18 @@ function AppRoutes() {
           element={<MentorSubmissionReview />}
         />
 
-        {/* ======================================================
+        {/* ====================================================
             ANNOUNCEMENTS
-        ====================================================== */}
+        ==================================================== */}
 
         <Route
           path="announcements"
           element={<MentorAnnouncements />}
         />
 
-        {/* ======================================================
+        {/* ====================================================
             PROFILE
-        ====================================================== */}
+        ==================================================== */}
 
         <Route
           path="profile"
@@ -310,15 +296,14 @@ function AppRoutes() {
         />
       </Route>
 
-      {/* ========================================================
+      {/* ======================================================
           STUDENT
-      ======================================================== */}
+      ====================================================== */}
 
       <Route
         path="/student"
         element={<DashboardLayout role="student" />}
       >
-
         {/* Dashboard */}
         <Route
           index
@@ -349,9 +334,9 @@ function AppRoutes() {
           element={<StudentCPProgress />}
         />
 
-        {/* ======================================================
+        {/* ====================================================
             ASSIGNMENTS
-        ====================================================== */}
+        ==================================================== */}
 
         <Route
           path="assignments"
@@ -373,45 +358,41 @@ function AppRoutes() {
           element={<StudentSubmission />}
         />
 
-        {/* ======================================================
-            MY SUBMISSIONS
-        ====================================================== */}
+        {/* ====================================================
+            SUBMISSIONS
+        ==================================================== */}
 
         <Route
           path="submissions"
           element={<StudentSubmissions />}
         />
 
-        {/* ======================================================
+        {/* ====================================================
             GRADES
-        ====================================================== */}
+        ==================================================== */}
 
         <Route
           path="grades"
           element={<StudentGrades />}
         />
 
-        {/* ======================================================
+        {/* ====================================================
             ANNOUNCEMENTS
-        ====================================================== */}
+        ==================================================== */}
 
         <Route
           path="announcements"
           element={<StudentAnnouncements />}
         />
 
-        {/* ======================================================
-            ANNOUNCEMENT NOTIFICATION
-        ====================================================== */}
-
         <Route
           path="announcements/:announcementId"
           element={<AnnouncementNotification />}
         />
 
-        {/* ======================================================
+        {/* ====================================================
             PROFILE
-        ====================================================== */}
+        ==================================================== */}
 
         <Route
           path="profile"
@@ -425,18 +406,16 @@ function AppRoutes() {
             </div>
           }
         />
-
       </Route>
 
-      {/* ========================================================
+      {/* ======================================================
           SUPER ADMIN
-      ======================================================== */}
+      ====================================================== */}
 
       <Route
         path="/superadmin"
         element={<SuperAdminLayout />}
       >
-
         {/* Dashboard */}
         <Route
           index
@@ -447,6 +426,24 @@ function AppRoutes() {
         <Route
           path="users"
           element={<SuperAdminUsers />}
+        />
+
+        {/* Batches */}
+        <Route
+          path="batches"
+          element={<SuperAdminBatches />}
+        />
+
+        {/* Batch Details */}
+        <Route
+          path="batches/:id"
+          element={<SuperAdminBatchDetails />}
+        />
+
+        {/* Batch Dashboard */}
+        <Route
+          path="batches/:id/dashboard"
+          element={<SuperAdminBatchDetails />}
         />
 
         {/* Registrations */}
@@ -466,12 +463,11 @@ function AppRoutes() {
           path="settings"
           element={<SuperAdminSettings />}
         />
-
       </Route>
 
-      {/* ========================================================
+      {/* ======================================================
           FALLBACK
-      ======================================================== */}
+      ====================================================== */}
 
       <Route
         path="*"

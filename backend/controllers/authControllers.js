@@ -2,6 +2,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+// =========================================================
+// REGISTER USER
+// =========================================================
+
 const registerUser = async (req, res) => {
   try {
     const { name, email, password, gender } = req.body;
@@ -34,6 +38,7 @@ const registerUser = async (req, res) => {
       message: "User registered successfully",
       user: {
         id: user._id,
+        userID: user.userID,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -50,9 +55,21 @@ const registerUser = async (req, res) => {
   }
 };
 
+// =========================================================
+// LOGIN USER
+// =========================================================
+
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    console.log("========== LOGIN ATTEMPT ==========");
+    console.log("Email received:", email);
+    console.log("Password received:", password ? "YES" : "NO");
+
+    // -----------------------------------------
+    // Validate input
+    // -----------------------------------------
 
     if (!email || !password) {
       return res.status(400).json({
@@ -60,15 +77,38 @@ const loginUser = async (req, res) => {
       });
     }
 
+    // -----------------------------------------
+    // Find user
+    // -----------------------------------------
+
     const user = await User.findOne({ email });
 
+    console.log("User found:", !!user);
+
+    // -----------------------------------------
+    // User not found
+    // -----------------------------------------
+
     if (!user) {
+      console.log("LOGIN FAILED: User not found");
+
       return res.status(401).json({
         message: "Invalid email or password",
       });
     }
 
+    console.log("User email:", user.email);
+    console.log("User role:", user.role);
+    console.log("Password exists:", !!user.password);
+    console.log("Must reset password:", user.mustResetPassword);
+
+    // -----------------------------------------
+    // Password reset required
+    // -----------------------------------------
+
     if (user.mustResetPassword) {
+      console.log("LOGIN BLOCKED: Password setup required");
+
       return res.status(403).json({
         message: "Password setup required",
         mustResetPassword: true,
@@ -76,16 +116,28 @@ const loginUser = async (req, res) => {
       });
     }
 
+    // -----------------------------------------
+    // Check password
+    // -----------------------------------------
+
     const passwordMatch = await bcrypt.compare(
       password,
       user.password
     );
 
+    console.log("Password match:", passwordMatch);
+
     if (!passwordMatch) {
+      console.log("LOGIN FAILED: Password does not match");
+
       return res.status(401).json({
         message: "Invalid email or password",
       });
     }
+
+    // -----------------------------------------
+    // Create JWT
+    // -----------------------------------------
 
     const token = jwt.sign(
       {
@@ -97,6 +149,16 @@ const loginUser = async (req, res) => {
         expiresIn: "1d",
       }
     );
+
+    console.log("LOGIN SUCCESS:", {
+      id: user._id,
+      email: user.email,
+      role: user.role,
+    });
+
+    // -----------------------------------------
+    // Return response
+    // -----------------------------------------
 
     return res.json({
       message: "Login successful",
@@ -119,6 +181,10 @@ const loginUser = async (req, res) => {
     });
   }
 };
+
+// =========================================================
+// VERIFY OTP
+// =========================================================
 
 const verifyOtp = async (req, res) => {
   try {
@@ -178,7 +244,7 @@ const verifyOtp = async (req, res) => {
       verified: true,
     });
   } catch (error) {
-    console.error("OTP verification error:", error);
+    console.error("OTP VERIFICATION ERROR:", error);
 
     return res.status(500).json({
       message: "OTP verification failed",
@@ -186,6 +252,10 @@ const verifyOtp = async (req, res) => {
     });
   }
 };
+
+// =========================================================
+// SET PASSWORD
+// =========================================================
 
 const setPassword = async (req, res) => {
   try {
@@ -241,7 +311,14 @@ const setPassword = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    // -----------------------------------------
+    // Hash new password
+    // -----------------------------------------
+
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      10
+    );
 
     user.password = hashedPassword;
     user.mustResetPassword = false;
@@ -250,6 +327,10 @@ const setPassword = async (req, res) => {
     user.otpVerified = false;
 
     await user.save();
+
+    // -----------------------------------------
+    // Create JWT
+    // -----------------------------------------
 
     const token = jwt.sign(
       {
@@ -284,9 +365,18 @@ const setPassword = async (req, res) => {
   }
 };
 
+// =========================================================
+// GET USER BY ID
+// =========================================================
+
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select("-password");
+    const user = await User.findById(req.params.id)
+      .select("-password")
+      .populate(
+        "assignedMentor",
+        "userID name email role"
+      );
 
     if (!user) {
       return res.status(404).json({
@@ -298,11 +388,141 @@ const getUserById = async (req, res) => {
       user,
     });
   } catch (error) {
+    console.error("GET USER BY ID ERROR:", error);
+
     return res.status(400).json({
       message: "Invalid user ID",
     });
   }
 };
+
+// =========================================================
+// GET USERS
+// PAGINATION + SEARCH + ROLE + GENDER
+// SUPER ADMIN ONLY
+// =========================================================
+
+const getUsers = async (req, res) => {
+  try {
+    // -----------------------------------------
+    // Pagination
+    // -----------------------------------------
+
+    const page = Math.max(
+      parseInt(req.query.page) || 1,
+      1
+    );
+
+    const limit = Math.min(
+      Math.max(
+        parseInt(req.query.limit) || 10,
+        1
+      ),
+      100
+    );
+
+    const skip = (page - 1) * limit;
+
+    // -----------------------------------------
+    // Query filters
+    // -----------------------------------------
+
+    const { search, role, gender } = req.query;
+
+    const filter = {};
+
+    // -----------------------------------------
+    // Role filter
+    // -----------------------------------------
+
+    if (role) {
+      filter.role = role;
+    }
+
+    // -----------------------------------------
+    // Gender filter
+    // -----------------------------------------
+
+    if (gender) {
+      filter.gender = gender;
+    }
+
+    // -----------------------------------------
+    // Search
+    // Name OR Email
+    // -----------------------------------------
+
+    if (search) {
+      filter.$or = [
+        {
+          name: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          email: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    // -----------------------------------------
+    // Get users + total count
+    // -----------------------------------------
+
+    const [users, totalUsers] = await Promise.all([
+      User.find(filter)
+        .select("-password")
+        .populate(
+          "assignedMentor",
+          "userID name email role"
+        )
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+
+      User.countDocuments(filter),
+    ]);
+
+    // -----------------------------------------
+    // Pagination information
+    // -----------------------------------------
+
+    const totalPages = Math.ceil(
+      totalUsers / limit
+    );
+
+    return res.json({
+      success: true,
+
+      users,
+
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalUsers,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    });
+  } catch (error) {
+    console.error("GET USERS ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get users",
+      error: error.message,
+    });
+  }
+};
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 module.exports = {
   registerUser,
@@ -310,4 +530,5 @@ module.exports = {
   verifyOtp,
   setPassword,
   getUserById,
+  getUsers,
 };

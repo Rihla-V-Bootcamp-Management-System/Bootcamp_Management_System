@@ -5,11 +5,16 @@ import {
   UserCircle,
   Menu,
   X,
+  Check,
+  CheckCheck,
+  Loader2,
+  CalendarDays,
   Megaphone,
   ExternalLink,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient";
+import DualCalendar from "./DualCalendar";
 import { getCurrentUserId } from "../utils/getCurrentUser";
 
 function Header({
@@ -19,77 +24,59 @@ function Header({
   sidebarOpen,
 }) {
   const navigate = useNavigate();
-  const notificationRef = useRef(null);
 
-  const [notificationOpen, setNotificationOpen] =
+  // =========================================================
+  // STATE
+  // =========================================================
+
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const [notificationsOpen, setNotificationsOpen] =
     useState(false);
 
-  const [announcements, setAnnouncements] =
-    useState([]);
-
-  const [unreadCount, setUnreadCount] =
-    useState(0);
+  const [calendarOpen, setCalendarOpen] =
+    useState(false);
 
   const [loadingNotifications, setLoadingNotifications] =
     useState(false);
 
+  const [markingAll, setMarkingAll] =
+    useState(false);
+
   // =========================================================
-  // LOAD NOTIFICATIONS
+  // REFS
   // =========================================================
 
-  const loadNotifications = async () => {
+  const notificationRef = useRef(null);
+  const calendarRef = useRef(null);
+
+  // =========================================================
+  // FETCH NOTIFICATIONS
+  // =========================================================
+
+  const fetchNotifications = async () => {
     try {
       setLoadingNotifications(true);
 
-      const role =
-        localStorage.getItem("role");
+      const response = await apiClient.get(
+        "/notifications"
+      );
 
-      const userId = getCurrentUserId();
-
-      if (!userId) {
-        console.warn(
-          "No logged-in user ID found."
-        );
-
-        return;
-      }
-
-      let response;
-
-      if (role === "mentor") {
-        response = await apiClient.get(
-          "/announcements/mentor",
-          {
-            params: {
-              mentorId: userId,
-            },
-          }
-        );
-      } else if (role === "student") {
-        response = await apiClient.get(
-          "/announcements/student",
-          {
-            params: {
-              studentId: userId,
-            },
-          }
-        );
-      } else {
-        return;
-      }
-
-      const data = response.data || {};
-
-      setAnnouncements(
-        (data.announcements || []).slice(0, 5)
+      setNotifications(
+        Array.isArray(
+          response.data.notifications
+        )
+          ? response.data.notifications
+          : []
       );
 
       setUnreadCount(
-        data.unreadCount || 0
+        Number(response.data.unreadCount) || 0
       );
     } catch (error) {
       console.error(
-        "Notification loading error:",
+        "FETCH NOTIFICATIONS ERROR:",
         error
       );
     } finally {
@@ -98,21 +85,21 @@ function Header({
   };
 
   // =========================================================
-  // LOAD WHEN HEADER MOUNTS
+  // INITIAL LOAD + REFRESH EVERY 30 SECONDS
   // =========================================================
 
   useEffect(() => {
-    loadNotifications();
+    fetchNotifications();
 
     const interval = setInterval(() => {
-      loadNotifications();
+      fetchNotifications();
     }, 30000);
 
     return () => clearInterval(interval);
   }, []);
 
   // =========================================================
-  // CLOSE WHEN CLICKING OUTSIDE
+  // CLOSE DROPDOWNS WHEN CLICKING OUTSIDE
   // =========================================================
 
   useEffect(() => {
@@ -123,7 +110,16 @@ function Header({
           event.target
         )
       ) {
-        setNotificationOpen(false);
+        setNotificationsOpen(false);
+      }
+
+      if (
+        calendarRef.current &&
+        !calendarRef.current.contains(
+          event.target
+        )
+      ) {
+        setCalendarOpen(false);
       }
     };
 
@@ -141,17 +137,112 @@ function Header({
   }, []);
 
   // =========================================================
+  // MARK ONE NOTIFICATION AS READ
+  // =========================================================
+
+  const markAsRead = async (
+    notificationId
+  ) => {
+    try {
+      await apiClient.patch(
+        `/notifications/${notificationId}/read`
+      );
+
+      setNotifications((previous) =>
+        previous.map((notification) =>
+          notification._id === notificationId
+            ? {
+                ...notification,
+                isRead: true,
+              }
+            : notification
+        )
+      );
+
+      setUnreadCount((previous) =>
+        Math.max(previous - 1, 0)
+      );
+    } catch (error) {
+      console.error(
+        "MARK NOTIFICATION READ ERROR:",
+        error
+      );
+    }
+  };
+
+  // =========================================================
+  // MARK ALL NOTIFICATIONS AS READ
+  // =========================================================
+
+  const markAllAsRead = async () => {
+    if (unreadCount === 0) {
+      return;
+    }
+
+    try {
+      setMarkingAll(true);
+
+      await apiClient.patch(
+        "/notifications/read-all"
+      );
+
+      setNotifications((previous) =>
+        previous.map((notification) => ({
+          ...notification,
+          isRead: true,
+        }))
+      );
+
+      setUnreadCount(0);
+    } catch (error) {
+      console.error(
+        "MARK ALL NOTIFICATIONS READ ERROR:",
+        error
+      );
+    } finally {
+      setMarkingAll(false);
+    }
+  };
+
+  // =========================================================
+  // NOTIFICATION CLICK
+  // =========================================================
+
+  const handleNotificationClick = async (
+    notification
+  ) => {
+    if (!notification.isRead) {
+      await markAsRead(notification._id);
+    }
+
+    // If the notification contains an announcement,
+    // take the user to the appropriate announcements page.
+    if (
+      notification.type === "announcement" ||
+      notification.announcementId
+    ) {
+      const role =
+        localStorage.getItem("role");
+
+      if (role === "mentor") {
+        navigate("/mentor/announcements");
+      } else if (role === "student") {
+        navigate("/student/announcements");
+      }
+    }
+  };
+
+  // =========================================================
   // OPEN ANNOUNCEMENTS
   // =========================================================
 
   const handleViewAnnouncements = () => {
-    setNotificationOpen(false);
+    setNotificationsOpen(false);
 
-    if (
-      window.location.pathname.startsWith(
-        "/mentor"
-      )
-    ) {
+    const role =
+      localStorage.getItem("role");
+
+    if (role === "mentor") {
       navigate("/mentor/announcements");
     } else {
       navigate("/student/announcements");
@@ -163,15 +254,11 @@ function Header({
   // =========================================================
 
   const formatDate = (date) => {
-    if (!date) return "";
+    if (!date) {
+      return "";
+    }
 
-    return new Date(date).toLocaleDateString(
-      undefined,
-      {
-        month: "short",
-        day: "numeric",
-      }
-    );
+    return new Date(date).toLocaleString();
   };
 
   // =========================================================
@@ -182,7 +269,9 @@ function Header({
     <header className="relative z-30 shrink-0 bg-[#eef3f2]">
       <div className="flex min-h-[78px] items-center justify-between px-4 sm:px-6 lg:px-8">
 
-        {/* LEFT */}
+        {/* =====================================================
+            LEFT
+        ===================================================== */}
 
         <div className="flex min-w-0 items-center gap-3">
 
@@ -212,11 +301,15 @@ function Header({
           </div>
         </div>
 
-        {/* RIGHT */}
+        {/* =====================================================
+            RIGHT SIDE
+        ===================================================== */}
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
 
-          {/* SEARCH */}
+          {/* ===================================================
+              SEARCH
+          =================================================== */}
 
           <button
             type="button"
@@ -226,7 +319,41 @@ function Header({
             <Search size={19} />
           </button>
 
-          {/* NOTIFICATION */}
+          {/* ===================================================
+              CALENDAR
+          =================================================== */}
+
+          <div
+            ref={calendarRef}
+            className="relative"
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setCalendarOpen(
+                  (previous) => !previous
+                );
+
+                setNotificationsOpen(false);
+              }}
+              className={`flex h-10 w-10 items-center justify-center rounded-lg transition ${
+                calendarOpen
+                  ? "bg-white text-slate-900"
+                  : "text-slate-600 hover:bg-white"
+              }`}
+              aria-label="Calendar"
+            >
+              <CalendarDays size={19} />
+            </button>
+
+            {calendarOpen && (
+              <DualCalendar />
+            )}
+          </div>
+
+          {/* ===================================================
+              NOTIFICATIONS
+          =================================================== */}
 
           <div
             ref={notificationRef}
@@ -234,13 +361,15 @@ function Header({
           >
             <button
               type="button"
-              onClick={() =>
-                setNotificationOpen(
+              onClick={() => {
+                setNotificationsOpen(
                   (previous) => !previous
-                )
-              }
+                );
+
+                setCalendarOpen(false);
+              }}
               className={`relative flex h-10 w-10 items-center justify-center rounded-lg transition ${
-                notificationOpen
+                notificationsOpen
                   ? "bg-white text-slate-900"
                   : "text-slate-600 hover:bg-white"
               }`}
@@ -249,157 +378,163 @@ function Header({
               <Bell size={19} />
 
               {unreadCount > 0 && (
-                <>
-                  <span className="absolute right-[7px] top-[7px] h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-[#eef3f2]" />
-
-                  <span className="absolute right-[7px] top-[7px] h-2.5 w-2.5 animate-ping rounded-full bg-red-400 opacity-75" />
-                </>
+                <span className="absolute right-1 top-1 flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-[#eef3f2]">
+                  {unreadCount > 99
+                    ? "99+"
+                    : unreadCount}
+                </span>
               )}
             </button>
 
-            {/* PANEL */}
+            {/* =================================================
+                NOTIFICATION DROPDOWN
+            ================================================= */}
 
-            {notificationOpen && (
-              <div className="absolute right-0 top-12 w-[340px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+            {notificationsOpen && (
+              <div className="absolute right-0 top-12 z-50 w-[350px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
 
                 {/* HEADER */}
 
-                <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4">
+                <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
                   <div>
-                    <h2 className="font-semibold text-slate-900">
+                    <h2 className="text-sm font-bold text-slate-900">
                       Notifications
                     </h2>
 
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 text-[11px] text-slate-500">
                       {unreadCount > 0
-                        ? `${unreadCount} unread announcement${
-                            unreadCount === 1
-                              ? ""
-                              : "s"
-                          }`
+                        ? `${unreadCount} unread`
                         : "You're all caught up"}
                     </p>
                   </div>
 
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100">
-                    <Bell
-                      size={17}
-                      className="text-slate-700"
-                    />
-                  </div>
+                  {unreadCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={markAllAsRead}
+                      disabled={markingAll}
+                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
+                    >
+                      {markingAll ? (
+                        <Loader2
+                          size={13}
+                          className="animate-spin"
+                        />
+                      ) : (
+                        <CheckCheck
+                          size={13}
+                        />
+                      )}
+
+                      Mark all read
+                    </button>
+                  )}
                 </div>
 
-                {/* CONTENT */}
+                {/* NOTIFICATION LIST */}
 
-                <div className="max-h-[360px] overflow-y-auto">
+                <div className="max-h-[420px] overflow-y-auto">
 
-                  {loadingNotifications ? (
-                    <div className="px-5 py-8 text-center">
-                      <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900" />
+                  {loadingNotifications &&
+                  notifications.length === 0 ? (
+                    <div className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-slate-500">
+                      <Loader2
+                        size={17}
+                        className="animate-spin"
+                      />
 
-                      <p className="mt-3 text-sm text-slate-500">
-                        Loading notifications...
-                      </p>
+                      Loading notifications...
                     </div>
-                  ) : announcements.length === 0 ? (
-                    <div className="px-5 py-10 text-center">
+                  ) : notifications.length ===
+                    0 ? (
+                    <div className="px-4 py-10 text-center">
 
-                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
-                        <Megaphone
-                          size={21}
+                      <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-slate-100">
+                        <Bell
+                          size={19}
                           className="text-slate-400"
                         />
                       </div>
 
-                      <h3 className="mt-3 text-sm font-semibold text-slate-800">
-                        No announcements
-                      </h3>
+                      <p className="mt-3 text-sm font-semibold text-slate-700">
+                        No notifications
+                      </p>
 
-                      <p className="mt-1 text-xs text-slate-500">
-                        New announcements will appear here.
+                      <p className="mt-1 text-xs text-slate-400">
+                        New announcements will appear
+                        here.
                       </p>
                     </div>
                   ) : (
-                    announcements.map(
-                      (announcement) => (
+                    notifications.map(
+                      (notification) => (
                         <button
-                          key={announcement._id}
+                          key={notification._id}
                           type="button"
-                          onClick={() => {
-                            setNotificationOpen(
-                              false
-                            );
-
-                            navigate(
-                              window.location.pathname.startsWith(
-                                "/mentor"
-                              )
-                                ? "/mentor/announcements"
-                                : "/student/announcements"
-                            );
-                          }}
-                          className="flex w-full gap-3 border-b border-slate-100 px-4 py-4 text-left transition hover:bg-slate-50"
+                          onClick={() =>
+                            handleNotificationClick(
+                              notification
+                            )
+                          }
+                          className={`flex w-full gap-3 border-b border-slate-100 px-4 py-4 text-left transition hover:bg-slate-50 ${
+                            !notification.isRead
+                              ? "bg-slate-50"
+                              : "bg-white"
+                          }`}
                         >
+
+                          {/* ICON */}
+
                           <div
-                            className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                              announcement.isRead
-                                ? "bg-slate-100"
-                                : "bg-red-50"
+                            className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                              notification.isRead
+                                ? "bg-slate-100 text-slate-500"
+                                : "bg-[#071629] text-white"
                             }`}
                           >
-                            <Megaphone
-                              size={17}
-                              className={
-                                announcement.isRead
-                                  ? "text-slate-500"
-                                  : "text-red-500"
-                              }
-                            />
+                            {notification.isRead ? (
+                              <Check size={15} />
+                            ) : (
+                              <Bell size={15} />
+                            )}
                           </div>
+
+                          {/* TEXT */}
 
                           <div className="min-w-0 flex-1">
 
                             <div className="flex items-start justify-between gap-2">
 
-                              <h3 className="truncate text-sm font-semibold text-slate-900">
-                                {announcement.title}
-                              </h3>
+                              <p
+                                className={`line-clamp-2 text-xs ${
+                                  notification.isRead
+                                    ? "font-medium text-slate-700"
+                                    : "font-bold text-slate-900"
+                                }`}
+                              >
+                                {notification.title}
+                              </p>
 
-                              {!announcement.isRead && (
+                              {!notification.isRead && (
                                 <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-red-500" />
                               )}
-
                             </div>
 
-                            <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
-                              {announcement.message}
+                            <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-slate-500">
+                              {notification.message}
                             </p>
 
-                            <div className="mt-2 flex items-center gap-2 text-[11px] text-slate-400">
-                              <span>
-                                {formatDate(
-                                  announcement.createdAt
-                                )}
-                              </span>
-
-                              {announcement.batch && (
-                                <>
-                                  <span>•</span>
-
-                                  <span>
-                                    {announcement.batch.name ||
-                                      announcement.batch.title}
-                                  </span>
-                                </>
+                            <p className="mt-2 text-[10px] text-slate-400">
+                              {formatDate(
+                                notification.createdAt
                               )}
-                            </div>
+                            </p>
 
                           </div>
                         </button>
                       )
                     )
                   )}
-
                 </div>
 
                 {/* FOOTER */}
@@ -417,12 +552,13 @@ function Header({
                   </button>
 
                 </div>
-
               </div>
             )}
           </div>
 
-          {/* PROFILE */}
+          {/* ===================================================
+              PROFILE
+          =================================================== */}
 
           <button
             type="button"
