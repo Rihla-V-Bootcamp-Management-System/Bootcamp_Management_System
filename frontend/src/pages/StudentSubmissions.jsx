@@ -1,180 +1,392 @@
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  CheckCircle,
+  Clock,
+  FileText,
+  RefreshCw,
+  XCircle,
+} from "lucide-react";
 import apiClient from "../services/apiClient";
 
-function StudentSubmission() {
-  const { assignmentId } = useParams();
+function StudentSubmissions() {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    githubUrl: "",
-    liveDemoUrl: "",
-    notes: "",
-  });
-
-  const [loading, setLoading] = useState(false);
+  const [submissions, setSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+  // =====================================================
+  // LOAD SUBMISSIONS
+  // =====================================================
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    setError("");
-    setSuccess("");
-
+  const fetchSubmissions = async () => {
     try {
       setLoading(true);
+      setError("");
 
-      await apiClient.post(
-        `/submissions/${assignmentId}`,
-        {
-          githubUrl: form.githubUrl,
-          liveDemoUrl: form.liveDemoUrl,
-          notes: form.notes,
-        }
+      const response = await apiClient.get("/submissions/my");
+
+      setSubmissions(
+        response.data?.submissions || []
       );
+    } catch (err) {
+      console.error("Get submissions error:", err);
 
-      setSuccess("Assignment submitted successfully.");
-
-      setForm({
-        githubUrl: "",
-        liveDemoUrl: "",
-        notes: "",
-      });
-    } catch (error) {
       setError(
-        error.response?.data?.message ||
-          "Failed to submit assignment"
+        err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Failed to load submissions"
       );
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-100">
-      <header className="h-[72px] bg-white border-b border-slate-200 flex items-center px-8">
-        <h1 className="text-[22px] font-bold text-[#0f1b3d]">
-          ASTU MSJ
-        </h1>
-      </header>
+  useEffect(() => {
+    fetchSubmissions();
+  }, []);
 
-      <main className="max-w-3xl mx-auto px-5 py-10">
+  // =====================================================
+  // STATUS
+  // =====================================================
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "Graded":
+        return {
+          className:
+            "bg-emerald-50 text-emerald-700 border-emerald-200",
+          icon: CheckCircle,
+        };
+
+      case "Needs Resubmission":
+        return {
+          className:
+            "bg-red-50 text-red-700 border-red-200",
+          icon: XCircle,
+        };
+
+      case "Submitted":
+      default:
+        return {
+          className:
+            "bg-amber-50 text-amber-700 border-amber-200",
+          icon: Clock,
+        };
+    }
+  };
+
+  // =====================================================
+  // FORMAT DATE
+  // =====================================================
+
+  const formatDate = (date) => {
+    if (!date) return "—";
+
+    return new Date(date).toLocaleDateString(
+      undefined,
+      {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }
+    );
+  };
+
+  // =====================================================
+  // PAGE
+  // =====================================================
+
+  return (
+    <div className="min-h-full bg-slate-50 p-5 sm:p-6 md:p-8">
+      <main className="mx-auto w-full max-w-5xl">
+
+        {/* =================================================
+            BACK
+        ================================================= */}
+
         <button
-          onClick={() => navigate(-1)}
-          className="mb-6 text-sm font-medium text-blue-600 hover:text-blue-800"
+          type="button"
+          onClick={() => navigate("/student/assignments")}
+          className="mb-6 inline-flex items-center gap-2 rounded-lg px-1 py-1 text-sm font-semibold text-[#111827] transition hover:text-slate-500"
         >
-          ← Back
+          <ArrowLeft size={17} />
+          Back to Assignments
         </button>
 
-        <div className="bg-white rounded-xl p-6 md:p-8 shadow-[0_4px_15px_rgba(0,0,0,0.08)]">
-          <h2 className="text-2xl font-bold text-[#0f1b3d]">
-            Submit Assignment
-          </h2>
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
-          <p className="mt-2 mb-7 text-sm text-slate-500">
-            Submit your completed project for mentor review.
+        <div className="mb-7">
+          <div className="mb-3 flex items-center gap-3">
+
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#111827] text-white shadow-sm">
+              <FileText size={18} />
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Student
+              </p>
+
+              <p className="text-sm font-semibold text-[#111827]">
+                Submissions
+              </p>
+            </div>
+
+          </div>
+
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            My Submissions
+          </h1>
+
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+            View the assignments you have submitted and
+            their grades.
           </p>
+        </div>
 
-          {success && (
-            <div className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-              {success}
-            </div>
-          )}
+        {/* =================================================
+            ERROR
+        ================================================= */}
 
-          {error && (
-            <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        {error && (
+          <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+            <p className="text-sm font-semibold text-red-700">
               {error}
-            </div>
-          )}
+            </p>
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                GitHub Repository URL
-              </label>
+            <button
+              type="button"
+              onClick={fetchSubmissions}
+              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#111827] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#1f2937]"
+            >
+              <RefreshCw size={14} />
+              Try Again
+            </button>
+          </div>
+        )}
 
-              <input
-                type="url"
-                name="githubUrl"
-                value={form.githubUrl}
-                onChange={handleChange}
-                required
-                placeholder="https://github.com/username/project"
-                className="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-              />
-            </div>
+        {/* =================================================
+            LOADING
+        ================================================= */}
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Live Demo URL
-                <span className="ml-1 text-slate-400">
-                  (optional)
-                </span>
-              </label>
+        {loading && (
+          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+            <RefreshCw
+              size={24}
+              className="mx-auto animate-spin text-[#111827]"
+            />
 
-              <input
-                type="url"
-                name="liveDemoUrl"
-                value={form.liveDemoUrl}
-                onChange={handleChange}
-                placeholder="https://your-project.vercel.app"
-                className="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-              />
-            </div>
+            <p className="mt-3 text-sm font-medium text-slate-500">
+              Loading submissions...
+            </p>
+          </div>
+        )}
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                Notes
-                <span className="ml-1 text-slate-400">
-                  (optional)
-                </span>
-              </label>
+        {/* =================================================
+            EMPTY
+        ================================================= */}
 
-              <textarea
-                name="notes"
-                value={form.notes}
-                onChange={handleChange}
-                rows={5}
-                placeholder="Add notes about your submission..."
-                className="w-full resize-none rounded-lg border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-              />
-            </div>
+        {!loading &&
+          !error &&
+          submissions.length === 0 && (
+            <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm">
 
-            <div className="flex justify-end gap-3 pt-3">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-[#111827]">
+                <FileText size={22} />
+              </div>
+
+              <h2 className="mt-4 text-lg font-bold text-slate-900">
+                No submissions yet
+              </h2>
+
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+                You have not submitted any assignments yet.
+              </p>
+
               <button
                 type="button"
-                onClick={() => navigate(-1)}
-                className="rounded-lg border border-blue-600 px-6 py-3 text-sm font-medium text-blue-600 hover:bg-blue-50"
+                onClick={() =>
+                  navigate("/student/assignments")
+                }
+                className="mt-5 inline-flex items-center justify-center rounded-lg bg-[#111827] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f2937]"
               >
-                Cancel
-              </button>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {loading
-                  ? "Submitting..."
-                  : "Submit Assignment"}
+                View Assignments
               </button>
             </div>
-          </form>
-        </div>
+          )}
+
+        {/* =================================================
+            SUBMISSIONS
+        ================================================= */}
+
+        {!loading &&
+          !error &&
+          submissions.length > 0 && (
+            <div className="space-y-4">
+
+              {submissions.map((submission) => {
+                const assignment =
+                  submission.assignmentId;
+
+                const status =
+                  getStatusStyle(
+                    submission.status
+                  );
+
+                const StatusIcon =
+                  status.icon;
+
+                return (
+                  <div
+                    key={submission._id}
+                    className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                  >
+
+                    {/* CARD HEADER */}
+
+                    <div className="border-b border-slate-200 px-5 py-5 sm:px-6">
+
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+
+                        <div className="min-w-0">
+
+                          <h2 className="text-lg font-bold text-slate-900">
+                            {assignment?.title ||
+                              "Assignment"}
+                          </h2>
+
+                          {assignment?.description && (
+                            <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-500">
+                              {assignment.description}
+                            </p>
+                          )}
+
+                        </div>
+
+                        {/* STATUS */}
+
+                        <div
+                          className={`inline-flex w-fit shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${status.className}`}
+                        >
+                          <StatusIcon size={14} />
+                          {submission.status ||
+                            "Submitted"}
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    {/* CARD BODY */}
+
+                    <div className="grid gap-4 px-5 py-5 sm:grid-cols-3 sm:px-6">
+
+                      {/* SUBMITTED */}
+
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          Submitted
+                        </p>
+
+                        <p className="mt-1 text-sm font-semibold text-slate-800">
+                          {formatDate(
+                            submission.submittedAt
+                          )}
+                        </p>
+                      </div>
+
+                      {/* GRADE */}
+
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          Grade
+                        </p>
+
+                        <p className="mt-1 text-sm font-semibold text-slate-800">
+                          {submission.grade !==
+                            null &&
+                          submission.grade !==
+                            undefined
+                            ? `${submission.grade}${
+                                assignment?.maxScore
+                                  ? ` / ${assignment.maxScore}`
+                                  : ""
+                              }`
+                            : "Not graded"}
+                        </p>
+                      </div>
+
+                      {/* DEADLINE */}
+
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          Deadline
+                        </p>
+
+                        <p className="mt-1 text-sm font-semibold text-slate-800">
+                          {formatDate(
+                            assignment?.deadline
+                          )}
+                        </p>
+                      </div>
+
+                    </div>
+
+                    {/* FEEDBACK */}
+
+                    {submission.feedback && (
+                      <div className="border-t border-slate-200 bg-slate-50 px-5 py-5 sm:px-6">
+
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                          Mentor Feedback
+                        </p>
+
+                        <p className="mt-2 text-sm leading-6 text-slate-700">
+                          {submission.feedback}
+                        </p>
+
+                      </div>
+                    )}
+
+                    {/* CARD FOOTER */}
+
+                    <div className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+
+                      <p className="text-xs text-slate-400">
+                        Submission ID:{" "}
+                        {submission._id}
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          assignment?._id &&
+                          navigate(
+                            `/student/assignments/${assignment._id}`
+                          )
+                        }
+                        className="inline-flex items-center justify-center rounded-lg bg-[#111827] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f2937]"
+                      >
+                        View Assignment
+                      </button>
+
+                    </div>
+
+                  </div>
+                );
+              })}
+
+            </div>
+          )}
+
       </main>
     </div>
   );
 }
 
-export default StudentSubmission;
+export default StudentSubmissions;

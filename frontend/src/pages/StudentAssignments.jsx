@@ -1,257 +1,351 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  ClipboardList,
+  ArrowRight,
+  CalendarDays,
+  BookOpen,
+  RefreshCw,
+  AlertCircle,
+} from "lucide-react";
 import apiClient from "../services/apiClient";
 
 function StudentAssignments() {
   const navigate = useNavigate();
 
   const [assignments, setAssignments] = useState([]);
-  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchAssignments();
-  }, []);
+  // =====================================================
+  // LOAD ASSIGNMENTS
+  // =====================================================
 
-  const fetchAssignments = async () => {
+  const loadAssignments = async () => {
     try {
       setLoading(true);
       setError("");
 
       const response = await apiClient.get("/assignments");
 
-      setAssignments(response.data.assignments || []);
-    } catch (error) {
-      console.error("Failed to load assignments:", error);
+      console.log("Assignments response:", response.data);
+
+      const data =
+        response.data?.assignments ||
+        response.data?.data ||
+        response.data;
+
+      if (Array.isArray(data)) {
+        setAssignments(data);
+      } else {
+        setAssignments([]);
+      }
+    } catch (err) {
+      console.error("Failed to load assignments:", err);
 
       setError(
-        error.response?.data?.message ||
-          "Failed to load assignments"
+        err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Failed to load assignments."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredAssignments = assignments.filter((assignment) =>
-    assignment.title
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    loadAssignments();
+  }, []);
+
+  // =====================================================
+  // OPEN ASSIGNMENT
+  // =====================================================
+
+  const openAssignment = (assignmentId) => {
+    if (!assignmentId) return;
+
+    navigate(`/student/assignments/${assignmentId}`);
+  };
+
+  // =====================================================
+  // FORMAT DATE
+  // =====================================================
 
   const formatDate = (date) => {
     if (!date) return "No deadline";
 
-    return new Date(date).toLocaleDateString("en-US", {
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return "No deadline";
+    }
+
+    return parsedDate.toLocaleDateString("en-US", {
+      year: "numeric",
       month: "short",
       day: "numeric",
-      year: "numeric",
     });
   };
 
+  // =====================================================
+  // COURSE NAME
+  // =====================================================
+
+  const getCourseName = (assignment) => {
+    if (!assignment?.course) {
+      return "Course";
+    }
+
+    if (typeof assignment.course === "object") {
+      return (
+        assignment.course.name ||
+        assignment.course.title ||
+        "Course"
+      );
+    }
+
+    return assignment.course;
+  };
+
+  // =====================================================
+  // LOADING
+  // =====================================================
+
+  if (loading) {
+    return (
+      <div className="min-h-full bg-slate-50 p-5 sm:p-6 md:p-8">
+        <main className="mx-auto w-full max-w-6xl">
+
+          <div className="mb-8">
+            <div className="h-8 w-64 animate-pulse rounded bg-slate-200" />
+            <div className="mt-3 h-4 w-96 max-w-full animate-pulse rounded bg-slate-200" />
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div
+                key={item}
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              >
+                <div className="h-10 w-10 animate-pulse rounded-lg bg-slate-200" />
+                <div className="mt-5 h-5 w-3/4 animate-pulse rounded bg-slate-200" />
+                <div className="mt-3 h-4 w-full animate-pulse rounded bg-slate-100" />
+                <div className="mt-2 h-4 w-2/3 animate-pulse rounded bg-slate-100" />
+                <div className="mt-6 h-10 w-full animate-pulse rounded-lg bg-slate-100" />
+              </div>
+            ))}
+          </div>
+
+        </main>
+      </div>
+    );
+  }
+
+  // =====================================================
+  // PAGE
+  // =====================================================
+
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800">
-      <header className="h-[72px] bg-white border-b border-slate-200 flex items-center px-8">
-        <h1 className="text-[22px] font-bold text-[#0f1b3d]">
-          ASTU MSJ
-        </h1>
-      </header>
+    <div className="min-h-full bg-slate-50 p-5 sm:p-6 md:p-8">
+      <main className="mx-auto w-full max-w-6xl">
 
-      <main className="max-w-[1200px] mx-auto px-8 py-10 pb-28">
-        <section className="mb-7">
-          <h2 className="text-3xl font-bold text-[#0f1b3d] mb-2">
-            Assignments
-          </h2>
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
-          <p className="text-sm text-slate-500">
-            View assignments and submit your work.
-          </p>
-        </section>
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 
-        <section className="bg-white rounded-xl p-6 mb-7 shadow-[0_4px_15px_rgba(0,0,0,0.08)]">
-          <span className="text-sm text-slate-500">
-            All Assignments
-          </span>
+          <div>
+            <div className="mb-2 flex items-center gap-3">
 
-          <h3 className="text-[22px] font-bold text-[#0f1b3d] mt-2">
-            {assignments.length} assignments
-          </h3>
-        </section>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#111827] text-white">
+                <ClipboardList size={20} />
+              </div>
 
-        {loading && (
-          <div className="bg-white rounded-xl p-10 text-center shadow-sm">
-            <p className="text-slate-500">
-              Loading assignments...
+              <span className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                Student
+              </span>
+
+            </div>
+
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              Assignments
+            </h1>
+
+            <p className="mt-2 text-sm text-slate-500">
+              View your assignments and open an assignment to see its details.
             </p>
+          </div>
+
+          {/* REFRESH */}
+
+          <button
+            type="button"
+            onClick={loadAssignments}
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-2 self-start rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
+          >
+            <RefreshCw size={16} />
+            Refresh
+          </button>
+
+        </div>
+
+        {/* =================================================
+            ERROR
+        ================================================= */}
+
+        {error && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+
+            <AlertCircle
+              size={20}
+              className="mt-0.5 shrink-0 text-red-600"
+            />
+
+            <div>
+              <p className="text-sm font-semibold text-red-700">
+                {error}
+              </p>
+
+              <button
+                type="button"
+                onClick={loadAssignments}
+                className="mt-2 text-sm font-semibold text-red-700 underline hover:text-red-800"
+              >
+                Try again
+              </button>
+            </div>
+
           </div>
         )}
 
-        {!loading && error && (
-          <div className="bg-white rounded-xl p-10 text-center shadow-sm">
-            <p className="text-red-600 mb-4">
-              {error}
+        {/* =================================================
+            EMPTY STATE
+        ================================================= */}
+
+        {!error && assignments.length === 0 && (
+          <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+              <ClipboardList size={26} />
+            </div>
+
+            <h2 className="mt-5 text-lg font-bold text-slate-900">
+              No Assignments
+            </h2>
+
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+              You don't have any assignments available right now.
             </p>
 
-            <button
-              onClick={fetchAssignments}
-              className="px-5 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700"
-            >
-              Try Again
-            </button>
           </div>
         )}
 
-        {!loading && !error && (
-          <>
-            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
-              {filteredAssignments.map((assignment) => (
-                <article
-                  key={assignment._id}
-                  className="bg-white rounded-xl p-[22px] shadow-[0_4px_15px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 hover:shadow-[0_7px_20px_rgba(0,0,0,0.1)] transition"
+        {/* =================================================
+            ASSIGNMENT CARDS
+        ================================================= */}
+
+        {assignments.length > 0 && (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+
+            {assignments.map((assignment) => {
+
+              const assignmentId =
+                assignment._id || assignment.id;
+
+              const courseName =
+                getCourseName(assignment);
+
+              return (
+                <div
+                  key={assignmentId}
+                  className="flex flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
                 >
-                  <div className="flex justify-between gap-4 mb-5">
-                    <div>
-                      <h3 className="text-[17px] font-semibold text-slate-800 mb-2">
-                        {assignment.title}
-                      </h3>
 
-                      <p className="text-[13px] text-slate-500">
-                        {formatDate(assignment.deadline)}
-                      </p>
+                  {/* CARD ICON */}
+
+                  <div className="flex items-start justify-between">
+
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+                      <ClipboardList size={20} />
                     </div>
 
-                    <span className="w-8 h-8 shrink-0 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold">
-                      {assignment.maxScore}
-                    </span>
+                    {assignment.published && (
+                      <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                        Published
+                      </span>
+                    )}
+
                   </div>
 
-                  <p className="text-sm text-slate-500 line-clamp-2 mb-5">
-                    {assignment.description}
+                  {/* TITLE */}
+
+                  <h2 className="mt-5 line-clamp-2 text-lg font-bold text-slate-900">
+                    {assignment.title || "Untitled Assignment"}
+                  </h2>
+
+                  {/* DESCRIPTION */}
+
+                  <p className="mt-2 line-clamp-3 min-h-[60px] text-sm leading-5 text-slate-500">
+                    {assignment.description ||
+                      "No description provided for this assignment."}
                   </p>
 
-                  <div className="border-t border-slate-200 pt-4">
-                    <p className="text-xs text-slate-400 mb-3">
-                      Course
-                    </p>
+                  {/* COURSE */}
 
-                    <p className="text-sm font-medium text-[#1e3a5f] mb-4">
-                      {assignment.course}
-                    </p>
+                  <div className="mt-5 flex items-center gap-2 text-sm text-slate-600">
 
-                    <button
-                      onClick={() =>
-                        navigate(
-                          `/assignments/${assignment._id}`
-                        )
-                      }
-                      className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition"
-                    >
-                      View Assignment
-                    </button>
+                    <BookOpen
+                      size={16}
+                      className="shrink-0 text-slate-400"
+                    />
+
+                    <span className="truncate">
+                      {courseName}
+                    </span>
+
                   </div>
-                </article>
-              ))}
-            </section>
 
-            <section className="mb-5">
-              <input
-                type="text"
-                value={search}
-                onChange={(e) =>
-                  setSearch(e.target.value)
-                }
-                placeholder="Search assignments..."
-                className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3.5 text-sm text-slate-800 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-              />
-            </section>
+                  {/* DEADLINE */}
 
-            <section className="bg-white rounded-xl overflow-hidden shadow-[0_4px_15px_rgba(0,0,0,0.08)]">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-slate-50">
-                    <tr>
-                      <th className="text-left px-5 py-4 text-xs font-bold tracking-wide text-slate-500">
-                        TITLE
-                      </th>
+                  <div className="mt-3 flex items-center gap-2 text-sm text-slate-600">
 
-                      <th className="text-left px-5 py-4 text-xs font-bold tracking-wide text-slate-500">
-                        COURSE
-                      </th>
+                    <CalendarDays
+                      size={16}
+                      className="shrink-0 text-slate-400"
+                    />
 
-                      <th className="text-left px-5 py-4 text-xs font-bold tracking-wide text-slate-500">
-                        DEADLINE
-                      </th>
+                    <span>
+                      {formatDate(assignment.deadline)}
+                    </span>
 
-                      <th className="text-right px-5 py-4 text-xs font-bold tracking-wide text-slate-500">
-                        ACTION
-                      </th>
-                    </tr>
-                  </thead>
+                  </div>
 
-                  <tbody>
-                    {filteredAssignments.map(
-                      (assignment) => (
-                        <tr
-                          key={assignment._id}
-                          className="border-t border-slate-200 hover:bg-slate-50"
-                        >
-                          <td className="px-5 py-[18px] text-sm font-medium text-slate-800">
-                            {assignment.title}
-                          </td>
+                  {/* SPACER */}
 
-                          <td className="px-5 py-[18px] text-sm text-slate-500">
-                            {assignment.course}
-                          </td>
+                  <div className="flex-1" />
 
-                          <td className="px-5 py-[18px] text-sm text-slate-500">
-                            {formatDate(
-                              assignment.deadline
-                            )}
-                          </td>
+                  {/* OPEN BUTTON */}
 
-                          <td className="px-5 py-[18px] text-right">
-                            <button
-                              onClick={() =>
-                                navigate(
-                                  `/assignments/${assignment._id}`
-                                )
-                              }
-                              className="text-sm font-medium text-blue-600 hover:text-blue-800"
-                            >
-                              View
-                            </button>
-                          </td>
-                        </tr>
-                      )
-                    )}
+                  <button
+                    type="button"
+                    onClick={() => openAssignment(assignmentId)}
+                    disabled={!assignmentId}
+                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#111827] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f2937] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    View Assignment
+                    <ArrowRight size={16} />
+                  </button>
 
-                    {filteredAssignments.length ===
-                      0 && (
-                      <tr>
-                        <td
-                          colSpan="4"
-                          className="text-center px-5 py-10 text-sm text-slate-400"
-                        >
-                          No assignments found.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </>
+                </div>
+              );
+            })}
+
+          </div>
         )}
-      </main>
 
-      <footer className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 px-8 py-3">
-        <input
-          type="text"
-          placeholder="Type here to search"
-          className="block w-full max-w-[500px] mx-auto bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-        />
-      </footer>
+      </main>
     </div>
   );
 }

@@ -1,12 +1,12 @@
 const express = require("express");
 
 const {
-  createAssignment,
-  getAssignments,
-  getAssignmentById,
-  updateAssignment,
-  deleteAssignment,
-} = require("../controllers/AssignmentControllers");
+  createCourse,
+  getCourses,
+  getCourseById,
+  updateCourse,
+  deleteCourse,
+} = require("../controllers/courseControllers");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
@@ -14,51 +14,54 @@ const roleMiddleware = require("../middleware/roleMiddleware");
 const router = express.Router();
 
 // ==========================================
-// GET ALL
+// GET ALL COURSES
 // ==========================================
 router.get(
   "/",
   authMiddleware,
-  getAssignments
+  getCourses
 );
 
 // ==========================================
-// GET ONE
+// GET ONE COURSE
 // ==========================================
 router.get(
   "/:id",
   authMiddleware,
-  getAssignmentById
+  getCourseById
 );
 
 // ==========================================
-// CREATE
+// CREATE COURSE
+// ADMIN ONLY
 // ==========================================
 router.post(
   "/",
   authMiddleware,
   roleMiddleware("admin"),
-  createAssignment
+  createCourse
 );
 
 // ==========================================
-// UPDATE
+// UPDATE COURSE
+// ADMIN ONLY
 // ==========================================
 router.put(
   "/:id",
   authMiddleware,
   roleMiddleware("admin"),
-  updateAssignment
+  updateCourse
 );
 
 // ==========================================
-// DELETE
+// DELETE / DEACTIVATE COURSE
+// ADMIN ONLY
 // ==========================================
 router.delete(
   "/:id",
   authMiddleware,
   roleMiddleware("admin"),
-  deleteAssignment
+  deleteCourse
 );
 
 module.exports = router;

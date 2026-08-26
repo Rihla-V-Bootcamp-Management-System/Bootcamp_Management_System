@@ -1,8 +1,11 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import DashboardLayout from "../layouts/DashboardLayout";
+import SuperAdminLayout from "../layouts/SuperAdminLayout";
 
-
+// ============================================================
+// PUBLIC
+// ============================================================
 import Landing from "../pages/Landing";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -10,22 +13,47 @@ import SetPassword from "../pages/SetPassword";
 import FirstLogin from "../pages/FirstLogin";
 import PublicApplication from "../pages/PublicApplication";
 
-
+// ============================================================
+// MENTOR
+// ============================================================
 import MentorDashboard from "../pages/MentorDashboard";
 import MentorStudents from "../pages/MentorStudents";
 import MentorAttendance from "../pages/MentorAttendance";
 import MentorProgress from "../pages/MentorProgress";
 import MentorAssignments from "../pages/MentorAssignments";
-import MentorSubmissions from "../pages/MentorSubmission";
 
-// Student pages
+import MentorCourseAssignments from "../pages/mentor/MentorCourseAssignments";
+import MentorAssignmentDetails from "../pages/mentor/MentorAssignmentDetails";
+import MentorTopicDetails from "../pages/mentor/MentorTopicDetails";
+import MentorSubmission from "../pages/mentor/MentorSubmission";
+import MentorAssignmentSubmissions from "../pages/MentorAssignmentSubmissions";
+import MentorSubmissionReview from "../pages/MentorSubmissionReview";
+import MentorAnnouncements from "../pages/MentorAnnouncements";
+
+// ============================================================
+// STUDENT
+// ============================================================
 import StudentDashboard from "../pages/StudentDashboard";
 import StudentAttendance from "../pages/StudentAttendance";
 import StudentProgress from "../pages/StudentProgress";
 import StudentWebProgress from "../pages/StudentWebProgress";
 import StudentCPProgress from "../pages/StudentCpProgress";
 
-// Admin pages
+import StudentAssignments from "../pages/StudentAssignments";
+import StudentCourseAssignments from "../pages/StudentCourseAssignments";
+import StudentAssignmentDetails from "../pages/StudentAssignmentDetails";
+import StudentSubmission from "../pages/StudentSubmission";
+
+import StudentSubmissions from "../pages/StudentSubmissions";
+import StudentGrades from "../pages/StudentGrades";
+import StudentAnnouncements from "../pages/StudentAnnouncements";
+
+// ⭐ ANNOUNCEMENT NOTIFICATION
+import AnnouncementNotification from "../pages/AnnouncementNotification";
+
+// ============================================================
+// ADMIN
+// ============================================================
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import Users from "../pages/admin/Users";
 import Applications from "../pages/admin/Applications";
@@ -33,23 +61,27 @@ import Batches from "../pages/admin/Batches";
 import Registration from "../pages/admin/Registration";
 import BatchDetails from "../pages/admin/BatchDetails";
 import Attendance from "../pages/admin/Attendance";
+import AdminAssignments from "../pages/admin/AdminAssignments";
 
-// Assignment pages
-import StudentSubmission from "../pages/StudentAssignments";
-import StudentAssignments from "../pages/StudentAssignments";
-import StudentAssignmentDetails from "../pages/StudentAssignmentDetails";
-import AdminAssignments from "../pages/AdminAssignments";
-import SuperAdminLayout from "../layouts/SuperAdminLayout";
+// ============================================================
+// SUPER ADMIN
+// ============================================================
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard";
 import SuperAdminUsers from "../pages/superadmin/SuperAdminUsers";
 import SuperAdminRegistrations from "../pages/superadmin/SuperAdminRegistrations";
 import SuperAdminAuditLogs from "../pages/superadmin/SuperAdminAuditLogs";
 import SuperAdminSettings from "../pages/superadmin/SuperAdminSettings";
 
+// ============================================================
+// APP ROUTES
+// ============================================================
 function AppRoutes() {
   return (
     <Routes>
-      {/* ================= PUBLIC ROUTES ================= */}
+
+      {/* ========================================================
+          PUBLIC
+      ======================================================== */}
 
       <Route path="/" element={<Landing />} />
 
@@ -57,96 +89,160 @@ function AppRoutes() {
 
       <Route path="/register" element={<Register />} />
 
-      <Route path="/set-password" element={<SetPassword />} />
+      <Route
+        path="/set-password"
+        element={<SetPassword />}
+      />
 
-      <Route path="/first-login" element={<FirstLogin />} />
+      <Route
+        path="/first-login"
+        element={<FirstLogin />}
+      />
 
-      <Route path="/apply" element={<PublicApplication />} />
+      <Route
+        path="/apply"
+        element={<PublicApplication />}
+      />
 
-      {/* ================= ADMIN ROUTES ================= */}
+      {/* ========================================================
+          ADMIN
+      ======================================================== */}
 
       <Route
         path="/admin"
         element={<DashboardLayout role="admin" />}
       >
-        <Route index element={<AdminDashboard />} />
+        {/* Dashboard */}
+        <Route
+          index
+          element={<AdminDashboard />}
+        />
 
+        {/* Users */}
         <Route
           path="users"
           element={<Users />}
         />
 
+        {/* Applications */}
         <Route
           path="applications"
           element={<Applications />}
         />
 
+        {/* Attendance */}
         <Route
           path="attendance"
           element={<Attendance />}
         />
 
+        {/* Batches */}
         <Route
           path="batches"
           element={<Batches />}
         />
 
+        {/* Batch Details */}
         <Route
           path="batches/:id"
           element={<BatchDetails />}
         />
 
+        {/* Registration */}
         <Route
           path="registrations"
           element={<Registration />}
         />
 
-        <Route
-          path="announcements"
-          element={<div>Announcements Page</div>}
-        />
-
-        <Route
-          path="analytics"
-          element={<div>Analytics Page</div>}
-        />
-
-        <Route
-          path="settings"
-          element={<div>Settings Page</div>}
-        />
-
+        {/* Assignments */}
         <Route
           path="assignments"
           element={<AdminAssignments />}
         />
+
+        {/* Announcements */}
+        <Route
+          path="announcements"
+          element={
+            <div className="min-h-full bg-slate-50 p-6">
+              <div className="mx-auto max-w-6xl">
+                <h1 className="text-2xl font-bold text-slate-900">
+                  Announcements
+                </h1>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Manage announcements for your students.
+                </p>
+              </div>
+            </div>
+          }
+        />
+
+        {/* Analytics */}
+        <Route
+          path="analytics"
+          element={
+            <div className="min-h-full bg-slate-50 p-6">
+              <div className="mx-auto max-w-6xl">
+                <h1 className="text-2xl font-bold text-slate-900">
+                  Analytics
+                </h1>
+              </div>
+            </div>
+          }
+        />
+
+        {/* Settings */}
+        <Route
+          path="settings"
+          element={
+            <div className="min-h-full bg-slate-50 p-6">
+              <div className="mx-auto max-w-6xl">
+                <h1 className="text-2xl font-bold text-slate-900">
+                  Settings
+                </h1>
+              </div>
+            </div>
+          }
+        />
       </Route>
 
-      {/* ================= MENTOR ROUTES ================= */}
+      {/* ========================================================
+          MENTOR
+      ======================================================== */}
 
       <Route
         path="/mentor"
         element={<DashboardLayout role="mentor" />}
       >
+
+        {/* Dashboard */}
         <Route
           index
           element={<MentorDashboard />}
         />
 
+        {/* My Students */}
         <Route
           path="students"
           element={<MentorStudents />}
         />
 
+        {/* Attendance */}
         <Route
           path="attendance"
           element={<MentorAttendance />}
         />
 
+        {/* Progress */}
         <Route
           path="progress"
           element={<MentorProgress />}
         />
+
+        {/* ======================================================
+            ASSIGNMENTS
+        ====================================================== */}
 
         <Route
           path="assignments"
@@ -154,48 +250,108 @@ function AppRoutes() {
         />
 
         <Route
-          path="submissions"
-          element={<MentorSubmissions />}
+          path="assignments/course/:courseName"
+          element={<MentorCourseAssignments />}
         />
 
         <Route
-          path="announcements"
-          element={<div>Announcements</div>}
+          path="assignments/:assignmentId"
+          element={<MentorAssignmentDetails />}
         />
-       
- 
+
+        <Route
+          path="assignments/:assignmentId/topics/:topicId"
+          element={<MentorTopicDetails />}
+        />
+
+        <Route
+          path="assignments/:assignmentId/submissions"
+          element={<MentorAssignmentSubmissions />}
+        />
+
+        {/* ======================================================
+            SUBMISSIONS
+        ====================================================== */}
+
+        <Route
+          path="submissions"
+          element={<MentorSubmission />}
+        />
+
+        <Route
+          path="submissions/:submissionId"
+          element={<MentorSubmissionReview />}
+        />
+
+        {/* ======================================================
+            ANNOUNCEMENTS
+        ====================================================== */}
+
+        <Route
+          path="announcements"
+          element={<MentorAnnouncements />}
+        />
+
+        {/* ======================================================
+            PROFILE
+        ====================================================== */}
+
+        <Route
+          path="profile"
+          element={
+            <div className="min-h-full bg-slate-50 p-6">
+              <div className="mx-auto max-w-6xl">
+                <h1 className="text-2xl font-bold text-slate-900">
+                  Mentor Profile
+                </h1>
+              </div>
+            </div>
+          }
+        />
       </Route>
 
-      {/* ================= STUDENT ROUTES ================= */}
+      {/* ========================================================
+          STUDENT
+      ======================================================== */}
 
       <Route
         path="/student"
         element={<DashboardLayout role="student" />}
       >
+
+        {/* Dashboard */}
         <Route
           index
           element={<StudentDashboard />}
         />
 
+        {/* Attendance */}
         <Route
           path="attendance"
           element={<StudentAttendance />}
         />
 
+        {/* Progress */}
         <Route
           path="progress"
           element={<StudentProgress />}
         />
 
+        {/* Web Development Progress */}
         <Route
           path="progress/web"
           element={<StudentWebProgress />}
         />
 
+        {/* Competitive Programming Progress */}
         <Route
           path="progress/cp"
           element={<StudentCPProgress />}
         />
+
+        {/* ======================================================
+            ASSIGNMENTS
+        ====================================================== */}
 
         <Route
           path="assignments"
@@ -203,64 +359,125 @@ function AppRoutes() {
         />
 
         <Route
-          path="assignments/:id"
+          path="assignments/course/:courseName"
+          element={<StudentCourseAssignments />}
+        />
+
+        <Route
+          path="assignments/:assignmentId"
           element={<StudentAssignmentDetails />}
         />
 
         <Route
-          path="grades"
-          element={<div>Student Grades</div>}
+          path="assignments/:assignmentId/submit"
+          element={<StudentSubmission />}
         />
-          <Route
+
+        {/* ======================================================
+            MY SUBMISSIONS
+        ====================================================== */}
+
+        <Route
           path="submissions"
-          element={<StudentSubmission/>}
+          element={<StudentSubmissions />}
         />
+
+        {/* ======================================================
+            GRADES
+        ====================================================== */}
+
+        <Route
+          path="grades"
+          element={<StudentGrades />}
+        />
+
+        {/* ======================================================
+            ANNOUNCEMENTS
+        ====================================================== */}
 
         <Route
           path="announcements"
-          element={<div>Student Announcements</div>}
+          element={<StudentAnnouncements />}
         />
+
+        {/* ======================================================
+            ANNOUNCEMENT NOTIFICATION
+        ====================================================== */}
+
+        <Route
+          path="announcements/:announcementId"
+          element={<AnnouncementNotification />}
+        />
+
+        {/* ======================================================
+            PROFILE
+        ====================================================== */}
 
         <Route
           path="profile"
-          element={<div>Student Profile</div>}
+          element={
+            <div className="min-h-full bg-slate-50 p-6">
+              <div className="mx-auto max-w-6xl">
+                <h1 className="text-2xl font-bold text-slate-900">
+                  Student Profile
+                </h1>
+              </div>
+            </div>
+          }
         />
+
       </Route>
 
-      {/* ================= GENERAL ASSIGNMENT ROUTES ================= */}
-      {/* ================= SUPERADMIN ROUTES ================= */}
+      {/* ========================================================
+          SUPER ADMIN
+      ======================================================== */}
+
       <Route
-  path="/superadmin"
-  element={<SuperAdminLayout />}
->
-  <Route
-    index
-    element={<SuperAdminDashboard />}
-  />
+        path="/superadmin"
+        element={<SuperAdminLayout />}
+      >
 
-  <Route
-    path="users"
-    element={<SuperAdminUsers />}
-  />
+        {/* Dashboard */}
+        <Route
+          index
+          element={<SuperAdminDashboard />}
+        />
 
-  <Route
-    path="registrations"
-    element={<SuperAdminRegistrations />}
-  />
+        {/* Users */}
+        <Route
+          path="users"
+          element={<SuperAdminUsers />}
+        />
 
-  <Route
-    path="audit-logs"
-    element={<SuperAdminAuditLogs />}
-  />
+        {/* Registrations */}
+        <Route
+          path="registrations"
+          element={<SuperAdminRegistrations />}
+        />
 
-  <Route
-    path="settings"
-    element={<SuperAdminSettings />}
-  />
-</Route>
+        {/* Audit Logs */}
+        <Route
+          path="audit-logs"
+          element={<SuperAdminAuditLogs />}
+        />
 
+        {/* Settings */}
+        <Route
+          path="settings"
+          element={<SuperAdminSettings />}
+        />
 
-      
+      </Route>
+
+      {/* ========================================================
+          FALLBACK
+      ======================================================== */}
+
+      <Route
+        path="*"
+        element={<Navigate to="/" replace />}
+      />
+
     </Routes>
   );
 }

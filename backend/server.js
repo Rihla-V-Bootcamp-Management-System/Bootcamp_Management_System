@@ -12,27 +12,23 @@ const connectDB = require("./config/db");
 // ==========================================
 // ROUTES
 // ==========================================
-
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 
 // ==========================================
 // APPLICATION FORM
 // ==========================================
-
 const applicationFormRoutes = require("./routes/ApplicationFormRoutes");
-
+const courseRoutes = require("./routes/courseRoutes");
 // ==========================================
 // REGISTRATION ROUTES
 // ==========================================
-
 const registrationRoutes = require("./routes/registrationRoutes");
 const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
 
 // ==========================================
 // MAIN SYSTEM ROUTES
 // ==========================================
-
 const mentorRoutes = require("./routes/mentorRoutes");
 const seasonRoutes = require("./routes/seasonRoutes");
 const batchRoutes = require("./routes/batchRoutes");
@@ -40,27 +36,28 @@ const batchRoutes = require("./routes/batchRoutes");
 // ==========================================
 // ATTENDANCE & PROGRESS
 // ==========================================
-
 const attendanceRoutes = require("./routes/AttendanceRoutes");
 const progressRoutes = require("./routes/progressRoutes");
 
 // ==========================================
 // ASSIGNMENT & SUBMISSION
 // ==========================================
-
-const assignmentRoutes = require("./routes/assignmentRoutes");
+const assignmentRoutes = require("./routes/AssignmentRoutes");
 const submissionRoutes = require("./routes/SubmissionRoutes");
+
+// ==========================================
+// ANNOUNCEMENTS
+// ==========================================
+const announcementRoutes = require("./routes/AnnouncementRoutes");
 
 // ==========================================
 // SUPER ADMIN
 // ==========================================
-
 const superAdminRoutes = require("./routes/superAdminRoutes");
 
 // ==========================================
 // APP CONFIG
 // ==========================================
-
 const app = express();
 
 const PORT = process.env.PORT || 5000;
@@ -78,7 +75,11 @@ app.use(
 
 app.use(express.json());
 
-app.use(express.urlencoded({ extended: true }));
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
 // ==========================================
 // TEST / HEALTH ROUTES
@@ -87,7 +88,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "Bootcamp Management System API is running",
+    message:
+      "Bootcamp Management System API is running",
   });
 });
 
@@ -106,10 +108,16 @@ app.get("/api/health", (req, res) => {
 // ------------------------------------------
 // Users & Authentication
 // ------------------------------------------
+app.use("/api/courses", courseRoutes);
+app.use(
+  "/api/users",
+  userRoutes
+);
 
-app.use("/api/users", userRoutes);
-
-app.use("/api/auth", authRoutes);
+app.use(
+  "/api/auth",
+  authRoutes
+);
 
 // ------------------------------------------
 // Application Forms
@@ -124,43 +132,73 @@ app.use(
 // Seasons
 // ------------------------------------------
 
-app.use("/api/seasons", seasonRoutes);
+app.use(
+  "/api/seasons",
+  seasonRoutes
+);
 
 // ------------------------------------------
 // Mentors
 // ------------------------------------------
 
-app.use("/api/mentor", mentorRoutes);
+app.use(
+  "/api/mentor",
+  mentorRoutes
+);
 
 // ------------------------------------------
 // Batches
 // ------------------------------------------
 
-app.use("/api/batches", batchRoutes);
+app.use(
+  "/api/batches",
+  batchRoutes
+);
 
 // ------------------------------------------
 // Attendance
 // ------------------------------------------
 
-app.use("/api/attendance", attendanceRoutes);
+app.use(
+  "/api/attendance",
+  attendanceRoutes
+);
 
 // ------------------------------------------
 // Progress
 // ------------------------------------------
 
-app.use("/api/progress", progressRoutes);
+app.use(
+  "/api/progress",
+  progressRoutes
+);
 
 // ------------------------------------------
 // Assignments
 // ------------------------------------------
 
-app.use("/api/assignments", assignmentRoutes);
+app.use(
+  "/api/assignments",
+  assignmentRoutes
+);
 
 // ------------------------------------------
 // Submissions
 // ------------------------------------------
 
-app.use("/api/submissions", submissionRoutes);
+app.use(
+  "/api/submissions",
+  submissionRoutes
+);
+
+// ==========================================
+// ANNOUNCEMENTS
+// ==========================================
+
+app.use(
+  "/api/announcements",
+  announcementRoutes
+);
 
 // ==========================================
 // REGISTRATION
@@ -204,14 +242,23 @@ app.use((req, res) => {
 // GLOBAL ERROR HANDLER
 // ==========================================
 
-app.use((err, req, res, next) => {
-  console.error("Server Error:", err);
+app.use(
+  (err, req, res, next) => {
+    console.error(
+      "Server Error:",
+      err
+    );
 
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || "Internal server error",
-  });
-});
+    res.status(
+      err.status || 500
+    ).json({
+      success: false,
+      message:
+        err.message ||
+        "Internal server error",
+    });
+  }
+);
 
 // ==========================================
 // START SERVER
@@ -221,54 +268,82 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    app.listen(PORT, () => {
-      console.log("==========================================");
-      console.log("Bootcamp Management System Backend");
-      console.log("==========================================");
+    app.listen(
+      PORT,
+      () => {
+        console.log(
+          "=========================================="
+        );
 
-      console.log(
-        `Server running on http://localhost:${PORT}`
-      );
+        console.log(
+          "Bootcamp Management System Backend"
+        );
 
-      console.log(
-        `Health check: http://localhost:${PORT}/api/health`
-      );
+        console.log(
+          "=========================================="
+        );
 
-      console.log(
-        `Application Forms: http://localhost:${PORT}/api/application-forms`
-      );
+        console.log(
+          `Server running on http://localhost:${PORT}`
+        );
 
-      console.log(
-        `Registration API: http://localhost:${PORT}/api/registrations`
-      );
+        console.log(
+          `Health check: http://localhost:${PORT}/api/health`
+        );
 
-      console.log(
-        `Registration Settings: http://localhost:${PORT}/api/registration-settings`
-      );
+        console.log(
+          `Application Forms: http://localhost:${PORT}/api/application-forms`
+        );
 
-      console.log(
-        `Attendance API: http://localhost:${PORT}/api/attendance`
-      );
+        console.log(
+          `Registration API: http://localhost:${PORT}/api/registrations`
+        );
 
-      console.log(
-        `Progress API: http://localhost:${PORT}/api/progress`
-      );
+        console.log(
+          `Registration Settings: http://localhost:${PORT}/api/registration-settings`
+        );
 
-      console.log(
-        `Assignments API: http://localhost:${PORT}/api/assignments`
-      );
+        console.log(
+          `Attendance API: http://localhost:${PORT}/api/attendance`
+        );
 
-      console.log(
-        `Submissions API: http://localhost:${PORT}/api/submissions`
-      );
+        console.log(
+          `Progress API: http://localhost:${PORT}/api/progress`
+        );
 
-      console.log("==========================================");
-    });
+        console.log(
+          `Assignments API: http://localhost:${PORT}/api/assignments`
+        );
+
+        console.log(
+          `Submissions API: http://localhost:${PORT}/api/submissions`
+        );
+
+        console.log(
+          `Announcements API: http://localhost:${PORT}/api/announcements`
+        );
+
+        console.log(
+          "=========================================="
+        );
+      }
+    );
   } catch (error) {
-    console.error("==========================================");
-    console.error("Server startup failed:");
-    console.error(error.message);
-    console.error("==========================================");
+    console.error(
+      "=========================================="
+    );
+
+    console.error(
+      "Server startup failed:"
+    );
+
+    console.error(
+      error.message
+    );
+
+    console.error(
+      "=========================================="
+    );
 
     process.exit(1);
   }

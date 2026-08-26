@@ -3,324 +3,445 @@ import { useNavigate, useParams } from "react-router-dom";
 import apiClient from "../services/apiClient";
 
 function StudentAssignmentDetails() {
-  const { id } = useParams();
+  const params = useParams();
   const navigate = useNavigate();
+
+  // Supports both :id and :assignmentId
+  const id = params.id || params.assignmentId;
 
   const [assignment, setAssignment] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
-  const [form, setForm] = useState({
-    githubUrl: "",
-    liveDemoUrl: "",
-    notes: "",
-  });
-
+  // =========================================================
+  // LOAD ASSIGNMENT
+  // =========================================================
   useEffect(() => {
-    fetchAssignment();
+    if (!id) {
+      console.error("Assignment ID is missing:", params);
+      setError("Assignment ID is missing.");
+      setLoading(false);
+      return;
+    }
+
+    loadAssignment();
   }, [id]);
 
-  const fetchAssignment = async () => {
+  const loadAssignment = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await apiClient.get(
-        `/assignments/${id}`
+      console.log("Loading assignment:", id);
+
+      const response = await apiClient.get(`/assignments/${id}`);
+
+      console.log(
+        "Student assignment response:",
+        response.data
       );
 
-      setAssignment(response.data.assignment);
-    } catch (error) {
-      console.error(error);
+      const data =
+        response.data?.assignment ||
+        response.data?.data ||
+        response.data;
+
+      if (!data || !data._id) {
+        setAssignment(null);
+        setError("Assignment not found.");
+        return;
+      }
+
+      setAssignment(data);
+    } catch (err) {
+      console.error(
+        "Failed to load assignment:",
+        err
+      );
+
+      setAssignment(null);
 
       setError(
-        error.response?.data?.message ||
-          "Failed to load assignment"
+        err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Failed to load assignment."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+  // =========================================================
+  // SUBMIT
+  // =========================================================
+  const handleSubmitAssignment = () => {
+    if (!id) return;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      setSubmitting(true);
-      setError("");
-      setSuccess("");
-
-      await apiClient.post(
-        `/submissions/${id}`,
-        {
-          githubUrl: form.githubUrl,
-          liveDemoUrl: form.liveDemoUrl,
-          notes: form.notes,
-        }
-      );
-
-      setSuccess(
-        "Assignment submitted successfully."
-      );
-
-      setForm({
-        githubUrl: "",
-        liveDemoUrl: "",
-        notes: "",
-      });
-    } catch (error) {
-      console.error(error);
-
-      setError(
-        error.response?.data?.message ||
-          "Failed to submit assignment"
-      );
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const formatDate = (date) => {
-    if (!date) return "No deadline";
-
-    return new Date(date).toLocaleDateString(
-      "en-US",
-      {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }
+    navigate(
+      `/student/assignments/${id}/submit`
     );
   };
 
+  // =========================================================
+  // BACK
+  // =========================================================
+  const handleBack = () => {
+    navigate("/student/assignments");
+  };
+
+  // =========================================================
+  // LOADING
+  // =========================================================
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-        <p className="text-slate-500">
-          Loading assignment...
-        </p>
+      <div className="min-h-full bg-slate-50 p-5 sm:p-6 md:p-8">
+        <main className="mx-auto max-w-6xl">
+          <div className="mb-6 h-5 w-40 animate-pulse rounded bg-slate-200" />
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="h-4 w-32 animate-pulse rounded bg-slate-200" />
+
+            <div className="mt-4 h-8 w-72 animate-pulse rounded bg-slate-200" />
+
+            <div className="mt-4 h-4 w-full max-w-2xl animate-pulse rounded bg-slate-200" />
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="h-20 animate-pulse rounded-xl bg-slate-100"
+                />
+              ))}
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
 
-  if (error && !assignment) {
+  // =========================================================
+  // NOT FOUND
+  // =========================================================
+  if (!assignment) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center px-5">
-        <div className="bg-white rounded-xl p-8 text-center shadow-sm max-w-md w-full">
-          <p className="text-red-600 mb-5">
-            {error}
-          </p>
+      <div className="min-h-full bg-slate-50 p-5 sm:p-6 md:p-8">
+        <main className="mx-auto flex max-w-6xl justify-center">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg font-bold text-[#111827]">
+              !
+            </div>
 
-          <button
-            onClick={() => navigate("/assignments")}
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            Back to Assignments
-          </button>
-        </div>
+            <h2 className="mt-5 text-xl font-bold text-slate-900">
+              Assignment Not Found
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              {error ||
+                "We could not find this assignment."}
+            </p>
+
+            <button
+              type="button"
+              onClick={handleBack}
+              className="mt-6 rounded-xl bg-[#111827] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f2937]"
+            >
+              Back to Assignments
+            </button>
+          </div>
+        </main>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-slate-100 text-slate-800">
-      <header className="h-[72px] bg-white border-b border-slate-200 flex items-center px-8">
-        <h1 className="text-[22px] font-bold text-[#0f1b3d]">
-          ASTU MSJ
-        </h1>
-      </header>
+  // =========================================================
+  // COURSE NAME
+  // =========================================================
+  const courseName =
+    typeof assignment.course === "object"
+      ? assignment.course?.name ||
+        assignment.course?.title ||
+        "Course"
+      : assignment.course || "Course";
 
-      <main className="max-w-[1000px] mx-auto px-5 md:px-8 py-10 pb-16">
+  // =========================================================
+  // TOPICS
+  // =========================================================
+  const topics = Array.isArray(
+    assignment.topics
+  )
+    ? assignment.topics
+    : [];
+
+  // =========================================================
+  // PAGE
+  // =========================================================
+  return (
+    <div className="min-h-full bg-slate-50 p-5 text-slate-800 sm:p-6 md:p-8">
+      <main className="mx-auto max-w-6xl">
+
+        {/* =================================================
+            BACK
+        ================================================= */}
         <button
-          onClick={() => navigate("/assignments")}
-          className="text-sm font-medium text-blue-600 hover:text-blue-800 mb-6"
+          type="button"
+          onClick={handleBack}
+          className="mb-6 text-sm font-semibold text-[#111827] transition hover:text-[#374151]"
         >
           ← Back to Assignments
         </button>
 
-        <section className="bg-white rounded-xl p-6 md:p-8 shadow-[0_4px_15px_rgba(0,0,0,0.08)] mb-6">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-5">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 mb-2">
-                Assignment
+        {/* =================================================
+            ERROR
+        ================================================= */}
+        {error && (
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
+            <p className="text-sm font-semibold text-red-700">
+              {error}
+            </p>
+          </div>
+        )}
+
+        {/* =================================================
+            ASSIGNMENT HEADER
+        ================================================= */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+
+            {/* TITLE */}
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#111827]">
+                {courseName}
               </p>
 
-              <h2 className="text-2xl md:text-3xl font-bold text-[#0f1b3d] mb-3">
-                {assignment.title}
-              </h2>
+              <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                {assignment.title ||
+                  "Untitled Assignment"}
+              </h1>
 
-              <p className="text-slate-500 text-sm">
-                {assignment.description}
-              </p>
+              {assignment.description && (
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
+                  {assignment.description}
+                </p>
+              )}
             </div>
 
-            <div className="bg-blue-50 rounded-lg px-5 py-4 shrink-0">
-              <p className="text-xs text-slate-500">
-                Maximum Score
-              </p>
-
-              <p className="text-2xl font-bold text-[#1e3a5f]">
-                {assignment.maxScore}
-              </p>
-            </div>
+            {/* SUBMIT */}
+            <button
+              type="button"
+              onClick={handleSubmitAssignment}
+              className="shrink-0 rounded-xl bg-[#111827] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1f2937]"
+            >
+              Submit Assignment
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-7 pt-6 border-t border-slate-200">
-            <div>
-              <p className="text-xs text-slate-400 mb-1">
-                Course
-              </p>
+          {/* =================================================
+              INFORMATION
+          ================================================= */}
+          <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
 
-              <p className="text-sm font-medium text-slate-800">
-                {assignment.course}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-xs text-slate-400 mb-1">
+            {/* DEADLINE */}
+            <div className="rounded-xl bg-slate-50 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Deadline
               </p>
 
-              <p className="text-sm font-medium text-slate-800">
-                {formatDate(assignment.deadline)}
+              <p className="mt-2 text-sm font-semibold text-slate-800">
+                {assignment.deadline
+                  ? new Date(
+                      assignment.deadline
+                    ).toLocaleString()
+                  : "No deadline"}
               </p>
             </div>
 
-            <div>
-              <p className="text-xs text-slate-400 mb-1">
-                Batch
+            {/* MAX SCORE */}
+            <div className="rounded-xl bg-slate-50 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                Maximum Score
               </p>
 
-              <p className="text-sm font-medium text-slate-800">
-                {assignment.batchId?.name || "Assigned Batch"}
+              <p className="mt-2 text-sm font-semibold text-slate-800">
+                {assignment.maxScore ??
+                  assignment.totalPoints ??
+                  "Not specified"}
+              </p>
+            </div>
+
+            {/* TOPICS */}
+            <div className="rounded-xl bg-slate-50 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                Topics
+              </p>
+
+              <p className="mt-2 text-sm font-semibold text-slate-800">
+                {topics.length}
               </p>
             </div>
           </div>
         </section>
 
-        <section className="bg-white rounded-xl p-6 md:p-8 shadow-[0_4px_15px_rgba(0,0,0,0.08)] mb-6">
-          <h3 className="text-xl font-bold text-[#0f1b3d] mb-4">
-            Instructions
-          </h3>
+        {/* =================================================
+            QUESTIONS
+        ================================================= */}
+        <section className="mt-7">
 
-          <div className="text-sm leading-7 text-slate-600 whitespace-pre-wrap">
-            {assignment.instructions}
-          </div>
-        </section>
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-slate-900">
+              Assignment Questions
+            </h2>
 
-        <section className="bg-white rounded-xl p-6 md:p-8 shadow-[0_4px_15px_rgba(0,0,0,0.08)]">
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-[#0f1b3d]">
-              Submit Assignment
-            </h3>
-
-            <p className="text-sm text-slate-500 mt-1">
-              Submit your project links and notes for review.
+            <p className="mt-1 text-sm text-slate-500">
+              Review the questions before submitting your work.
             </p>
           </div>
 
-          {success && (
-            <div className="mb-5 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
-              {success}
+          {/* =================================================
+              NO TOPICS
+          ================================================= */}
+          {topics.length === 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+              <p className="text-sm text-slate-500">
+                No topics or questions have been added yet.
+              </p>
             </div>
-          )}
+          ) : (
+            <div className="space-y-4">
 
-          {error && (
-            <div className="mb-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
+              {topics.map(
+                (topic, topicIndex) => {
+                  const questions =
+                    Array.isArray(
+                      topic.questions
+                    )
+                      ? topic.questions
+                      : [];
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                GitHub Repository URL
-              </label>
+                  return (
+                    <div
+                      key={
+                        topic._id ||
+                        `${topic.title}-${topicIndex}`
+                      }
+                      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+                    >
 
-              <input
-                type="url"
-                name="githubUrl"
-                value={form.githubUrl}
-                onChange={handleChange}
-                required
-                placeholder="https://github.com/username/project"
-                className="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-              />
-            </div>
+                      {/* TOPIC HEADER */}
+                      <div className="flex items-start gap-3">
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Live Demo URL
-                <span className="text-slate-400 font-normal">
-                  {" "}
-                  (optional)
-                </span>
-              </label>
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-sm font-bold text-[#111827]">
+                          {topicIndex + 1}
+                        </div>
 
-              <input
-                type="url"
-                name="liveDemoUrl"
-                value={form.liveDemoUrl}
-                onChange={handleChange}
-                placeholder="https://your-project.vercel.app"
-                className="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-              />
-            </div>
+                        <div className="min-w-0">
+                          <h3 className="text-lg font-bold text-slate-900">
+                            {topic.title ||
+                              "Topic"}
+                          </h3>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Notes
-                <span className="text-slate-400 font-normal">
-                  {" "}
-                  (optional)
-                </span>
-              </label>
+                          {topic.description && (
+                            <p className="mt-1 text-sm text-slate-500">
+                              {topic.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
 
-              <textarea
-                name="notes"
-                value={form.notes}
-                onChange={handleChange}
-                rows="5"
-                placeholder="Add any notes for your mentor..."
-                className="w-full resize-none rounded-lg border border-slate-200 px-4 py-3 text-sm outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-              />
-            </div>
+                      {/* =================================================
+                          NO QUESTIONS
+                      ================================================= */}
+                      {questions.length === 0 ? (
+                        <div className="mt-5 rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+                          No questions in this topic.
+                        </div>
+                      ) : (
+                        <div className="mt-5 space-y-3">
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() =>
-                  navigate("/assignments")
+                          {questions.map(
+                            (
+                              question,
+                              questionIndex
+                            ) => (
+                              <div
+                                key={
+                                  question._id ||
+                                  `${topicIndex}-${questionIndex}`
+                                }
+                                className="rounded-xl border border-slate-200 p-4 transition hover:border-slate-300"
+                              >
+
+                                <div className="flex gap-3">
+
+                                  {/* QUESTION NUMBER */}
+                                  <span className="shrink-0 text-sm font-bold text-[#111827]">
+                                    Q
+                                    {questionIndex +
+                                      1}
+                                    .
+                                  </span>
+
+                                  <div className="min-w-0">
+
+                                    {/* QUESTION */}
+                                    <p className="text-sm font-semibold leading-6 text-slate-800">
+                                      {question.question ||
+                                        question.text ||
+                                        "Question"}
+                                    </p>
+
+                                    {/* META */}
+                                    <div className="mt-2 flex flex-wrap gap-3">
+
+                                      {question.type && (
+                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize text-slate-500">
+                                          Type:{" "}
+                                          {
+                                            question.type
+                                          }
+                                        </span>
+                                      )}
+
+                                      {question.points !==
+                                        undefined && (
+                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-[#111827]">
+                                          {
+                                            question.points
+                                          }{" "}
+                                          points
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
                 }
-                className="sm:w-auto rounded-lg border border-blue-600 px-6 py-3 text-sm font-medium text-blue-600 hover:bg-blue-50"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="sm:w-auto rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {submitting
-                  ? "Submitting..."
-                  : "Submit Assignment"}
-              </button>
+              )}
             </div>
-          </form>
+          )}
         </section>
+
+        {/* =================================================
+            BOTTOM SUBMIT
+        ================================================= */}
+        {topics.length > 0 && (
+          <div className="mt-7 flex justify-end">
+
+            <button
+              type="button"
+              onClick={handleSubmitAssignment}
+              className="rounded-xl bg-[#111827] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1f2937]"
+            >
+              Submit Assignment
+            </button>
+
+          </div>
+        )}
       </main>
     </div>
   );

@@ -8,16 +8,29 @@ const submissionSchema = new mongoose.Schema(
       required: true,
     },
 
+    questionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
+
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    content: {
-      type: String,
-      required: true,
-      trim: true,
+    // Flexible submission values.
+    // Example:
+    // {
+    //   github: "https://github.com/...",
+    //   liveDemo: "https://...",
+    //   document: "https://docs.google.com/...",
+    //   notes: "..."
+    // }
+    submissionData: {
+      type: Map,
+      of: String,
+      default: {},
     },
 
     submittedAt: {
@@ -66,6 +79,7 @@ const submissionSchema = new mongoose.Schema(
 submissionSchema.index(
   {
     assignmentId: 1,
+    questionId: 1,
     studentId: 1,
   },
   {
