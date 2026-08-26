@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Check,
   X,
@@ -20,9 +20,9 @@ function StudentAttendance() {
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
 
-  // ==========================================
-  // FETCH STUDENT ATTENDANCE
-  // ==========================================
+  // =========================================================
+  // LOAD STUDENT ATTENDANCE
+  // =========================================================
 
   useEffect(() => {
     let cancelled = false;
@@ -30,52 +30,43 @@ function StudentAttendance() {
     const loadAttendance = async () => {
       if (!user) {
         if (!cancelled) {
+          setAttendance([]);
           setLoading(false);
         }
         return;
       }
 
       try {
-        if (!cancelled) {
-          setLoading(true);
-          setError("");
-        }
+        setLoading(true);
+        setError("");
 
-        // Get logged-in student's ID
-        const studentId = user._id || user.id;
-
-        if (!studentId) {
-          throw new Error("Student ID was not found.");
-        }
-
-        const response = await apiClient.get(
-          `/attendance?studentId=${studentId}`
-        );
+        /*
+         * IMPORTANT:
+         *
+         * Do NOT send studentId here.
+         *
+         * The backend should use:
+         * req.user.id
+         *
+         * to determine which student's attendance
+         * should be returned.
+         */
+        const response = await apiClient.get("/attendance");
 
         console.log(
           "Student attendance response:",
           response.data
         );
 
-        // ------------------------------------------
-        // Handle possible backend response formats
-        // ------------------------------------------
-
         let records = [];
 
         if (Array.isArray(response.data)) {
           records = response.data;
-        } else if (
-          Array.isArray(response.data.attendance)
-        ) {
+        } else if (Array.isArray(response.data?.attendance)) {
           records = response.data.attendance;
-        } else if (
-          Array.isArray(response.data.records)
-        ) {
+        } else if (Array.isArray(response.data?.records)) {
           records = response.data.records;
-        } else if (
-          Array.isArray(response.data.data)
-        ) {
+        } else if (Array.isArray(response.data?.data)) {
           records = response.data.data;
         }
 
@@ -89,11 +80,24 @@ function StudentAttendance() {
         );
 
         if (!cancelled) {
-          setError(
-            err.response?.data?.message ||
-              err.message ||
-              "Failed to load attendance."
-          );
+          setAttendance([]);
+
+          if (err.response?.status === 401) {
+            setError(
+              "Your session has expired. Please log in again."
+            );
+          } else if (err.response?.status === 403) {
+            setError(
+              err.response?.data?.message ||
+                "You are not allowed to view attendance."
+            );
+          } else {
+            setError(
+              err.response?.data?.message ||
+                err.message ||
+                "Failed to load attendance."
+            );
+          }
         }
       } finally {
         if (!cancelled) {
@@ -109,74 +113,77 @@ function StudentAttendance() {
     };
   }, [user, reload]);
 
-  // ==========================================
-  // RETRY
-  // ==========================================
+  // =========================================================
+  // REFRESH
+  // =========================================================
 
   const handleRetry = useCallback(() => {
     setReload((current) => current + 1);
   }, []);
 
-  // ==========================================
-  // ATTENDANCE COUNTS
-  // ==========================================
+  // =========================================================
+  // COUNTS
+  // =========================================================
 
-  const presentCount = attendance.filter(
-    (record) => record.status === "Present"
-  ).length;
-
-  const lateCount = attendance.filter(
-    (record) => record.status === "Late"
-  ).length;
-
-  const absentCount = attendance.filter(
-    (record) => record.status === "Absent"
-  ).length;
-
-  const excusedCount = attendance.filter(
-    (record) => record.status === "Excused"
-  ).length;
-
-  // ==========================================
-  // ATTENDANCE CALCULATION
-  // ==========================================
-
-  /*
-   * Present + Late = attended
-   *
-   * Excused = excluded
-   *
-   * Example:
-   *
-   * Present = 8
-   * Late = 1
-   * Absent = 1
-   *
-   * Applicable sessions = 10
-   * Attended = 9
-   *
-   * Attendance = 90%
-   */
-
-  const applicableSessions = attendance.filter(
-    (record) => record.status !== "Excused"
+  const presentCount = useMemo(
+    () =>
+      attendance.filter(
+        (record) => record.status === "Present"
+      ).length,
+    [attendance]
   );
 
-  const attendedSessions =
-    presentCount + lateCount;
+  const lateCount = useMemo(
+    () =>
+      attendance.filter(
+        (record) => record.status === "Late"
+      ).length,
+    [attendance]
+  );
 
-  const attendancePercentage =
-    applicableSessions.length > 0
-      ? Math.round(
-          (attendedSessions /
-            applicableSessions.length) *
-            100
-        )
-      : 0;
+  const absentCount = useMemo(
+    () =>
+      attendance.filter(
+        (record) => record.status === "Absent"
+      ).length,
+    [attendance]
+  );
 
-  // ==========================================
+  const excusedCount = useMemo(
+    () =>
+      attendance.filter(
+        (record) => record.status === "Excused"
+      ).length,
+    [attendance]
+  );
+
+  // =========================================================
+  // ATTENDANCE PERCENTAGE
+  // =========================================================
+
+  const attendancePercentage = useMemo(() => {
+    const applicableSessions = attendance.filter(
+      (record) => record.status !== "Excused"
+    );
+
+    if (applicableSessions.length === 0) {
+      return 0;
+    }
+
+    const attendedSessions = applicableSessions.filter(
+      (record) =>
+        record.status === "Present" ||
+        record.status === "Late"
+    ).length;
+
+    return Math.round(
+      (attendedSessions / applicableSessions.length) * 100
+    );
+  }, [attendance]);
+
+  // =========================================================
   // STATUS STYLE
-  // ==========================================
+  // =========================================================
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -197,9 +204,9 @@ function StudentAttendance() {
     }
   };
 
-  // ==========================================
+  // =========================================================
   // STATUS ICON
-  // ==========================================
+  // =========================================================
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -220,9 +227,9 @@ function StudentAttendance() {
     }
   };
 
-  // ==========================================
+  // =========================================================
   // FORMAT DATE
-  // ==========================================
+  // =========================================================
 
   const formatDate = (date) => {
     if (!date) {
@@ -242,9 +249,27 @@ function StudentAttendance() {
     });
   };
 
-  // ==========================================
+  // =========================================================
+  // SORT ATTENDANCE
+  // =========================================================
+
+  const sortedAttendance = useMemo(() => {
+    return [...attendance].sort((a, b) => {
+      const dateA = new Date(
+        a.sessionDate || a.createdAt || 0
+      ).getTime();
+
+      const dateB = new Date(
+        b.sessionDate || b.createdAt || 0
+      ).getTime();
+
+      return dateB - dateA;
+    });
+  }, [attendance]);
+
+  // =========================================================
   // LOADING
-  // ==========================================
+  // =========================================================
 
   if (loading) {
     return (
@@ -261,25 +286,23 @@ function StudentAttendance() {
     );
   }
 
-  // ==========================================
-  // MAIN PAGE
-  // ==========================================
+  // =========================================================
+  // PAGE
+  // =========================================================
 
   return (
     <div className="space-y-6">
 
+      {/* ERROR */}
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6">
-
           <div className="flex items-start gap-3">
-
             <CircleAlert
               size={22}
               className="mt-0.5 shrink-0 text-red-600"
             />
 
             <div>
-
               <p className="font-medium text-red-700">
                 Unable to load attendance
               </p>
@@ -296,35 +319,36 @@ function StudentAttendance() {
                 <RefreshCw size={16} />
                 Try Again
               </button>
-
             </div>
-
           </div>
-
         </div>
       )}
 
-      {/* ====================================== */}
-      {/* CONTENT */}
-      {/* ====================================== */}
-
       {!error && (
         <>
+          {/* =====================================================
+              HEADER
+          ===================================================== */}
 
-          {/* ================================== */}
-          {/* STAT CARDS */}
-          {/* ================================== */}
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              My Attendance
+            </h1>
+
+            <p className="mt-1 text-sm text-gray-500">
+              View your attendance records and progress.
+            </p>
+          </div>
+
+          {/* =====================================================
+              STAT CARDS
+          ===================================================== */}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-            {/* OVERALL */}
-
             <div className="rounded-xl border border-gray-200 bg-white p-5">
-
               <div className="flex items-center justify-between">
-
                 <div>
-
                   <p className="text-sm text-gray-500">
                     Attendance
                   </p>
@@ -332,26 +356,18 @@ function StudentAttendance() {
                   <p className="mt-2 text-3xl font-bold text-gray-900">
                     {attendancePercentage}%
                   </p>
-
                 </div>
 
                 <div className="rounded-lg bg-green-50 p-3">
-
                   <CalendarCheck
                     size={22}
                     className="text-green-600"
                   />
-
                 </div>
-
               </div>
-
             </div>
 
-            {/* PRESENT */}
-
             <div className="rounded-xl border border-gray-200 bg-white p-5">
-
               <p className="text-sm text-gray-500">
                 Present
               </p>
@@ -359,13 +375,9 @@ function StudentAttendance() {
               <p className="mt-2 text-3xl font-bold text-green-600">
                 {presentCount}
               </p>
-
             </div>
 
-            {/* LATE */}
-
             <div className="rounded-xl border border-gray-200 bg-white p-5">
-
               <p className="text-sm text-gray-500">
                 Late
               </p>
@@ -373,13 +385,9 @@ function StudentAttendance() {
               <p className="mt-2 text-3xl font-bold text-orange-500">
                 {lateCount}
               </p>
-
             </div>
 
-            {/* ABSENT */}
-
             <div className="rounded-xl border border-gray-200 bg-white p-5">
-
               <p className="text-sm text-gray-500">
                 Absent
               </p>
@@ -387,21 +395,18 @@ function StudentAttendance() {
               <p className="mt-2 text-3xl font-bold text-red-600">
                 {absentCount}
               </p>
-
             </div>
 
           </div>
 
-          {/* ================================== */}
-          {/* ATTENDANCE PROGRESS */}
-          {/* ================================== */}
+          {/* =====================================================
+              PROGRESS
+          ===================================================== */}
 
           <div className="rounded-xl border border-gray-200 bg-white p-5">
 
             <div className="flex items-center justify-between">
-
               <div>
-
                 <h2 className="font-semibold text-gray-900">
                   Attendance Progress
                 </h2>
@@ -409,28 +414,23 @@ function StudentAttendance() {
                 <p className="mt-1 text-sm text-gray-500">
                   Your overall attendance rate
                 </p>
-
               </div>
 
               <span className="text-xl font-bold text-gray-900">
                 {attendancePercentage}%
               </span>
-
             </div>
 
             <div className="mt-5 h-3 overflow-hidden rounded-full bg-gray-200">
-
               <div
                 className="h-full rounded-full bg-green-500 transition-all duration-500"
                 style={{
                   width: `${attendancePercentage}%`,
                 }}
               />
-
             </div>
 
             <div className="mt-3 flex flex-wrap gap-4 text-xs text-gray-500">
-
               <span>
                 {presentCount} Present
               </span>
@@ -446,31 +446,26 @@ function StudentAttendance() {
               <span>
                 {excusedCount} Excused
               </span>
-
             </div>
-
           </div>
 
-          {/* ================================== */}
-          {/* ATTENDANCE HISTORY */}
-          {/* ================================== */}
+          {/* =====================================================
+              HISTORY
+          ===================================================== */}
 
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-
-            {/* TABLE HEADER */}
 
             <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
 
               <div>
-
                 <h2 className="font-semibold text-gray-900">
                   Attendance History
                 </h2>
 
                 <p className="mt-1 text-sm text-gray-500">
-                  {attendance.length} attendance records
+                  {attendance.length} attendance record
+                  {attendance.length === 1 ? "" : "s"}
                 </p>
-
               </div>
 
               <button
@@ -481,13 +476,9 @@ function StudentAttendance() {
                 <RefreshCw size={16} />
                 Refresh
               </button>
-
             </div>
 
-            {/* EMPTY */}
-
             {attendance.length === 0 ? (
-
               <div className="py-16 text-center">
 
                 <CalendarCheck
@@ -501,22 +492,21 @@ function StudentAttendance() {
 
                 <p className="mt-1 text-sm text-gray-500">
                   Your attendance will appear here when
-                  records are created.
+                  the administrator records it.
                 </p>
 
               </div>
-
             ) : (
-
-              /* TABLE */
-
               <div className="overflow-x-auto">
 
                 <table className="w-full">
 
                   <thead className="border-b border-gray-200 bg-gray-50">
-
                     <tr>
+
+                      <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
+                        Week
+                      </th>
 
                       <th className="px-5 py-3 text-left text-xs font-semibold uppercase text-gray-500">
                         Date
@@ -527,36 +517,25 @@ function StudentAttendance() {
                       </th>
 
                     </tr>
-
                   </thead>
 
                   <tbody className="divide-y divide-gray-100">
 
-                    {[...attendance]
-                      .sort((a, b) => {
-                        const dateA = new Date(
-                          a.sessionDate ||
-                            a.createdAt ||
-                            0
-                        ).getTime();
-
-                        const dateB = new Date(
-                          b.sessionDate ||
-                            b.createdAt ||
-                            0
-                        ).getTime();
-
-                        return dateB - dateA;
-                      })
-                      .map((record, index) => (
-
+                    {sortedAttendance.map(
+                      (record, index) => (
                         <tr
                           key={
                             record._id ||
-                            `${record.sessionDate}-${record.status}-${index}`
+                            `${record.sessionDate}-${index}`
                           }
                           className="transition hover:bg-gray-50"
                         >
+
+                          <td className="px-5 py-4 text-sm text-gray-700">
+                            {record.week
+                              ? `Week ${record.week}`
+                              : "-"}
+                          </td>
 
                           <td className="px-5 py-4 text-sm text-gray-700">
                             {formatDate(
@@ -572,36 +551,28 @@ function StudentAttendance() {
                                 record.status
                               )}`}
                             >
-
                               {getStatusIcon(
                                 record.status
                               )}
 
                               {record.status ||
                                 "Unknown"}
-
                             </span>
 
                           </td>
 
                         </tr>
-
-                      ))}
+                      )
+                    )}
 
                   </tbody>
-
                 </table>
 
               </div>
-
             )}
-
           </div>
-
         </>
-
       )}
-
     </div>
   );
 }

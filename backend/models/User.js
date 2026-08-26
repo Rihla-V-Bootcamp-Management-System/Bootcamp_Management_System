@@ -97,23 +97,22 @@ const userSchema = new mongoose.Schema(
     // ==========================================
 
     otp: {
+    gender: {
       type: String,
-      default: null,
+      enum: ["Male", "Female"],
+      required: function () {
+        return this.role === "student";
+      },
     },
 
-    otpExpiresAt: {
-      type: Date,
+    batchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
       default: null,
-    },
-
-    otpVerified: {
-      type: Boolean,
-      default: false,
     },
   },
-  {
-    timestamps: true,
-  }
+}
+  
 );
 
 // =========================================================

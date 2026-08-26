@@ -8,7 +8,6 @@ import {
   User,
   LogOut,
 } from "lucide-react";
-
 import { NavLink } from "react-router-dom";
 import useAuth from "../context/useAuth";
 
@@ -24,11 +23,7 @@ function StudentSidebar() {
 
   return (
     <aside className="flex h-screen w-60 flex-col bg-[#111827] text-white">
-
-      {/* =========================
-          LOGO
-      ========================== */}
-
+      {/* LOGO */}
       <div className="flex h-[76px] shrink-0 items-center border-b border-white/10 px-5">
         <div>
           <p className="text-lg font-bold tracking-wide">
@@ -41,13 +36,11 @@ function StudentSidebar() {
         </div>
       </div>
 
-      {/* =========================
-          NAVIGATION
-      ========================== */}
-
+      {/* NAVIGATION */}
       <nav className="flex-1 overflow-y-auto px-3 py-5">
         <div className="space-y-1">
 
+          {/* Dashboard */}
           <NavLink
             to="/student"
             end
@@ -57,6 +50,7 @@ function StudentSidebar() {
             <span>Dashboard</span>
           </NavLink>
 
+          {/* Attendance */}
           <NavLink
             to="/student/attendance"
             className={navClass}
@@ -65,6 +59,7 @@ function StudentSidebar() {
             <span>Attendance</span>
           </NavLink>
 
+          {/* Progress */}
           <NavLink
             to="/student/progress"
             end
@@ -74,6 +69,7 @@ function StudentSidebar() {
             <span>Progress</span>
           </NavLink>
 
+          {/* Assignments */}
           <NavLink
             to="/student/assignments"
             className={navClass}
@@ -82,6 +78,7 @@ function StudentSidebar() {
             <span>Assignments</span>
           </NavLink>
 
+          {/* Grades */}
           <NavLink
             to="/student/grades"
             className={navClass}
@@ -90,6 +87,16 @@ function StudentSidebar() {
             <span>Grades</span>
           </NavLink>
 
+          {/* Submissions */}
+          <NavLink
+            to="/student/submissions"
+            className={navClass}
+          >
+            <ClipboardList size={19} />
+            <span>Submissions</span>
+          </NavLink>
+
+          {/* Announcements */}
           <NavLink
             to="/student/announcements"
             className={navClass}
@@ -98,6 +105,7 @@ function StudentSidebar() {
             <span>Announcements</span>
           </NavLink>
 
+          {/* Profile */}
           <NavLink
             to="/student/profile"
             className={navClass}
@@ -109,10 +117,7 @@ function StudentSidebar() {
         </div>
       </nav>
 
-      {/* =========================
-          LOGOUT
-      ========================== */}
-
+      {/* LOGOUT */}
       <div className="shrink-0 border-t border-white/10 p-3">
         <button
           type="button"
@@ -123,7 +128,6 @@ function StudentSidebar() {
           <span>Logout</span>
         </button>
       </div>
-
     </aside>
   );
 }

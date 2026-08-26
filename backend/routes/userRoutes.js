@@ -19,13 +19,13 @@ router.get(
   async (req, res) => {
     try {
       const page = Math.max(
-        parseInt(req.query.page) || 1,
+        parseInt(req.query.page, 10) || 1,
         1
       );
 
       const limit = Math.min(
         Math.max(
-          parseInt(req.query.limit) || 10,
+          parseInt(req.query.limit, 10) || 10,
           1
         ),
         100
@@ -33,29 +33,33 @@ router.get(
 
       const skip = (page - 1) * limit;
 
-      const { search, role, gender } = req.query;
+      const {
+        search,
+        role,
+        gender,
+      } = req.query;
 
       const filter = {};
 
-      // -----------------------------------------
+      // =====================================================
       // ROLE FILTER
-      // -----------------------------------------
+      // =====================================================
 
       if (role) {
         filter.role = role;
       }
 
-      // -----------------------------------------
+      // =====================================================
       // GENDER FILTER
-      // -----------------------------------------
+      // =====================================================
 
       if (gender) {
         filter.gender = gender;
       }
 
-      // -----------------------------------------
+      // =====================================================
       // SEARCH
-      // -----------------------------------------
+      // =====================================================
 
       if (search) {
         filter.$or = [
@@ -74,23 +78,24 @@ router.get(
         ];
       }
 
-      // -----------------------------------------
+      // =====================================================
       // GET USERS
-      // -----------------------------------------
+      // =====================================================
 
-      const [users, totalUsers] = await Promise.all([
-        User.find(filter)
-          .select("-password")
-          .populate(
-            "assignedMentor",
-            "userID name email role"
-          )
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(limit),
+      const [users, totalUsers] =
+        await Promise.all([
+          User.find(filter)
+            .select("-password -otp")
+            .populate(
+              "assignedMentor",
+              "userID name email role"
+            )
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
 
-        User.countDocuments(filter),
-      ]);
+          User.countDocuments(filter),
+        ]);
 
       const totalPages = Math.ceil(
         totalUsers / limit
@@ -109,7 +114,10 @@ router.get(
         },
       });
     } catch (error) {
-      console.error("GET USERS ERROR:", error);
+      console.error(
+        "GET USERS ERROR:",
+        error
+      );
 
       return res.status(500).json({
         success: false,
@@ -122,6 +130,7 @@ router.get(
 
 // =========================================================
 // GET USER BY ID
+// AUTHENTICATED USERS
 // =========================================================
 
 router.get(
@@ -129,8 +138,10 @@ router.get(
   authMiddleware,
   async (req, res) => {
     try {
-      const user = await User.findById(req.params.id)
-        .select("-password")
+      const user = await User.findById(
+        req.params.id
+      )
+        .select("-password -otp")
         .populate(
           "assignedMentor",
           "userID name email role"
@@ -138,6 +149,7 @@ router.get(
 
       if (!user) {
         return res.status(404).json({
+          success: false,
           message: "User not found",
         });
       }
@@ -147,7 +159,10 @@ router.get(
         user,
       });
     } catch (error) {
-      console.error("GET USER ERROR:", error);
+      console.error(
+        "GET USER ERROR:",
+        error
+      );
 
       return res.status(400).json({
         success: false,
@@ -180,6 +195,7 @@ router.get(
 
 // =========================================================
 // ASSIGN STUDENT TO MENTOR
+// ADMIN ONLY
 // =========================================================
 
 router.patch(
@@ -190,11 +206,19 @@ router.patch(
     try {
       const { mentorId } = req.body;
 
+      // ===================================================
+      // VALIDATE MENTOR ID
+      // ===================================================
+
       if (!mentorId) {
         return res.status(400).json({
           message: "Mentor ID is required",
         });
       }
+
+      // ===================================================
+      // FIND STUDENT
+      // ===================================================
 
       const student = await User.findById(
         req.params.studentId
@@ -206,13 +230,23 @@ router.patch(
         });
       }
 
+      // ===================================================
+      // VALIDATE STUDENT ROLE
+      // ===================================================
+
       if (student.role !== "student") {
         return res.status(400).json({
           message: "This user is not a student",
         });
       }
 
-      const mentor = await User.findById(mentorId);
+      // ===================================================
+      // FIND MENTOR
+      // ===================================================
+
+      const mentor = await User.findById(
+        mentorId
+      );
 
       if (!mentor) {
         return res.status(404).json({
@@ -220,30 +254,38 @@ router.patch(
         });
       }
 
+      // ===================================================
+      // VALIDATE MENTOR ROLE
+      // ===================================================
+
       if (mentor.role !== "mentor") {
         return res.status(400).json({
           message: "This user is not a mentor",
         });
       }
 
+      // ===================================================
+      // ASSIGN MENTOR
+      // ===================================================
+
+      student.assignedMentor = mentor._id;
+
+      await student.save();
+
+      // ===================================================
+      // GET UPDATED STUDENT
+      // ===================================================
+
       const updatedStudent =
-        await User.findByIdAndUpdate(
-          req.params.studentId,
-          {
-            assignedMentor: mentor._id,
-          },
-          {
-            new: true,
-            runValidators: false,
-          }
-        )
-          .select("-password")
+        await User.findById(student._id)
+          .select("-password -otp")
           .populate(
             "assignedMentor",
             "userID name email role"
           );
 
       return res.json({
+        success: true,
         message: "Mentor assigned successfully",
         student: updatedStudent,
       });
@@ -254,6 +296,7 @@ router.patch(
       );
 
       return res.status(500).json({
+        success: false,
         message: "Failed to assign mentor",
         error: error.message,
       });

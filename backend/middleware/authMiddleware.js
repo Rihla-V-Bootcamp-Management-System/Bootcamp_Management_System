@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+// ==========================================
+// AUTHENTICATION MIDDLEWARE
+// ==========================================
 // =========================================================
 // AUTHENTICATION MIDDLEWARE
 // =========================================================
@@ -37,6 +40,7 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
+    // Verify JWT
     // =======================================================
     // VERIFY TOKEN
     // =======================================================
@@ -72,6 +76,7 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
+    // Attach authenticated user
     // =======================================================
     // ATTACH USER TO REQUEST
     // =======================================================

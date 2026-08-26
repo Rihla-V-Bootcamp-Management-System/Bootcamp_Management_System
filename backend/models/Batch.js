@@ -7,6 +7,7 @@ const batchSchema = new mongoose.Schema(
       required: true,
       unique: true,
       trim: true,
+      unique: true,
     },
 
     year: {

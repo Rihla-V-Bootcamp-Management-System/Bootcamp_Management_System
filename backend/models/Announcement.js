@@ -2,11 +2,20 @@ const mongoose = require("mongoose");
 
 const announcementSchema = new mongoose.Schema(
   {
+    // =====================================================
+    // BASIC INFORMATION
+    // =====================================================
+
     title: {
       type: String,
       required: true,
       trim: true,
+    },
+
+    message: {
+      type: String,
       maxlength: 200,
+      trim: true,
     },
 
     content: {
@@ -15,10 +24,41 @@ const announcementSchema = new mongoose.Schema(
       trim: true,
     },
 
+    // =====================================================
+    // AUTHOR / SENDER
+    // =====================================================
+
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    senderRole: {
+      type: String,
+      enum: ["admin", "superadmin", "mentor"],
+      required: true,
+    },
+
+    // Keep authorId as an alias/reference from the other branch.
+    authorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    // =====================================================
+    // ANNOUNCEMENT TYPE
+    // =====================================================
+
     type: {
       type: String,
-      required: true,
       enum: [
+        "general",
+        "assignment",
+        "attendance",
+        "progress",
+        "custom",
         "Contest",
         "Session",
         "Experience Sharing",
@@ -26,7 +66,7 @@ const announcementSchema = new mongoose.Schema(
         "Special Event",
         "Other",
       ],
-      default: "Other",
+      default: "general",
     },
 
     eventType: {
@@ -46,27 +86,48 @@ const announcementSchema = new mongoose.Schema(
       default: false,
     },
 
-    recipients: {
+    // =====================================================
+    // BATCH
+    // =====================================================
+
+    batch: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
+      default: null,
+    },
+
+    batchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
+      default: null,
+    },
+
+    // =====================================================
+    // RECIPIENTS
+    // =====================================================
+
+    // Specific users who should receive the announcement
+    recipientUsers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
+    // Recipient roles
+    recipientRoles: {
       type: [
         {
           type: String,
           enum: ["Superadmin", "Mentor", "Student"],
         },
       ],
-      required: true,
-      validate: {
-        validator: function (value) {
-          return value && value.length > 0;
-        },
-        message: "At least one recipient is required",
-      },
+      default: [],
     },
 
-    batchId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Batch",
-      required: true,
-    },
+    // =====================================================
+    // EVENT INFORMATION
+    // =====================================================
 
     eventDate: {
       type: Date,
@@ -97,15 +158,13 @@ const announcementSchema = new mongoose.Schema(
       default: "",
     },
 
+    // =====================================================
+    // PUBLISHING / STATUS
+    // =====================================================
+
     publishDate: {
       type: Date,
       default: null,
-    },
-
-    authorId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
     },
 
     status: {
@@ -119,4 +178,7 @@ const announcementSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Announcement", announcementSchema);
+module.exports = mongoose.model(
+  "Announcement",
+  announcementSchema
+);

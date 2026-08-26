@@ -9,9 +9,13 @@ import {
   CheckCheck,
   Loader2,
   CalendarDays,
+  Megaphone,
+  ExternalLink,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import apiClient from "../services/apiClient";
 import DualCalendar from "./DualCalendar";
+import { getCurrentUserId } from "../utils/getCurrentUser";
 
 function Header({
   title,
@@ -19,12 +23,30 @@ function Header({
   onMenuClick,
   sidebarOpen,
 }) {
+  const navigate = useNavigate();
+
+  // =========================================================
+  // STATE
+  // =========================================================
+
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [calendarOpen, setCalendarOpen] = useState(false);
-  const [loadingNotifications, setLoadingNotifications] = useState(false);
-  const [markingAll, setMarkingAll] = useState(false);
+
+  const [notificationsOpen, setNotificationsOpen] =
+    useState(false);
+
+  const [calendarOpen, setCalendarOpen] =
+    useState(false);
+
+  const [loadingNotifications, setLoadingNotifications] =
+    useState(false);
+
+  const [markingAll, setMarkingAll] =
+    useState(false);
+
+  // =========================================================
+  // REFS
+  // =========================================================
 
   const notificationRef = useRef(null);
   const calendarRef = useRef(null);
@@ -37,17 +59,26 @@ function Header({
     try {
       setLoadingNotifications(true);
 
-      const response = await apiClient.get("/notifications");
+      const response = await apiClient.get(
+        "/notifications"
+      );
 
       setNotifications(
-        Array.isArray(response.data.notifications)
+        Array.isArray(
+          response.data.notifications
+        )
           ? response.data.notifications
           : []
       );
 
-      setUnreadCount(Number(response.data.unreadCount) || 0);
+      setUnreadCount(
+        Number(response.data.unreadCount) || 0
+      );
     } catch (error) {
-      console.error("FETCH NOTIFICATIONS ERROR:", error);
+      console.error(
+        "FETCH NOTIFICATIONS ERROR:",
+        error
+      );
     } finally {
       setLoadingNotifications(false);
     }
@@ -75,23 +106,33 @@ function Header({
     const handleClickOutside = (event) => {
       if (
         notificationRef.current &&
-        !notificationRef.current.contains(event.target)
+        !notificationRef.current.contains(
+          event.target
+        )
       ) {
         setNotificationsOpen(false);
       }
 
       if (
         calendarRef.current &&
-        !calendarRef.current.contains(event.target)
+        !calendarRef.current.contains(
+          event.target
+        )
       ) {
         setCalendarOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
     };
   }, []);
 
@@ -99,9 +140,13 @@ function Header({
   // MARK ONE NOTIFICATION AS READ
   // =========================================================
 
-  const markAsRead = async (notificationId) => {
+  const markAsRead = async (
+    notificationId
+  ) => {
     try {
-      await apiClient.patch(`/notifications/${notificationId}/read`);
+      await apiClient.patch(
+        `/notifications/${notificationId}/read`
+      );
 
       setNotifications((previous) =>
         previous.map((notification) =>
@@ -114,9 +159,14 @@ function Header({
         )
       );
 
-      setUnreadCount((previous) => Math.max(previous - 1, 0));
+      setUnreadCount((previous) =>
+        Math.max(previous - 1, 0)
+      );
     } catch (error) {
-      console.error("MARK NOTIFICATION READ ERROR:", error);
+      console.error(
+        "MARK NOTIFICATION READ ERROR:",
+        error
+      );
     }
   };
 
@@ -125,12 +175,16 @@ function Header({
   // =========================================================
 
   const markAllAsRead = async () => {
-    if (unreadCount === 0) return;
+    if (unreadCount === 0) {
+      return;
+    }
 
     try {
       setMarkingAll(true);
 
-      await apiClient.patch("/notifications/read-all");
+      await apiClient.patch(
+        "/notifications/read-all"
+      );
 
       setNotifications((previous) =>
         previous.map((notification) => ({
@@ -141,7 +195,10 @@ function Header({
 
       setUnreadCount(0);
     } catch (error) {
-      console.error("MARK ALL NOTIFICATIONS READ ERROR:", error);
+      console.error(
+        "MARK ALL NOTIFICATIONS READ ERROR:",
+        error
+      );
     } finally {
       setMarkingAll(false);
     }
@@ -151,14 +208,65 @@ function Header({
   // NOTIFICATION CLICK
   // =========================================================
 
-  const handleNotificationClick = async (notification) => {
+  const handleNotificationClick = async (
+    notification
+  ) => {
     if (!notification.isRead) {
       await markAsRead(notification._id);
     }
+
+    // If the notification contains an announcement,
+    // take the user to the appropriate announcements page.
+    if (
+      notification.type === "announcement" ||
+      notification.announcementId
+    ) {
+      const role =
+        localStorage.getItem("role");
+
+      if (role === "mentor") {
+        navigate("/mentor/announcements");
+      } else if (role === "student") {
+        navigate("/student/announcements");
+      }
+    }
   };
 
+  // =========================================================
+  // OPEN ANNOUNCEMENTS
+  // =========================================================
+
+  const handleViewAnnouncements = () => {
+    setNotificationsOpen(false);
+
+    const role =
+      localStorage.getItem("role");
+
+    if (role === "mentor") {
+      navigate("/mentor/announcements");
+    } else {
+      navigate("/student/announcements");
+    }
+  };
+
+  // =========================================================
+  // FORMAT DATE
+  // =========================================================
+
+  const formatDate = (date) => {
+    if (!date) {
+      return "";
+    }
+
+    return new Date(date).toLocaleString();
+  };
+
+  // =========================================================
+  // UI
+  // =========================================================
+
   return (
-    <header className="shrink-0 bg-[#eef3f2]">
+    <header className="relative z-30 shrink-0 bg-[#eef3f2]">
       <div className="flex min-h-[78px] items-center justify-between px-4 sm:px-6 lg:px-8">
 
         {/* =====================================================
@@ -167,17 +275,19 @@ function Header({
 
         <div className="flex min-w-0 items-center gap-3">
 
-          {/* MOBILE MENU */}
           <button
             type="button"
             onClick={onMenuClick}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white md:hidden"
             aria-label="Open menu"
           >
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            {sidebarOpen ? (
+              <X size={20} />
+            ) : (
+              <Menu size={20} />
+            )}
           </button>
 
-          {/* PAGE TITLE */}
           <div className="min-w-0">
             <h1 className="truncate text-xl font-bold text-slate-900 sm:text-2xl">
               {title}
@@ -220,7 +330,10 @@ function Header({
             <button
               type="button"
               onClick={() => {
-                setCalendarOpen((previous) => !previous);
+                setCalendarOpen(
+                  (previous) => !previous
+                );
+
                 setNotificationsOpen(false);
               }}
               className={`flex h-10 w-10 items-center justify-center rounded-lg transition ${
@@ -233,8 +346,9 @@ function Header({
               <CalendarDays size={19} />
             </button>
 
-            {/* CALENDAR DROPDOWN */}
-            {calendarOpen && <DualCalendar />}
+            {calendarOpen && (
+              <DualCalendar />
+            )}
           </div>
 
           {/* ===================================================
@@ -248,7 +362,10 @@ function Header({
             <button
               type="button"
               onClick={() => {
-                setNotificationsOpen((previous) => !previous);
+                setNotificationsOpen(
+                  (previous) => !previous
+                );
+
                 setCalendarOpen(false);
               }}
               className={`relative flex h-10 w-10 items-center justify-center rounded-lg transition ${
@@ -262,7 +379,9 @@ function Header({
 
               {unreadCount > 0 && (
                 <span className="absolute right-1 top-1 flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-[#eef3f2]">
-                  {unreadCount > 99 ? "99+" : unreadCount}
+                  {unreadCount > 99
+                    ? "99+"
+                    : unreadCount}
                 </span>
               )}
             </button>
@@ -275,6 +394,7 @@ function Header({
               <div className="absolute right-0 top-12 z-50 w-[350px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
 
                 {/* HEADER */}
+
                 <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
                   <div>
                     <h2 className="text-sm font-bold text-slate-900">
@@ -301,7 +421,9 @@ function Header({
                           className="animate-spin"
                         />
                       ) : (
-                        <CheckCheck size={13} />
+                        <CheckCheck
+                          size={13}
+                        />
                       )}
 
                       Mark all read
@@ -310,6 +432,7 @@ function Header({
                 </div>
 
                 {/* NOTIFICATION LIST */}
+
                 <div className="max-h-[420px] overflow-y-auto">
 
                   {loadingNotifications &&
@@ -319,9 +442,11 @@ function Header({
                         size={17}
                         className="animate-spin"
                       />
+
                       Loading notifications...
                     </div>
-                  ) : notifications.length === 0 ? (
+                  ) : notifications.length ===
+                    0 ? (
                     <div className="px-4 py-10 text-center">
 
                       <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-slate-100">
@@ -336,74 +461,95 @@ function Header({
                       </p>
 
                       <p className="mt-1 text-xs text-slate-400">
-                        New announcements will appear here.
+                        New announcements will appear
+                        here.
                       </p>
                     </div>
                   ) : (
-                    notifications.map((notification) => (
-                      <button
-                        key={notification._id}
-                        type="button"
-                        onClick={() =>
-                          handleNotificationClick(notification)
-                        }
-                        className={`flex w-full gap-3 border-b border-slate-100 px-4 py-4 text-left transition hover:bg-slate-50 ${
-                          !notification.isRead
-                            ? "bg-slate-50"
-                            : "bg-white"
-                        }`}
-                      >
-
-                        {/* ICON */}
-                        <div
-                          className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
-                            notification.isRead
-                              ? "bg-slate-100 text-slate-500"
-                              : "bg-[#071629] text-white"
+                    notifications.map(
+                      (notification) => (
+                        <button
+                          key={notification._id}
+                          type="button"
+                          onClick={() =>
+                            handleNotificationClick(
+                              notification
+                            )
+                          }
+                          className={`flex w-full gap-3 border-b border-slate-100 px-4 py-4 text-left transition hover:bg-slate-50 ${
+                            !notification.isRead
+                              ? "bg-slate-50"
+                              : "bg-white"
                           }`}
                         >
-                          {notification.isRead ? (
-                            <Check size={15} />
-                          ) : (
-                            <Bell size={15} />
-                          )}
-                        </div>
 
-                        {/* TEXT */}
-                        <div className="min-w-0 flex-1">
+                          {/* ICON */}
 
-                          <div className="flex items-start justify-between gap-2">
-                            <p
-                              className={`line-clamp-2 text-xs ${
-                                notification.isRead
-                                  ? "font-medium text-slate-700"
-                                  : "font-bold text-slate-900"
-                              }`}
-                            >
-                              {notification.title}
-                            </p>
-
-                            {!notification.isRead && (
-                              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-red-500" />
+                          <div
+                            className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                              notification.isRead
+                                ? "bg-slate-100 text-slate-500"
+                                : "bg-[#071629] text-white"
+                            }`}
+                          >
+                            {notification.isRead ? (
+                              <Check size={15} />
+                            ) : (
+                              <Bell size={15} />
                             )}
                           </div>
 
-                          <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-slate-500">
-                            {notification.message}
-                          </p>
+                          {/* TEXT */}
 
-                          <p className="mt-2 text-[10px] text-slate-400">
-                            {notification.createdAt
-                              ? new Date(
-                                  notification.createdAt
-                                ).toLocaleString()
-                              : ""}
-                          </p>
+                          <div className="min-w-0 flex-1">
 
-                        </div>
-                      </button>
-                    ))
+                            <div className="flex items-start justify-between gap-2">
+
+                              <p
+                                className={`line-clamp-2 text-xs ${
+                                  notification.isRead
+                                    ? "font-medium text-slate-700"
+                                    : "font-bold text-slate-900"
+                                }`}
+                              >
+                                {notification.title}
+                              </p>
+
+                              {!notification.isRead && (
+                                <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-red-500" />
+                              )}
+                            </div>
+
+                            <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-slate-500">
+                              {notification.message}
+                            </p>
+
+                            <p className="mt-2 text-[10px] text-slate-400">
+                              {formatDate(
+                                notification.createdAt
+                              )}
+                            </p>
+
+                          </div>
+                        </button>
+                      )
+                    )
                   )}
+                </div>
+
+                {/* FOOTER */}
+
+                <div className="border-t border-slate-200 bg-slate-50 p-3">
+
+                  <button
+                    type="button"
+                    onClick={
+                      handleViewAnnouncements
+                    }
+                    className="w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  >
+                    View All Announcements
+                  </button>
 
                 </div>
               </div>

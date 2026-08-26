@@ -14,6 +14,11 @@ const { createAuditLog } = require("../services/auditLogService");
 
 const router = express.Router();
 
+// =========================================================
+// ASSIGN STAFF
+// SUPER ADMIN ONLY
+// =========================================================
+
 router.post(
   "/assign",
   authMiddleware,
@@ -49,6 +54,10 @@ router.post(
         });
       }
 
+      // =====================================================
+      // GENERATE USER ID
+      // =====================================================
+
       const lastUser = await User.findOne({
         userID: {
           $regex:
@@ -79,6 +88,10 @@ router.post(
         nextNumber
       ).padStart(4, "0")}`;
 
+      // =====================================================
+      // GENERATE OTP
+      // =====================================================
+
       const otp = Math.floor(
         100000 + Math.random() * 900000
       ).toString();
@@ -87,10 +100,18 @@ router.post(
         Date.now() + 24 * 60 * 60 * 1000
       );
 
+      // =====================================================
+      // TEMPORARY PASSWORD
+      // =====================================================
+
       const temporaryPassword = await bcrypt.hash(
         Math.random().toString(36),
         10
       );
+
+      // =====================================================
+      // CREATE USER
+      // =====================================================
 
       const user = await User.create({
         name: name.trim(),
@@ -104,6 +125,10 @@ router.post(
         mustResetPassword: true,
       });
 
+      // =====================================================
+      // SEND INVITATION EMAIL
+      // =====================================================
+
       let emailSent = false;
 
       try {
@@ -115,6 +140,10 @@ router.post(
           emailError.message
         );
       }
+
+      // =====================================================
+      // AUDIT LOG
+      // =====================================================
 
       await createAuditLog({
         actor: req.user._id,
@@ -130,6 +159,10 @@ router.post(
           emailSent,
         },
       });
+
+      // =====================================================
+      // RESPONSE
+      // =====================================================
 
       return res.status(201).json({
         success: true,
@@ -162,6 +195,11 @@ router.post(
     }
   }
 );
+
+// =========================================================
+// GET ALL USERS
+// SUPER ADMIN ONLY
+// =========================================================
 
 router.get(
   "/users",
@@ -197,6 +235,11 @@ router.get(
   }
 );
 
+// =========================================================
+// ASSIGN ADMIN TO BATCH
+// SUPER ADMIN ONLY
+// =========================================================
+
 router.patch(
   "/users/:id/batch",
   authMiddleware,
@@ -223,6 +266,7 @@ router.patch(
         });
       }
 
+      // Only admins can be assigned to a batch
       if (user.role !== "admin") {
         return res.status(400).json({
           success: false,
@@ -231,9 +275,7 @@ router.patch(
         });
       }
 
-      const batch = await Batch.findById(
-        batchId
-      );
+      const batch = await Batch.findById(batchId);
 
       if (!batch) {
         return res.status(404).json({
@@ -245,6 +287,10 @@ router.patch(
       user.batchId = batch._id;
 
       await user.save();
+
+      // =====================================================
+      // AUDIT LOG
+      // =====================================================
 
       await createAuditLog({
         actor: req.user._id,
@@ -263,8 +309,7 @@ router.patch(
 
       return res.status(200).json({
         success: true,
-        message:
-          "Admin assigned to batch successfully",
+        message: "Admin assigned to batch successfully",
         user: {
           id: user._id,
           name: user.name,
@@ -288,13 +333,17 @@ router.patch(
 
       return res.status(500).json({
         success: false,
-        message:
-          "Failed to assign admin to batch",
+        message: "Failed to assign admin to batch",
         error: error.message,
       });
     }
   }
 );
+
+// =========================================================
+// DELETE USER
+// SUPER ADMIN ONLY
+// =========================================================
 
 router.delete(
   "/users/:id",
@@ -313,6 +362,7 @@ router.delete(
         });
       }
 
+      // Prevent deleting own account
       if (
         user._id.toString() ===
         req.user._id.toString()
@@ -324,6 +374,7 @@ router.delete(
         });
       }
 
+      // Prevent deleting superadmin
       if (user.role === "superadmin") {
         return res.status(403).json({
           success: false,
@@ -332,6 +383,7 @@ router.delete(
         });
       }
 
+      // Only assigned staff can be deleted
       if (
         !["admin", "mentor"].includes(
           user.role
@@ -355,6 +407,10 @@ router.delete(
       await User.findByIdAndDelete(
         user._id
       );
+
+      // =====================================================
+      // AUDIT LOG
+      // =====================================================
 
       await createAuditLog({
         actor: req.user._id,
@@ -390,6 +446,11 @@ router.delete(
   }
 );
 
+// =========================================================
+// GET AUDIT LOGS
+// SUPER ADMIN ONLY
+// =========================================================
+
 router.get(
   "/audit-logs",
   authMiddleware,
@@ -418,13 +479,17 @@ router.get(
 
       return res.status(500).json({
         success: false,
-        message:
-          "Failed to get audit logs",
+        message: "Failed to get audit logs",
         error: error.message,
       });
     }
   }
 );
+
+// =========================================================
+// GET DASHBOARD STATISTICS
+// SUPER ADMIN ONLY
+// =========================================================
 
 router.get(
   "/stats",
@@ -439,12 +504,15 @@ router.get(
         pendingApplications,
       ] = await Promise.all([
         User.countDocuments(),
+
         User.countDocuments({
           role: "student",
         }),
+
         User.countDocuments({
           role: "mentor",
         }),
+
         Registration.countDocuments({
           status: {
             $in: [

@@ -1,306 +1,422 @@
-import {
-  Users,
-  CalendarCheck,
-  TrendingUp,
-  AlertTriangle,
-  ArrowRight,
-  Activity,
-  FileText,
-} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import apiClient from "../services/apiClient";
 
 function MentorDashboard() {
+  console.log(
+    "🔥 MENTOR DASHBOARD IS RENDERING"
+  );
+
   const navigate = useNavigate();
 
-  // Temporary values.
-  // These will be replaced with real backend data.
-  const stats = {
-    students: 0,
-    attendance: 0,
-    progress: 0,
-    atRisk: 0,
+  const [assignments, setAssignments] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  // ==========================================
+  // FETCH ASSIGNMENTS
+  // ==========================================
+
+  useEffect(() => {
+    console.log(
+      "🔥 MENTOR DASHBOARD MOUNTED"
+    );
+
+    fetchAssignments();
+  }, []);
+
+  const fetchAssignments = async () => {
+    console.log(
+      "================================="
+    );
+
+    console.log(
+      "🔥 FETCHING ASSIGNMENTS"
+    );
+
+    console.log(
+      "================================="
+    );
+
+    const token =
+      localStorage.getItem(
+        "token"
+      );
+
+    console.log(
+      "TOKEN:",
+      token
+    );
+
+    if (!token) {
+      setError(
+        "No login token found. Please login again."
+      );
+
+      setLoading(false);
+
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      setError("");
+
+      const response =
+        await apiClient.get(
+          "/assignments"
+        );
+
+      console.log(
+        "✅ RESPONSE STATUS:",
+        response.status
+      );
+
+      console.log(
+        "✅ RESPONSE DATA:",
+        response.data
+      );
+
+      const data =
+        response.data?.assignments ||
+        response.data?.data ||
+        [];
+
+      console.log(
+        "✅ ASSIGNMENTS ARRAY:",
+        data
+      );
+
+      if (
+        Array.isArray(data)
+      ) {
+        setAssignments(data);
+      } else {
+        setAssignments([]);
+      }
+    } catch (error) {
+      console.error(
+        "❌ ASSIGNMENT REQUEST FAILED"
+      );
+
+      console.error(
+        error
+      );
+
+      console.error(
+        "Status:",
+        error.response?.status
+      );
+
+      console.error(
+        "Backend:",
+        error.response?.data
+      );
+
+      setError(
+        error.response?.data
+          ?.message ||
+          error.message ||
+          "Failed to load assignments."
+      );
+    } finally {
+      setLoading(false);
+
+      console.log(
+        "🔥 ASSIGNMENT FETCH FINISHED"
+      );
+    }
   };
 
-  const recentActivities = [];
-  const studentsNeedingAttention = [];
+  // ==========================================
+  // LOADING
+  // ==========================================
+
+  if (loading) {
+    return (
+      <div className="w-full bg-gray-50 px-4 py-8 sm:px-6 md:px-8">
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+          <p className="text-gray-600">
+            Loading assignments...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // DASHBOARD
+  // ==========================================
 
   return (
     <div className="w-full bg-gray-50">
-
-      {/* ============================= */}
-      {/* DASHBOARD CONTENT */}
-      {/* ============================= */}
-
       <div className="w-full px-4 pb-8 pt-4 sm:px-6 md:px-8">
 
-        {/* ============================= */}
+        {/* HEADER */}
+
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Mentor Dashboard
+          </h1>
+
+          <p className="mt-1 text-sm text-gray-500">
+            Manage and view your assignments.
+          </p>
+        </div>
+
+        {/* ERROR */}
+
+        {error && (
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-5">
+            <p className="font-medium text-red-700">
+              {error}
+            </p>
+
+            <button
+              type="button"
+              onClick={
+                fetchAssignments
+              }
+              className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
         {/* STATISTICS */}
-        {/* ============================= */}
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
 
-          {/* ASSIGNED STUDENTS */}
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-            <div className="flex items-start justify-between gap-4">
+          {/* TOTAL */}
 
-              <div className="min-w-0">
-                <p className="text-sm text-gray-500">
-                  Assigned Students
-                </p>
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p className="text-sm text-gray-500">
+              Total Assignments
+            </p>
 
-                <p className="mt-2 text-3xl font-bold text-gray-900">
-                  {stats.students}
-                </p>
-              </div>
-
-              <div className="shrink-0 rounded-lg bg-blue-50 p-3">
-                <Users className="h-6 w-6 text-blue-600" />
-              </div>
-
-            </div>
-
-            <button
-              type="button"
-              onClick={() => navigate("/mentor/students")}
-              className="mt-4 flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
-            >
-              View students
-              <ArrowRight size={16} />
-            </button>
-          </div>
-
-          {/* AVERAGE PROGRESS */}
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-            <div className="flex items-start justify-between gap-4">
-
-              <div className="min-w-0">
-                <p className="text-sm text-gray-500">
-                  Average Progress
-                </p>
-
-                <p className="mt-2 text-3xl font-bold text-gray-900">
-                  {stats.progress}%
-                </p>
-              </div>
-
-              <div className="shrink-0 rounded-lg bg-purple-50 p-3">
-                <TrendingUp className="h-6 w-6 text-purple-600" />
-              </div>
-
-            </div>
-
-            <button
-              type="button"
-              onClick={() => navigate("/mentor/progress")}
-              className="mt-4 flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
-            >
-              View progress
-              <ArrowRight size={16} />
-            </button>
-          </div>
-
-          {/* AVERAGE ATTENDANCE */}
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-            <div className="flex items-start justify-between gap-4">
-
-              <div className="min-w-0">
-                <p className="text-sm text-gray-500">
-                  Average Attendance
-                </p>
-
-                <p className="mt-2 text-3xl font-bold text-gray-900">
-                  {stats.attendance}%
-                </p>
-              </div>
-
-              <div className="shrink-0 rounded-lg bg-green-50 p-3">
-                <CalendarCheck className="h-6 w-6 text-green-600" />
-              </div>
-
-            </div>
-
-            <button
-              type="button"
-              onClick={() => navigate("/mentor/attendance")}
-              className="mt-4 flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
-            >
-              View attendance
-              <ArrowRight size={16} />
-            </button>
-          </div>
-
-          {/* AT RISK */}
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-            <div className="flex items-start justify-between gap-4">
-
-              <div className="min-w-0">
-                <p className="text-sm text-gray-500">
-                  At-Risk Students
-                </p>
-
-                <p className="mt-2 text-3xl font-bold text-gray-900">
-                  {stats.atRisk}
-                </p>
-              </div>
-
-              <div className="shrink-0 rounded-lg bg-red-50 p-3">
-                <AlertTriangle className="h-6 w-6 text-red-600" />
-              </div>
-
-            </div>
-
-            <p className="mt-4 text-sm text-gray-500">
-              Students who need additional attention.
+            <p className="mt-2 text-3xl font-bold text-gray-900">
+              {assignments.length}
             </p>
           </div>
 
+          {/* COURSES */}
+
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p className="text-sm text-gray-500">
+              Courses
+            </p>
+
+            <p className="mt-2 text-3xl font-bold text-gray-900">
+              {
+                new Set(
+                  assignments
+                    .map(
+                      (assignment) =>
+                        assignment
+                          .course?._id
+                    )
+                    .filter(Boolean)
+                ).size
+              }
+            </p>
+          </div>
+
+          {/* UPCOMING */}
+
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p className="text-sm text-gray-500">
+              Upcoming
+            </p>
+
+            <p className="mt-2 text-3xl font-bold text-gray-900">
+              {
+                assignments.filter(
+                  (assignment) =>
+                    assignment.deadline &&
+                    new Date(
+                      assignment.deadline
+                    ) >=
+                      new Date()
+                ).length
+              }
+            </p>
+          </div>
         </div>
 
-        {/* ============================= */}
-        {/* BOTTOM SECTIONS */}
-        {/* ============================= */}
+        {/* ASSIGNMENTS */}
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
 
-          {/* RECENT ACTIVITY */}
-          <section className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          {/* TITLE */}
 
-            <div className="flex items-center gap-3 p-5">
+          <div className="border-b border-gray-200 p-5">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Assignments
+            </h2>
 
-              <div className="shrink-0 rounded-lg bg-blue-50 p-2">
-                <Activity className="h-5 w-5 text-blue-600" />
-              </div>
+            <p className="mt-1 text-sm text-gray-500">
+              Assignments fetched from the backend.
+            </p>
+          </div>
 
-              <div className="min-w-0">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Recent Activity
-                </h2>
+          {/* EMPTY */}
 
-                <p className="mt-1 text-sm text-gray-500">
-                  Latest updates from your students.
-                </p>
-              </div>
+          {assignments.length ===
+          0 ? (
+            <div className="px-6 py-16 text-center">
+
+              <p className="text-gray-500">
+                No assignments available.
+              </p>
+
+              <button
+                type="button"
+                onClick={
+                  fetchAssignments
+                }
+                className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+              >
+                Refresh
+              </button>
 
             </div>
+          ) : (
 
-            {recentActivities.length === 0 ? (
-              <div className="px-6 py-12 text-center">
+            /* LIST */
 
-                <Activity className="mx-auto h-9 w-9 text-gray-300" />
+            <div className="divide-y divide-gray-100">
 
-                <p className="mt-3 text-sm text-gray-500">
-                  No recent activity yet.
-                </p>
+              {assignments.map(
+                (assignment) => (
 
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-100">
-
-                {recentActivities.map((activity) => (
                   <div
-                    key={activity._id}
-                    className="flex items-start gap-3 p-5"
-                  >
-                    <div className="shrink-0 rounded-lg bg-blue-50 p-2">
-                      <FileText className="h-4 w-4 text-blue-600" />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900">
-                        {activity.message}
-                      </p>
-
-                      <p className="mt-1 text-xs text-gray-500">
-                        {activity.date}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-
-              </div>
-            )}
-
-          </section>
-
-          {/* STUDENTS NEEDING ATTENTION */}
-          <section className="rounded-xl border border-gray-200 bg-white shadow-sm">
-
-            <div className="flex items-center gap-3 p-5">
-
-              <div className="shrink-0 rounded-lg bg-red-50 p-2">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
-              </div>
-
-              <div className="min-w-0">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Students Needing Attention
-                </h2>
-
-                <p className="mt-1 text-sm text-gray-500">
-                  Students who may need additional support.
-                </p>
-              </div>
-
-            </div>
-
-            {studentsNeedingAttention.length === 0 ? (
-              <div className="px-6 py-12 text-center">
-
-                <AlertTriangle className="mx-auto h-9 w-9 text-gray-300" />
-
-                <p className="mt-3 text-sm text-gray-500">
-                  No students currently need attention.
-                </p>
-
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-100">
-
-                {studentsNeedingAttention.map((student) => (
-                  <button
-                    key={student._id}
-                    type="button"
-                    onClick={() =>
-                      navigate(`/mentor/students/${student._id}`)
+                    key={
+                      assignment._id
                     }
-                    className="flex w-full items-center justify-between p-5 text-left transition hover:bg-gray-50"
+                    className="p-5 transition hover:bg-gray-50"
                   >
-                    <div className="min-w-0">
 
-                      <p className="font-medium text-gray-900">
-                        {student.name}
-                      </p>
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
-                        <span>
-                          Progress: {student.progress}%
-                        </span>
+                      {/* LEFT */}
 
-                        <span>
-                          Attendance: {student.attendance}%
-                        </span>
+                      <div className="min-w-0">
+
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {
+                            assignment.title
+                          }
+                        </h3>
+
+                        <p className="mt-1 text-sm text-gray-500">
+                          {
+                            assignment.description ||
+                            "No description available."
+                          }
+                        </p>
+
+                        {/* BADGES */}
+
+                        <div className="mt-3 flex flex-wrap gap-2">
+
+                          {/* COURSE */}
+
+                          {assignment.course && (
+                            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                              Course:{" "}
+                              {
+                                assignment
+                                  .course
+                                  ?.name ||
+                                "Unknown Course"
+                              }
+                            </span>
+                          )}
+
+                          {/* BATCH */}
+
+                          {assignment.batchId && (
+                            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                              Batch:{" "}
+                              {
+                                assignment
+                                  .batchId
+                                  ?.name ||
+                                assignment.batchId
+                              }
+                            </span>
+                          )}
+                        </div>
+
+                        {/* DETAILS */}
+
+                        <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-500">
+
+                          <span>
+                            Students:{" "}
+                            {
+                              assignment
+                                .assignedStudents
+                                ?.length ||
+                              0
+                            }
+                          </span>
+
+                          <span>
+                            Max Score:{" "}
+                            {
+                              assignment.maxScore ??
+                              0
+                            }
+                          </span>
+
+                          {assignment.deadline && (
+                            <span>
+                              Deadline:{" "}
+                              {new Date(
+                                assignment.deadline
+                              ).toLocaleDateString()}
+                            </span>
+                          )}
+
+                        </div>
+
                       </div>
 
-                      <p className="mt-1 text-xs text-red-500">
-                        {student.reason}
-                      </p>
+                      {/* RIGHT */}
+
+                      <div className="shrink-0">
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate(
+                              `/mentor/assignments/${assignment._id}`
+                            )
+                          }
+                          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
+                        >
+                          View Assignment
+                        </button>
+
+                      </div>
 
                     </div>
 
-                    <ArrowRight
-                      size={18}
-                      className="ml-4 shrink-0 text-gray-400"
-                    />
-                  </button>
-                ))}
+                  </div>
+                )
+              )}
 
-              </div>
-            )}
-
-          </section>
-
+            </div>
+          )}
         </div>
-
       </div>
     </div>
   );

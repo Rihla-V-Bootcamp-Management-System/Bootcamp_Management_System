@@ -14,6 +14,12 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
 
+    week: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
     sessionDate: {
       type: Date,
       required: true,
@@ -34,6 +40,7 @@ const attendanceSchema = new mongoose.Schema(
     notes: {
       type: String,
       trim: true,
+      default: "",
     },
   },
   {
@@ -41,6 +48,7 @@ const attendanceSchema = new mongoose.Schema(
   }
 );
 
+// One attendance record per student per batch per session
 attendanceSchema.index(
   {
     studentId: 1,
@@ -52,4 +60,7 @@ attendanceSchema.index(
   }
 );
 
-module.exports = mongoose.model("Attendance", attendanceSchema);
+module.exports = mongoose.model(
+  "Attendance",
+  attendanceSchema
+);

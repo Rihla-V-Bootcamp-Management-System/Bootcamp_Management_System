@@ -34,7 +34,9 @@ function Login() {
     setError("");
 
     if (!email.trim() || !password.trim()) {
-      setError("Please enter your email and password.");
+      setError(
+        "Please enter your email and password."
+      );
       return;
     }
 
@@ -49,7 +51,9 @@ function Login() {
       const user = response?.user;
 
       if (!user) {
-        throw new Error("Invalid login response.");
+        throw new Error(
+          "Invalid login response."
+        );
       }
 
       // =====================================================
@@ -65,7 +69,9 @@ function Login() {
       } else if (user.role === "student") {
         navigate("/student");
       } else {
-        setError("Your account role is not recognized.");
+        setError(
+          "Your account role is not recognized."
+        );
       }
     } catch (error) {
       setError(
@@ -128,16 +134,16 @@ function Login() {
                 <br />
                 Grow.
                 <br />
-
                 <span className="text-blue-400">
                   Together.
                 </span>
               </h1>
 
               <p className="mt-6 max-w-md text-sm leading-7 text-gray-300">
-                Develop your skills, build real projects,
-                collaborate with your peers, and grow
-                together with the ASTU MSJ community.
+                Develop your skills, build real
+                projects, collaborate with your peers,
+                and grow together with the ASTU MSJ
+                community.
               </p>
             </div>
 
@@ -160,7 +166,8 @@ function Login() {
                   </p>
 
                   <p className="mt-1 text-sm text-gray-300">
-                    Learn, collaborate, and build together.
+                    Learn, collaborate, and build
+                    together.
                   </p>
                 </div>
 
@@ -169,7 +176,6 @@ function Login() {
             </div>
 
           </div>
-
         </section>
 
         {/* ===================================================
@@ -188,7 +194,8 @@ function Login() {
               </h1>
 
               <p className="mt-2 text-sm leading-6 text-gray-500">
-                Sign in to your ASTU MSJ Bootcamp account.
+                Sign in to your ASTU MSJ Bootcamp
+                account.
               </p>
             </div>
 
@@ -279,10 +286,17 @@ function Login() {
                   <button
                     type="button"
                     onClick={() =>
-                      setShowPassword((prev) => !prev)
+                      setShowPassword(
+                        (prev) => !prev
+                      )
                     }
                     disabled={loading}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-800"
+                    aria-label={
+                      showPassword
+                        ? "Hide password"
+                        : "Show password"
+                    }
                   >
                     {showPassword ? (
                       <Eye size={18} />

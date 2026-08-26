@@ -3,7 +3,7 @@ const ApplicationForm = require("../models/ApplicationForm");
 const Season = require("../models/Season");
 
 // =====================================================
-// GET APPLICATION FORM FOR CURRENT OPEN SEASON
+// GET CURRENT APPLICATION FORM
 // GET /api/application-forms
 // =====================================================
 
@@ -17,6 +17,7 @@ const getCurrentApplicationForm = async (req, res) => {
 
     if (!season) {
       return res.status(404).json({
+        success: false,
         message: "No application season is currently open",
       });
     }
@@ -27,23 +28,22 @@ const getCurrentApplicationForm = async (req, res) => {
 
     if (!applicationForm) {
       return res.status(404).json({
-        message:
-          "Application form not found for the current season",
+        success: false,
+        message: "Application form not found for current season",
         seasonId: season._id,
       });
     }
 
     return res.status(200).json({
+      success: true,
       season,
       applicationForm,
     });
   } catch (error) {
-    console.error(
-      "Get current application form error:",
-      error
-    );
+    console.error("Get application form error:", error);
 
     return res.status(500).json({
+      success: false,
       message: "Failed to get application form",
       error: error.message,
     });
@@ -62,12 +62,14 @@ const createApplicationForm = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(seasonId)) {
       return res.status(400).json({
+        success: false,
         message: "Invalid seasonId",
       });
     }
 
     if (!Array.isArray(fields)) {
       return res.status(400).json({
+        success: false,
         message: "fields must be an array",
       });
     }
@@ -76,6 +78,7 @@ const createApplicationForm = async (req, res) => {
 
     if (!season) {
       return res.status(404).json({
+        success: false,
         message: "Season not found",
       });
     }
@@ -86,29 +89,27 @@ const createApplicationForm = async (req, res) => {
 
     if (existingForm) {
       return res.status(409).json({
-        message:
-          "Application form already exists for this season",
+        success: false,
+        message: "Application form already exists for this season",
         applicationForm: existingForm,
       });
     }
 
-    const applicationForm =
-      await ApplicationForm.create({
-        seasonId,
-        fields,
-      });
+    const applicationForm = await ApplicationForm.create({
+      seasonId,
+      fields,
+    });
 
     return res.status(201).json({
+      success: true,
       message: "Application form created successfully",
       applicationForm,
     });
   } catch (error) {
-    console.error(
-      "Create application form error:",
-      error
-    );
+    console.error("Create application form error:", error);
 
     return res.status(500).json({
+      success: false,
       message: "Failed to create application form",
       error: error.message,
     });
@@ -116,54 +117,44 @@ const createApplicationForm = async (req, res) => {
 };
 
 // =====================================================
-// GET FORM BY SEASON
+// GET APPLICATION FORM BY SEASON
 // GET /api/application-forms/:seasonId
 // =====================================================
 
 const getApplicationForm = async (req, res) => {
   try {
-    const season = await Season.findOne({
-      isOpen: true,
-    }).sort({
-      createdAt: -1,
-    });
+    const { seasonId } = req.params;
 
-    if (!season) {
-      return res.status(404).json({
-        message: "No application season is currently open",
+    if (!mongoose.Types.ObjectId.isValid(seasonId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid seasonId",
       });
     }
 
-    // First try to find the form belonging to the current season
-    let applicationForm = await ApplicationForm.findOne({
-      seasonId: season._id,
+    const applicationForm = await ApplicationForm.findOne({
+      seasonId,
     });
-
-    // If there is no form for the current season,
-    // use the most recently created application form.
-    if (!applicationForm) {
-      applicationForm = await ApplicationForm.findOne().sort({
-        createdAt: -1,
-      });
-    }
 
     if (!applicationForm) {
       return res.status(404).json({
-        message: "No application form exists",
+        success: false,
+        message: "Application form not found",
       });
     }
+
+    const season = await Season.findById(seasonId);
 
     return res.status(200).json({
+      success: true,
       season,
       applicationForm,
     });
   } catch (error) {
-    console.error(
-      "Get current application form error:",
-      error
-    );
+    console.error("Get application form error:", error);
 
     return res.status(500).json({
+      success: false,
       message: "Failed to get application form",
       error: error.message,
     });
@@ -171,10 +162,8 @@ const getApplicationForm = async (req, res) => {
 };
 
 // =====================================================
-// UPDATE FORM FIELDS
+// UPDATE APPLICATION FORM
 // PATCH /api/application-forms/:seasonId
-//
-// This updates ONLY the fields.
 // =====================================================
 
 const updateApplicationForm = async (req, res) => {
@@ -184,12 +173,14 @@ const updateApplicationForm = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(seasonId)) {
       return res.status(400).json({
+        success: false,
         message: "Invalid seasonId",
       });
     }
 
     if (!Array.isArray(fields)) {
       return res.status(400).json({
+        success: false,
         message: "fields must be an array",
       });
     }
@@ -210,21 +201,21 @@ const updateApplicationForm = async (req, res) => {
 
     if (!applicationForm) {
       return res.status(404).json({
+        success: false,
         message: "Application form not found",
       });
     }
 
     return res.status(200).json({
+      success: true,
       message: "Application form updated successfully",
       applicationForm,
     });
   } catch (error) {
-    console.error(
-      "Update application form error:",
-      error
-    );
+    console.error("Update application form error:", error);
 
     return res.status(500).json({
+      success: false,
       message: "Failed to update application form",
       error: error.message,
     });
