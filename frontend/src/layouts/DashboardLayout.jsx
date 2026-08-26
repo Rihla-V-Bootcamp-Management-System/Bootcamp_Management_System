@@ -84,6 +84,13 @@ function DashboardLayout({ role }) {
         description: "View your attendance history.",
       };
     }
+    if (path.includes("/student/daily-tasks")) {
+  return {
+    title: "Daily Tasks",
+    description:
+      "Complete your daily tasks and keep your learning progress on track.",
+  };
+}
 
     if (path.includes("/student/progress/web")) {
       return {

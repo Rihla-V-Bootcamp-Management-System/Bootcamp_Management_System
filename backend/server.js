@@ -8,42 +8,28 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const connectDB = require("./config/db");
-
+const moduleResourceRoutes = require("./routes/moduleResourceRoutes");
 // ==========================================
 // ROUTES
 // ==========================================
-
+const moduleRoutes = require("./routes/moduleRoutes");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
-
-// ==========================================
-// REGISTRATION ROUTES
-// ==========================================
-
-// Temporarily disabled
-// const registrationRoutes = require("./routes/registrationRoutes");
-// const formQuestionRoutes = require("./routes/formQuestionRoutes");
-// const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
-
-// ==========================================
-// MAIN SYSTEM ROUTES
-// ==========================================
-
 const mentorRoutes = require("./routes/mentorRoutes");
 const seasonRoutes = require("./routes/seasonRoutes");
 const batchRoutes = require("./routes/batchRoutes");
-
-// ==========================================
+const levelRoutes = require("./routes/levelRoutes");
+// =======================ii===================
 // ATTENDANCE & PROGRESS
 // ==========================================
-
+const dailyTaskRoutes = require("./routes/dailyTaskRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const progressRoutes = require("./routes/progressRoutes");
 
 // ==========================================
 // ASSIGNMENT & SUBMISSION ROUTES
 // ==========================================
-
+const analyticsRoutes = require("./routes/analyticsRoutes");
 const assignmentRoutes = require("./routes/assignmentRoutes");
 const submissionRoutes = require("./routes/SubmissionRoutes");
 
@@ -74,7 +60,7 @@ app.use(express.urlencoded({ extended: true }));
 // ==========================================
 // TEST / HEALTH ROUTES
 // ==========================================
-
+app.use("/api/daily-tasks", dailyTaskRoutes);
 app.get("/", (req, res) => {
   res.json({
     success: true,
@@ -97,11 +83,14 @@ app.get("/api/health", (req, res) => {
 // ------------------------------------------
 // Users & Authentication
 // ------------------------------------------
-
+app.use("/api/levels", levelRoutes);
 app.use("/api/users", userRoutes);
-
+app.use("/api/modules", moduleRoutes);
 app.use("/api/auth", authRoutes);
-
+app.use(
+  "/api/module-resources",
+  moduleResourceRoutes
+);
 // ------------------------------------------
 // Seasons
 // ------------------------------------------
@@ -112,8 +101,8 @@ app.use("/api/seasons", seasonRoutes);
 // Mentors
 // ------------------------------------------
 
-app.use("/api/mentor", mentorRoutes);
-
+app.use("/api/mentors", mentorRoutes);
+app.use("/api/analytics", analyticsRoutes);
 // ------------------------------------------
 // Batches
 // ------------------------------------------
@@ -188,6 +177,9 @@ app.use((err, req, res, next) => {
   });
 });
 
+// ==========================================
+// START SERVER
+// ==========================================
 
 const startServer = async () => {
   try {
@@ -206,6 +198,9 @@ const startServer = async () => {
       );
       console.log(
         `Progress API: http://localhost:${PORT}/api/progress`
+      );
+      console.log(
+        `Mentor API: http://localhost:${PORT}/api/mentors`
       );
       console.log("==========================================");
     });

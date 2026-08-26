@@ -73,7 +73,22 @@ function StudentSidebar() {
             <ChartNoAxesColumn size={19} />
             <span>Progress</span>
           </NavLink>
-
+          <NavLink
+            to="/student/my-mentor"
+            end
+            className={navClass}
+          >
+            <ChartNoAxesColumn size={19} />
+            <span>Mymentor</span>
+          </NavLink>
+            <NavLink
+            to="/student/daily-tasks"
+            end
+            className={navClass}
+          >
+            <ChartNoAxesColumn size={19} />
+            <span>Daily Tasks</span>
+          </NavLink>
           <NavLink
             to="/student/assignments"
             className={navClass}

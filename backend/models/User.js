@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    // ==============================
+    // BASIC INFORMATION
+    // ==============================
+
     name: {
       type: String,
       required: true,
@@ -18,8 +22,15 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return this.role !== "mentor";
+      },
+      default: "",
     },
+
+    // ==============================
+    // ROLE
+    // ==============================
 
     role: {
       type: String,
@@ -28,12 +39,45 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
+    // ==============================
+    // MENTOR INFORMATION
+    // ==============================
+
+    phone: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    telegramUsername: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    // ==============================
+    // MENTOR ASSIGNMENT
+    // ==============================
+
     assignedMentor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
     },
 
+    // ==============================
+    // BATCH
+    // ==============================
+
+    batchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
+      default: null,
+    },
+
+    // ==============================
+    // PASSWORD / OTP
+    // ==============================
 
     mustResetPassword: {
       type: Boolean,
@@ -41,6 +85,24 @@ const userSchema = new mongoose.Schema(
     },
 
     otp: {
+      type: String,
+      default: null,
+    },
+
+    otpExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    otpVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    // ==============================
+    // STUDENT INFORMATION
+    // ==============================
+
     gender: {
       type: String,
       enum: ["Male", "Female"],
@@ -48,15 +110,10 @@ const userSchema = new mongoose.Schema(
         return this.role === "student";
       },
     },
-
-    batchId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Batch",
-      default: null,
-    },
   },
-}
-  
+  {
+    timestamps: true,
+  }
 );
 
 module.exports = mongoose.model("User", userSchema);

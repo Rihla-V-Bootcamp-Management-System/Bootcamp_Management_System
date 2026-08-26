@@ -2,60 +2,69 @@ const express = require("express");
 
 const router = express.Router();
 
-const {
-  createProgress,
-  getProgress,
-  getProgressById,
-  updateProgress,
-} = require("../controllers/progressControllers");
-
 const authMiddleware = require("../middleware/authMiddleware");
-const roleMiddleware = require("../middleware/roleMiddleware");
 
-// ==========================================
-// STUDENT ONLY — CREATE / SAVE PROGRESS
-// ==========================================
+const {
+  getStudents,
+  getMentors,
+  assignMentor,
+  removeMentor,
+  getMyMentor,
+  getMyStudents,
+} = require("../controllers/mentorController");
 
+// =========================================================
+// ADMIN
+// =========================================================
+
+// Get all students
+router.get(
+  "/students",
+  authMiddleware,
+  getStudents
+);
+
+// Get all mentors
+router.get(
+  "/mentors",
+  authMiddleware,
+  getMentors
+);
+
+// Assign mentor to student
 router.post(
-  "/",
+  "/assign",
   authMiddleware,
-  roleMiddleware("student"),
-  createProgress
+  assignMentor
 );
 
-// ==========================================
-// ALL ROLES — VIEW PROGRESS
-//
-// Student → own progress only
-// Mentor  → assigned students only
-// Admin   → any progress
-//
-// Controller handles the detailed checks.
-// ==========================================
+// Remove mentor from student
+router.delete(
+  "/remove/:studentId",
+  authMiddleware,
+  removeMentor
+);
 
+// =========================================================
+// STUDENT
+// =========================================================
+
+// Get currently logged-in student's mentor
 router.get(
-  "/",
+  "/my-mentor",
   authMiddleware,
-  roleMiddleware("admin", "mentor", "student"),
-  getProgress
+  getMyMentor
 );
 
+// =========================================================
+// MENTOR
+// =========================================================
+
+// Get students assigned to currently logged-in mentor
 router.get(
-  "/:id",
+  "/my-students",
   authMiddleware,
-  roleMiddleware("admin", "mentor", "student"),
-  getProgressById
-);
-
-// ==========================================
-// STUDENT ONLY — UPDATE OWN PROGRESS
-// ==========================================
-
-router.put(
-  "/:id",
-  authMiddleware,
-  roleMiddleware("student"),
-  updateProgress
+  getMyStudents
 );
 
 module.exports = router;

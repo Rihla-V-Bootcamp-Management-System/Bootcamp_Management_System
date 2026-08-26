@@ -2,17 +2,32 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+// =====================================================
+// REGISTER STUDENT
+// POST /api/auth/register
+// =====================================================
+
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, gender } = req.body;
+    const {
+      name,
+      email,
+      password,
+      gender,
+    } = req.body;
 
     if (!name || !email || !password || !gender) {
       return res.status(400).json({
-        message: "Name, email, password, and gender are required",
+        message:
+          "Name, email, password, and gender are required",
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (existingUser) {
       return res.status(400).json({
@@ -20,11 +35,14 @@ const registerUser = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(
+      password,
+      10
+    );
 
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password: hashedPassword,
       role: "student",
       gender,
@@ -32,6 +50,7 @@ const registerUser = async (req, res) => {
 
     return res.status(201).json({
       message: "User registered successfully",
+
       user: {
         id: user._id,
         name: user.name,
@@ -50,21 +69,176 @@ const registerUser = async (req, res) => {
   }
 };
 
+// =====================================================
+// REGISTER MENTOR
+// POST /api/auth/register-mentor
+// =====================================================
+
+const registerMentor = async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      password,
+      phone,
+      telegramUsername,
+    } = req.body;
+
+    // -------------------------------
+    // VALIDATION
+    // -------------------------------
+
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !phone ||
+      !telegramUsername
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Name, email, password, phone number, and Telegram username are required",
+      });
+    }
+
+    const normalizedEmail =
+      email.trim().toLowerCase();
+
+    const normalizedTelegram =
+      telegramUsername
+        .trim()
+        .replace(/^@/, "");
+
+    // -------------------------------
+    // CHECK EMAIL
+    // -------------------------------
+
+    const existingEmail = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    if (existingEmail) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already registered",
+      });
+    }
+
+    // -------------------------------
+    // CHECK PHONE
+    // -------------------------------
+
+    const existingPhone = await User.findOne({
+      phone: phone.trim(),
+    });
+
+    if (existingPhone) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number is already registered",
+      });
+    }
+
+    // -------------------------------
+    // CHECK TELEGRAM
+    // -------------------------------
+
+    const existingTelegram = await User.findOne({
+      telegramUsername: normalizedTelegram,
+    });
+
+    if (existingTelegram) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Telegram username is already registered",
+      });
+    }
+
+    // -------------------------------
+    // HASH PASSWORD
+    // -------------------------------
+
+    const hashedPassword = await bcrypt.hash(
+      password,
+      10
+    );
+
+    // -------------------------------
+    // CREATE MENTOR
+    // -------------------------------
+
+    const mentor = await User.create({
+      name: name.trim(),
+      email: normalizedEmail,
+      password: hashedPassword,
+
+      role: "mentor",
+
+      phone: phone.trim(),
+
+      telegramUsername:
+        normalizedTelegram,
+
+      mustResetPassword: false,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Mentor registered successfully",
+
+      mentor: {
+        id: mentor._id,
+        name: mentor.name,
+        email: mentor.email,
+        phone: mentor.phone,
+        telegramUsername:
+          mentor.telegramUsername,
+        role: mentor.role,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "REGISTER MENTOR ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Mentor registration failed",
+      error: error.message,
+    });
+  }
+};
+
+// =====================================================
+// LOGIN
+// POST /api/auth/login
+// =====================================================
+
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
-        message: "Email and password are required",
+        message:
+          "Email and password are required",
       });
     }
 
-    const user = await User.findOne({ email });
+    const normalizedEmail =
+      email.trim().toLowerCase();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (!user) {
       return res.status(401).json({
-        message: "Invalid email or password",
+        message:
+          "Invalid email or password",
       });
     }
 
@@ -72,18 +246,20 @@ const loginUser = async (req, res) => {
       return res.status(403).json({
         message: "Password setup required",
         mustResetPassword: true,
-        userID: user.userID,
+        userId: user._id,
       });
     }
 
-    const passwordMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const passwordMatch =
+      await bcrypt.compare(
+        password,
+        user.password
+      );
 
     if (!passwordMatch) {
       return res.status(401).json({
-        message: "Invalid email or password",
+        message:
+          "Invalid email or password",
       });
     }
 
@@ -100,14 +276,21 @@ const loginUser = async (req, res) => {
 
     return res.json({
       message: "Login successful",
+
       token,
+
       user: {
         id: user._id,
-        userID: user.userID,
         name: user.name,
         email: user.email,
         role: user.role,
         gender: user.gender,
+        phone: user.phone,
+        telegramUsername:
+          user.telegramUsername,
+        batchId: user.batchId,
+        assignedMentor:
+          user.assignedMentor,
       },
     });
   } catch (error) {
@@ -120,173 +303,17 @@ const loginUser = async (req, res) => {
   }
 };
 
-const verifyOtp = async (req, res) => {
-  try {
-    const { userID, otp } = req.body;
-
-    if (!userID || !otp) {
-      return res.status(400).json({
-        message: "User ID and OTP are required",
-      });
-    }
-
-    const user = await User.findOne({ userID });
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
-
-    if (!user.mustResetPassword) {
-      return res.status(400).json({
-        message: "OTP verification is not required",
-      });
-    }
-
-    if (user.otpVerified === true) {
-      return res.status(400).json({
-        message: "OTP has already been used",
-      });
-    }
-
-    if (!user.otp || !user.otpExpiresAt) {
-      return res.status(400).json({
-        message: "No valid OTP found",
-      });
-    }
-
-    if (new Date() > user.otpExpiresAt) {
-      return res.status(400).json({
-        message: "OTP has expired",
-      });
-    }
-
-    if (user.otp !== otp) {
-      return res.status(400).json({
-        message: "Invalid OTP",
-      });
-    }
-
-    user.otpVerified = true;
-
-    await user.save();
-
-    return res.json({
-      message: "OTP verified successfully",
-      userID: user.userID,
-      verified: true,
-    });
-  } catch (error) {
-    console.error("OTP verification error:", error);
-
-    return res.status(500).json({
-      message: "OTP verification failed",
-      error: error.message,
-    });
-  }
-};
-
-const setPassword = async (req, res) => {
-  try {
-    const { userID, otp, newPassword } = req.body;
-
-    if (!userID || !otp || !newPassword) {
-      return res.status(400).json({
-        message: "User ID, OTP, and new password are required",
-      });
-    }
-
-    if (newPassword.length < 8) {
-      return res.status(400).json({
-        message: "Password must be at least 8 characters long",
-      });
-    }
-
-    const user = await User.findOne({ userID });
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
-
-    if (!user.mustResetPassword) {
-      return res.status(400).json({
-        message: "Password has already been set",
-      });
-    }
-
-    if (!user.otp || !user.otpExpiresAt) {
-      return res.status(400).json({
-        message: "No valid OTP found",
-      });
-    }
-
-    if (new Date() > user.otpExpiresAt) {
-      return res.status(400).json({
-        message: "OTP has expired",
-      });
-    }
-
-    if (user.otp !== otp) {
-      return res.status(400).json({
-        message: "Invalid OTP",
-      });
-    }
-
-    if (!user.otpVerified) {
-      return res.status(400).json({
-        message: "OTP verification is required first",
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    user.password = hashedPassword;
-    user.mustResetPassword = false;
-    user.otp = null;
-    user.otpExpiresAt = null;
-    user.otpVerified = false;
-
-    await user.save();
-
-    const token = jwt.sign(
-      {
-        id: user._id,
-        role: user.role,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      }
-    );
-
-    return res.json({
-      message: "Password set successfully",
-      token,
-      user: {
-        id: user._id,
-        userID: user.userID,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        gender: user.gender,
-      },
-    });
-  } catch (error) {
-    console.error("SET PASSWORD ERROR:", error);
-
-    return res.status(500).json({
-      message: "Failed to set password",
-      error: error.message,
-    });
-  }
-};
+// =====================================================
+// GET USER BY ID
+// GET /api/auth/users/:id
+// =====================================================
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select("-password");
+    const user =
+      await User.findById(
+        req.params.id
+      ).select("-password");
 
     if (!user) {
       return res.status(404).json({
@@ -304,10 +331,13 @@ const getUserById = async (req, res) => {
   }
 };
 
+// =====================================================
+// EXPORT
+// =====================================================
+
 module.exports = {
   registerUser,
+  registerMentor,
   loginUser,
-  verifyOtp,
-  setPassword,
   getUserById,
 };

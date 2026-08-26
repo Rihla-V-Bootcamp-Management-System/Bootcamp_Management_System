@@ -37,11 +37,22 @@ function AdminSidebar() {
       path: "/admin/announcements",
       icon: Megaphone,
     },
+          {
+        name: "Register Mentor",
+        path: "/admin/register-mentor",
+        icon: Users,
+      },
     {
-      name: "Registrations",
-      path: "/admin/registrations",
-      icon: ClipboardList,
-    },
+        name: "Mentor Assignment",
+        path: "/admin/mentor-assignment",
+        icon: Users,
+      },
+
+      {
+        name: "Registrations",
+        path: "/admin/registrations",
+        icon: ClipboardList,
+      },
     {
       name: "Attendance",
       path: "/admin/attendance",
@@ -65,7 +76,7 @@ function AdminSidebar() {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-50 border-r border-[#26364a] bg-[#071629] text-white">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-58 border-r border-[#26364a] bg-[#071629] text-white">
       <div className="flex h-full flex-col">
 
         {/* Logo */}
@@ -88,7 +99,7 @@ function AdminSidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-5">
+        <nav className="flex-1 overflow-y-auto px-3 py-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <div className="space-y-1">
 
             {links.map((link) => {

@@ -139,7 +139,38 @@ router.get(
     });
   }
 );
+// =========================================================
+// GET ALL USERS - ADMIN
+// GET /api/users
+// =========================================================
 
+router.get(
+  "/",
+  authMiddleware,
+  roleMiddleware("admin"),
+  async (req, res) => {
+    try {
+      const users = await User.find()
+        .select("-password -otp")
+        .populate("assignedMentor", "name email role")
+        .populate("batchId", "name");
+
+      res.json({
+        success: true,
+        total: users.length,
+        users,
+      });
+    } catch (error) {
+      console.error("GET ALL USERS ERROR:", error);
+
+      res.status(500).json({
+        success: false,
+        message: "Failed to load users",
+        error: error.message,
+      });
+    }
+  }
+);
 router.patch(
   "/students/:studentId/mentor",
   authMiddleware,

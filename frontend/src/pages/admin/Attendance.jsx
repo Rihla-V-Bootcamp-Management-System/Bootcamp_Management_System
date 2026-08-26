@@ -1,184 +1,190 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  Check,
+  X,
+  Clock,
+  RefreshCw,
+  UserCheck,
+  AlertCircle,
+} from "lucide-react";
+
 import apiClient from "../../services/apiClient";
 
-function Attendance() {
-  // =========================================================
-  // STATE
-  // =========================================================
+const STATUS_OPTIONS = [
+  "Present",
+  "Absent",
+  "Late",
+  "Excused",
+];
 
+function Attendance() {
   const [batches, setBatches] = useState([]);
   const [students, setStudents] = useState([]);
+  const [attendance, setAttendance] =
+    useState({});
 
-  const [selectedBatch, setSelectedBatch] = useState("");
-  const [selectedWeek, setSelectedWeek] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedBatch, setSelectedBatch] =
+    useState("");
 
-  const [attendance, setAttendance] = useState({});
-  const [savedAttendance, setSavedAttendance] = useState([]);
+  const [loading, setLoading] =
+    useState(false);
 
-  const [loadingBatches, setLoadingBatches] = useState(false);
-  const [loadingStudents, setLoadingStudents] = useState(false);
-  const [loadingAttendance, setLoadingAttendance] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] =
+    useState(false);
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] =
+    useState("");
 
-  // =========================================================
-  // HELPERS
-  // =========================================================
+  const [success, setSuccess] =
+    useState("");
 
-  const getId = (item) => {
-    if (!item) return "";
+  const [excuseStudent, setExcuseStudent] =
+    useState(null);
 
-    if (typeof item === "object") {
-      return String(
-        item._id ||
-          item.id ||
-          item.userId ||
-          item.studentId ||
-          ""
-      );
-    }
-
-    return String(item);
-  };
-
-  const getStudentName = (student) => {
-    if (!student) {
-      return "Unknown Student";
-    }
-
-    if (typeof student === "string") {
-      return student;
-    }
-
-    if (typeof student === "object") {
-      const fullName =
-        `${student.firstName || ""} ${
-          student.lastName || ""
-        }`.trim();
-
-      return (
-        student.name ||
-        student.fullName ||
-        fullName ||
-        student.username ||
-        student.email ||
-        "Unknown Student"
-      );
-    }
-
-    return "Unknown Student";
-  };
-
-  const getStudentEmail = (student) => {
-    if (!student || typeof student !== "object") {
-      return "";
-    }
-
-    return student.email || "";
-  };
-
-  const getRecordStudentId = (record) => {
-    if (!record) {
-      return "";
-    }
-
-    return getId(
-      record.studentId ||
-        record.student ||
-        record.userId
-    );
-  };
-
-  const getDateKey = (date) => {
-    if (!date) {
-      return "";
-    }
-
-    // Backend may return YYYY-MM-DD directly.
-    if (
-      typeof date === "string" &&
-      /^\d{4}-\d{2}-\d{2}$/.test(date)
-    ) {
-      return date;
-    }
-
-    const parsed = new Date(date);
-
-    if (Number.isNaN(parsed.getTime())) {
-      return "";
-    }
-
-    return parsed.toISOString().split("T")[0];
-  };
-
-  // =========================================================
-  // EXTRACT ARRAY FROM API RESPONSE
-  // =========================================================
-
-  const extractArray = (responseData, possibleKeys = []) => {
-    if (Array.isArray(responseData)) {
-      return responseData;
-    }
-
-    if (!responseData) {
-      return [];
-    }
-
-    for (const key of possibleKeys) {
-      if (Array.isArray(responseData[key])) {
-        return responseData[key];
-      }
-    }
-
-    if (Array.isArray(responseData.data)) {
-      return responseData.data;
-    }
-
-    return [];
-  };
+  const [excuseReason, setExcuseReason] =
+    useState("");
 
   // =========================================================
   // LOAD BATCHES
   // =========================================================
 
-  const loadBatches = useCallback(async () => {
+  const loadBatches = async () => {
     try {
-      setLoadingBatches(true);
+      setLoading(true);
       setError("");
 
-      const response = await apiClient.get("/batches");
+      const response =
+        await apiClient.get("/batches");
 
-      console.log(
-        "BATCHES RESPONSE:",
-        response.data
+      const data =
+        response.data?.batches ||
+        response.data?.data ||
+        response.data ||
+        [];
+
+      setBatches(
+        Array.isArray(data)
+          ? data
+          : []
       );
-
-      const data = extractArray(response.data, [
-        "batches",
-        "data",
-        "results",
-      ]);
-
-      setBatches(data);
     } catch (err) {
       console.error(
         "LOAD BATCHES ERROR:",
         err.response?.data || err
       );
 
-      setBatches([]);
-
       setError(
         err.response?.data?.message ||
           "Failed to load batches."
       );
     } finally {
-      setLoadingBatches(false);
+      setLoading(false);
     }
-  }, []);
+  };
+
+  // =========================================================
+  // LOAD STUDENTS
+  // =========================================================
+
+  const loadStudents = async () => {
+    if (!selectedBatch) {
+      setStudents([]);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const response =
+        await apiClient.get(
+          `/batches/${selectedBatch}/students`
+        );
+
+      const data =
+        response.data?.students ||
+        response.data?.data ||
+        response.data ||
+        [];
+
+      setStudents(
+        Array.isArray(data)
+          ? data
+          : []
+      );
+    } catch (err) {
+      console.error(
+        "LOAD STUDENTS ERROR:",
+        err.response?.data || err
+      );
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to load students."
+      );
+
+      setStudents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================================================
+  // LOAD EXISTING ATTENDANCE
+  // =========================================================
+
+  const loadAttendance = async () => {
+    if (!selectedBatch) {
+      setAttendance({});
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const response =
+        await apiClient.get(
+          `/attendance?batchId=${selectedBatch}`
+        );
+
+      const records =
+        response.data?.attendance ||
+        response.data?.records ||
+        response.data?.data ||
+        [];
+
+      const map = {};
+
+      records.forEach((record) => {
+        const studentId =
+          typeof record.studentId === "object"
+            ? record.studentId._id
+            : record.studentId;
+
+        if (!studentId) {
+          return;
+        }
+
+        map[String(studentId)] =
+          record;
+      });
+
+      setAttendance(map);
+    } catch (err) {
+      console.error(
+        "LOAD ATTENDANCE ERROR:",
+        err.response?.data || err
+      );
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to load attendance."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // =========================================================
   // INITIAL LOAD
@@ -186,319 +192,43 @@ function Attendance() {
 
   useEffect(() => {
     loadBatches();
-  }, [loadBatches]);
+  }, []);
 
   // =========================================================
-  // LOAD STUDENTS FOR SELECTED BATCH
+  // BATCH CHANGE
   // =========================================================
 
   useEffect(() => {
     if (!selectedBatch) {
       setStudents([]);
       setAttendance({});
-      setSavedAttendance([]);
       return;
     }
-
-    const loadStudents = async () => {
-      try {
-        setLoadingStudents(true);
-        setError("");
-        setSuccess("");
-
-        // Reset old batch information immediately.
-        setStudents([]);
-        setAttendance({});
-        setSavedAttendance([]);
-
-        const response = await apiClient.get(
-          `/batches/${selectedBatch}`
-        );
-
-        console.log(
-          "BATCH DETAILS RESPONSE:",
-          response.data
-        );
-
-        const batch =
-          response.data?.batch ||
-          response.data?.data ||
-          response.data;
-
-        // -----------------------------------------------------
-        // Support different backend structures
-        // -----------------------------------------------------
-
-        let batchStudents =
-          batch?.students ||
-          batch?.studentIds ||
-          batch?.members ||
-          batch?.users ||
-          [];
-
-        // Some APIs return:
-        // { data: { students: [...] } }
-
-        if (
-          !Array.isArray(batchStudents) &&
-          Array.isArray(response.data?.data?.students)
-        ) {
-          batchStudents =
-            response.data.data.students;
-        }
-
-        if (!Array.isArray(batchStudents)) {
-          batchStudents = [];
-        }
-
-        console.log(
-          "STUDENTS FOUND:",
-          batchStudents
-        );
-
-        setStudents(batchStudents);
-      } catch (err) {
-        console.error(
-          "LOAD STUDENTS ERROR:",
-          err.response?.data || err
-        );
-
-        setStudents([]);
-
-        setError(
-          err.response?.data?.message ||
-            "Failed to load students."
-        );
-      } finally {
-        setLoadingStudents(false);
-      }
-    };
 
     loadStudents();
+    loadAttendance();
   }, [selectedBatch]);
-
- 
-  useEffect(() => {
-    if (
-      !selectedBatch ||
-      !selectedWeek ||
-      !selectedDate ||
-      loadingStudents
-    ) {
-      return;
-    }
-
-    if (students.length === 0) {
-      setSavedAttendance([]);
-      setAttendance({});
-      return;
-    }
-
-    loadExistingAttendance();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    selectedBatch,
-    selectedWeek,
-    selectedDate,
-    loadingStudents,
-    students,
-  ]);
-
-  
-
-  const loadExistingAttendance = async () => {
-    try {
-      setLoadingAttendance(true);
-      setError("");
-
-      const response = await apiClient.get(
-        `/attendance?batchId=${selectedBatch}`
-      );
-
-      console.log(
-        "ATTENDANCE RESPONSE:",
-        response.data
-      );
-
-      const records = extractArray(
-        response.data,
-        [
-          "attendance",
-          "records",
-          "data",
-          "results",
-        ]
-      );
-
-      // -----------------------------------------------------
-      // Filter by selected week and selected date
-      // -----------------------------------------------------
-
-      const filteredRecords = records.filter(
-        (record) => {
-          const recordWeek =
-            Number(record?.week);
-
-          const recordDate = getDateKey(
-            record?.sessionDate ||
-              record?.date ||
-              record?.attendanceDate ||
-              record?.createdAt
-          );
-
-          return (
-            recordWeek === Number(selectedWeek) &&
-            recordDate === selectedDate
-          );
-        }
-      );
-
-      console.log(
-        "FILTERED ATTENDANCE:",
-        filteredRecords
-      );
-
-      setSavedAttendance(filteredRecords);
-
-      // -----------------------------------------------------
-      // Create map of existing records
-      // -----------------------------------------------------
-
-      const existing = {};
-
-      filteredRecords.forEach((record) => {
-        const studentId =
-          getRecordStudentId(record);
-
-        if (!studentId) {
-          return;
-        }
-
-        existing[String(studentId)] = {
-          status:
-            record.status || "Present",
-          notes: record.notes || "",
-          attendanceId:
-            record._id || record.id,
-        };
-      });
-
-      // -----------------------------------------------------
-      // Build attendance form
-      //
-      // Existing record:
-      //     use existing status
-      //
-      // No existing record:
-      //     default to Present
-      // -----------------------------------------------------
-
-      const initialAttendance = {};
-
-      students.forEach((student) => {
-        const studentId = getId(student);
-
-        if (!studentId) {
-          return;
-        }
-
-        initialAttendance[studentId] =
-          existing[studentId] || {
-            status: "Present",
-            notes: "",
-            attendanceId: null,
-          };
-      });
-
-      setAttendance(initialAttendance);
-    } catch (err) {
-      console.error(
-        "LOAD EXISTING ATTENDANCE ERROR:",
-        err.response?.data || err
-      );
-
-      setSavedAttendance([]);
-      setAttendance({});
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to load existing attendance."
-      );
-    } finally {
-      setLoadingAttendance(false);
-    }
-  };
 
   // =========================================================
   // STATUS CHANGE
   // =========================================================
 
-  const handleStatusChange = (
+  const handleStatusChange = async (
     studentId,
     status
   ) => {
-    setAttendance((prev) => ({
-      ...prev,
-      [studentId]: {
-        ...(prev[studentId] || {}),
-        status,
-      },
-    }));
-
-    setSuccess("");
-    setError("");
-  };
-
-  // =========================================================
-  // NOTES CHANGE
-  // =========================================================
-
-  const handleNotesChange = (
-    studentId,
-    notes
-  ) => {
-    setAttendance((prev) => ({
-      ...prev,
-      [studentId]: {
-        ...(prev[studentId] || {}),
-        notes,
-      },
-    }));
-
-    setSuccess("");
-    setError("");
-  };
-
-  // =========================================================
-  // SAVE ATTENDANCE
-  // =========================================================
-
-  const handleSaveAttendance = async () => {
     setError("");
     setSuccess("");
 
-    // -----------------------------------------------------
-    // VALIDATION
-    // -----------------------------------------------------
+    const existing =
+      attendance[String(studentId)];
 
-    if (!selectedBatch) {
-      setError("Please select a batch.");
-      return;
-    }
-
-    if (!selectedWeek) {
-      setError("Please select a week.");
-      return;
-    }
-
-    if (!selectedDate) {
-      setError("Please select a session date.");
-      return;
-    }
-
-    if (students.length === 0) {
+    // No existing record:
+    // status cannot be manually created here
+    // because the new system uses time tracking.
+    if (!existing?._id) {
       setError(
-        "There are no students in this batch."
+        "This student has no attendance record yet. Use check-in/check-out or approve an excuse."
       );
       return;
     }
@@ -506,156 +236,37 @@ function Attendance() {
     try {
       setSaving(true);
 
-      // -----------------------------------------------------
-      // FIRST FETCH THE LATEST RECORDS
-      //
-      // This prevents duplicate records if the page was
-      // opened in another tab or attendance was recently saved.
-      // -----------------------------------------------------
-
-      const latestResponse = await apiClient.get(
-        `/attendance?batchId=${selectedBatch}`
-      );
-
-      const latestRecords = extractArray(
-        latestResponse.data,
-        [
-          "attendance",
-          "records",
-          "data",
-          "results",
-        ]
-      );
-
-      const existingForSession =
-        latestRecords.filter((record) => {
-          const recordWeek =
-            Number(record?.week);
-
-          const recordDate = getDateKey(
-            record?.sessionDate ||
-              record?.date ||
-              record?.attendanceDate ||
-              record?.createdAt
-          );
-
-          return (
-            recordWeek === Number(selectedWeek) &&
-            recordDate === selectedDate
-          );
-        });
-
-      // -----------------------------------------------------
-      // MAP EXISTING RECORDS BY STUDENT
-      // -----------------------------------------------------
-
-      const existingMap = {};
-
-      existingForSession.forEach((record) => {
-        const studentId =
-          getRecordStudentId(record);
-
-        if (!studentId) {
-          return;
-        }
-
-        existingMap[String(studentId)] =
-          record;
-      });
-
-      // -----------------------------------------------------
-      // SAVE EACH STUDENT
-      // -----------------------------------------------------
-
-      const results = [];
-
-      for (const student of students) {
-        const studentId = getId(student);
-
-        if (!studentId) {
-          continue;
-        }
-
-        const current =
-          attendance[studentId] || {
-            status: "Present",
-            notes: "",
-          };
-
-        const existing =
-          existingMap[studentId];
-
-        const payload = {
-          studentId,
-          batchId: selectedBatch,
-          week: Number(selectedWeek),
-          sessionDate: selectedDate,
-          status:
-            current.status || "Present",
-          notes: current.notes || "",
-        };
-
-        console.log(
-          "SAVING ATTENDANCE:",
-          payload
+      const response =
+        await apiClient.put(
+          `/attendance/${existing._id}`,
+          {
+            status,
+          }
         );
 
-        // ---------------------------------------------------
-        // UPDATE EXISTING
-        // ---------------------------------------------------
+      setAttendance((prev) => ({
+        ...prev,
 
-        if (existing?._id || existing?.id) {
-          const attendanceId =
-            existing._id || existing.id;
-
-          const response =
-            await apiClient.put(
-              `/attendance/${attendanceId}`,
-              payload
-            );
-
-          results.push(response.data);
-        }
-
-        // ---------------------------------------------------
-        // CREATE NEW
-        // ---------------------------------------------------
-
-        else {
-          const response =
-            await apiClient.post(
-              "/attendance",
-              payload
-            );
-
-          results.push(response.data);
-        }
-      }
-
-      console.log(
-        "SAVE RESULTS:",
-        results
-      );
+        [String(studentId)]:
+          response.data?.attendance ||
+          {
+            ...existing,
+            status,
+          },
+      }));
 
       setSuccess(
-        "Attendance saved successfully."
+        "Attendance status updated."
       );
-
-      // -----------------------------------------------------
-      // LOAD THE SAVED DATA AGAIN
-      // -----------------------------------------------------
-
-      await loadExistingAttendance();
     } catch (err) {
       console.error(
-        "SAVE ATTENDANCE ERROR:",
+        "UPDATE STATUS ERROR:",
         err.response?.data || err
       );
 
       setError(
         err.response?.data?.message ||
-          err.message ||
-          "Failed to save attendance."
+          "Failed to update status."
       );
     } finally {
       setSaving(false);
@@ -663,615 +274,488 @@ function Attendance() {
   };
 
   // =========================================================
-  // GET SAVED STUDENT
+  // EXCUSE
   // =========================================================
 
-  const getSavedStudent = (record) => {
-    const recordStudentId =
-      getRecordStudentId(record);
-
-    // If backend populated student
-    if (
-      record?.studentId &&
-      typeof record.studentId === "object"
-    ) {
-      return record.studentId;
+  const handleExcuse = async () => {
+    if (!excuseStudent) {
+      return;
     }
 
-    // Otherwise find student from batch
-    return students.find(
-      (student) =>
-        getId(student) ===
-        String(recordStudentId)
-    );
+    if (!excuseReason.trim()) {
+      setError(
+        "Please provide an excuse reason."
+      );
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError("");
+
+      const studentId =
+        excuseStudent._id ||
+        excuseStudent.id;
+
+      const response =
+        await apiClient.post(
+          "/attendance/excuse",
+          {
+            studentId,
+            batchId: selectedBatch,
+            reason:
+              excuseReason.trim(),
+          }
+        );
+
+      const record =
+        response.data?.attendance;
+
+      setAttendance((prev) => ({
+        ...prev,
+        [String(studentId)]:
+          record,
+      }));
+
+      setExcuseStudent(null);
+      setExcuseReason("");
+
+      setSuccess(
+        "Student marked as excused."
+      );
+    } catch (err) {
+      console.error(
+        "EXCUSE ERROR:",
+        err.response?.data || err
+      );
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to excuse attendance."
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   // =========================================================
-  // REFRESH
+  // HELPERS
   // =========================================================
 
-  const handleRefreshAttendance =
-    async () => {
-      if (
-        selectedBatch &&
-        selectedWeek &&
-        selectedDate &&
-        students.length > 0
-      ) {
-        await loadExistingAttendance();
-      }
-    };
+  const getStudentId = (student) =>
+    student?._id || student?.id;
+
+  const getStudentName = (student) => {
+    if (student?.name) {
+      return student.name;
+    }
+
+    return [
+      student?.firstName,
+      student?.lastName,
+    ]
+      .filter(Boolean)
+      .join(" ") || "Unknown Student";
+  };
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "Present":
+        return "bg-green-50 text-green-700 border-green-200";
+
+      case "Absent":
+        return "bg-red-50 text-red-700 border-red-200";
+
+      case "Late":
+        return "bg-orange-50 text-orange-700 border-orange-200";
+
+      case "Excused":
+        return "bg-blue-50 text-blue-700 border-blue-200";
+
+      default:
+        return "bg-gray-50 text-gray-600 border-gray-200";
+    }
+  };
 
   // =========================================================
   // RENDER
   // =========================================================
 
   return (
-    <div className="space-y-6">
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
+    <div className="space-y-6 p-6">
+
+      {/* HEADER */}
 
       <div>
-        <h1 className="text-2xl font-bold text-[#071629]">
-          Attendance
-        </h1>
-
-        <p className="mt-1 text-sm text-[#718096]">
-          Mark and manage student attendance.
-        </p>
-      </div>
-
-      {/* =====================================================
-          FILTERS
-      ====================================================== */}
-
-      <div className="rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
-        <div className="grid gap-5 md:grid-cols-3">
-          {/* BATCH */}
+        <div className="flex items-center gap-3">
+          <UserCheck
+            size={30}
+            className="text-blue-600"
+          />
 
           <div>
-            <label className="mb-2 block text-sm font-semibold text-[#071629]">
-              Batch
-            </label>
+            <h1 className="text-2xl font-bold text-gray-900">
+              AI Attendance Tracker
+            </h1>
 
-            <select
-              value={selectedBatch}
-              onChange={(e) => {
-                const value = e.target.value;
-
-                setSelectedBatch(value);
-                setSelectedWeek("");
-                setSelectedDate("");
-
-                setStudents([]);
-                setAttendance({});
-                setSavedAttendance([]);
-
-                setError("");
-                setSuccess("");
-              }}
-              className="w-full rounded-xl border border-[#D9DEE7] bg-white px-4 py-3 text-sm outline-none focus:border-[#071629]"
-            >
-              <option value="">
-                {loadingBatches
-                  ? "Loading batches..."
-                  : "Select batch"}
-              </option>
-
-              {batches.map((batch) => {
-                const batchId = getId(batch);
-
-                return (
-                  <option
-                    key={batchId}
-                    value={batchId}
-                  >
-                    {batch.name ||
-                      batch.batchName ||
-                      batch.title ||
-                      `Batch ${batchId}`}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-
-          {/* WEEK */}
-
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-[#071629]">
-              Week
-            </label>
-
-            <select
-              value={selectedWeek}
-              onChange={(e) => {
-                setSelectedWeek(
-                  e.target.value
-                );
-
-                setSuccess("");
-                setError("");
-              }}
-              className="w-full rounded-xl border border-[#D9DEE7] bg-white px-4 py-3 text-sm outline-none focus:border-[#071629]"
-            >
-              <option value="">
-                Select week
-              </option>
-
-              {Array.from(
-                { length: 12 },
-                (_, index) => index + 1
-              ).map((week) => (
-                <option
-                  key={week}
-                  value={week}
-                >
-                  Week {week}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* DATE */}
-
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-[#071629]">
-              Session Date
-            </label>
-
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => {
-                setSelectedDate(
-                  e.target.value
-                );
-
-                setSuccess("");
-                setError("");
-              }}
-              className="w-full rounded-xl border border-[#D9DEE7] bg-white px-4 py-3 text-sm outline-none focus:border-[#071629]"
-            />
+            <p className="text-sm text-gray-500">
+              Attendance is automatically calculated
+              from student check-in and check-out time.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* =====================================================
-          SUCCESS
-      ====================================================== */}
-
-      {success && (
-        <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
-          {success}
-        </div>
-      )}
-
-      {/* =====================================================
-          ERROR
-      ====================================================== */}
+      {/* MESSAGES */}
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+          <AlertCircle size={18} />
           {error}
         </div>
       )}
 
-      {/* =====================================================
-          MARK ATTENDANCE
-      ====================================================== */}
-
-      {selectedBatch && (
-        <div className="overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-sm">
-          {/* HEADER */}
-
-          <div className="flex flex-col gap-3 border-b border-[#E5E7EB] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="font-bold text-[#071629]">
-                Mark Attendance
-              </h2>
-
-              <p className="mt-1 text-sm text-[#718096]">
-                {selectedWeek
-                  ? `Week ${selectedWeek}`
-                  : "Select a week"}
-
-                {selectedDate
-                  ? ` · ${selectedDate}`
-                  : ""}
-              </p>
-            </div>
-
-            {selectedWeek &&
-              selectedDate && (
-                <button
-                  type="button"
-                  onClick={
-                    handleRefreshAttendance
-                  }
-                  disabled={
-                    loadingAttendance ||
-                    loadingStudents
-                  }
-                  className="rounded-lg border border-[#D9DEE7] px-4 py-2 text-sm font-medium text-[#52627A] hover:bg-[#F8FAFC] disabled:opacity-50"
-                >
-                  {loadingAttendance
-                    ? "Loading..."
-                    : "Refresh"}
-                </button>
-              )}
-          </div>
-
-          {/* LOADING */}
-
-          {loadingStudents ||
-          loadingAttendance ? (
-            <div className="px-6 py-12 text-center text-sm text-[#718096]">
-              Loading attendance...
-            </div>
-          ) : students.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <p className="text-sm font-medium text-[#52627A]">
-                No students found in this
-                batch.
-              </p>
-
-              <p className="mt-1 text-xs text-[#94A3B8]">
-                Make sure students have been
-                assigned to this batch.
-              </p>
-            </div>
-          ) : !selectedWeek ||
-            !selectedDate ? (
-            <div className="px-6 py-12 text-center">
-              <p className="text-sm font-medium text-[#52627A]">
-                Select a week and session date
-                to mark attendance.
-              </p>
-            </div>
-          ) : (
-            <>
-              {/* TABLE */}
-
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-[#E5E7EB] bg-[#F8FAFC] text-left">
-                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-[#718096]">
-                        Student
-                      </th>
-
-                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-[#718096]">
-                        Status
-                      </th>
-
-                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-[#718096]">
-                        Notes
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {students.map(
-                      (student) => {
-                        const studentId =
-                          getId(student);
-
-                        if (!studentId) {
-                          return null;
-                        }
-
-                        const current =
-                          attendance[
-                            studentId
-                          ] || {
-                            status: "Present",
-                            notes: "",
-                          };
-
-                        return (
-                          <tr
-                            key={studentId}
-                            className="border-b border-[#F0F2F5] last:border-0"
-                          >
-                            {/* STUDENT */}
-
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EAF0F6] font-semibold text-[#071629]">
-                                  {getStudentName(
-                                    student
-                                  )
-                                    .charAt(
-                                      0
-                                    )
-                                    .toUpperCase()}
-                                </div>
-
-                                <div>
-                                  <div className="text-sm font-semibold text-[#071629]">
-                                    {getStudentName(
-                                      student
-                                    )}
-                                  </div>
-
-                                  {getStudentEmail(
-                                    student
-                                  ) && (
-                                    <div className="mt-1 text-xs text-[#718096]">
-                                      {getStudentEmail(
-                                        student
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-
-                            {/* STATUS */}
-
-                            <td className="px-6 py-4">
-                              <select
-                                value={
-                                  current.status ||
-                                  "Present"
-                                }
-                                onChange={(
-                                  e
-                                ) =>
-                                  handleStatusChange(
-                                    studentId,
-                                    e
-                                      .target
-                                      .value
-                                  )
-                                }
-                                className="rounded-lg border border-[#D9DEE7] bg-white px-3 py-2 text-sm outline-none focus:border-[#071629]"
-                              >
-                                <option value="Present">
-                                  Present
-                                </option>
-
-                                <option value="Absent">
-                                  Absent
-                                </option>
-
-                                <option value="Late">
-                                  Late
-                                </option>
-
-                                <option value="Excused">
-                                  Excused
-                                </option>
-                              </select>
-                            </td>
-
-                            {/* NOTES */}
-
-                            <td className="px-6 py-4">
-                              <input
-                                type="text"
-                                value={
-                                  current.notes ||
-                                  ""
-                                }
-                                onChange={(
-                                  e
-                                ) =>
-                                  handleNotesChange(
-                                    studentId,
-                                    e
-                                      .target
-                                      .value
-                                  )
-                                }
-                                placeholder="Optional note"
-                                className="w-full min-w-[200px] rounded-lg border border-[#D9DEE7] px-3 py-2 text-sm outline-none focus:border-[#071629]"
-                              />
-                            </td>
-                          </tr>
-                        );
-                      }
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* SAVE */}
-
-              <div className="flex justify-end border-t border-[#E5E7EB] px-6 py-5">
-                <button
-                  type="button"
-                  onClick={
-                    handleSaveAttendance
-                  }
-                  disabled={saving}
-                  className="rounded-xl bg-[#071629] px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {saving
-                    ? "Saving..."
-                    : savedAttendance.length >
-                      0
-                    ? "Update Attendance"
-                    : "Save Attendance"}
-                </button>
-              </div>
-            </>
-          )}
+      {success && (
+        <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-green-700">
+          {success}
         </div>
       )}
 
-      {/* =====================================================
-          SAVED ATTENDANCE
-      ====================================================== */}
+      {/* BATCH */}
 
-      {selectedBatch &&
-        selectedWeek &&
-        selectedDate &&
-        savedAttendance.length > 0 && (
-          <div className="overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white shadow-sm">
-            {/* HEADER */}
+      <div className="rounded-xl border bg-white p-5 shadow-sm">
+        <label className="mb-2 block text-sm font-medium text-gray-700">
+          Select Batch
+        </label>
 
-            <div className="flex flex-col gap-3 border-b border-[#E5E7EB] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="font-bold text-[#071629]">
-                  Saved Attendance
-                </h2>
+        <select
+          value={selectedBatch}
+          onChange={(e) =>
+            setSelectedBatch(e.target.value)
+          }
+          className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+        >
+          <option value="">
+            Select a batch
+          </option>
 
-                <p className="mt-1 text-sm text-[#718096]">
-                  Week {selectedWeek} ·{" "}
-                  {selectedDate}
-                </p>
-              </div>
+          {batches.map((batch) => (
+            <option
+              key={batch._id}
+              value={batch._id}
+            >
+              {batch.name ||
+                batch.batchName ||
+                batch.title ||
+                "Unnamed Batch"}
+            </option>
+          ))}
+        </select>
+      </div>
 
-              <span className="text-sm font-medium text-[#718096]">
-                {savedAttendance.length}{" "}
-                record
-                {savedAttendance.length !==
-                1
-                  ? "s"
-                  : ""}
-              </span>
+      {/* SESSION INFORMATION */}
+
+      {selectedBatch && (
+        <div className="grid gap-4 md:grid-cols-4">
+
+          <div className="rounded-xl border bg-white p-5">
+            <p className="text-sm text-gray-500">
+              Week
+            </p>
+
+            <p className="mt-1 text-xl font-bold">
+              Automatically tracked
+            </p>
+          </div>
+
+          <div className="rounded-xl border bg-white p-5">
+            <p className="text-sm text-gray-500">
+              Session date
+            </p>
+
+            <p className="mt-1 text-xl font-bold">
+              Automatically tracked
+            </p>
+          </div>
+
+          <div className="rounded-xl border bg-white p-5">
+            <p className="text-sm text-gray-500">
+              Session
+            </p>
+
+            <p className="mt-1 text-xl font-bold">
+              09:00 - 13:00
+            </p>
+          </div>
+
+          <div className="rounded-xl border bg-white p-5">
+            <p className="text-sm text-gray-500">
+              Students
+            </p>
+
+            <p className="mt-1 text-xl font-bold">
+              {students.length}
+            </p>
+          </div>
+
+        </div>
+      )}
+
+      {/* STUDENTS */}
+
+      {selectedBatch && (
+        <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+
+          <div className="flex items-center justify-between border-b p-5">
+
+            <div>
+              <h2 className="font-semibold text-gray-900">
+                Student Attendance
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Time determines Present/Late/Absent.
+                Excused has no time interval.
+              </p>
             </div>
 
-            {/* TABLE */}
+            <button
+              type="button"
+              onClick={() => {
+                loadStudents();
+                loadAttendance();
+              }}
+              className="flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50"
+            >
+              <RefreshCw size={16} />
+              Refresh
+            </button>
 
+          </div>
+
+          {loading ? (
+            <div className="p-10 text-center">
+              Loading...
+            </div>
+          ) : students.length === 0 ? (
+            <div className="p-10 text-center text-gray-500">
+              No students found.
+            </div>
+          ) : (
             <div className="overflow-x-auto">
+
               <table className="w-full">
-                <thead>
-                  <tr className="border-b border-[#E5E7EB] bg-[#F8FAFC] text-left">
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-[#718096]">
+
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-5 py-4 text-left">
                       Student
                     </th>
 
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-[#718096]">
+                    <th className="px-5 py-4 text-left">
+                      Email
+                    </th>
+
+                    <th className="px-5 py-4 text-left">
+                      Check In
+                    </th>
+
+                    <th className="px-5 py-4 text-left">
+                      Check Out
+                    </th>
+
+                    <th className="px-5 py-4 text-left">
+                      Time
+                    </th>
+
+                    <th className="px-5 py-4 text-left">
+                      Percentage
+                    </th>
+
+                    <th className="px-5 py-4 text-left">
                       Status
                     </th>
 
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-[#718096]">
-                      Notes
+                    <th className="px-5 py-4 text-left">
+                      Action
                     </th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {savedAttendance.map(
-                    (record, index) => {
-                      const student =
-                        getSavedStudent(
-                          record
-                        );
 
-                      return (
-                        <tr
-                          key={
-                            record._id ||
-                            record.id ||
-                            `${getRecordStudentId(
-                              record
-                            )}-${index}`
-                          }
-                          className="border-b border-[#F0F2F5] last:border-0"
-                        >
-                          {/* STUDENT */}
+                  {students.map((student) => {
+                    const studentId =
+                      getStudentId(student);
 
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EAF0F6] text-sm font-semibold text-[#071629]">
-                                {getStudentName(
-                                  student
-                                )
-                                  .charAt(
-                                    0
-                                  )
-                                  .toUpperCase()}
-                              </div>
+                    const record =
+                      attendance[
+                        String(studentId)
+                      ];
 
-                              <div>
-                                <div className="text-sm font-semibold text-[#071629]">
-                                  {getStudentName(
-                                    student
-                                  )}
-                                </div>
+                    return (
+                      <tr
+                        key={studentId}
+                        className="border-t"
+                      >
 
-                                {getStudentEmail(
-                                  student
-                                ) && (
-                                  <div className="mt-1 text-xs text-[#718096]">
-                                    {getStudentEmail(
-                                      student
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </td>
+                        <td className="px-5 py-4 font-medium">
+                          {getStudentName(student)}
+                        </td>
 
-                          {/* STATUS */}
+                        <td className="px-5 py-4 text-sm text-gray-500">
+                          {student.email || "-"}
+                        </td>
 
-                          <td className="px-6 py-4">
-                            <span
-                              className={`inline-flex rounded-lg px-3 py-1.5 text-sm font-semibold ${
-                                record.status ===
-                                "Present"
-                                  ? "bg-green-50 text-green-700"
-                                  : record.status ===
-                                    "Absent"
-                                  ? "bg-red-50 text-red-700"
-                                  : record.status ===
-                                    "Late"
-                                  ? "bg-orange-50 text-orange-700"
-                                  : record.status ===
-                                    "Excused"
-                                  ? "bg-blue-50 text-blue-700"
-                                  : "bg-gray-50 text-gray-700"
-                              }`}
-                            >
-                              {record.status ||
-                                "Unknown"}
-                            </span>
-                          </td>
+                        <td className="px-5 py-4">
+                          {record?.checkInTime
+                            ? new Date(
+                                record.checkInTime
+                              ).toLocaleTimeString()
+                            : "-"}
+                        </td>
 
-                          {/* NOTES */}
+                        <td className="px-5 py-4">
+                          {record?.checkOutTime
+                            ? new Date(
+                                record.checkOutTime
+                              ).toLocaleTimeString()
+                            : "-"}
+                        </td>
 
-                          <td className="px-6 py-4 text-sm text-[#718096]">
-                            {record.notes ||
-                              "-"}
-                          </td>
-                        </tr>
-                      );
-                    }
-                  )}
+                        <td className="px-5 py-4">
+                          {record?.attendedMinutes
+                            ? `${record.attendedMinutes} min`
+                            : "-"}
+                        </td>
+
+                        <td className="px-5 py-4">
+                          {record
+                            ? `${record.attendancePercentage || 0}%`
+                            : "-"}
+                        </td>
+
+                        <td className="px-5 py-4">
+
+                          <select
+                            value={
+                              record?.status ||
+                              "Absent"
+                            }
+                            disabled={
+                              saving ||
+                              !record?._id
+                            }
+                            onChange={(e) =>
+                              handleStatusChange(
+                                studentId,
+                                e.target.value
+                              )
+                            }
+                            className={`rounded-lg border px-3 py-2 text-sm font-medium ${getStatusClass(
+                              record?.status
+                            )}`}
+                          >
+                            {STATUS_OPTIONS.map(
+                              (status) => (
+                                <option
+                                  key={status}
+                                  value={status}
+                                >
+                                  {status}
+                                </option>
+                              )
+                            )}
+                          </select>
+
+                        </td>
+
+                        <td className="px-5 py-4">
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setExcuseStudent(
+                                student
+                              );
+                              setExcuseReason("");
+                            }}
+                            className="rounded-lg border border-blue-200 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                          >
+                            Excuse
+                          </button>
+
+                        </td>
+
+                      </tr>
+                    );
+                  })}
+
                 </tbody>
+
               </table>
+
             </div>
-          </div>
-        )}
+          )}
 
-      {/* =====================================================
-          NO SAVED RECORDS
-      ====================================================== */}
+        </div>
+      )}
 
-      {selectedBatch &&
-        selectedWeek &&
-        selectedDate &&
-        !loadingStudents &&
-        !loadingAttendance &&
-        savedAttendance.length === 0 &&
-        students.length > 0 && (
-          <div className="rounded-2xl border border-dashed border-[#D9DEE7] bg-white px-6 py-8 text-center">
-            <p className="text-sm font-medium text-[#52627A]">
-              No attendance has been saved for
-              this session yet.
+      {/* EXCUSE MODAL */}
+
+      {excuseStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+
+            <h2 className="text-lg font-bold">
+              Approve Excuse
+            </h2>
+
+            <p className="mt-1 text-sm text-gray-500">
+              {getStudentName(excuseStudent)}
             </p>
 
-            <p className="mt-1 text-xs text-[#94A3B8]">
-              Mark the students above and click
-              Save Attendance.
-            </p>
+            <textarea
+              value={excuseReason}
+              onChange={(e) =>
+                setExcuseReason(
+                  e.target.value
+                )
+              }
+              placeholder="Enter the reason for the excuse..."
+              className="mt-4 min-h-32 w-full rounded-lg border p-3 outline-none focus:border-blue-500"
+            />
+
+            <div className="mt-5 flex justify-end gap-3">
+
+              <button
+                type="button"
+                onClick={() => {
+                  setExcuseStudent(null);
+                  setExcuseReason("");
+                }}
+                className="rounded-lg border px-4 py-2"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                disabled={saving}
+                onClick={handleExcuse}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+              >
+                Approve Excuse
+              </button>
+
+            </div>
+
           </div>
-        )}
+
+        </div>
+      )}
+
     </div>
   );
 }

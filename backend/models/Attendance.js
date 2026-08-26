@@ -48,7 +48,7 @@ const attendanceSchema = new mongoose.Schema(
   }
 );
 
-// One attendance record per student per batch per session
+// One attendance record per student per session
 attendanceSchema.index(
   {
     studentId: 1,

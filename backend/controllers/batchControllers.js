@@ -1,4 +1,9 @@
 const Batch = require("../models/Batch");
+const User = require("../models/User");
+
+// =========================================================
+// GET ALL BATCHES
+// =========================================================
 
 const getBatches = async (req, res) => {
   try {
@@ -20,6 +25,10 @@ const getBatches = async (req, res) => {
     });
   }
 };
+
+// =========================================================
+// GET BATCH BY ID
+// =========================================================
 
 const getBatchById = async (req, res) => {
   try {
@@ -45,6 +54,10 @@ const getBatchById = async (req, res) => {
     });
   }
 };
+
+// =========================================================
+// CREATE BATCH
+// =========================================================
 
 const createBatch = async (req, res) => {
   try {
@@ -74,10 +87,27 @@ const createBatch = async (req, res) => {
   }
 };
 
+// =========================================================
+// ASSIGN STUDENTS TO MENTOR + BATCH
+// POST /api/batches/:id/assign-mentor
+// =========================================================
+
 const assignStudentsToMentor = async (req, res) => {
   try {
+    console.log("\n======================================");
+    console.log("ASSIGN STUDENTS TO BATCH");
+    console.log("======================================");
+
     const { id } = req.params;
     const { mentorId, studentIds } = req.body;
+
+    console.log("Batch ID:", id);
+    console.log("Mentor ID:", mentorId);
+    console.log("Student IDs:", studentIds);
+
+    // =====================================================
+    // VALIDATION
+    // =====================================================
 
     if (!mentorId) {
       return res.status(400).json({
@@ -91,6 +121,10 @@ const assignStudentsToMentor = async (req, res) => {
       });
     }
 
+    // =====================================================
+    // FIND BATCH
+    // =====================================================
+
     const batch = await Batch.findById(id);
 
     if (!batch) {
@@ -99,9 +133,17 @@ const assignStudentsToMentor = async (req, res) => {
       });
     }
 
+    // =====================================================
+    // ADD MENTOR TO BATCH
+    // =====================================================
+
     if (!batch.mentorIds.includes(mentorId)) {
       batch.mentorIds.push(mentorId);
     }
+
+    // =====================================================
+    // ADD STUDENTS TO BATCH
+    // =====================================================
 
     studentIds.forEach((studentId) => {
       if (!batch.studentIds.includes(studentId)) {
@@ -111,12 +153,48 @@ const assignStudentsToMentor = async (req, res) => {
 
     await batch.save();
 
+    // =====================================================
+    // IMPORTANT:
+    // ALSO SET User.batchId
+    // =====================================================
+
+    if (studentIds.length > 0) {
+      await User.updateMany(
+        {
+          _id: { $in: studentIds },
+          role: "student",
+        },
+        {
+          $set: {
+            batchId: batch._id,
+          },
+        },
+        {
+          runValidators: false,
+        }
+      );
+    }
+
+    // =====================================================
+    // GET UPDATED BATCH
+    // =====================================================
+
     const updatedBatch = await Batch.findById(id)
       .populate("mentorIds", "name email role")
       .populate("studentIds", "name email role");
 
+    // =====================================================
+    // SUCCESS
+    // =====================================================
+
+    console.log("======================================");
+    console.log("STUDENTS SUCCESSFULLY ASSIGNED");
+    console.log("Batch:", updatedBatch.name);
+    console.log("Students:", studentIds.length);
+    console.log("======================================");
+
     res.json({
-      message: "Students assigned to mentor successfully",
+      message: "Students assigned to mentor and batch successfully",
       batch: updatedBatch,
     });
   } catch (error) {
@@ -128,6 +206,10 @@ const assignStudentsToMentor = async (req, res) => {
     });
   }
 };
+
+// =========================================================
+// EXPORT
+// =========================================================
 
 module.exports = {
   createBatch,
