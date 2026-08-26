@@ -24,8 +24,13 @@ function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  // =========================================================
+  // LOGIN
+  // =========================================================
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setError("");
 
     if (!email.trim() || !password.trim()) {
@@ -47,7 +52,13 @@ function Login() {
         throw new Error("Invalid login response.");
       }
 
-      if (user.role === "admin") {
+      // =====================================================
+      // REDIRECT BASED ON ROLE
+      // =====================================================
+
+      if (user.role === "superadmin") {
+        navigate("/superadmin");
+      } else if (user.role === "admin") {
         navigate("/admin");
       } else if (user.role === "mentor") {
         navigate("/mentor");
@@ -69,35 +80,30 @@ function Login() {
 
   return (
     <div className="w-full">
-
-      
       <div className="grid w-full grid-cols-1 overflow-hidden rounded-2xl shadow-2xl md:grid-cols-2">
 
-        
+        {/* ===================================================
+            LEFT SIDE
+        =================================================== */}
 
         <section className="relative flex min-h-[620px] overflow-hidden bg-[#06103D]">
 
-          
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
 
           <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-blue-400/10 blur-3xl" />
 
           <div className="relative z-10 flex w-full flex-col justify-between p-8 sm:p-10 lg:p-12">
 
-            {/* ================= BRAND ================= */}
+            {/* LOGO */}
 
             <div className="flex items-center gap-4">
-
               <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-blue-400/60 bg-blue-950/70 shadow-lg">
-
                 <span className="text-3xl font-bold text-white">
                   A
                 </span>
-
               </div>
 
               <div>
-
                 <h2 className="text-xl font-bold text-white">
                   ASTU MSJ
                 </h2>
@@ -105,33 +111,27 @@ function Login() {
                 <p className="mt-1 text-xs font-semibold tracking-[0.2em] text-blue-300">
                   SUMMER BOOTCAMP
                 </p>
-
               </div>
-
             </div>
 
-           
-            <div className="max-w-md">
+            {/* HERO TEXT */}
 
+            <div className="max-w-md">
               <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-blue-300">
                 ASTU MSJ Bootcamp
               </p>
 
               <h1 className="text-5xl font-bold leading-[1.05] text-white lg:text-6xl">
-
                 Learn.
                 <br />
-
                 Build.
                 <br />
-
                 Grow.
                 <br />
 
                 <span className="text-blue-400">
                   Together.
                 </span>
-
               </h1>
 
               <p className="mt-6 max-w-md text-sm leading-7 text-gray-300">
@@ -139,26 +139,22 @@ function Login() {
                 collaborate with your peers, and grow
                 together with the ASTU MSJ community.
               </p>
-
             </div>
 
-            
+            {/* COMMUNITY CARD */}
 
             <div className="max-w-md rounded-xl border border-blue-400/20 bg-blue-950/70 p-5 shadow-lg">
 
               <div className="flex items-center gap-4">
 
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-500/15">
-
                   <FileText
                     size={22}
                     className="text-blue-300"
                   />
-
                 </div>
 
                 <div>
-
                   <p className="font-semibold text-white">
                     Join the community
                   </p>
@@ -166,7 +162,6 @@ function Login() {
                   <p className="mt-1 text-sm text-gray-300">
                     Learn, collaborate, and build together.
                   </p>
-
                 </div>
 
               </div>
@@ -177,16 +172,17 @@ function Login() {
 
         </section>
 
-       
+        {/* ===================================================
+            RIGHT SIDE
+        =================================================== */}
 
         <section className="flex min-h-[620px] items-center justify-center bg-[#F5F0E8] p-7 sm:p-9 lg:p-10">
 
           <div className="w-full max-w-[440px]">
 
-          
+            {/* HEADER */}
 
             <div className="mb-7">
-
               <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                 Welcome back
               </h1>
@@ -194,10 +190,9 @@ function Login() {
               <p className="mt-2 text-sm leading-6 text-gray-500">
                 Sign in to your ASTU MSJ Bootcamp account.
               </p>
-
             </div>
 
-           
+            {/* ERROR */}
 
             {error && (
               <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -205,17 +200,16 @@ function Login() {
               </div>
             )}
 
-           
+            {/* FORM */}
 
             <form
               onSubmit={handleSubmit}
               className="space-y-5"
             >
 
-              
+              {/* EMAIL */}
 
               <div>
-
                 <label
                   htmlFor="email"
                   className="mb-2 block text-sm font-semibold text-gray-800"
@@ -245,13 +239,11 @@ function Login() {
                   />
 
                 </div>
-
               </div>
 
-             
+              {/* PASSWORD */}
 
               <div>
-
                 <label
                   htmlFor="password"
                   className="mb-2 block text-sm font-semibold text-gray-800"
@@ -287,27 +279,22 @@ function Login() {
                   <button
                     type="button"
                     onClick={() =>
-                      setShowPassword(
-                        (prev) => !prev
-                      )
+                      setShowPassword((prev) => !prev)
                     }
                     disabled={loading}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-800"
                   >
-
                     {showPassword ? (
                       <Eye size={18} />
                     ) : (
                       <EyeOff size={18} />
                     )}
-
                   </button>
 
                 </div>
-
               </div>
 
-            
+              {/* FORGOT PASSWORD */}
 
               <div className="flex justify-end">
 
@@ -320,7 +307,8 @@ function Login() {
 
               </div>
 
-             
+              {/* LOGIN */}
+
               <button
                 type="submit"
                 disabled={loading}
@@ -333,20 +321,18 @@ function Login() {
                       size={18}
                       className="animate-spin"
                     />
-
                     Signing in...
                   </>
                 ) : (
                   <>
                     <LogIn size={18} />
-
                     Sign in
                   </>
                 )}
 
               </button>
 
-              {/* ================= DIVIDER ================= */}
+              {/* DIVIDER */}
 
               <div className="flex items-center gap-3 py-1">
 
@@ -360,24 +346,21 @@ function Login() {
 
               </div>
 
-             
+              {/* FIRST LOGIN WITH OTP */}
 
-              <button
-                type="button"
-                disabled={loading}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60"
+              <Link
+                to="/first-login"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
-
                 <ShieldCheck
                   size={18}
                   className="text-gray-800"
                 />
 
-                Login with OTP
+                First time login? Verify with OTP
+              </Link>
 
-              </button>
-
-             
+              {/* REGISTER */}
 
               <div className="rounded-xl bg-[#EAE3D8] p-4">
 
@@ -408,11 +391,8 @@ function Login() {
                     to="/register"
                     className="flex shrink-0 items-center gap-1 text-xs font-semibold text-gray-800 transition hover:text-gray-600"
                   >
-
                     Apply Now
-
                     <ArrowRight size={14} />
-
                   </Link>
 
                 </div>
@@ -426,7 +406,6 @@ function Login() {
         </section>
 
       </div>
-
     </div>
   );
 }

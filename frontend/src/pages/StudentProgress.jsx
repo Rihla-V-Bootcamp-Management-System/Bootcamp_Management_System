@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+ import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   CheckCircle2,
@@ -20,40 +20,35 @@ const TOPICS = [
   "Git/GitHub",
 ];
 
+const STATUS_OPTIONS = [
+  "Not Started",
+  "In Progress",
+  "Completed",
+  "Needs Improvement",
+];
+
 function StudentProgress() {
+  // `progress` is the last known-good state from the server.
+  // `drafts` holds in-flight edits that haven't been saved yet.
+  // Nothing moves from drafts into progress until the API confirms it.
   const [progress, setProgress] = useState([]);
+  const [drafts, setDrafts] = useState({});
   const [loading, setLoading] = useState(true);
   const [savingTopic, setSavingTopic] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // =======================================================
-  // LOAD STUDENT PROGRESS
-  // =======================================================
-
   const loadProgress = async () => {
     try {
       setLoading(true);
       setError("");
-
       const response = await apiClient.get("/progress");
-
       const data = response.data;
-
-      const progressList = Array.isArray(data)
-        ? data
-        : data?.progress || [];
-
-      setProgress(progressList);
+      setProgress(Array.isArray(data) ? data : data?.progress || []);
     } catch (err) {
       console.error("LOAD STUDENT PROGRESS ERROR:", err);
-
       setProgress([]);
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to load your progress."
-      );
+      setError(err.response?.data?.message || "Failed to load your progress.");
     } finally {
       setLoading(false);
     }
@@ -63,464 +58,202 @@ function StudentProgress() {
     loadProgress();
   }, []);
 
-  // =======================================================
-  // MAP PROGRESS BY TOPIC
-  // =======================================================
-
   const progressByTopic = useMemo(() => {
     const map = {};
-
     progress.forEach((item) => {
-      if (item?.topic) {
-        map[item.topic] = item;
-      }
+      if (item?.topic) map[item.topic] = item;
     });
-
     return map;
   }, [progress]);
 
-  // =======================================================
-  // COUNTS & METRICS
-  // =======================================================
+  const savedStatus = (topic) => progressByTopic[topic]?.status || "Not Started";
+  const displayedStatus = (topic) => drafts[topic] ?? savedStatus(topic);
+  const isDirty = (topic) => drafts[topic] !== undefined && drafts[topic] !== savedStatus(topic);
 
-  const completedCount = progress.filter(
-    (item) => item.status === "Completed"
-  ).length;
-
-  const inProgressCount = progress.filter(
-    (item) => item.status === "In Progress"
-  ).length;
-
-  const needsImprovementCount = progress.filter(
-    (item) => item.status === "Needs Improvement"
-  ).length;
-
-  const totalTopics = TOPICS.length;
-
-  const overallProgress =
-    totalTopics > 0
-      ? Math.round(
-          (completedCount / totalTopics) * 100
-        )
-      : 0;
-
-  // =======================================================
-  // LOCAL STATUS UPDATE
-  // =======================================================
-
-  const updateLocalTopicState = (topic, updates) => {
-    setProgress((currentProgress) => {
-      const exists = currentProgress.some(
-        (item) => item.topic === topic
-      );
-
-      if (exists) {
-        return currentProgress.map((item) =>
-          item.topic === topic
-            ? { ...item, ...updates }
-            : item
-        );
-      }
-
-      return [
-        ...currentProgress,
-        {
-          topic,
-          status: "Not Started",
-          ...updates,
-        },
-      ];
-    });
-  };
+  const completedCount = progress.filter((item) => item.status === "Completed").length;
+  const inProgressCount = progress.filter((item) => item.status === "In Progress").length;
+  const needsImprovementCount = progress.filter((item) => item.status === "Needs Improvement").length;
+  const overallProgress = Math.round((completedCount / TOPICS.length) * 100);
 
   const handleStatusChange = (topic, newStatus) => {
-    updateLocalTopicState(topic, {
-      status: newStatus,
-    });
+    setDrafts((prev) => ({ ...prev, [topic]: newStatus }));
+    setError("");
   };
 
-  // =======================================================
-  // SAVE PROGRESS
-  // =======================================================
-
   const handleSaveTopic = async (topic) => {
-    const targetItem = progressByTopic[topic];
-
-    const status =
-      targetItem?.status || "Not Started";
+    const status = displayedStatus(topic);
+    const existing = progressByTopic[topic];
 
     try {
       setSavingTopic(topic);
       setError("");
       setSuccess("");
 
-      let response;
+      const response = existing?._id
+        ? await apiClient.put(`/progress/${existing._id}`, { status })
+        : await apiClient.post("/progress", { topic, status });
 
-      // ===================================================
-      // UPDATE EXISTING PROGRESS
-      // IMPORTANT: backend uses PUT, not PATCH
-      // ===================================================
+      const saved = response.data?.progress || response.data;
 
-      if (targetItem?._id) {
-        response = await apiClient.put(
-          `/progress/${targetItem._id}`,
-          {
-            status,
-          }
-        );
-      }
-
-      // ===================================================
-      // CREATE NEW PROGRESS
-      // ===================================================
-
-      else {
-        response = await apiClient.post(
-          "/progress",
-          {
-            topic,
-            status,
-          }
-        );
-      }
-
-      const savedProgress =
-        response.data?.progress ||
-        response.data;
-
-      // ===================================================
-      // UPDATE LOCAL STATE WITH DATABASE RESPONSE
-      // ===================================================
-
-      if (savedProgress?._id) {
-        setProgress((currentProgress) => {
-          const exists = currentProgress.some(
-            (item) =>
-              item._id === savedProgress._id ||
-              item.topic === topic
+      // Only now, with a confirmed save, does the change become part of `progress`.
+      setProgress((current) => {
+        const exists = current.some((item) => item._id === saved?._id || item.topic === topic);
+        if (exists) {
+          return current.map((item) =>
+            item._id === saved?._id || item.topic === topic ? saved : item
           );
+        }
+        return [...current, saved || { topic, status }];
+      });
 
-          if (exists) {
-            return currentProgress.map((item) =>
-              item._id === savedProgress._id ||
-              item.topic === topic
-                ? savedProgress
-                : item
-            );
-          }
+      // Clear the draft now that it matches what's saved.
+      setDrafts((prev) => {
+        const next = { ...prev };
+        delete next[topic];
+        return next;
+      });
 
-          return [
-            ...currentProgress,
-            savedProgress,
-          ];
-        });
-      }
-
-      setSuccess(
-        `${topic} progress saved successfully.`
-      );
-
-      setTimeout(() => {
-        setSuccess("");
-      }, 3000);
+      setSuccess(`${topic} progress saved.`);
+      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       console.error("SAVE PROGRESS ERROR:", err);
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to save progress."
-      );
+      // Draft is left in place on failure — the student's edit isn't lost,
+      // and the UI still visibly shows it as unsaved (Save button stays active).
+      setError(err.response?.data?.message || `Failed to save ${topic}. Your change wasn't saved — try again.`);
     } finally {
       setSavingTopic("");
     }
   };
 
-  // =======================================================
-  // UI
-  // =======================================================
-
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
-
-        {/* PAGE HEADER */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            My Progress
-          </h1>
-
+          <h1 className="text-2xl font-bold text-gray-900">My progress</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Track and update your progress for each
-            bootcamp topic.
+            Update your progress for each bootcamp topic.
           </p>
         </div>
 
-        {/* SUCCESS MESSAGE */}
         {success && (
           <div className="mb-6 rounded-xl bg-green-50 p-4 text-sm text-green-700">
             {success}
           </div>
         )}
 
-        {/* ERROR MESSAGE */}
         {error && (
           <div className="mb-6 flex items-start gap-3 rounded-xl bg-red-50 p-4 text-sm text-red-700">
-            <AlertCircle
-              size={20}
-              className="mt-0.5 shrink-0"
-            />
-
+            <AlertCircle size={20} className="mt-0.5 shrink-0" />
             <div>
-              <p className="font-semibold">
-                Something went wrong
-              </p>
-
-              <p className="mt-1">
-                {error}
-              </p>
+              <p className="font-semibold">Something went wrong</p>
+              <p className="mt-1">{error}</p>
             </div>
           </div>
         )}
 
-        {/* LOADING */}
         {loading ? (
           <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-white shadow-sm">
             <div className="text-center">
-              <RefreshCw
-                size={32}
-                className="mx-auto animate-spin text-gray-500"
-              />
-
-              <p className="mt-3 text-sm text-gray-500">
-                Loading your progress...
-              </p>
+              <RefreshCw size={32} className="mx-auto animate-spin text-gray-500" />
+              <p className="mt-3 text-sm text-gray-500">Loading your progress...</p>
             </div>
           </div>
         ) : (
           <>
-            {/* =================================================
-                SUMMARY CARDS
-            ================================================= */}
-
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-
-              {/* OVERALL PROGRESS */}
-              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Overall Progress
-                    </p>
-
-                    <p className="mt-2 text-3xl font-bold text-gray-900">
-                      {overallProgress}%
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl bg-gray-100 p-3">
-                    <BookOpen
-                      size={22}
-                      className="text-gray-700"
+              <SummaryCard
+                label="Overall progress"
+                value={`${overallProgress}%`}
+                icon={<BookOpen size={22} className="text-gray-700" />}
+                iconBg="bg-gray-100"
+                footer={
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-gray-100">
+                    <div
+                      className="h-full rounded-full bg-gray-900 transition-all"
+                      style={{ width: `${overallProgress}%` }}
                     />
                   </div>
-                </div>
-
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-gray-100">
-                  <div
-                    className="h-full rounded-full bg-gray-900 transition-all"
-                    style={{
-                      width: `${overallProgress}%`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* COMPLETED */}
-              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Completed
-                    </p>
-
-                    <p className="mt-2 text-3xl font-bold text-gray-900">
-                      {completedCount}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl bg-green-100 p-3">
-                    <CheckCircle2
-                      size={22}
-                      className="text-green-600"
-                    />
-                  </div>
-                </div>
-
-                <p className="mt-3 text-xs text-gray-500">
-                  Out of {totalTopics} topics
-                </p>
-              </div>
-
-              {/* IN PROGRESS */}
-              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      In Progress
-                    </p>
-
-                    <p className="mt-2 text-3xl font-bold text-gray-900">
-                      {inProgressCount}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl bg-blue-100 p-3">
-                    <Clock3
-                      size={22}
-                      className="text-blue-600"
-                    />
-                  </div>
-                </div>
-
-                <p className="mt-3 text-xs text-gray-500">
-                  Topics currently being learned
-                </p>
-              </div>
-
-              {/* NEEDS IMPROVEMENT */}
-              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Needs Improvement
-                    </p>
-
-                    <p className="mt-2 text-3xl font-bold text-gray-900">
-                      {needsImprovementCount}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl bg-orange-100 p-3">
-                    <AlertCircle
-                      size={22}
-                      className="text-orange-600"
-                    />
-                  </div>
-                </div>
-
-                <p className="mt-3 text-xs text-gray-500">
-                  Topics requiring attention
-                </p>
-              </div>
+                }
+              />
+              <SummaryCard
+                label="Completed"
+                value={completedCount}
+                icon={<CheckCircle2 size={22} className="text-green-600" />}
+                iconBg="bg-green-100"
+                footer={<p className="mt-3 text-xs text-gray-500">Out of {TOPICS.length} topics</p>}
+              />
+              <SummaryCard
+                label="In progress"
+                value={inProgressCount}
+                icon={<Clock3 size={22} className="text-blue-600" />}
+                iconBg="bg-blue-100"
+                footer={<p className="mt-3 text-xs text-gray-500">Topics currently being learned</p>}
+              />
+              <SummaryCard
+                label="Needs improvement"
+                value={needsImprovementCount}
+                icon={<AlertCircle size={22} className="text-orange-600" />}
+                iconBg="bg-orange-100"
+                footer={<p className="mt-3 text-xs text-gray-500">Topics requiring attention</p>}
+              />
             </div>
 
-            {/* =================================================
-                UPDATE YOUR PROGRESS
-            ================================================= */}
-
             <div className="mt-6 rounded-2xl bg-white shadow-sm">
-
-              {/* SECTION HEADER */}
               <div className="border-b border-gray-100 p-5">
-                <h2 className="text-lg font-bold text-gray-900">
-                  Update Your Progress
-                </h2>
-
+                <h2 className="text-lg font-bold text-gray-900">Update your progress</h2>
                 <p className="mt-1 text-sm text-gray-500">
-                  Select your current progress status
-                  for each topic.
+                  Select your current status for each topic, then save.
                 </p>
               </div>
 
-              {/* TWO COLUMNS */}
               <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2">
-
                 {TOPICS.map((topic) => {
-                  const item =
-                    progressByTopic[topic];
-
-                  const status =
-                    item?.status ||
-                    "Not Started";
-
-                  const isSaving =
-                    savingTopic === topic;
+                  const status = displayedStatus(topic);
+                  const dirty = isDirty(topic);
+                  const isSaving = savingTopic === topic;
 
                   return (
-                    <div
-                      key={topic}
-                      className="rounded-xl border border-gray-200 p-5"
-                    >
-                      {/* TOPIC */}
+                    <div key={topic} className="rounded-xl border border-gray-200 p-5">
                       <div className="flex items-center gap-3">
                         <div className="rounded-lg bg-gray-100 p-2">
-                          <BookOpen
-                            size={18}
-                            className="text-gray-600"
-                          />
+                          <BookOpen size={18} className="text-gray-600" />
                         </div>
-
-                        <h3 className="text-base font-semibold text-gray-900">
-                          {topic}
-                        </h3>
+                        <h3 className="text-base font-semibold text-gray-900">{topic}</h3>
                       </div>
 
-                      {/* STATUS */}
                       <div className="mt-5">
                         <label className="mb-2 block text-sm font-medium text-gray-700">
-                          Progress Status
+                          Progress status
                         </label>
-
                         <select
                           value={status}
                           disabled={isSaving}
-                          onChange={(e) =>
-                            handleStatusChange(
-                              topic,
-                              e.target.value
-                            )
-                          }
+                          onChange={(e) => handleStatusChange(topic, e.target.value)}
                           className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          <option value="Not Started">
-                            Not Started
-                          </option>
-
-                          <option value="In Progress">
-                            In Progress
-                          </option>
-
-                          <option value="Completed">
-                            Completed
-                          </option>
-
-                          <option value="Needs Improvement">
-                            Needs Improvement
-                          </option>
+                          {STATUS_OPTIONS.map((option) => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
                         </select>
                       </div>
 
-                      {/* SAVE */}
                       <button
                         type="button"
-                        onClick={() =>
-                          handleSaveTopic(topic)
-                        }
-                        disabled={isSaving}
-                        className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={() => handleSaveTopic(topic)}
+                        disabled={isSaving || !dirty}
+                        className={`mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed ${
+                          dirty ? "bg-gray-900 hover:bg-gray-800" : "bg-gray-300"
+                        }`}
                       >
                         {isSaving ? (
                           <>
-                            <RefreshCw
-                              size={16}
-                              className="animate-spin"
-                            />
+                            <RefreshCw size={16} className="animate-spin" />
                             Saving...
                           </>
                         ) : (
                           <>
                             <Save size={16} />
-                            Save
+                            {dirty ? "Save" : "Saved"}
                           </>
                         )}
                       </button>
@@ -532,6 +265,21 @@ function StudentProgress() {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+function SummaryCard({ label, value, icon, iconBg, footer }) {
+  return (
+    <div className="rounded-2xl bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-500">{label}</p>
+          <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
+        </div>
+        <div className={`rounded-xl p-3 ${iconBg}`}>{icon}</div>
+      </div>
+      {footer}
     </div>
   );
 }

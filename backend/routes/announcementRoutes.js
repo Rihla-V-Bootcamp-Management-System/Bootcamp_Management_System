@@ -1,22 +1,22 @@
 const express = require("express");
 
-const router = express.Router();
+const {
+  createAnnouncement,
+  getAnnouncements,
+  getMyAnnouncements,
+  getAnnouncementById,
+  updateAnnouncement,
+  deleteAnnouncement,
+  publishAnnouncement,
+} = require("../controllers/announcementController");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 
-const {
-  createBatch,
-  assignStudentsToMentor,
-  getBatches,
-  getBatchById,
-  updateBatch,
-} = require("../controllers/batchControllers");
+const router = express.Router();
 
 // =========================================================
-// GET ALL BATCHES
-// Supports:
-// /api/batches?page=1&limit=10
+// GET ANNOUNCEMENTS FOR CURRENT USER
 // =========================================================
 
 router.get(
@@ -28,11 +28,23 @@ router.get(
     "mentor",
     "student"
   ),
-  getBatches
+  getAnnouncements
 );
 
 // =========================================================
-// GET BATCH BY ID
+// GET ADMIN'S OWN ANNOUNCEMENTS
+// IMPORTANT: MUST COME BEFORE /:id
+// =========================================================
+
+router.get(
+  "/mine",
+  authMiddleware,
+  roleMiddleware("admin"),
+  getMyAnnouncements
+);
+
+// =========================================================
+// GET SINGLE ANNOUNCEMENT
 // =========================================================
 
 router.get(
@@ -44,40 +56,51 @@ router.get(
     "mentor",
     "student"
   ),
-  getBatchById
+  getAnnouncementById
 );
 
 // =========================================================
-// CREATE BATCH
+// CREATE
 // =========================================================
 
 router.post(
   "/",
   authMiddleware,
-  roleMiddleware("superadmin"),
-  createBatch
+  roleMiddleware("admin"),
+  createAnnouncement
 );
 
 // =========================================================
-// UPDATE BATCH
+// UPDATE
 // =========================================================
 
 router.put(
   "/:id",
   authMiddleware,
-  roleMiddleware("superadmin"),
-  updateBatch
+  roleMiddleware("admin"),
+  updateAnnouncement
 );
 
 // =========================================================
-// ASSIGN STUDENTS TO MENTOR
+// DELETE
+// =========================================================
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin"),
+  deleteAnnouncement
+);
+
+// =========================================================
+// PUBLISH
 // =========================================================
 
 router.post(
-  "/:id/assign-mentor",
+  "/:id/publish",
   authMiddleware,
-  roleMiddleware("superadmin"),
-  assignStudentsToMentor
+  roleMiddleware("admin"),
+  publishAnnouncement
 );
 
 module.exports = router;
