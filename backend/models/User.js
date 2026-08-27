@@ -58,6 +58,7 @@ const userSchema = new mongoose.Schema(
     gender: {
       type: String,
       enum: ["Male", "Female"],
+      default: null,
       required: function () {
         return this.role === "student";
       },
@@ -93,26 +94,51 @@ const userSchema = new mongoose.Schema(
     },
 
     // ==========================================
+    // ACCOUNT STATUS
+    // ==========================================
+
+    accountStatus: {
+      type: String,
+      enum: ["pending", "active"],
+      default: "active",
+    },
+
+    // ==========================================
+    // INVITATION TOKEN
+    // ==========================================
+
+    invitationToken: {
+      type: String,
+      default: null,
+    },
+
+    invitationTokenExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    // ==========================================
     // OTP
     // ==========================================
 
     otp: {
-    gender: {
       type: String,
-      enum: ["Male", "Female"],
-      required: function () {
-        return this.role === "student";
-      },
-    },
-
-    batchId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Batch",
       default: null,
     },
+
+    otpExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    otpVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
-}
-  
+  {
+    timestamps: true,
+  }
 );
 
 // =========================================================

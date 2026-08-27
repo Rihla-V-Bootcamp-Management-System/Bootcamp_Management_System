@@ -16,7 +16,11 @@ const registerUser = async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (existingUser) {
       return res.status(400).json({
@@ -27,11 +31,13 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password: hashedPassword,
       role: "student",
       gender,
+      accountStatus: "active",
+      mustResetPassword: false,
     });
 
     return res.status(201).json({
@@ -79,9 +85,14 @@ const loginUser = async (req, res) => {
 
     // -----------------------------------------
     // Find user
+    // Normalize email so login is case-insensitive
     // -----------------------------------------
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
 
     console.log("User found:", !!user);
 
@@ -101,18 +112,36 @@ const loginUser = async (req, res) => {
     console.log("User role:", user.role);
     console.log("Password exists:", !!user.password);
     console.log("Must reset password:", user.mustResetPassword);
+    console.log("Account status:", user.accountStatus);
 
     // -----------------------------------------
-    // Password reset required
+    // Invited users must complete password setup
     // -----------------------------------------
 
-    if (user.mustResetPassword) {
-      console.log("LOGIN BLOCKED: Password setup required");
+    if (
+      user.accountStatus === "pending" ||
+      user.mustResetPassword
+    ) {
+      console.log(
+        "LOGIN BLOCKED: Password setup required"
+      );
 
       return res.status(403).json({
-        message: "Password setup required",
+        message:
+          "Please verify your invitation and set your password first",
         mustResetPassword: true,
+        accountStatus: user.accountStatus,
         userID: user.userID,
+      });
+    }
+
+    // -----------------------------------------
+    // Check account status
+    // -----------------------------------------
+
+    if (user.accountStatus !== "active") {
+      return res.status(403).json({
+        message: "Your account is not active",
       });
     }
 
@@ -128,7 +157,9 @@ const loginUser = async (req, res) => {
     console.log("Password match:", passwordMatch);
 
     if (!passwordMatch) {
-      console.log("LOGIN FAILED: Password does not match");
+      console.log(
+        "LOGIN FAILED: Password does not match"
+      );
 
       return res.status(401).json({
         message: "Invalid email or password",
@@ -170,6 +201,7 @@ const loginUser = async (req, res) => {
         email: user.email,
         role: user.role,
         gender: user.gender,
+        accountStatus: user.accountStatus,
       },
     });
   } catch (error) {
@@ -196,7 +228,9 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ userID });
+    const user = await User.findOne({
+      userID: userID.trim(),
+    });
 
     if (!user) {
       return res.status(404).json({
@@ -206,7 +240,7 @@ const verifyOtp = async (req, res) => {
 
     if (!user.mustResetPassword) {
       return res.status(400).json({
-        message: "OTP verification is not required",
+        message: "Invitation verification is not required",
       });
     }
 
@@ -228,7 +262,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-    if (user.otp !== otp) {
+    if (user.otp !== otp.trim()) {
       return res.status(400).json({
         message: "Invalid OTP",
       });
@@ -239,8 +273,9 @@ const verifyOtp = async (req, res) => {
     await user.save();
 
     return res.json({
-      message: "OTP verified successfully",
+      message: "Invitation verified successfully",
       userID: user.userID,
+      role: user.role,
       verified: true,
     });
   } catch (error) {
@@ -263,17 +298,21 @@ const setPassword = async (req, res) => {
 
     if (!userID || !otp || !newPassword) {
       return res.status(400).json({
-        message: "User ID, OTP, and new password are required",
+        message:
+          "User ID, OTP, and new password are required",
       });
     }
 
     if (newPassword.length < 8) {
       return res.status(400).json({
-        message: "Password must be at least 8 characters long",
+        message:
+          "Password must be at least 8 characters long",
       });
     }
 
-    const user = await User.findOne({ userID });
+    const user = await User.findOne({
+      userID: userID.trim(),
+    });
 
     if (!user) {
       return res.status(404).json({
@@ -299,15 +338,17 @@ const setPassword = async (req, res) => {
       });
     }
 
-    if (user.otp !== otp) {
+    if (user.otp !== otp.trim()) {
       return res.status(400).json({
         message: "Invalid OTP",
       });
     }
 
+    // OTP must have been verified first
     if (!user.otpVerified) {
       return res.status(400).json({
-        message: "OTP verification is required first",
+        message:
+          "OTP verification is required first",
       });
     }
 
@@ -322,6 +363,12 @@ const setPassword = async (req, res) => {
 
     user.password = hashedPassword;
     user.mustResetPassword = false;
+    user.accountStatus = "active";
+
+    // -----------------------------------------
+    // Clear temporary invitation credentials
+    // -----------------------------------------
+
     user.otp = null;
     user.otpExpiresAt = null;
     user.otpVerified = false;
@@ -353,6 +400,7 @@ const setPassword = async (req, res) => {
         email: user.email,
         role: user.role,
         gender: user.gender,
+        accountStatus: user.accountStatus,
       },
     });
   } catch (error) {

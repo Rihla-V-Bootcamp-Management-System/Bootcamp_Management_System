@@ -9,8 +9,13 @@ const AuditLog = require("../models/AuditLog");
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 
-const { sendStaffInvitationEmail } = require("../services/emailService");
-const { createAuditLog } = require("../services/auditLogService");
+const {
+  sendStaffInvitationEmail,
+} = require("../services/emailService");
+
+const {
+  createAuditLog,
+} = require("../services/auditLogService");
 
 const router = express.Router();
 
@@ -34,14 +39,24 @@ router.post(
         });
       }
 
-      if (!["admin", "mentor"].includes(role)) {
+      // Super Admin can assign these roles
+      const allowedRoles = [
+        "admin",
+        "superadmin",
+        "mentor",
+      ];
+
+      if (!allowedRoles.includes(role)) {
         return res.status(400).json({
           success: false,
-          message: "Super Admin can only assign admin or mentor",
+          message:
+            "Invalid role. You can only assign admin, superadmin, or mentor",
         });
       }
 
-      const normalizedEmail = email.toLowerCase().trim();
+      const normalizedEmail = email
+        .toLowerCase()
+        .trim();
 
       const existingUser = await User.findOne({
         email: normalizedEmail,
@@ -50,7 +65,8 @@ router.post(
       if (existingUser) {
         return res.status(400).json({
           success: false,
-          message: "A user with this email already exists",
+          message:
+            "A user with this email already exists",
         });
       }
 
@@ -58,31 +74,35 @@ router.post(
       // GENERATE USER ID
       // =====================================================
 
+      const rolePrefix = {
+        admin: "ADM",
+        superadmin: "SADM",
+        mentor: "MTR",
+      };
+
+      const prefix = rolePrefix[role];
+
       const lastUser = await User.findOne({
         userID: {
-          $regex:
-            role === "admin"
-              ? /^ADM-\d{4}-\d+$/
-              : /^MTR-\d{4}-\d+$/,
+          $regex: new RegExp(
+            `^${prefix}-\\d{4}-\\d+$`
+          ),
         },
       }).sort({ userID: -1 });
 
       let nextNumber = 1;
 
       if (lastUser && lastUser.userID) {
-        const match = lastUser.userID.match(/(\d+)$/);
+        const match =
+          lastUser.userID.match(/(\d+)$/);
 
         if (match) {
-          nextNumber = parseInt(match[1], 10) + 1;
+          nextNumber =
+            parseInt(match[1], 10) + 1;
         }
       }
 
       const year = new Date().getFullYear();
-
-      const prefix =
-        role === "admin"
-          ? "ADM"
-          : "MTR";
 
       const userID = `${prefix}-${year}-${String(
         nextNumber
@@ -104,10 +124,12 @@ router.post(
       // TEMPORARY PASSWORD
       // =====================================================
 
-      const temporaryPassword = await bcrypt.hash(
-        Math.random().toString(36),
-        10
-      );
+      const temporaryPassword =
+        await bcrypt.hash(
+          Math.random().toString(36) +
+            Math.random().toString(36),
+          10
+        );
 
       // =====================================================
       // CREATE USER
@@ -123,6 +145,7 @@ router.post(
         otpExpiresAt,
         otpVerified: false,
         mustResetPassword: true,
+        accountStatus: "pending",
       });
 
       // =====================================================
@@ -151,11 +174,12 @@ router.post(
         action: "ASSIGN_STAFF",
         targetType: "User",
         targetId: user._id.toString(),
-        description: `Super Admin assigned ${role} ${user.name}`,
+        description: `Super Admin invited ${role} ${user.name}`,
         metadata: {
           userID: user.userID,
           email: user.email,
           role: user.role,
+          accountStatus: user.accountStatus,
           emailSent,
         },
       });
@@ -167,8 +191,8 @@ router.post(
       return res.status(201).json({
         success: true,
         message: emailSent
-          ? `${role} assigned successfully and invitation email sent`
-          : `${role} assigned successfully but invitation email failed`,
+          ? `${role} invited successfully and invitation email sent`
+          : `${role} invited successfully but invitation email failed`,
         emailSent,
         user: {
           id: user._id,
@@ -176,9 +200,13 @@ router.post(
           name: user.name,
           email: user.email,
           role: user.role,
+          accountStatus:
+            user.accountStatus,
           batchId: user.batchId,
-          mustResetPassword: user.mustResetPassword,
-          otpExpiresAt: user.otpExpiresAt,
+          mustResetPassword:
+            user.mustResetPassword,
+          otpExpiresAt:
+            user.otpExpiresAt,
         },
       });
     } catch (error) {
@@ -189,7 +217,7 @@ router.post(
 
       return res.status(500).json({
         success: false,
-        message: "Failed to assign user",
+        message: "Failed to invite user",
         error: error.message,
       });
     }
@@ -208,7 +236,9 @@ router.get(
   async (req, res) => {
     try {
       const users = await User.find({})
-        .select("-password -otp")
+        .select(
+          "-password -otp -invitationToken"
+        )
         .populate(
           "batchId",
           "name year season status"
@@ -275,7 +305,9 @@ router.patch(
         });
       }
 
-      const batch = await Batch.findById(batchId);
+      const batch = await Batch.findById(
+        batchId
+      );
 
       if (!batch) {
         return res.status(404).json({
@@ -309,7 +341,8 @@ router.patch(
 
       return res.status(200).json({
         success: true,
-        message: "Admin assigned to batch successfully",
+        message:
+          "Admin assigned to batch successfully",
         user: {
           id: user._id,
           name: user.name,
@@ -333,7 +366,8 @@ router.patch(
 
       return res.status(500).json({
         success: false,
-        message: "Failed to assign admin to batch",
+        message:
+          "Failed to assign admin to batch",
         error: error.message,
       });
     }
@@ -374,25 +408,18 @@ router.delete(
         });
       }
 
-      // Prevent deleting superadmin
-      if (user.role === "superadmin") {
-        return res.status(403).json({
-          success: false,
-          message:
-            "Super Admin users cannot be deleted",
-        });
-      }
-
-      // Only assigned staff can be deleted
+      // Only staff accounts can be deleted
       if (
-        !["admin", "mentor"].includes(
-          user.role
-        )
+        ![
+          "admin",
+          "mentor",
+          "superadmin",
+        ].includes(user.role)
       ) {
         return res.status(403).json({
           success: false,
           message:
-            "Only Admin and Mentor users assigned by Super Admin can be deleted",
+            "Only Admin, Mentor, and Super Admin users assigned by Super Admin can be deleted",
         });
       }
 
@@ -500,6 +527,8 @@ router.get(
       const [
         totalUsers,
         students,
+        admins,
+        superadmins,
         mentors,
         pendingApplications,
       ] = await Promise.all([
@@ -507,6 +536,14 @@ router.get(
 
         User.countDocuments({
           role: "student",
+        }),
+
+        User.countDocuments({
+          role: "admin",
+        }),
+
+        User.countDocuments({
+          role: "superadmin",
         }),
 
         User.countDocuments({
@@ -527,6 +564,8 @@ router.get(
         success: true,
         totalUsers,
         students,
+        admins,
+        superadmins,
         mentors,
         pendingApplications,
       });

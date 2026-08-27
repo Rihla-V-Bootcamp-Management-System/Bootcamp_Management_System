@@ -63,12 +63,14 @@ function SuperAdminLayout() {
       .toUpperCase();
   };
 
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <div className="superadmin-layout">
-
       {/* ================= SIDEBAR ================= */}
       <aside className="superadmin-sidebar">
-
         {/* BRAND */}
         <div className="superadmin-brand">
           <div className="superadmin-brand-icon">
@@ -102,51 +104,39 @@ function SuperAdminLayout() {
                 }
               >
                 <Icon size={19} />
-
-                <span>
-                  {item.label}
-                </span>
+                <span>{item.label}</span>
               </NavLink>
             );
           })}
         </nav>
 
         {/* LOGOUT */}
-        <div className="superadmin-logout">
+        <div className="superadmin-sidebar-bottom">
           <button
             type="button"
-            onClick={logout}
-            className="superadmin-logout-button"
+            className="superadmin-logout"
+            onClick={handleLogout}
           >
-            <LogOut size={20} />
-
-            <span>
-              Logout
-            </span>
+            <LogOut size={19} />
+            <span>Logout</span>
           </button>
         </div>
-
       </aside>
 
       {/* ================= MAIN ================= */}
       <main className="superadmin-main">
-
         {/* HEADER */}
         <header className="superadmin-header">
-
           <div>
             <p className="superadmin-header-label">
               ADMINISTRATION
             </p>
 
-            <h1>
-              Super Admin Panel
-            </h1>
+            <h1>Super Admin Panel</h1>
           </div>
 
           {/* PROFILE */}
           <div className="superadmin-profile">
-
             <div className="superadmin-avatar">
               {getInitials(user?.name)}
             </div>
@@ -160,18 +150,14 @@ function SuperAdminLayout() {
                 {user?.role || "System Administrator"}
               </p>
             </div>
-
           </div>
-
         </header>
 
-        {/* ================= PAGE CONTENT ================= */}
+        {/* PAGE CONTENT */}
         <div className="superadmin-content">
           <Outlet />
         </div>
-
       </main>
-
     </div>
   );
 }

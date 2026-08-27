@@ -44,6 +44,12 @@ const fieldSchema = new mongoose.Schema(
 
 const applicationFormSchema = new mongoose.Schema(
   {
+    seasonId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Season",
+    },
+
     fields: {
       type: [fieldSchema],
       default: [],

@@ -26,6 +26,10 @@ const courseRoutes = require("./routes/courseRoutes");
 const registrationRoutes = require("./routes/registrationRoutes");
 const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
 
+// Email Templates & Form Questions
+const emailTemplateRoutes = require("./routes/emailTemplateRoutes");
+const formQuestionRoutes = require("./routes/formQuestionRoutes");
+
 // Main System
 const mentorRoutes = require("./routes/mentorRoutes");
 const seasonRoutes = require("./routes/seasonRoutes");
@@ -36,7 +40,7 @@ const attendanceRoutes = require("./routes/AttendanceRoutes");
 const progressRoutes = require("./routes/progressRoutes");
 
 // Assignment & Submission
-const assignmentRoutes = require("./routes/AssignmentRoutes");
+const assignmentRoutes = require("./routes/assignmentRoutes");
 const submissionRoutes = require("./routes/SubmissionRoutes");
 
 // Announcements & Notifications
@@ -45,6 +49,10 @@ const notificationRoutes = require("./routes/notificationRoutes");
 
 // Super Admin
 const superAdminRoutes = require("./routes/superAdminRoutes");
+
+// FAQ & About
+const faqRoutes = require("./routes/faqRoutes");
+const aboutRoutes = require("./routes/aboutRoutes");
 
 // =========================================================
 // APP CONFIG
@@ -80,7 +88,8 @@ app.use(
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "Bootcamp Management System API is running",
+    message:
+      "Bootcamp Management System API is running",
   });
 });
 
@@ -157,13 +166,19 @@ app.use("/api/progress", progressRoutes);
 // Assignments
 // ---------------------------------------------------------
 
-app.use("/api/assignments", assignmentRoutes);
+app.use(
+  "/api/assignments",
+  assignmentRoutes
+);
 
 // ---------------------------------------------------------
 // Submissions
 // ---------------------------------------------------------
 
-app.use("/api/submissions", submissionRoutes);
+app.use(
+  "/api/submissions",
+  submissionRoutes
+);
 
 // ---------------------------------------------------------
 // Announcements
@@ -202,6 +217,24 @@ app.use(
 );
 
 // ---------------------------------------------------------
+// Email Templates
+// ---------------------------------------------------------
+
+app.use(
+  "/api/email-templates",
+  emailTemplateRoutes
+);
+
+// ---------------------------------------------------------
+// Form Questions
+// ---------------------------------------------------------
+
+app.use(
+  "/api/form-questions",
+  formQuestionRoutes
+);
+
+// ---------------------------------------------------------
 // Super Admin
 // ---------------------------------------------------------
 
@@ -209,6 +242,18 @@ app.use(
   "/api/superadmin",
   superAdminRoutes
 );
+
+// ---------------------------------------------------------
+// FAQ
+// ---------------------------------------------------------
+
+app.use("/api/faqs", faqRoutes);
+
+// ---------------------------------------------------------
+// About
+// ---------------------------------------------------------
+
+app.use("/api/about", aboutRoutes);
 
 // =========================================================
 // 404 HANDLER
@@ -269,11 +314,23 @@ const startServer = async () => {
       );
 
       console.log(
+        `Courses: http://localhost:${PORT}/api/courses`
+      );
+
+      console.log(
         `Registration API: http://localhost:${PORT}/api/registrations`
       );
 
       console.log(
         `Registration Settings: http://localhost:${PORT}/api/registration-settings`
+      );
+
+      console.log(
+        `Email Templates: http://localhost:${PORT}/api/email-templates`
+      );
+
+      console.log(
+        `Form Questions API: http://localhost:${PORT}/api/form-questions`
       );
 
       console.log(
@@ -301,6 +358,18 @@ const startServer = async () => {
       );
 
       console.log(
+        `FAQ API: http://localhost:${PORT}/api/faqs`
+      );
+
+      console.log(
+        `About API: http://localhost:${PORT}/api/about`
+      );
+
+      console.log(
+        `Super Admin API: http://localhost:${PORT}/api/superadmin`
+      );
+
+      console.log(
         "=========================================="
       );
     });
@@ -309,9 +378,7 @@ const startServer = async () => {
       "=========================================="
     );
 
-    console.error(
-      "Server startup failed:"
-    );
+    console.error("Server startup failed:");
 
     console.error(error.message);
 

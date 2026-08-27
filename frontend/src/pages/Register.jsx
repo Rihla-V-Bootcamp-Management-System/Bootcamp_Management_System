@@ -11,27 +11,36 @@ function Register() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+  const [registrationOpen, setRegistrationOpen] = useState(false);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const navigate = useNavigate();
 
-  // =====================================================
-  // FETCH APPLICATION FORM
-  // =====================================================
   useEffect(() => {
-    const fetchApplicationForm = async () => {
+    const fetchRegistrationStatusAndForm = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const response = await apiClient.get(
-          "/application-forms"
+        const settingsResponse = await apiClient.get(
+          "/registration-settings"
         );
 
-        console.log(
-          "APPLICATION FORM RESPONSE:",
-          JSON.stringify(response.data, null, 2)
+        const settings = settingsResponse.data;
+
+        if (!settings?.registrationOpen) {
+          setRegistrationOpen(false);
+          setSchema([]);
+          setError("Application is currently closed.");
+          return;
+        }
+
+        setRegistrationOpen(true);
+
+        const response = await apiClient.get(
+          "/application-forms"
         );
 
         const activeSeasonId =
@@ -49,10 +58,7 @@ function Register() {
           return;
         }
 
-        if (
-          !Array.isArray(fields) ||
-          fields.length === 0
-        ) {
+        if (!Array.isArray(fields) || fields.length === 0) {
           setError(
             "The current application form has no questions configured."
           );
@@ -64,25 +70,22 @@ function Register() {
         setSchema(fields);
       } catch (err) {
         console.error(
-          "FAILED TO FETCH APPLICATION FORM:",
+          "FAILED TO FETCH REGISTRATION STATUS OR APPLICATION FORM:",
           err
         );
 
         setError(
           err.response?.data?.message ||
-            "Failed to load application form. Please try again."
+            "Failed to load the application form. Please try again."
         );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchApplicationForm();
+    fetchRegistrationStatusAndForm();
   }, []);
 
-  // =====================================================
-  // SUBMIT APPLICATION
-  // =====================================================
   const handleSubmit = async (responses) => {
     if (submitting) return false;
 
@@ -91,40 +94,22 @@ function Register() {
       setError("");
       setSuccess("");
 
-      console.log(
-        "FORM RESPONSES JSON:",
-        JSON.stringify(responses, null, 2)
-      );
-
-      console.log(
-        "SEASON ID:",
-        seasonId
-      );
-
-      // =================================================
-      // CHECK SEASON
-      // =================================================
       if (!seasonId) {
-        setError(
-          "Registration season was not found."
-        );
+        setError("Registration season was not found.");
         return false;
       }
 
-      // =================================================
-      // GET AVAILABLE PUBLIC BATCH
-      // =================================================
-      const batchResponse = await apiClient.get(
-        "/batches/public"
+      const settingsResponse = await apiClient.get(
+        "/registration-settings"
       );
 
-      console.log(
-        "PUBLIC BATCH RESPONSE:",
-        JSON.stringify(
-          batchResponse.data,
-          null,
-          2
-        )
+      if (!settingsResponse.data?.registrationOpen) {
+        setError("Application is currently closed.");
+        return false;
+      }
+
+      const batchResponse = await apiClient.get(
+        "/batches/public"
       );
 
       const batches =
@@ -140,7 +125,6 @@ function Register() {
         return false;
       }
 
-      // Use the first available public batch
       const batchId = batches[0]?._id;
 
       if (!batchId) {
@@ -150,16 +134,7 @@ function Register() {
         return false;
       }
 
-      console.log(
-        "BATCH ID:",
-        batchId
-      );
-
-      // =================================================
-      // BUILD REGISTRATION PAYLOAD
-      // =================================================
       const payload = {
-        // Required root fields
         seasonId,
         batchId,
 
@@ -211,34 +186,15 @@ function Register() {
         motivation:
           responses.motivation || "",
 
-        // Keep age if it exists
         age:
           responses.age,
 
-        // Store complete dynamic form response
         responses,
       };
 
-      console.log(
-        "REGISTRATION PAYLOAD JSON:",
-        JSON.stringify(payload, null, 2)
-      );
-
-      // =================================================
-      // SUBMIT REGISTRATION
-      // =================================================
       const response = await apiClient.post(
         "/registrations",
         payload
-      );
-
-      console.log(
-        "REGISTRATION SUCCESS:",
-        JSON.stringify(
-          response.data,
-          null,
-          2
-        )
       );
 
       setSuccess(
@@ -253,24 +209,17 @@ function Register() {
         err
       );
 
-      console.error(
-        "BACKEND STATUS:",
-        err.response?.status
-      );
-
-      console.error(
-        "BACKEND RESPONSE JSON:",
-        JSON.stringify(
-          err.response?.data,
-          null,
-          2
-        )
-      );
+      // Show the actual backend validation errors
+      const validationErrors =
+        err.response?.data?.errors;
 
       const message =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        "Registration failed. Please check your information and try again.";
+        Array.isArray(validationErrors) &&
+        validationErrors.length > 0
+          ? validationErrors.join(", ")
+          : err.response?.data?.message ||
+            err.response?.data?.error ||
+            "Registration failed. Please check your information and try again.";
 
       setError(message);
 
@@ -280,9 +229,6 @@ function Register() {
     }
   };
 
-  // =====================================================
-  // LOADING STATE
-  // =====================================================
   if (loading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
@@ -293,20 +239,46 @@ function Register() {
           />
 
           <p className="mt-4 text-sm text-gray-500">
-            Loading form questions...
+            Checking application status...
           </p>
         </div>
       </div>
     );
   }
 
-  // =====================================================
-  // FORM LOAD ERROR
-  // =====================================================
+  if (!registrationOpen) {
+    return (
+      <div className="py-8">
+        <div className="mx-auto max-w-lg rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+
+          <h1 className="text-2xl font-bold text-gray-900">
+            Application is currently closed
+          </h1>
+
+          <p className="mt-3 text-sm leading-6 text-gray-600">
+            Registration is not available at the moment.
+            Please check back when the application period
+            opens.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="mt-6 rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+          >
+            Back to Home
+          </button>
+
+        </div>
+      </div>
+    );
+  }
+
   if (error && schema.length === 0) {
     return (
       <div className="py-6 text-center">
         <div className="mx-auto max-w-md rounded-xl border border-red-200 bg-red-50 p-6">
+
           <h2 className="font-semibold text-red-800">
             Unable to load form
           </h2>
@@ -322,18 +294,17 @@ function Register() {
           >
             Back to Home
           </button>
+
         </div>
       </div>
     );
   }
 
-  // =====================================================
-  // SUCCESS STATE
-  // =====================================================
   if (success) {
     return (
       <div className="py-6">
         <div className="mx-auto max-w-lg rounded-2xl border border-green-200 bg-green-50 p-8 text-center shadow-sm">
+
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
             <CheckCircle2
               size={30}
@@ -361,17 +332,15 @@ function Register() {
           >
             Back to Home
           </button>
+
         </div>
       </div>
     );
   }
 
-  // =====================================================
-  // FORM
-  // =====================================================
   return (
     <div className="w-full">
-      {/* PAGE HEADER */}
+
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
           Bootcamp Application
@@ -383,14 +352,12 @@ function Register() {
         </p>
       </div>
 
-      {/* ERROR */}
       {error && (
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      {/* DYNAMIC FORM */}
       <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
         <DynamicForm
           schema={schema}
@@ -399,8 +366,8 @@ function Register() {
         />
       </div>
 
-      {/* FIRST LOGIN */}
       <div className="mt-8 border-t border-gray-200 pt-6 text-center">
+
         <p className="text-sm text-gray-500">
           Already accepted?
         </p>
@@ -411,13 +378,12 @@ function Register() {
 
         <button
           type="button"
-          onClick={() =>
-            navigate("/first-login")
-          }
+          onClick={() => navigate("/first-login")}
           className="mt-3 text-sm font-semibold text-gray-800 transition hover:text-gray-600"
         >
           First-time login
         </button>
+
       </div>
     </div>
   );
