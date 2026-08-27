@@ -13,20 +13,27 @@ const roleMiddleware = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
+// ==========================================
+// GET ALL
+// ==========================================
 router.get(
   "/",
   authMiddleware,
-  roleMiddleware("admin", "mentor", "student"),
   getAssignments
 );
 
+// ==========================================
+// GET ONE
+// ==========================================
 router.get(
   "/:id",
   authMiddleware,
-  roleMiddleware("admin", "mentor", "student"),
   getAssignmentById
 );
 
+// ==========================================
+// CREATE
+// ==========================================
 router.post(
   "/",
   authMiddleware,
@@ -34,13 +41,19 @@ router.post(
   createAssignment
 );
 
-router.patch(
+// ==========================================
+// UPDATE
+// ==========================================
+router.put(
   "/:id",
   authMiddleware,
   roleMiddleware("admin"),
   updateAssignment
 );
 
+// ==========================================
+// DELETE
+// ==========================================
 router.delete(
   "/:id",
   authMiddleware,

@@ -9,22 +9,56 @@ const {
   verifyOtp,
   setPassword,
   getUserById,
+  getUsers,
 } = require("../controllers/authControllers");
 
 const router = express.Router();
 
+// =========================================================
+// REGISTER
+// =========================================================
+
 router.post("/register", registerUser);
+
+// =========================================================
+// LOGIN
+// =========================================================
 
 router.post("/login", loginUser);
 
+// =========================================================
+// VERIFY OTP
+// =========================================================
+
 router.post("/verify-otp", verifyOtp);
 
+// =========================================================
+// SET PASSWORD
+// =========================================================
+
 router.post("/set-password", setPassword);
+
+// =========================================================
+// GET ALL USERS
+// SUPER ADMIN ONLY
+// =========================================================
+
+router.get(
+  "/users",
+  authMiddleware,
+  roleMiddleware("superadmin"),
+  getUsers
+);
+
+// =========================================================
+// GET SINGLE USER
+// ADMIN / SUPER ADMIN
+// =========================================================
 
 router.get(
   "/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("admin", "superadmin"),
   getUserById
 );
 

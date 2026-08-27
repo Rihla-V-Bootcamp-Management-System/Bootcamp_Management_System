@@ -1,4 +1,5 @@
 import { Outlet, NavLink } from "react-router-dom";
+
 import {
   LayoutDashboard,
   Users,
@@ -7,12 +8,15 @@ import {
   Settings,
   LogOut,
   ShieldCheck,
+  Boxes,
 } from "lucide-react";
+
 import useAuth from "../context/useAuth";
+
 import "./SuperAdminLayout.css";
 
 function SuperAdminLayout() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const navigation = [
     {
@@ -24,6 +28,11 @@ function SuperAdminLayout() {
       label: "Users",
       path: "/superadmin/users",
       icon: Users,
+    },
+    {
+      label: "Batches",
+      path: "/superadmin/batches",
+      icon: Boxes,
     },
     {
       label: "Registrations",
@@ -42,13 +51,27 @@ function SuperAdminLayout() {
     },
   ];
 
+  // Get initials for avatar
+  const getInitials = (name) => {
+    if (!name) return "SA";
+
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  };
+
   const handleLogout = () => {
     logout();
   };
 
   return (
     <div className="superadmin-layout">
+      {/* ================= SIDEBAR ================= */}
       <aside className="superadmin-sidebar">
+        {/* BRAND */}
         <div className="superadmin-brand">
           <div className="superadmin-brand-icon">
             <ShieldCheck size={22} />
@@ -60,6 +83,7 @@ function SuperAdminLayout() {
           </div>
         </div>
 
+        {/* NAVIGATION */}
         <nav className="superadmin-nav">
           <p className="superadmin-nav-title">
             MAIN MENU
@@ -99,7 +123,9 @@ function SuperAdminLayout() {
         </div>
       </aside>
 
+      {/* ================= MAIN ================= */}
       <main className="superadmin-main">
+        {/* HEADER */}
         <header className="superadmin-header">
           <div>
             <p className="superadmin-header-label">
@@ -109,23 +135,25 @@ function SuperAdminLayout() {
             <h1>Super Admin Panel</h1>
           </div>
 
+          {/* PROFILE */}
           <div className="superadmin-profile">
             <div className="superadmin-avatar">
-              SA
+              {getInitials(user?.name)}
             </div>
 
             <div>
               <p className="superadmin-profile-name">
-                Super Admin
+                {user?.name || "Super Admin"}
               </p>
 
               <p className="superadmin-profile-role">
-                System Administrator
+                {user?.role || "System Administrator"}
               </p>
             </div>
           </div>
         </header>
 
+        {/* PAGE CONTENT */}
         <div className="superadmin-content">
           <Outlet />
         </div>

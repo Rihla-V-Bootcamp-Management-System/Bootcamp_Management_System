@@ -1,6 +1,10 @@
 const Assignment = require("../models/Assignment");
+const Course = require("../models/Course");
 const Batch = require("../models/Batch");
 
+// ==========================================
+// CREATE ASSIGNMENT
+// ==========================================
 const createAssignment = async (req, res) => {
   try {
     const {
@@ -8,12 +12,16 @@ const createAssignment = async (req, res) => {
       description,
       instructions,
       course,
+      topics,
       batchId,
       assignedStudents,
       deadline,
       maxScore,
     } = req.body;
 
+    // ------------------------------------------
+    // REQUIRED FIELDS
+    // ------------------------------------------
     if (
       !title ||
       !description ||
@@ -24,170 +32,153 @@ const createAssignment = async (req, res) => {
       maxScore === undefined
     ) {
       return res.status(400).json({
+        success: false,
         message:
-          "Title, description, instructions, course, batch, deadline, and maxScore are required",
+          "Title, description, instructions, course, batch, deadline and maximum score are required.",
       });
     }
 
-    const batch = await Batch.findById(batchId);
+    // ------------------------------------------
+    // CHECK COURSE
+    // ------------------------------------------
+    const existingCourse = await Course.findOne({
+      _id: course,
+      isActive: true,
+    });
 
-    if (!batch) {
+    if (!existingCourse) {
       return res.status(404).json({
-        message: "Batch not found",
+        success: false,
+        message: "Selected course not found.",
       });
     }
 
-    const students = Array.isArray(assignedStudents)
-      ? assignedStudents
-      : batch.studentIds;
+    // ------------------------------------------
+    // CHECK BATCH
+    // ------------------------------------------
+    const existingBatch = await Batch.findById(batchId);
 
-    const invalidStudents = students.some(
-      (studentId) =>
-        !batch.studentIds.some(
-          (id) =>
-            id.toString() ===
-            studentId.toString()
-        )
-    );
-
-    if (invalidStudents) {
-      return res.status(400).json({
-        message:
-          "One or more students are not in this batch",
+    if (!existingBatch) {
+      return res.status(404).json({
+        success: false,
+        message: "Selected batch not found.",
       });
     }
 
+    // ------------------------------------------
+    // CREATE
+    // ------------------------------------------
     const assignment = await Assignment.create({
       title: title.trim(),
       description: description.trim(),
       instructions: instructions.trim(),
-      course: course.trim(),
+      course,
+      topics: Array.isArray(topics) ? topics : [],
       batchId,
-      assignedStudents: students,
+      assignedStudents: Array.isArray(assignedStudents)
+        ? assignedStudents
+        : [],
       deadline,
       maxScore,
-      createdBy: req.user._id,
+      createdBy: req.user._id || req.user.id,
     });
 
-    const result = await Assignment.findById(
-      assignment._id
-    )
-      .populate("batchId", "name")
-      .populate(
-        "assignedStudents",
-        "name email gender"
-      )
-      .populate(
-        "createdBy",
-        "name email role"
-      );
+    // ------------------------------------------
+    // RETURN POPULATED DATA
+    // ------------------------------------------
+    const populatedAssignment =
+      await Assignment.findById(assignment._id)
+        .populate("course", "name description")
+        .populate("batchId", "name")
+        .populate("createdBy", "name email")
+        .populate(
+          "assignedStudents",
+          "name email"
+        );
 
-    res.status(201).json({
-      message: "Assignment created successfully",
-      assignment: result,
+    return res.status(201).json({
+      success: true,
+      message: "Assignment created successfully.",
+      assignment: populatedAssignment,
     });
   } catch (error) {
-    console.error(
-      "Create assignment error:",
-      error
-    );
+    console.error("Create assignment error:", error);
 
-    res.status(500).json({
-      message: "Failed to create assignment",
-      error: error.message,
+    return res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };
 
+// ==========================================
+// GET ALL ASSIGNMENTS
+// ==========================================
 const getAssignments = async (req, res) => {
   try {
-    let filter = {};
-
-    if (req.user.role === "student") {
-      filter = {
-        assignedStudents: req.user._id,
-      };
-    }
-
-    const assignments = await Assignment.find(filter)
+    const assignments = await Assignment.find()
+      .populate("course", "name description")
       .populate("batchId", "name")
+      .populate("createdBy", "name email")
       .populate(
         "assignedStudents",
-        "name email gender"
-      )
-      .populate(
-        "createdBy",
-        "name email role"
+        "name email"
       )
       .sort({ createdAt: -1 });
 
-    res.json({
-      count: assignments.length,
+    return res.status(200).json({
+      success: true,
       assignments,
     });
   } catch (error) {
-    console.error(
-      "Get assignments error:",
-      error
-    );
+    console.error("Get assignments error:", error);
 
-    res.status(500).json({
-      message: "Failed to load assignments",
-      error: error.message,
+    return res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };
 
+// ==========================================
+// GET ONE ASSIGNMENT
+// ==========================================
 const getAssignmentById = async (req, res) => {
   try {
     const assignment =
       await Assignment.findById(req.params.id)
+        .populate("course", "name description")
         .populate("batchId", "name")
+        .populate("createdBy", "name email")
         .populate(
           "assignedStudents",
-          "name email gender"
-        )
-        .populate(
-          "createdBy",
-          "name email role"
+          "name email"
         );
 
     if (!assignment) {
       return res.status(404).json({
-        message: "Assignment not found",
+        success: false,
+        message: "Assignment not found.",
       });
     }
 
-    if (
-      req.user.role === "student" &&
-      !assignment.assignedStudents.some(
-        (student) =>
-          student._id.toString() ===
-          req.user._id.toString()
-      )
-    ) {
-      return res.status(403).json({
-        message:
-          "You are not assigned to this assignment",
-      });
-    }
-
-    res.json({
+    return res.status(200).json({
+      success: true,
       assignment,
     });
   } catch (error) {
-    console.error(
-      "Get assignment error:",
-      error
-    );
+    console.error("Get assignment error:", error);
 
-    res.status(500).json({
-      message: "Failed to load assignment",
-      error: error.message,
+    return res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };
 
+// ==========================================
+// UPDATE ASSIGNMENT
+// ==========================================
 const updateAssignment = async (req, res) => {
   try {
     const assignment =
@@ -195,7 +186,8 @@ const updateAssignment = async (req, res) => {
 
     if (!assignment) {
       return res.status(404).json({
-        message: "Assignment not found",
+        success: false,
+        message: "Assignment not found.",
       });
     }
 
@@ -204,6 +196,7 @@ const updateAssignment = async (req, res) => {
       description,
       instructions,
       course,
+      topics,
       batchId,
       assignedStudents,
       deadline,
@@ -215,8 +208,7 @@ const updateAssignment = async (req, res) => {
     }
 
     if (description !== undefined) {
-      assignment.description =
-        description.trim();
+      assignment.description = description.trim();
     }
 
     if (instructions !== undefined) {
@@ -225,16 +217,35 @@ const updateAssignment = async (req, res) => {
     }
 
     if (course !== undefined) {
-      assignment.course = course.trim();
+      const existingCourse = await Course.findOne({
+        _id: course,
+        isActive: true,
+      });
+
+      if (!existingCourse) {
+        return res.status(404).json({
+          success: false,
+          message: "Selected course not found.",
+        });
+      }
+
+      assignment.course = course;
+    }
+
+    if (topics !== undefined) {
+      assignment.topics = Array.isArray(topics)
+        ? topics
+        : [];
     }
 
     if (batchId !== undefined) {
-      const batch =
+      const existingBatch =
         await Batch.findById(batchId);
 
-      if (!batch) {
+      if (!existingBatch) {
         return res.status(404).json({
-          message: "Batch not found",
+          success: false,
+          message: "Selected batch not found.",
         });
       }
 
@@ -242,36 +253,10 @@ const updateAssignment = async (req, res) => {
     }
 
     if (assignedStudents !== undefined) {
-      if (!Array.isArray(assignedStudents)) {
-        return res.status(400).json({
-          message:
-            "assignedStudents must be an array",
-        });
-      }
-
-      const batch = await Batch.findById(
-        assignment.batchId
-      );
-
-      const invalidStudents =
-        assignedStudents.some(
-          (studentId) =>
-            !batch.studentIds.some(
-              (id) =>
-                id.toString() ===
-                studentId.toString()
-            )
-        );
-
-      if (invalidStudents) {
-        return res.status(400).json({
-          message:
-            "One or more students are not in this batch",
-        });
-      }
-
       assignment.assignedStudents =
-        assignedStudents;
+        Array.isArray(assignedStudents)
+          ? assignedStudents
+          : [];
     }
 
     if (deadline !== undefined) {
@@ -284,23 +269,34 @@ const updateAssignment = async (req, res) => {
 
     await assignment.save();
 
-    res.json({
-      message: "Assignment updated successfully",
-      assignment,
+    const updatedAssignment =
+      await Assignment.findById(assignment._id)
+        .populate("course", "name description")
+        .populate("batchId", "name")
+        .populate("createdBy", "name email")
+        .populate(
+          "assignedStudents",
+          "name email"
+        );
+
+    return res.status(200).json({
+      success: true,
+      message: "Assignment updated successfully.",
+      assignment: updatedAssignment,
     });
   } catch (error) {
-    console.error(
-      "Update assignment error:",
-      error
-    );
+    console.error("Update assignment error:", error);
 
-    res.status(500).json({
-      message: "Failed to update assignment",
-      error: error.message,
+    return res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };
 
+// ==========================================
+// DELETE ASSIGNMENT
+// ==========================================
 const deleteAssignment = async (req, res) => {
   try {
     const assignment =
@@ -308,24 +304,23 @@ const deleteAssignment = async (req, res) => {
 
     if (!assignment) {
       return res.status(404).json({
-        message: "Assignment not found",
+        success: false,
+        message: "Assignment not found.",
       });
     }
 
     await assignment.deleteOne();
 
-    res.json({
-      message: "Assignment deleted successfully",
+    return res.status(200).json({
+      success: true,
+      message: "Assignment deleted successfully.",
     });
   } catch (error) {
-    console.error(
-      "Delete assignment error:",
-      error
-    );
+    console.error("Delete assignment error:", error);
 
-    res.status(500).json({
-      message: "Failed to delete assignment",
-      error: error.message,
+    return res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };

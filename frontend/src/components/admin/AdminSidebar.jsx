@@ -53,6 +53,11 @@ function AdminSidebar() {
       icon: ClipboardList,
     },
     {
+      name: "Assignment",
+      path: "/admin/assignments",
+      icon: ClipboardList,
+    },
+    {
       name: "Applications",
       path: "/admin/applications",
       icon: FileText,
