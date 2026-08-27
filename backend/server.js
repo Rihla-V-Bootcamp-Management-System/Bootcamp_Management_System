@@ -9,65 +9,27 @@ dotenv.config();
 
 const connectDB = require("./config/db");
 
-// ==========================================
-// ROUTES
-// ==========================================
-
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
-
-// ==========================================
-// APPLICATION FORM
-// ==========================================
-
 const applicationFormRoutes = require("./routes/ApplicationFormRoutes");
-
-// ==========================================
-// REGISTRATION ROUTES
-// ==========================================
-
 const registrationRoutes = require("./routes/registrationRoutes");
 const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
-
-// ==========================================
-// MAIN SYSTEM ROUTES
-// ==========================================
-
+const emailTemplateRoutes = require("./routes/emailTemplateRoutes");
 const mentorRoutes = require("./routes/mentorRoutes");
 const seasonRoutes = require("./routes/seasonRoutes");
 const batchRoutes = require("./routes/batchRoutes");
-
-// ==========================================
-// ATTENDANCE & PROGRESS
-// ==========================================
-
 const attendanceRoutes = require("./routes/AttendanceRoutes");
 const progressRoutes = require("./routes/progressRoutes");
-
-// ==========================================
-// ASSIGNMENT & SUBMISSION
-// ==========================================
-
 const assignmentRoutes = require("./routes/assignmentRoutes");
 const submissionRoutes = require("./routes/SubmissionRoutes");
-
-// ==========================================
-// SUPER ADMIN
-// ==========================================
-
 const superAdminRoutes = require("./routes/superAdminRoutes");
-
-// ==========================================
-// APP CONFIG
-// ==========================================
+const formQuestionRoutes = require("./routes/formQuestionRoutes");
+const faqRoutes = require("./routes/faqRoutes");
+const aboutRoutes = require("./routes/aboutRoutes");
 
 const app = express();
 
 const PORT = process.env.PORT || 5000;
-
-// ==========================================
-// MIDDLEWARE
-// ==========================================
 
 app.use(
   cors({
@@ -77,12 +39,7 @@ app.use(
 );
 
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: true }));
-
-// ==========================================
-// TEST / HEALTH ROUTES
-// ==========================================
 
 app.get("/", (req, res) => {
   res.json({
@@ -99,99 +56,23 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// ==========================================
-// API ROUTES
-// ==========================================
-
-// ------------------------------------------
-// Users & Authentication
-// ------------------------------------------
-
 app.use("/api/users", userRoutes);
-
 app.use("/api/auth", authRoutes);
-
-// ------------------------------------------
-// Application Forms
-// ------------------------------------------
-
-app.use(
-  "/api/application-forms",
-  applicationFormRoutes
-);
-
-// ------------------------------------------
-// Seasons
-// ------------------------------------------
-
+app.use("/api/application-forms", applicationFormRoutes);
 app.use("/api/seasons", seasonRoutes);
-
-// ------------------------------------------
-// Mentors
-// ------------------------------------------
-
 app.use("/api/mentor", mentorRoutes);
-
-// ------------------------------------------
-// Batches
-// ------------------------------------------
-
 app.use("/api/batches", batchRoutes);
-
-// ------------------------------------------
-// Attendance
-// ------------------------------------------
-
 app.use("/api/attendance", attendanceRoutes);
-
-// ------------------------------------------
-// Progress
-// ------------------------------------------
-
 app.use("/api/progress", progressRoutes);
-
-// ------------------------------------------
-// Assignments
-// ------------------------------------------
-
 app.use("/api/assignments", assignmentRoutes);
-
-// ------------------------------------------
-// Submissions
-// ------------------------------------------
-
 app.use("/api/submissions", submissionRoutes);
-
-// ==========================================
-// REGISTRATION
-// ==========================================
-
-// Public registration
-
-app.use(
-  "/api/registrations",
-  registrationRoutes
-);
-
-// Registration settings
-
-app.use(
-  "/api/registration-settings",
-  registrationSettingsRoutes
-);
-
-// ==========================================
-// SUPER ADMIN
-// ==========================================
-
-app.use(
-  "/api/superadmin",
-  superAdminRoutes
-);
-
-// ==========================================
-// 404 HANDLER
-// ==========================================
+app.use("/api/registrations", registrationRoutes);
+app.use("/api/registration-settings", registrationSettingsRoutes);
+app.use("/api/email-templates", emailTemplateRoutes);
+app.use("/api/form-questions", formQuestionRoutes);
+app.use("/api/superadmin", superAdminRoutes);
+app.use("/api/faqs", faqRoutes);
+app.use("/api/about", aboutRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
@@ -199,10 +80,6 @@ app.use((req, res) => {
     message: `Route not found: ${req.method} ${req.originalUrl}`,
   });
 });
-
-// ==========================================
-// GLOBAL ERROR HANDLER
-// ==========================================
 
 app.use((err, req, res, next) => {
   console.error("Server Error:", err);
@@ -213,10 +90,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ==========================================
-// START SERVER
-// ==========================================
-
 const startServer = async () => {
   try {
     await connectDB();
@@ -225,43 +98,41 @@ const startServer = async () => {
       console.log("==========================================");
       console.log("Bootcamp Management System Backend");
       console.log("==========================================");
-
-      console.log(
-        `Server running on http://localhost:${PORT}`
-      );
-
-      console.log(
-        `Health check: http://localhost:${PORT}/api/health`
-      );
-
+      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`Health check: http://localhost:${PORT}/api/health`);
       console.log(
         `Application Forms: http://localhost:${PORT}/api/application-forms`
       );
-
       console.log(
         `Registration API: http://localhost:${PORT}/api/registrations`
       );
-
       console.log(
         `Registration Settings: http://localhost:${PORT}/api/registration-settings`
       );
-
+      console.log(
+        `Email Templates: http://localhost:${PORT}/api/email-templates`
+      );
       console.log(
         `Attendance API: http://localhost:${PORT}/api/attendance`
       );
-
       console.log(
         `Progress API: http://localhost:${PORT}/api/progress`
       );
-
       console.log(
         `Assignments API: http://localhost:${PORT}/api/assignments`
       );
-
       console.log(
         `Submissions API: http://localhost:${PORT}/api/submissions`
       );
-
+      console.log(
+        `Form Questions API: http://localhost:${PORT}/api/form-questions`
+      );
+      console.log(
+        `FAQ API: http://localhost:${PORT}/api/faqs`
+      );
+      console.log(
+        `About API: http://localhost:${PORT}/api/about`
+      );
       console.log("==========================================");
     });
   } catch (error) {

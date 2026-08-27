@@ -7,34 +7,40 @@ import {
   Clock3,
   CheckCircle2,
   XCircle,
-  Lock,
-  Unlock,
   CalendarDays,
+  Power,
+  Save,
 } from "lucide-react";
 
 function SuperAdminRegistrations() {
   const [applications, setApplications] = useState([]);
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
   const [loading, setLoading] = useState(true);
-  const [settingsLoading, setSettingsLoading] = useState(true);
-
   const [error, setError] = useState("");
-  const [settingsError, setSettingsError] = useState("");
-  const [actionMessage, setActionMessage] = useState("");
 
   const [actionId, setActionId] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [actionMessage, setActionMessage] = useState("");
+
+  // =====================================================
+  // REGISTRATION CONTROL
+  // =====================================================
 
   const [registrationOpen, setRegistrationOpen] = useState(false);
   const [opensAt, setOpensAt] = useState("");
   const [closesAt, setClosesAt] = useState("");
+  const [settingsLoading, setSettingsLoading] = useState(true);
+  const [settingsSaving, setSettingsSaving] = useState(false);
+
+  // =====================================================
+  // FORMAT DATE FOR DATETIME-LOCAL INPUT
+  // =====================================================
 
   const formatDateTimeLocal = (value) => {
-    if (!value) {
-      return "";
-    }
+    if (!value) return "";
 
     const date = new Date(value);
 
@@ -42,16 +48,22 @@ function SuperAdminRegistrations() {
       return "";
     }
 
-    const offset = date.getTimezoneOffset();
-    const localDate = new Date(date.getTime() - offset * 60000);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
 
-    return localDate.toISOString().slice(0, 16);
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
+
+  // =====================================================
+  // LOAD REGISTRATION SETTINGS
+  // =====================================================
 
   const loadRegistrationSettings = async () => {
     try {
       setSettingsLoading(true);
-      setSettingsError("");
 
       const response = await fetch(
         "http://localhost:5000/api/registration-settings"
@@ -69,13 +81,17 @@ function SuperAdminRegistrations() {
       setOpensAt(formatDateTimeLocal(data.opensAt));
       setClosesAt(formatDateTimeLocal(data.closesAt));
     } catch (err) {
-      setSettingsError(
+      setError(
         err.message || "Failed to load registration settings"
       );
     } finally {
       setSettingsLoading(false);
     }
   };
+
+  // =====================================================
+  // LOAD REGISTRATIONS
+  // =====================================================
 
   const loadRegistrations = async () => {
     try {
@@ -124,9 +140,14 @@ function SuperAdminRegistrations() {
     loadRegistrations();
   }, []);
 
-  const updateRegistrationToggle = async (open) => {
+  // =====================================================
+  // TOGGLE REGISTRATION
+  // =====================================================
+
+  const handleRegistrationToggle = async () => {
     try {
-      setSettingsError("");
+      setSettingsSaving(true);
+      setError("");
       setActionMessage("");
 
       const token = localStorage.getItem("token");
@@ -134,6 +155,8 @@ function SuperAdminRegistrations() {
       if (!token) {
         throw new Error("Authentication required");
       }
+
+      const newStatus = !registrationOpen;
 
       const response = await fetch(
         "http://localhost:5000/api/registration-settings/toggle",
@@ -144,7 +167,7 @@ function SuperAdminRegistrations() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            registrationOpen: open,
+            registrationOpen: newStatus,
           }),
         }
       );
@@ -161,25 +184,32 @@ function SuperAdminRegistrations() {
 
       setActionMessage(
         data.message ||
-          (open
+          (newStatus
             ? "Registration opened successfully"
             : "Registration closed successfully")
       );
     } catch (err) {
-      setSettingsError(
+      setError(
         err.message || "Failed to update registration status"
       );
+    } finally {
+      setSettingsSaving(false);
     }
   };
 
-  const saveRegistrationPeriod = async () => {
+  // =====================================================
+  // SAVE REGISTRATION PERIOD
+  // =====================================================
+
+  const handleSavePeriod = async () => {
     try {
-      setSettingsError("");
+      setSettingsSaving(true);
+      setError("");
       setActionMessage("");
 
       if (!opensAt || !closesAt) {
         throw new Error(
-          "Please select both opening and closing dates"
+          "Please select both opening and closing dates."
         );
       }
 
@@ -188,7 +218,7 @@ function SuperAdminRegistrations() {
 
       if (openingDate >= closingDate) {
         throw new Error(
-          "Opening date must be before closing date"
+          "Registration opening time must be before closing time."
         );
       }
 
@@ -222,18 +252,23 @@ function SuperAdminRegistrations() {
       }
 
       setRegistrationOpen(Boolean(data.registrationOpen));
-      setOpensAt(formatDateTimeLocal(data.opensAt));
-      setClosesAt(formatDateTimeLocal(data.closesAt));
 
       setActionMessage(
-        data.message || "Registration period saved successfully"
+        data.message ||
+          "Registration period saved successfully"
       );
     } catch (err) {
-      setSettingsError(
+      setError(
         err.message || "Failed to save registration period"
       );
+    } finally {
+      setSettingsSaving(false);
     }
   };
+
+  // =====================================================
+  // UPDATE APPLICATION STATUS
+  // =====================================================
 
   const updateStatus = async (
     registrationId,
@@ -290,6 +325,10 @@ function SuperAdminRegistrations() {
     }
   };
 
+  // =====================================================
+  // SAFE DISPLAY VALUE
+  // =====================================================
+
   const getDisplayValue = (value) => {
     if (
       value === null ||
@@ -315,14 +354,9 @@ function SuperAdminRegistrations() {
     return String(value);
   };
 
-  const normalizeStatus = (status) => {
-    return String(status || "")
-      .trim()
-      .toLowerCase()
-      .replace(/\b\w/g, (char) =>
-        char.toUpperCase()
-      );
-  };
+  // =====================================================
+  // FILTER APPLICATIONS
+  // =====================================================
 
   const filteredApplications = useMemo(() => {
     return applications.filter((application) => {
@@ -342,55 +376,66 @@ function SuperAdminRegistrations() {
           .toLowerCase()
           .includes(searchText);
 
-      const applicationStatus = normalizeStatus(
-        application.status
-      );
-
       const matchesStatus =
         statusFilter === "All" ||
-        applicationStatus === statusFilter;
+        application.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
   }, [applications, search, statusFilter]);
 
+  // =====================================================
+  // COUNTS
+  // =====================================================
+
   const submittedCount = applications.filter(
-    (item) =>
-      normalizeStatus(item.status) === "Submitted"
+    (item) => item.status === "Submitted"
   ).length;
 
   const shortlistedCount = applications.filter(
-    (item) =>
-      normalizeStatus(item.status) === "Shortlisted"
+    (item) => item.status === "Shortlisted"
   ).length;
 
   const acceptedCount = applications.filter(
-    (item) =>
-      normalizeStatus(item.status) === "Accepted"
+    (item) => item.status === "Accepted"
   ).length;
 
   const rejectedCount = applications.filter(
-    (item) =>
-      normalizeStatus(item.status) === "Rejected"
+    (item) => item.status === "Rejected"
   ).length;
 
-  const getAvailableActions = (status) => {
-    const normalizedStatus = normalizeStatus(status);
+  // =====================================================
+  // AVAILABLE STATUS ACTIONS
+  // =====================================================
 
-    if (normalizedStatus === "Submitted") {
+  const getAvailableActions = (status) => {
+    if (
+      status === "Submitted" ||
+      status === "SUBMITTED"
+    ) {
       return ["Shortlisted", "Rejected"];
     }
 
-    if (normalizedStatus === "Shortlisted") {
+    if (
+      status === "Shortlisted" ||
+      status === "SHORTLISTED"
+    ) {
       return ["Interviewed", "Rejected"];
     }
 
-    if (normalizedStatus === "Interviewed") {
+    if (
+      status === "Interviewed" ||
+      status === "INTERVIEWED"
+    ) {
       return ["Accepted", "Rejected"];
     }
 
     return [];
   };
+
+  // =====================================================
+  // LOADING
+  // =====================================================
 
   if (loading || settingsLoading) {
     return (
@@ -404,53 +449,34 @@ function SuperAdminRegistrations() {
             <h2>Registrations</h2>
 
             <p>
-              Review and manage bootcamp applications and
-              registration status.
+              Review and manage bootcamp applications
+              and registration status.
             </p>
           </div>
         </div>
 
         <div className="registration-panel">
           <div className="registration-empty">
-            Loading registration management...
+            Loading registrations...
           </div>
         </div>
       </div>
     );
   }
 
-  if (error && applications.length === 0) {
-    return (
-      <div className="registrations-page">
-        <div className="registrations-heading">
-          <div>
-            <p className="registrations-eyebrow">
-              REGISTRATION MANAGEMENT
-            </p>
-
-            <h2>Registrations</h2>
-
-            <p>
-              Review and manage bootcamp applications and
-              registration status.
-            </p>
-          </div>
-        </div>
-
-        <div className="registration-panel">
-          <div className="registration-empty">
-            {error}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // =====================================================
+  // MAIN PAGE
+  // =====================================================
 
   return (
     <div
       className="registrations-page"
       onClick={() => setOpenMenuId(null)}
     >
+      {/* =================================================
+          PAGE HEADER
+      ================================================= */}
+
       <div className="registrations-heading">
         <div>
           <p className="registrations-eyebrow">
@@ -460,11 +486,15 @@ function SuperAdminRegistrations() {
           <h2>Registrations</h2>
 
           <p>
-            Control registration availability and manage
-            bootcamp applications.
+            Review and manage bootcamp applications
+            and registration status.
           </p>
         </div>
       </div>
+
+      {/* =================================================
+          MESSAGES
+      ================================================= */}
 
       {actionMessage && (
         <div className="registration-action-message">
@@ -472,22 +502,20 @@ function SuperAdminRegistrations() {
         </div>
       )}
 
-      {settingsError && (
-        <div className="registration-action-error">
-          {settingsError}
-        </div>
-      )}
-
-      {error && applications.length > 0 && (
+      {error && (
         <div className="registration-action-error">
           {error}
         </div>
       )}
 
-      <div className="registration-panel registration-control-panel">
+      {/* =================================================
+          REGISTRATION CONTROL
+      ================================================= */}
+
+      <div className="registration-control-panel">
         <div className="registration-control-header">
           <div>
-            <p className="registrations-eyebrow">
+            <p className="registration-control-eyebrow">
               REGISTRATION CONTROL
             </p>
 
@@ -502,114 +530,127 @@ function SuperAdminRegistrations() {
           <div
             className={`registration-control-status ${
               registrationOpen
-                ? "registration-open"
-                : "registration-closed"
+                ? "is-open"
+                : "is-closed"
             }`}
           >
-            {registrationOpen ? (
-              <>
-                <Unlock size={18} />
-                <span>Registration Open</span>
-              </>
-            ) : (
-              <>
-                <Lock size={18} />
-                <span>Registration Closed</span>
-              </>
-            )}
+            <span className="registration-status-dot"></span>
+
+            {registrationOpen
+              ? "Registration Open"
+              : "Registration Closed"}
           </div>
         </div>
 
-        <div className="registration-control-actions">
-          <button
-            type="button"
-            className="registration-open-button"
-            disabled={registrationOpen}
-            onClick={(e) => {
-              e.stopPropagation();
-              updateRegistrationToggle(true);
-            }}
-          >
-            <Unlock size={17} />
-            Open Registration
-          </button>
+        <div className="registration-control-divider"></div>
+
+        {/* TOGGLE */}
+
+        <div className="registration-toggle-row">
+          <div className="registration-toggle-info">
+            <div className="registration-control-icon">
+              <Power size={19} />
+            </div>
+
+            <div>
+              <strong>Registration Status</strong>
+
+              <span>
+                {registrationOpen
+                  ? "Students can currently access the registration form."
+                  : "Students cannot currently access the registration form."}
+              </span>
+            </div>
+          </div>
 
           <button
             type="button"
-            className="registration-close-button"
-            disabled={!registrationOpen}
-            onClick={(e) => {
-              e.stopPropagation();
-              updateRegistrationToggle(false);
-            }}
+            className={`registration-switch ${
+              registrationOpen ? "active" : ""
+            }`}
+            onClick={handleRegistrationToggle}
+            disabled={settingsSaving}
+            aria-label={
+              registrationOpen
+                ? "Close registration"
+                : "Open registration"
+            }
           >
-            <Lock size={17} />
-            Close Registration
+            <span className="registration-switch-knob"></span>
           </button>
         </div>
+
+        {/* PERIOD */}
 
         <div className="registration-period-section">
           <div className="registration-period-title">
-            <CalendarDays size={18} />
-            <span>Registration Period</span>
+            <CalendarDays size={19} />
+
+            <div>
+              <strong>Registration Period</strong>
+
+              <span>
+                Registration will only be available
+                between the selected opening and
+                closing times when the switch is enabled.
+              </span>
+            </div>
           </div>
 
-          <div className="registration-period-fields">
-            <div className="registration-period-field">
-              <label htmlFor="registration-opens">
+          <div className="registration-period-grid">
+            <div className="registration-field">
+              <label htmlFor="opensAt">
                 Registration Opens
               </label>
 
               <input
-                id="registration-opens"
+                id="opensAt"
                 type="datetime-local"
                 value={opensAt}
                 onChange={(e) =>
                   setOpensAt(e.target.value)
                 }
-                onClick={(e) =>
-                  e.stopPropagation()
-                }
+                disabled={settingsSaving}
               />
             </div>
 
-            <div className="registration-period-field">
-              <label htmlFor="registration-closes">
+            <div className="registration-field">
+              <label htmlFor="closesAt">
                 Registration Closes
               </label>
 
               <input
-                id="registration-closes"
+                id="closesAt"
                 type="datetime-local"
                 value={closesAt}
                 onChange={(e) =>
                   setClosesAt(e.target.value)
                 }
-                onClick={(e) =>
-                  e.stopPropagation()
-                }
+                disabled={settingsSaving}
               />
             </div>
-
-            <button
-              type="button"
-              className="registration-save-period-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                saveRegistrationPeriod();
-              }}
-            >
-              Save Registration Period
-            </button>
           </div>
 
-          <p className="registration-period-help">
-            Registration will only be available between the
-            selected opening and closing times when the
-            registration switch is enabled.
-          </p>
+          <div className="registration-period-actions">
+            <button
+              type="button"
+              className="registration-save-period"
+              onClick={handleSavePeriod}
+              disabled={settingsSaving}
+            >
+              <Save size={16} />
+
+              {settingsSaving
+                ? "Saving..."
+                : "Save Registration Period"}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* =================================================
+          APPLICATION STATISTICS
+      ================================================= */}
 
       <div className="registration-stats">
         <div className="registration-stat">
@@ -658,6 +699,10 @@ function SuperAdminRegistrations() {
           </div>
         </div>
       </div>
+
+      {/* =================================================
+          APPLICATION TABLE
+      ================================================= */}
 
       <div className="registration-panel">
         <div className="registration-tabs">
@@ -736,7 +781,9 @@ function SuperAdminRegistrations() {
                     );
 
                   return (
-                    <tr key={application._id}>
+                    <tr
+                      key={application._id}
+                    >
                       <td>
                         <div className="application-user">
                           <div className="application-avatar">
@@ -785,7 +832,7 @@ function SuperAdminRegistrations() {
 
                       <td>
                         <span
-                          className={`registration-status status-${String(
+                          className={`registration-status status-${(
                             application.status || ""
                           ).toLowerCase()}`}
                         >

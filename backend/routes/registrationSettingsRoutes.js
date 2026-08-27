@@ -5,10 +5,23 @@ const roleMiddleware = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
-// ==========================================
-// GET REGISTRATION SETTINGS
-// GET /api/registration-settings
-// ==========================================
+const getEffectiveRegistrationStatus = (settings) => {
+  const now = new Date();
+
+  if (!settings.registrationOpen) {
+    return false;
+  }
+
+  if (settings.opensAt && now < settings.opensAt) {
+    return false;
+  }
+
+  if (settings.closesAt && now >= settings.closesAt) {
+    return false;
+  }
+
+  return true;
+};
 
 router.get("/", async (req, res) => {
   try {
@@ -22,8 +35,12 @@ router.get("/", async (req, res) => {
       });
     }
 
+    const registrationOpen =
+      getEffectiveRegistrationStatus(settings);
+
     return res.json({
-      registrationOpen: settings.registrationOpen,
+      registrationOpen,
+      manuallyEnabled: settings.registrationOpen,
       opensAt: settings.opensAt,
       closesAt: settings.closesAt,
     });
@@ -37,15 +54,10 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ==========================================
-// TOGGLE REGISTRATION
-// PATCH /api/registration-settings/toggle
-// ==========================================
-
 router.patch(
   "/toggle",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("superadmin"),
   async (req, res) => {
     try {
       const { registrationOpen } = req.body;
@@ -59,18 +71,26 @@ router.patch(
       let settings = await RegistrationSettings.findOne();
 
       if (!settings) {
-        settings = new RegistrationSettings();
+        settings = new RegistrationSettings({
+          registrationOpen: false,
+          opensAt: null,
+          closesAt: null,
+        });
       }
 
       settings.registrationOpen = registrationOpen;
 
       await settings.save();
 
+      const effectiveStatus =
+        getEffectiveRegistrationStatus(settings);
+
       return res.json({
         message: registrationOpen
           ? "Registration opened successfully"
           : "Registration closed successfully",
-        registrationOpen: settings.registrationOpen,
+        registrationOpen: effectiveStatus,
+        manuallyEnabled: settings.registrationOpen,
         opensAt: settings.opensAt,
         closesAt: settings.closesAt,
       });
@@ -85,15 +105,10 @@ router.patch(
   }
 );
 
-// ==========================================
-// SAVE REGISTRATION PERIOD
-// PATCH /api/registration-settings/period
-// ==========================================
-
 router.patch(
   "/period",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("superadmin"),
   async (req, res) => {
     try {
       const { opensAt, closesAt } = req.body;
@@ -128,7 +143,11 @@ router.patch(
       let settings = await RegistrationSettings.findOne();
 
       if (!settings) {
-        settings = new RegistrationSettings();
+        settings = new RegistrationSettings({
+          registrationOpen: false,
+          opensAt: null,
+          closesAt: null,
+        });
       }
 
       settings.opensAt = openingDate;
@@ -136,14 +155,21 @@ router.patch(
 
       await settings.save();
 
+      const effectiveStatus =
+        getEffectiveRegistrationStatus(settings);
+
       return res.json({
         message: "Registration period saved successfully",
-        registrationOpen: settings.registrationOpen,
+        registrationOpen: effectiveStatus,
+        manuallyEnabled: settings.registrationOpen,
         opensAt: settings.opensAt,
         closesAt: settings.closesAt,
       });
     } catch (error) {
-      console.error("SAVE REGISTRATION PERIOD ERROR:", error);
+      console.error(
+        "SAVE REGISTRATION PERIOD ERROR:",
+        error
+      );
 
       return res.status(500).json({
         message: "Failed to save registration period",

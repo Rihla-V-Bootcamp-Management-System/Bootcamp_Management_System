@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import apiClient from "../../services/apiClient";
 
 function Registration() {
-  // =====================================================
-  // REGISTRATION SETTINGS
-  // =====================================================
-
   const [settings, setSettings] = useState({
     registrationOpen: false,
     opensAt: null,
@@ -15,15 +12,7 @@ function Registration() {
   const [opensAt, setOpensAt] = useState("");
   const [closesAt, setClosesAt] = useState("");
 
-  // =====================================================
-  // REGISTRATION APPLICATIONS
-  // =====================================================
-
   const [registrations, setRegistrations] = useState([]);
-
-  // =====================================================
-  // LOADING STATES
-  // =====================================================
 
   const [loading, setLoading] = useState(true);
   const [loadingRegistrations, setLoadingRegistrations] =
@@ -33,16 +22,8 @@ function Registration() {
   const [toggling, setToggling] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(null);
 
-  // =====================================================
-  // MESSAGES
-  // =====================================================
-
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-
-  // =====================================================
-  // FORMAT DATE FOR DATETIME-LOCAL
-  // =====================================================
 
   const formatDateTimeForInput = (date) => {
     if (!date) return "";
@@ -73,10 +54,6 @@ function Registration() {
 
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
-
-  // =====================================================
-  // FETCH REGISTRATION SETTINGS
-  // =====================================================
 
   const fetchSettings = async () => {
     try {
@@ -126,10 +103,6 @@ function Registration() {
     }
   };
 
-  // =====================================================
-  // FETCH REGISTRATIONS
-  // =====================================================
-
   const fetchRegistrations = async () => {
     try {
       setLoadingRegistrations(true);
@@ -142,18 +115,6 @@ function Registration() {
         "REGISTRATIONS RESPONSE:",
         response.data
       );
-
-      /*
-       * Support different backend response formats:
-       *
-       * {
-       *   registrations: [...]
-       * }
-       *
-       * OR
-       *
-       * [...]
-       */
 
       const data =
         response.data?.registrations ||
@@ -182,18 +143,10 @@ function Registration() {
     }
   };
 
-  // =====================================================
-  // INITIAL LOAD
-  // =====================================================
-
   useEffect(() => {
     fetchSettings();
     fetchRegistrations();
   }, []);
-
-  // =====================================================
-  // SAVE REGISTRATION PERIOD
-  // =====================================================
 
   const handleSavePeriod = async () => {
     setMessage("");
@@ -276,10 +229,6 @@ function Registration() {
     }
   };
 
-  // =====================================================
-  // TOGGLE REGISTRATION
-  // =====================================================
-
   const handleToggleRegistration =
     async () => {
       try {
@@ -327,10 +276,6 @@ function Registration() {
       }
     };
 
-  // =====================================================
-  // UPDATE APPLICATION STATUS
-  // =====================================================
-
   const handleStatusChange = async (
     registrationId,
     status
@@ -371,7 +316,6 @@ function Registration() {
           `Registration changed to ${status}.`
       );
 
-      // Refresh list after successful update
       await fetchRegistrations();
     } catch (err) {
       console.error(
@@ -398,10 +342,6 @@ function Registration() {
     }
   };
 
-  // =====================================================
-  // STATUS BADGE
-  // =====================================================
-
   const getStatusClass = (status) => {
     switch (status) {
       case "SUBMITTED":
@@ -424,10 +364,6 @@ function Registration() {
     }
   };
 
-  // =====================================================
-  // LOADING
-  // =====================================================
-
   if (loading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
@@ -438,30 +374,27 @@ function Registration() {
     );
   }
 
-  // =====================================================
-  // PAGE
-  // =====================================================
-
   return (
     <div className="space-y-8">
 
-      {/* =================================================
-          PAGE HEADER
-      ================================================= */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Registration Management
+          </h1>
 
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">
-          Registration Management
-        </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Manage registration and review student applications.
+          </p>
+        </div>
 
-        <p className="mt-1 text-sm text-slate-500">
-          Manage registration and review student applications.
-        </p>
+        <Link
+          to="/admin/form-builder"
+          className="inline-flex items-center justify-center rounded-lg bg-[#071629] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#10233b]"
+        >
+          Application Form Builder
+        </Link>
       </div>
-
-      {/* =================================================
-          SUCCESS MESSAGE
-      ================================================= */}
 
       {message && (
         <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
@@ -469,19 +402,11 @@ function Registration() {
         </div>
       )}
 
-      {/* =================================================
-          ERROR MESSAGE
-      ================================================= */}
-
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
-
-      {/* =================================================
-          REGISTRATION STATUS
-      ================================================= */}
 
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
 
@@ -534,10 +459,6 @@ function Registration() {
 
       </div>
 
-      {/* =================================================
-          REGISTRATION PERIOD
-      ================================================= */}
-
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
 
         <h2 className="text-lg font-semibold text-slate-900">
@@ -549,8 +470,6 @@ function Registration() {
         </p>
 
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-
-          {/* OPENING */}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -568,8 +487,6 @@ function Registration() {
               className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
           </div>
-
-          {/* CLOSING */}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -609,10 +526,6 @@ function Registration() {
 
       </div>
 
-      {/* =================================================
-          APPLICATIONS
-      ================================================= */}
-
       <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -633,10 +546,6 @@ function Registration() {
 
         </div>
 
-        {/* =================================================
-            LOADING APPLICATIONS
-        ================================================= */}
-
         {loadingRegistrations ? (
           <div className="py-12 text-center">
             <p className="text-sm text-slate-500">
@@ -644,17 +553,12 @@ function Registration() {
             </p>
           </div>
         ) : registrations.length === 0 ? (
-
           <div className="mt-6 rounded-lg bg-slate-50 p-8 text-center">
-
             <p className="text-sm text-slate-500">
               No applications found.
             </p>
-
           </div>
-
         ) : (
-
           <div className="mt-6 space-y-5">
 
             {registrations.map(
@@ -666,10 +570,6 @@ function Registration() {
                   }
                   className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
                 >
-
-                  {/* =====================================
-                      APPLICANT INFORMATION
-                  ===================================== */}
 
                   <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
 
@@ -702,8 +602,6 @@ function Registration() {
 
                     </div>
 
-                    {/* STATUS */}
-
                     <span
                       className={`inline-flex w-fit rounded-full px-4 py-2 text-sm font-semibold ${getStatusClass(
                         registration.status
@@ -715,10 +613,6 @@ function Registration() {
                     </span>
 
                   </div>
-
-                  {/* =====================================
-                      APPLICATION DETAILS
-                  ===================================== */}
 
                   <div className="mt-5 grid grid-cols-1 gap-4 border-t border-slate-100 pt-5 sm:grid-cols-2 lg:grid-cols-3">
 
@@ -796,10 +690,6 @@ function Registration() {
 
                   </div>
 
-                  {/* =====================================
-                      MOTIVATION
-                  ===================================== */}
-
                   {registration.motivation && (
                     <div className="mt-5 border-t border-slate-100 pt-5">
 
@@ -815,10 +705,6 @@ function Registration() {
 
                     </div>
                   )}
-
-                  {/* =====================================
-                      REJECTION REASON
-                  ===================================== */}
 
                   {registration.rejectionReason && (
                     <div className="mt-5 rounded-lg bg-red-50 p-4">
@@ -836,13 +722,7 @@ function Registration() {
                     </div>
                   )}
 
-                  {/* =====================================
-                      STATUS ACTIONS
-                  ===================================== */}
-
                   <div className="mt-6 flex flex-wrap gap-3 border-t border-slate-100 pt-5">
-
-                    {/* SUBMITTED */}
 
                     {registration.status ===
                       "SUBMITTED" && (
@@ -886,8 +766,6 @@ function Registration() {
                       </>
                     )}
 
-                    {/* SHORTLISTED */}
-
                     {registration.status ===
                       "SHORTLISTED" && (
                       <>
@@ -929,8 +807,6 @@ function Registration() {
                         </button>
                       </>
                     )}
-
-                    {/* INTERVIEWED */}
 
                     {registration.status ===
                       "INTERVIEWED" && (
@@ -974,16 +850,12 @@ function Registration() {
                       </>
                     )}
 
-                    {/* ACCEPTED */}
-
                     {registration.status ===
                       "ACCEPTED" && (
                       <span className="rounded-lg bg-green-50 px-4 py-2.5 text-sm font-medium text-green-700">
                         Student Accepted
                       </span>
                     )}
-
-                    {/* REJECTED */}
 
                     {registration.status ===
                       "REJECTED" && (
@@ -1000,7 +872,6 @@ function Registration() {
 
           </div>
         )}
-
       </div>
 
     </div>

@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    userID: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
     name: {
       type: String,
       required: true,
@@ -34,19 +40,10 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
-
-    mustResetPassword: {
-      type: Boolean,
-      default: false,
-    },
-
-    otp: {
     gender: {
       type: String,
       enum: ["Male", "Female"],
-      required: function () {
-        return this.role === "student";
-      },
+      default: null,
     },
 
     batchId: {
@@ -54,9 +51,30 @@ const userSchema = new mongoose.Schema(
       ref: "Batch",
       default: null,
     },
+
+    mustResetPassword: {
+      type: Boolean,
+      default: false,
+    },
+
+    otp: {
+      type: String,
+      default: null,
+    },
+
+    otpExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    otpVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
-}
-  
+  {
+    timestamps: true,
+  }
 );
 
 module.exports = mongoose.model("User", userSchema);

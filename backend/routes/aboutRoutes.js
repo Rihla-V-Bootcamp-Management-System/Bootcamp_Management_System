@@ -1,35 +1,37 @@
 const express = require("express");
-
 const router = express.Router();
+
+const {
+  getAbout,
+  getAdminAbout,
+  createAbout,
+  updateAbout,
+} = require("../controllers/aboutController");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 
-const registrationController = require("../controllers/registrationControllers");
-
-const {
-  createRegistration,
-  getRegistrations,
-  updateRegistrationStatus,
-} = registrationController;
+router.get("/", getAbout);
 
 router.get(
-  "/",
+  "/admin",
   authMiddleware,
   roleMiddleware("admin", "superadmin"),
-  getRegistrations
+  getAdminAbout
 );
 
 router.post(
   "/",
-  createRegistration
+  authMiddleware,
+  roleMiddleware("admin", "superadmin"),
+  createAbout
 );
 
 router.patch(
-  "/:id/status",
+  "/",
   authMiddleware,
   roleMiddleware("admin", "superadmin"),
-  updateRegistrationStatus
+  updateAbout
 );
 
 module.exports = router;

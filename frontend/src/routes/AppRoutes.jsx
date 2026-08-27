@@ -2,14 +2,12 @@ import { Routes, Route } from "react-router-dom";
 
 import DashboardLayout from "../layouts/DashboardLayout";
 
-
 import Landing from "../pages/Landing";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import SetPassword from "../pages/SetPassword";
 import FirstLogin from "../pages/FirstLogin";
 import PublicApplication from "../pages/PublicApplication";
-
 
 import MentorDashboard from "../pages/MentorDashboard";
 import MentorStudents from "../pages/MentorStudents";
@@ -18,38 +16,43 @@ import MentorProgress from "../pages/MentorProgress";
 import MentorAssignments from "../pages/MentorAssignments";
 import MentorSubmissions from "../pages/MentorSubmission";
 
-// Student pages
 import StudentDashboard from "../pages/StudentDashboard";
 import StudentAttendance from "../pages/StudentAttendance";
 import StudentProgress from "../pages/StudentProgress";
 import StudentWebProgress from "../pages/StudentWebProgress";
 import StudentCPProgress from "../pages/StudentCpProgress";
 
-// Admin pages
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import Users from "../pages/admin/Users";
 import Applications from "../pages/admin/Applications";
 import Batches from "../pages/admin/Batches";
 import Registration from "../pages/admin/Registration";
+import FormBuilder from "../pages/admin/FormBuilder";
 import BatchDetails from "../pages/admin/BatchDetails";
 import Attendance from "../pages/admin/Attendance";
+import AdminSettings from "../pages/admin/AdminSettings";
+import FAQs from "../pages/admin/FAQs";
+import About from "../pages/admin/About";
 
-// Assignment pages
 import StudentSubmission from "../pages/StudentAssignments";
 import StudentAssignments from "../pages/StudentAssignments";
 import StudentAssignmentDetails from "../pages/StudentAssignmentDetails";
 import AdminAssignments from "../pages/AdminAssignments";
+
 import SuperAdminLayout from "../layouts/SuperAdminLayout";
 import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashboard";
 import SuperAdminUsers from "../pages/superadmin/SuperAdminUsers";
 import SuperAdminRegistrations from "../pages/superadmin/SuperAdminRegistrations";
+import SuperAdminRegistration from "../pages/superadmin/SuperAdminRegistration";
 import SuperAdminAuditLogs from "../pages/superadmin/SuperAdminAuditLogs";
 import SuperAdminSettings from "../pages/superadmin/SuperAdminSettings";
 
 function AppRoutes() {
   return (
     <Routes>
-      {/* ================= PUBLIC ROUTES ================= */}
+      {/* =========================
+          PUBLIC ROUTES
+      ========================== */}
 
       <Route path="/" element={<Landing />} />
 
@@ -57,19 +60,33 @@ function AppRoutes() {
 
       <Route path="/register" element={<Register />} />
 
-      <Route path="/set-password" element={<SetPassword />} />
+      <Route
+        path="/set-password"
+        element={<SetPassword />}
+      />
 
-      <Route path="/first-login" element={<FirstLogin />} />
+      <Route
+        path="/first-login"
+        element={<FirstLogin />}
+      />
 
-      <Route path="/apply" element={<PublicApplication />} />
+      <Route
+        path="/apply"
+        element={<PublicApplication />}
+      />
 
-      {/* ================= ADMIN ROUTES ================= */}
+      {/* =========================
+          ADMIN ROUTES
+      ========================== */}
 
       <Route
         path="/admin"
         element={<DashboardLayout role="admin" />}
       >
-        <Route index element={<AdminDashboard />} />
+        <Route
+          index
+          element={<AdminDashboard />}
+        />
 
         <Route
           path="users"
@@ -102,6 +119,11 @@ function AppRoutes() {
         />
 
         <Route
+          path="form-builder"
+          element={<FormBuilder />}
+        />
+
+        <Route
           path="announcements"
           element={<div>Announcements Page</div>}
         />
@@ -113,16 +135,30 @@ function AppRoutes() {
 
         <Route
           path="settings"
-          element={<div>Settings Page</div>}
+          element={<AdminSettings />}
         />
 
         <Route
           path="assignments"
           element={<AdminAssignments />}
         />
+
+        {/* FAQ */}
+        <Route
+          path="faqs"
+          element={<FAQs />}
+        />
+
+        {/* ABOUT */}
+        <Route
+          path="about"
+          element={<About />}
+        />
       </Route>
 
-      {/* ================= MENTOR ROUTES ================= */}
+      {/* =========================
+          MENTOR ROUTES
+      ========================== */}
 
       <Route
         path="/mentor"
@@ -162,11 +198,11 @@ function AppRoutes() {
           path="announcements"
           element={<div>Announcements</div>}
         />
-       
- 
       </Route>
 
-      {/* ================= STUDENT ROUTES ================= */}
+      {/* =========================
+          STUDENT ROUTES
+      ========================== */}
 
       <Route
         path="/student"
@@ -211,9 +247,10 @@ function AppRoutes() {
           path="grades"
           element={<div>Student Grades</div>}
         />
-          <Route
+
+        <Route
           path="submissions"
-          element={<StudentSubmission/>}
+          element={<StudentSubmission />}
         />
 
         <Route
@@ -227,40 +264,44 @@ function AppRoutes() {
         />
       </Route>
 
-      {/* ================= GENERAL ASSIGNMENT ROUTES ================= */}
-      {/* ================= SUPERADMIN ROUTES ================= */}
+      {/* =========================
+          SUPER ADMIN ROUTES
+      ========================== */}
+
       <Route
-  path="/superadmin"
-  element={<SuperAdminLayout />}
->
-  <Route
-    index
-    element={<SuperAdminDashboard />}
-  />
+        path="/superadmin"
+        element={<SuperAdminLayout />}
+      >
+        <Route
+          index
+          element={<SuperAdminDashboard />}
+        />
 
-  <Route
-    path="users"
-    element={<SuperAdminUsers />}
-  />
+        <Route
+          path="users"
+          element={<SuperAdminUsers />}
+        />
 
-  <Route
-    path="registrations"
-    element={<SuperAdminRegistrations />}
-  />
+        <Route
+          path="registration"
+          element={<SuperAdminRegistration />}
+        />
 
-  <Route
-    path="audit-logs"
-    element={<SuperAdminAuditLogs />}
-  />
+        <Route
+          path="registrations"
+          element={<SuperAdminRegistrations />}
+        />
 
-  <Route
-    path="settings"
-    element={<SuperAdminSettings />}
-  />
-</Route>
+        <Route
+          path="audit-logs"
+          element={<SuperAdminAuditLogs />}
+        />
 
-
-      
+        <Route
+          path="settings"
+          element={<SuperAdminSettings />}
+        />
+      </Route>
     </Routes>
   );
 }

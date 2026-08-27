@@ -7,13 +7,18 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const questions = await FormQuestion.find({ active: true }).sort({
+    const questions = await FormQuestion.find({
+      active: true,
+    }).sort({
       order: 1,
     });
 
-    res.json({ questions });
+    res.json({
+      questions,
+    });
   } catch (error) {
     console.error("GET QUESTIONS ERROR:", error);
+
     res.status(500).json({
       message: "Failed to get questions",
       error: error.message,
@@ -24,22 +29,50 @@ router.get("/", async (req, res) => {
 router.post(
   "/",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("admin", "superadmin"),
   async (req, res) => {
     try {
-      const { question, type, options, required, order } = req.body;
+      const {
+        question,
+        type,
+        options,
+        fileTypes,
+        required,
+        order,
+      } = req.body;
 
-      if (!question) {
+      if (!question || !question.trim()) {
         return res.status(400).json({
           message: "Question is required",
         });
       }
 
+      if (
+        type === "select" &&
+        (!Array.isArray(options) || options.length === 0)
+      ) {
+        return res.status(400).json({
+          message:
+            "Multiple choice questions must have at least one option",
+        });
+      }
+
+      if (
+        type === "file" &&
+        (!Array.isArray(fileTypes) || fileTypes.length === 0)
+      ) {
+        return res.status(400).json({
+          message:
+            "File upload questions must have at least one file type",
+        });
+      }
+
       const newQuestion = await FormQuestion.create({
-        question,
+        question: question.trim(),
         type: type || "text",
-        options: options || [],
-        required: required || false,
+        options: type === "select" ? options : [],
+        fileTypes: type === "file" ? fileTypes : [],
+        required: Boolean(required),
         order: order || 0,
       });
 
@@ -49,6 +82,7 @@ router.post(
       });
     } catch (error) {
       console.error("ADD QUESTION ERROR:", error);
+
       res.status(500).json({
         message: "Failed to add question",
         error: error.message,
@@ -60,12 +94,20 @@ router.post(
 router.patch(
   "/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("admin", "superadmin"),
   async (req, res) => {
     try {
-      const { question, type, options, required, order } = req.body;
+      const {
+        question,
+        type,
+        options,
+        fileTypes,
+        required,
+        order,
+      } = req.body;
 
-      const existingQuestion = await FormQuestion.findById(req.params.id);
+      const existingQuestion =
+        await FormQuestion.findById(req.params.id);
 
       if (!existingQuestion) {
         return res.status(404).json({
@@ -85,6 +127,10 @@ router.patch(
         existingQuestion.options = options;
       }
 
+      if (fileTypes !== undefined) {
+        existingQuestion.fileTypes = fileTypes;
+      }
+
       if (required !== undefined) {
         existingQuestion.required = required;
       }
@@ -101,6 +147,7 @@ router.patch(
       });
     } catch (error) {
       console.error("UPDATE QUESTION ERROR:", error);
+
       res.status(500).json({
         message: "Failed to update question",
         error: error.message,
@@ -112,14 +159,19 @@ router.patch(
 router.delete(
   "/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("admin", "superadmin"),
   async (req, res) => {
     try {
-      const question = await FormQuestion.findByIdAndUpdate(
-        req.params.id,
-        { active: false },
-        { new: true }
-      );
+      const question =
+        await FormQuestion.findByIdAndUpdate(
+          req.params.id,
+          {
+            active: false,
+          },
+          {
+            new: true,
+          }
+        );
 
       if (!question) {
         return res.status(404).json({
@@ -132,6 +184,7 @@ router.delete(
       });
     } catch (error) {
       console.error("DELETE QUESTION ERROR:", error);
+
       res.status(500).json({
         message: "Failed to remove question",
         error: error.message,

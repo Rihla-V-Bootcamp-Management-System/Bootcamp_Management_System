@@ -24,6 +24,21 @@ const registrationSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: ["Male", "Female"],
+      set: (value) => {
+        if (!value) return value;
+
+        const normalized = String(value).toLowerCase();
+
+        if (normalized === "male") {
+          return "Male";
+        }
+
+        if (normalized === "female") {
+          return "Female";
+        }
+
+        return value;
+      },
     },
 
     email: {

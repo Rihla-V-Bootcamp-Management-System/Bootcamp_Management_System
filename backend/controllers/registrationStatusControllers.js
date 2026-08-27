@@ -29,7 +29,6 @@ const updateRegistrationStatus = async (req, res) => {
       "REJECTED",
     ];
 
-    // 1. Validate status
     if (!status) {
       return res.status(400).json({
         message: "Status is required",
@@ -42,8 +41,9 @@ const updateRegistrationStatus = async (req, res) => {
       });
     }
 
-    // 2. Find registration
-    const registration = await Registration.findById(req.params.id);
+    const registration = await Registration.findById(
+      req.params.id
+    );
 
     if (!registration) {
       return res.status(404).json({
@@ -51,7 +51,6 @@ const updateRegistrationStatus = async (req, res) => {
       });
     }
 
-    // 3. Check allowed transition
     const currentStatus = registration.status;
 
     const allowedNextStatuses =
@@ -63,17 +62,30 @@ const updateRegistrationStatus = async (req, res) => {
       });
     }
 
-    // 4. Save reviewer information
-    registration.reviewedBy = req.user._id;
-    registration.reviewedAt = new Date();
+    const normalizedGender = registration.gender
+      ? registration.gender.toLowerCase()
+      : null;
 
-    // 5. Handle rejection
-    if (status === "REJECTED") {
-      registration.rejectionReason =
-        rejectionReason?.trim() || "No reason provided";
+    const reviewerUpdate = {
+      status,
+      reviewedBy: req.user._id,
+      reviewedAt: new Date(),
+    };
+
+    if (
+      status === "SHORTLISTED" ||
+      status === "INTERVIEWED"
+    ) {
+      reviewerUpdate.rejectionReason = "";
     }
 
-    // 6. Handle accepted application
+    if (status === "REJECTED") {
+      reviewerUpdate.rejectionReason =
+        rejectionReason?.trim() || "No reason provided";
+
+      reviewerUpdate.decidedAt = new Date();
+    }
+
     if (status === "ACCEPTED") {
       const existingUser = await User.findOne({
         email: registration.email,
@@ -85,7 +97,6 @@ const updateRegistrationStatus = async (req, res) => {
         });
       }
 
-      // Generate student ID
       const lastUser = await User.findOne({
         userID: { $regex: /^STU-\d{4}-\d+$/ },
       }).sort({ userID: -1 });
@@ -96,7 +107,8 @@ const updateRegistrationStatus = async (req, res) => {
         const match = lastUser.userID.match(/(\d+)$/);
 
         if (match) {
-          nextNumber = parseInt(match[1], 10) + 1;
+          nextNumber =
+            parseInt(match[1], 10) + 1;
         }
       }
 
@@ -106,7 +118,6 @@ const updateRegistrationStatus = async (req, res) => {
         nextNumber
       ).padStart(4, "0")}`;
 
-      // Generate OTP
       const otp = Math.floor(
         100000 + Math.random() * 900000
       ).toString();
@@ -115,32 +126,45 @@ const updateRegistrationStatus = async (req, res) => {
         Date.now() + 24 * 60 * 60 * 1000
       );
 
-      // Temporary password
       const temporaryPassword = await bcrypt.hash(
         Math.random().toString(36),
         10
       );
 
-      // Create student account
+      const userGender =
+        normalizedGender === "male"
+          ? "male"
+          : normalizedGender === "female"
+          ? "female"
+          : undefined;
+
       const createdUser = await User.create({
         name: registration.fullName,
         email: registration.email,
         password: temporaryPassword,
         role: "student",
-        gender: registration.gender,
+        gender: userGender,
         userID,
         otp,
         otpExpiresAt,
         mustResetPassword: true,
       });
 
-      // Update registration
-      registration.status = "ACCEPTED";
-      registration.decidedAt = new Date();
+      reviewerUpdate.status = "ACCEPTED";
+      reviewerUpdate.decidedAt = new Date();
 
-      await registration.save();
+      const updatedRegistration =
+        await Registration.findByIdAndUpdate(
+          registration._id,
+          {
+            $set: reviewerUpdate,
+          },
+          {
+            new: true,
+            runValidators: false,
+          }
+        );
 
-      // Audit log
       await createAuditLog({
         actor: req.user._id,
         actorRole: req.user.role,
@@ -149,21 +173,24 @@ const updateRegistrationStatus = async (req, res) => {
         targetId: registration._id.toString(),
         description: `${req.user.role} changed registration status from ${currentStatus} to ACCEPTED`,
         metadata: {
-          registrationId: registration._id.toString(),
-          applicantName: registration.fullName,
-          applicantEmail: registration.email,
+          registrationId:
+            registration._id.toString(),
+          applicantName:
+            registration.fullName,
+          applicantEmail:
+            registration.email,
           previousStatus: currentStatus,
           newStatus: "ACCEPTED",
-          studentUserID: createdUser.userID,
+          studentUserID:
+            createdUser.userID,
         },
       });
 
-      // Send accepted email
       let emailSent = false;
 
       try {
         await sendAcceptedEmail(
-          registration,
+          updatedRegistration,
           createdUser
         );
 
@@ -182,7 +209,7 @@ const updateRegistrationStatus = async (req, res) => {
 
         emailSent,
 
-        registration,
+        registration: updatedRegistration,
 
         user: {
           userID: createdUser.userID,
@@ -194,33 +221,34 @@ const updateRegistrationStatus = async (req, res) => {
       });
     }
 
-    // 7. For other statuses
-    registration.status = status;
+    const updatedRegistration =
+      await Registration.findByIdAndUpdate(
+        registration._id,
+        {
+          $set: reviewerUpdate,
+        },
+        {
+          new: true,
+          runValidators: false,
+        }
+      );
 
-    if (
-      status === "SHORTLISTED" ||
-      status === "INTERVIEWED"
-    ) {
-      registration.rejectionReason = "";
-    }
-
-    if (status === "REJECTED") {
-      registration.decidedAt = new Date();
-    }
-
-    await registration.save();
-
-    // 8. Send appropriate email
     let emailSent = false;
 
     try {
       if (status === "SHORTLISTED") {
-        await sendShortlistedEmail(registration);
+        await sendShortlistedEmail(
+          updatedRegistration
+        );
+
         emailSent = true;
       }
 
       if (status === "REJECTED") {
-        await sendRejectedEmail(registration);
+        await sendRejectedEmail(
+          updatedRegistration
+        );
+
         emailSent = true;
       }
     } catch (emailError) {
@@ -230,7 +258,6 @@ const updateRegistrationStatus = async (req, res) => {
       );
     }
 
-    // 9. Audit log
     await createAuditLog({
       actor: req.user._id,
       actorRole: req.user.role,
@@ -239,9 +266,12 @@ const updateRegistrationStatus = async (req, res) => {
       targetId: registration._id.toString(),
       description: `${req.user.role} changed registration status from ${currentStatus} to ${status}`,
       metadata: {
-        registrationId: registration._id.toString(),
-        applicantName: registration.fullName,
-        applicantEmail: registration.email,
+        registrationId:
+          registration._id.toString(),
+        applicantName:
+          registration.fullName,
+        applicantEmail:
+          registration.email,
         previousStatus: currentStatus,
         newStatus: status,
       },
@@ -253,7 +283,7 @@ const updateRegistrationStatus = async (req, res) => {
         : `Registration status changed to ${status}`,
 
       emailSent,
-      registration,
+      registration: updatedRegistration,
     });
   } catch (error) {
     console.error(

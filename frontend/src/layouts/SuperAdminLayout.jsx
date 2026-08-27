@@ -27,7 +27,7 @@ function SuperAdminLayout() {
     },
     {
       label: "Registrations",
-      path: "/superadmin/registrations",
+      path: "/superadmin/registration",
       icon: ClipboardList,
     },
     {
@@ -57,7 +57,9 @@ function SuperAdminLayout() {
         </div>
 
         <nav className="superadmin-nav">
-          <p className="superadmin-nav-title">MAIN MENU</p>
+          <p className="superadmin-nav-title">
+            MAIN MENU
+          </p>
 
           {navigation.map((item) => {
             const Icon = item.icon;
@@ -68,7 +70,9 @@ function SuperAdminLayout() {
                 to={item.path}
                 end={item.path === "/superadmin"}
                 className={({ isActive }) =>
-                  `superadmin-nav-link ${isActive ? "active" : ""}`
+                  `superadmin-nav-link ${
+                    isActive ? "active" : ""
+                  }`
                 }
               >
                 <Icon size={19} />
@@ -78,30 +82,33 @@ function SuperAdminLayout() {
           })}
         </nav>
 
-           {/* LOGOUT */}
-      <div className="mt-auto border-t border-gray-700 pt-6">
-
-        <button
-          type="button"
-          onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left hover:bg-gray-200  "
-        >
-          <LogOut size={20} />
-          Logout
-        </button>
-
-      </div>
+        {/* LOGOUT */}
+        <div className="mt-auto border-t border-gray-700 pt-6">
+          <button
+            type="button"
+            onClick={logout}
+            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left hover:bg-gray-200"
+          >
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
       <main className="superadmin-main">
         <header className="superadmin-header">
           <div>
-            <p className="superadmin-header-label">ADMINISTRATION</p>
+            <p className="superadmin-header-label">
+              ADMINISTRATION
+            </p>
+
             <h1>Super Admin Panel</h1>
           </div>
 
           <div className="superadmin-profile">
-            <div className="superadmin-avatar">SA</div>
+            <div className="superadmin-avatar">
+              SA
+            </div>
 
             <div>
               <p className="superadmin-profile-name">
