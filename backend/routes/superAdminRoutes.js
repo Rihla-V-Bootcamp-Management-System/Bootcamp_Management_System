@@ -1,5 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+
 const User = require("../models/User");
 const Registration = require("../models/Registration");
 const AuditLog = require("../models/AuditLog");
@@ -26,9 +27,12 @@ router.post(
         });
       }
 
-      if (!["admin", "mentor"].includes(role)) {
+      const allowedRoles = ["admin", "superadmin", "mentor"];
+
+      if (!allowedRoles.includes(role)) {
         return res.status(400).json({
-          message: "Super Admin can only assign admin or mentor",
+          message:
+            "Invalid role. You can only assign admin, superadmin, or mentor",
         });
       }
 
@@ -44,12 +48,17 @@ router.post(
         });
       }
 
+      const rolePrefix = {
+        admin: "ADM",
+        superadmin: "SADM",
+        mentor: "MTR",
+      };
+
+      const prefix = rolePrefix[role];
+
       const lastUser = await User.findOne({
         userID: {
-          $regex:
-            role === "admin"
-              ? /^ADM-\d{4}-\d+$/
-              : /^MTR-\d{4}-\d+$/,
+          $regex: new RegExp(`^${prefix}-\\d{4}-\\d+$`),
         },
       }).sort({ userID: -1 });
 
@@ -64,7 +73,6 @@ router.post(
       }
 
       const year = new Date().getFullYear();
-      const prefix = role === "admin" ? "ADM" : "MTR";
 
       const userID = `${prefix}-${year}-${String(nextNumber).padStart(
         4,
@@ -80,7 +88,8 @@ router.post(
       );
 
       const temporaryPassword = await bcrypt.hash(
-        Math.random().toString(36),
+        Math.random().toString(36) +
+          Math.random().toString(36),
         10
       );
 
@@ -94,6 +103,7 @@ router.post(
         otpExpiresAt,
         otpVerified: false,
         mustResetPassword: true,
+        accountStatus: "pending",
       });
 
       let emailSent = false;
@@ -114,19 +124,20 @@ router.post(
         action: "ASSIGN_STAFF",
         targetType: "User",
         targetId: user._id.toString(),
-        description: `Super Admin assigned ${role} ${user.name}`,
+        description: `Super Admin invited ${role} ${user.name}`,
         metadata: {
           userID: user.userID,
           email: user.email,
           role: user.role,
+          accountStatus: user.accountStatus,
           emailSent,
         },
       });
 
       return res.status(201).json({
         message: emailSent
-          ? `${role} assigned successfully and invitation email sent`
-          : `${role} assigned successfully but invitation email failed`,
+          ? `${role} invited successfully and invitation email sent`
+          : `${role} invited successfully but invitation email failed`,
         emailSent,
         user: {
           id: user._id,
@@ -134,6 +145,7 @@ router.post(
           name: user.name,
           email: user.email,
           role: user.role,
+          accountStatus: user.accountStatus,
           mustResetPassword: user.mustResetPassword,
           otpExpiresAt: user.otpExpiresAt,
         },
@@ -142,7 +154,7 @@ router.post(
       console.error("SUPER ADMIN ASSIGN ERROR:", error);
 
       return res.status(500).json({
-        message: "Failed to assign user",
+        message: "Failed to invite user",
         error: error.message,
       });
     }
@@ -156,7 +168,7 @@ router.get(
   async (req, res) => {
     try {
       const users = await User.find({})
-        .select("-password -otp")
+        .select("-password -otp -invitationToken")
         .sort({ createdAt: -1 });
 
       return res.json({
@@ -194,16 +206,10 @@ router.delete(
         });
       }
 
-      if (user.role === "superadmin") {
-        return res.status(403).json({
-          message: "Super Admin users cannot be deleted",
-        });
-      }
-
-      if (!["admin", "mentor"].includes(user.role)) {
+      if (!["admin", "mentor", "superadmin"].includes(user.role)) {
         return res.status(403).json({
           message:
-            "Only Admin and Mentor users assigned by Super Admin can be deleted",
+            "Only Admin, Mentor, and Super Admin users assigned by Super Admin can be deleted",
         });
       }
 
@@ -277,21 +283,31 @@ router.get(
   roleMiddleware("superadmin"),
   async (req, res) => {
     try {
-      const [totalUsers, students, mentors, pendingApplications] =
-        await Promise.all([
-          User.countDocuments(),
-          User.countDocuments({ role: "student" }),
-          User.countDocuments({ role: "mentor" }),
-          Registration.countDocuments({
-            status: {
-              $in: ["Submitted", "Shortlisted"],
-            },
-          }),
-        ]);
+      const [
+        totalUsers,
+        students,
+        admins,
+        superadmins,
+        mentors,
+        pendingApplications,
+      ] = await Promise.all([
+        User.countDocuments(),
+        User.countDocuments({ role: "student" }),
+        User.countDocuments({ role: "admin" }),
+        User.countDocuments({ role: "superadmin" }),
+        User.countDocuments({ role: "mentor" }),
+        Registration.countDocuments({
+          status: {
+            $in: ["Submitted", "Shortlisted"],
+          },
+        }),
+      ]);
 
       return res.json({
         totalUsers,
         students,
+        admins,
+        superadmins,
         mentors,
         pendingApplications,
       });

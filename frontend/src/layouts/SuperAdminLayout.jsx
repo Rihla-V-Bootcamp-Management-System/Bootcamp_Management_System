@@ -27,7 +27,7 @@ function SuperAdminLayout() {
     },
     {
       label: "Registrations",
-      path: "/superadmin/registration",
+      path: "/superadmin/registrations",
       icon: ClipboardList,
     },
     {
@@ -41,6 +41,10 @@ function SuperAdminLayout() {
       icon: Settings,
     },
   ];
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <div className="superadmin-layout">
@@ -83,13 +87,13 @@ function SuperAdminLayout() {
         </nav>
 
         {/* LOGOUT */}
-        <div className="mt-auto border-t border-gray-700 pt-6">
+        <div className="superadmin-sidebar-bottom">
           <button
             type="button"
-            onClick={logout}
-            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left hover:bg-gray-200"
+            className="superadmin-logout"
+            onClick={handleLogout}
           >
-            <LogOut size={20} />
+            <LogOut size={19} />
             <span>Logout</span>
           </button>
         </div>
