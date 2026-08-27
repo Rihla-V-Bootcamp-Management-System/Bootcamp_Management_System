@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import {
-  Check,
-  X,
-  Clock,
   RefreshCw,
   UserCheck,
   AlertCircle,
+  CalendarDays,
+  Clock,
 } from "lucide-react";
 
 import apiClient from "../../services/apiClient";
@@ -20,29 +19,20 @@ const STATUS_OPTIONS = [
 function Attendance() {
   const [batches, setBatches] = useState([]);
   const [students, setStudents] = useState([]);
-  const [attendance, setAttendance] =
-    useState({});
+  const [sessions, setSessions] = useState([]);
+  const [attendance, setAttendance] = useState({});
 
-  const [selectedBatch, setSelectedBatch] =
-    useState("");
+  const [selectedBatch, setSelectedBatch] = useState("");
+  const [selectedSession, setSelectedSession] = useState("");
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const [saving, setSaving] =
-    useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const [error, setError] =
-    useState("");
-
-  const [success, setSuccess] =
-    useState("");
-
-  const [excuseStudent, setExcuseStudent] =
-    useState(null);
-
-  const [excuseReason, setExcuseReason] =
-    useState("");
+  const [excuseStudent, setExcuseStudent] = useState(null);
+  const [excuseReason, setExcuseReason] = useState("");
 
   // =========================================================
   // LOAD BATCHES
@@ -53,8 +43,7 @@ function Attendance() {
       setLoading(true);
       setError("");
 
-      const response =
-        await apiClient.get("/batches");
+      const response = await apiClient.get("/batches");
 
       const data =
         response.data?.batches ||
@@ -62,11 +51,7 @@ function Attendance() {
         response.data ||
         [];
 
-      setBatches(
-        Array.isArray(data)
-          ? data
-          : []
-      );
+      setBatches(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(
         "LOAD BATCHES ERROR:",
@@ -83,7 +68,91 @@ function Attendance() {
   };
 
   // =========================================================
-  // LOAD STUDENTS
+  // LOAD SESSIONS FOR SELECTED BATCH
+  // =========================================================
+
+  const loadSessions = async () => {
+    if (!selectedBatch) {
+      setSessions([]);
+      setSelectedSession("");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await apiClient.get(
+        `/sessions?batchId=${selectedBatch}`
+      );
+
+      const data =
+        response.data?.sessions ||
+        response.data?.data ||
+        [];
+
+      const allSessions = Array.isArray(data)
+        ? data
+        : [];
+
+      // -------------------------------------------------------
+      // IMPORTANT
+      //
+      // Do NOT show future Created/Open sessions as attendance.
+      //
+      // Attendance becomes available once tracking starts.
+      // -------------------------------------------------------
+
+      const attendanceSessions =
+        allSessions.filter((session) =>
+          [
+            "Tracking",
+            "Stopped",
+            "Reviewed",
+            "Saved",
+          ].includes(session.status)
+        );
+
+      // Newest session first
+      attendanceSessions.sort(
+        (a, b) =>
+          new Date(b.sessionDate) -
+          new Date(a.sessionDate)
+      );
+
+      setSessions(attendanceSessions);
+
+      // -------------------------------------------------------
+      // Automatically select newest active/completed session
+      // -------------------------------------------------------
+
+      if (attendanceSessions.length > 0) {
+        setSelectedSession(
+          attendanceSessions[0]._id
+        );
+      } else {
+        setSelectedSession("");
+      }
+    } catch (err) {
+      console.error(
+        "LOAD SESSIONS ERROR:",
+        err.response?.data || err
+      );
+
+      setSessions([]);
+      setSelectedSession("");
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to load sessions."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================================================
+  // LOAD STUDENTS FROM BATCH
   // =========================================================
 
   const loadStudents = async () => {
@@ -96,22 +165,27 @@ function Attendance() {
       setLoading(true);
       setError("");
 
-      const response =
-        await apiClient.get(
-          `/batches/${selectedBatch}/students`
-        );
-
-      const data =
-        response.data?.students ||
-        response.data?.data ||
-        response.data ||
-        [];
-
-      setStudents(
-        Array.isArray(data)
-          ? data
-          : []
+      const response = await apiClient.get(
+        `/batches/${selectedBatch}`
       );
+
+      const batch =
+        response.data?.batch;
+
+      if (!batch) {
+        setStudents([]);
+        setError(
+          "Batch data was not returned."
+        );
+        return;
+      }
+
+      const batchStudents =
+        Array.isArray(batch.studentIds)
+          ? batch.studentIds
+          : [];
+
+      setStudents(batchStudents);
     } catch (err) {
       console.error(
         "LOAD STUDENTS ERROR:",
@@ -130,11 +204,11 @@ function Attendance() {
   };
 
   // =========================================================
-  // LOAD EXISTING ATTENDANCE
+  // LOAD ATTENDANCE FOR ONE SESSION
   // =========================================================
 
   const loadAttendance = async () => {
-    if (!selectedBatch) {
+    if (!selectedSession) {
       setAttendance({});
       return;
     }
@@ -143,10 +217,11 @@ function Attendance() {
       setLoading(true);
       setError("");
 
-      const response =
-        await apiClient.get(
-          `/attendance?batchId=${selectedBatch}`
-        );
+      // IMPORTANT:
+      // We now request attendance for ONE SESSION ONLY.
+      const response = await apiClient.get(
+        `/attendance?sessionId=${selectedSession}`
+      );
 
       const records =
         response.data?.attendance ||
@@ -156,19 +231,22 @@ function Attendance() {
 
       const map = {};
 
-      records.forEach((record) => {
-        const studentId =
-          typeof record.studentId === "object"
-            ? record.studentId._id
-            : record.studentId;
+      if (Array.isArray(records)) {
+        records.forEach((record) => {
+          const studentId =
+            typeof record.studentId ===
+            "object"
+              ? record.studentId?._id
+              : record.studentId;
 
-        if (!studentId) {
-          return;
-        }
+          if (!studentId) {
+            return;
+          }
 
-        map[String(studentId)] =
-          record;
-      });
+          map[String(studentId)] =
+            record;
+        });
+      }
 
       setAttendance(map);
     } catch (err) {
@@ -181,6 +259,8 @@ function Attendance() {
         err.response?.data?.message ||
           "Failed to load attendance."
       );
+
+      setAttendance({});
     } finally {
       setLoading(false);
     }
@@ -201,16 +281,45 @@ function Attendance() {
   useEffect(() => {
     if (!selectedBatch) {
       setStudents([]);
+      setSessions([]);
+      setAttendance({});
+      setSelectedSession("");
+      return;
+    }
+
+    setAttendance({});
+    setSelectedSession("");
+
+    loadStudents();
+    loadSessions();
+  }, [selectedBatch]);
+
+  // =========================================================
+  // SESSION CHANGE
+  // =========================================================
+
+  useEffect(() => {
+    if (!selectedSession) {
       setAttendance({});
       return;
     }
 
-    loadStudents();
     loadAttendance();
-  }, [selectedBatch]);
+  }, [selectedSession]);
 
   // =========================================================
-  // STATUS CHANGE
+  // SELECTED SESSION OBJECT
+  // =========================================================
+
+  const currentSession =
+    sessions.find(
+      (session) =>
+        String(session._id) ===
+        String(selectedSession)
+    ) || null;
+
+  // =========================================================
+  // UPDATE STATUS
   // =========================================================
 
   const handleStatusChange = async (
@@ -223,12 +332,9 @@ function Attendance() {
     const existing =
       attendance[String(studentId)];
 
-    // No existing record:
-    // status cannot be manually created here
-    // because the new system uses time tracking.
     if (!existing?._id) {
       setError(
-        "This student has no attendance record yet. Use check-in/check-out or approve an excuse."
+        "This student does not have an attendance record yet. Start tracking the session first."
       );
       return;
     }
@@ -244,19 +350,20 @@ function Attendance() {
           }
         );
 
+      const updatedRecord =
+        response.data?.attendance || {
+          ...existing,
+          status,
+        };
+
       setAttendance((prev) => ({
         ...prev,
-
         [String(studentId)]:
-          response.data?.attendance ||
-          {
-            ...existing,
-            status,
-          },
+          updatedRecord,
       }));
 
       setSuccess(
-        "Attendance status updated."
+        "Attendance status updated successfully."
       );
     } catch (err) {
       console.error(
@@ -266,7 +373,7 @@ function Attendance() {
 
       setError(
         err.response?.data?.message ||
-          "Failed to update status."
+          "Failed to update attendance status."
       );
     } finally {
       setSaving(false);
@@ -274,7 +381,7 @@ function Attendance() {
   };
 
   // =========================================================
-  // EXCUSE
+  // EXCUSE STUDENT
   // =========================================================
 
   const handleExcuse = async () => {
@@ -289,20 +396,32 @@ function Attendance() {
       return;
     }
 
+    if (!selectedSession) {
+      setError(
+        "Please select an attendance session."
+      );
+      return;
+    }
+
     try {
       setSaving(true);
       setError("");
+      setSuccess("");
 
       const studentId =
         excuseStudent._id ||
         excuseStudent.id;
 
+      // IMPORTANT:
+      // Send sessionId so the excuse belongs
+      // to THIS attendance session.
       const response =
         await apiClient.post(
           "/attendance/excuse",
           {
             studentId,
             batchId: selectedBatch,
+            sessionId: selectedSession,
             reason:
               excuseReason.trim(),
           }
@@ -311,17 +430,19 @@ function Attendance() {
       const record =
         response.data?.attendance;
 
-      setAttendance((prev) => ({
-        ...prev,
-        [String(studentId)]:
-          record,
-      }));
+      if (record) {
+        setAttendance((prev) => ({
+          ...prev,
+          [String(studentId)]:
+            record,
+        }));
+      }
 
       setExcuseStudent(null);
       setExcuseReason("");
 
       setSuccess(
-        "Student marked as excused."
+        "Student marked as excused successfully."
       );
     } catch (err) {
       console.error(
@@ -350,12 +471,15 @@ function Attendance() {
       return student.name;
     }
 
-    return [
-      student?.firstName,
-      student?.lastName,
-    ]
-      .filter(Boolean)
-      .join(" ") || "Unknown Student";
+    return (
+      [
+        student?.firstName,
+        student?.lastName,
+      ]
+        .filter(Boolean)
+        .join(" ") ||
+      "Unknown Student"
+    );
   };
 
   const getStatusClass = (status) => {
@@ -377,6 +501,99 @@ function Attendance() {
     }
   };
 
+  const getSessionStatusClass = (
+    status
+  ) => {
+    switch (status) {
+      case "Tracking":
+        return "bg-green-100 text-green-700";
+
+      case "Stopped":
+        return "bg-orange-100 text-orange-700";
+
+      case "Reviewed":
+        return "bg-purple-100 text-purple-700";
+
+      case "Saved":
+        return "bg-emerald-100 text-emerald-700";
+
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const formatTime = (time) => {
+    if (!time) {
+      return "-";
+    }
+
+    const date = new Date(time);
+
+    if (Number.isNaN(date.getTime())) {
+      return "-";
+    }
+
+    return date.toLocaleTimeString();
+  };
+
+  const formatDate = (date) => {
+    if (!date) {
+      return "-";
+    }
+
+    const parsed =
+      new Date(date);
+
+    if (
+      Number.isNaN(
+        parsed.getTime()
+      )
+    ) {
+      return "-";
+    }
+
+    return parsed.toLocaleDateString();
+  };
+
+  const formatDateTime = (date) => {
+    if (!date) {
+      return "-";
+    }
+
+    const parsed =
+      new Date(date);
+
+    if (
+      Number.isNaN(
+        parsed.getTime()
+      )
+    ) {
+      return "-";
+    }
+
+    return parsed.toLocaleString();
+  };
+
+  // =========================================================
+  // REFRESH EVERYTHING
+  // =========================================================
+
+  const refreshAll = async () => {
+    setError("");
+    setSuccess("");
+
+    await loadBatches();
+
+    if (selectedBatch) {
+      await loadStudents();
+      await loadSessions();
+
+      if (selectedSession) {
+        await loadAttendance();
+      }
+    }
+  };
+
   // =========================================================
   // RENDER
   // =========================================================
@@ -384,16 +601,23 @@ function Attendance() {
   return (
     <div className="space-y-6 p-6">
 
-      {/* HEADER */}
+      {/* =====================================================
+          HEADER
+      ====================================================== */}
 
-      <div>
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+
         <div className="flex items-center gap-3">
-          <UserCheck
-            size={30}
-            className="text-blue-600"
-          />
+
+          <div className="rounded-xl bg-blue-50 p-3">
+            <UserCheck
+              size={30}
+              className="text-blue-600"
+            />
+          </div>
 
           <div>
+
             <h1 className="text-2xl font-bold text-gray-900">
               AI Attendance Tracker
             </h1>
@@ -402,18 +626,48 @@ function Attendance() {
               Attendance is automatically calculated
               from student check-in and check-out time.
             </p>
+
           </div>
+
         </div>
+
+        <button
+          type="button"
+          onClick={refreshAll}
+          disabled={loading}
+          className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+        >
+          <RefreshCw
+            size={16}
+            className={
+              loading
+                ? "animate-spin"
+                : ""
+            }
+          />
+
+          Refresh
+        </button>
+
       </div>
 
-      {/* MESSAGES */}
+      {/* =====================================================
+          ERROR
+      ====================================================== */}
 
       {error && (
         <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+
           <AlertCircle size={18} />
-          {error}
+
+          <span>{error}</span>
+
         </div>
       )}
+
+      {/* =====================================================
+          SUCCESS
+      ====================================================== */}
 
       {success && (
         <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-green-700">
@@ -421,125 +675,268 @@ function Attendance() {
         </div>
       )}
 
-      {/* BATCH */}
+      {/* =====================================================
+          BATCH + SESSION SELECTORS
+      ====================================================== */}
 
-      <div className="rounded-xl border bg-white p-5 shadow-sm">
-        <label className="mb-2 block text-sm font-medium text-gray-700">
-          Select Batch
-        </label>
+      <div className="grid gap-5 rounded-xl border bg-white p-5 shadow-sm md:grid-cols-2">
 
-        <select
-          value={selectedBatch}
-          onChange={(e) =>
-            setSelectedBatch(e.target.value)
-          }
-          className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
-        >
-          <option value="">
-            Select a batch
-          </option>
+        {/* BATCH */}
 
-          {batches.map((batch) => (
-            <option
-              key={batch._id}
-              value={batch._id}
-            >
-              {batch.name ||
-                batch.batchName ||
-                batch.title ||
-                "Unnamed Batch"}
+        <div>
+
+          <label className="mb-2 block text-sm font-medium text-gray-700">
+            Select Batch
+          </label>
+
+          <select
+            value={selectedBatch}
+            onChange={(e) => {
+              setSelectedBatch(
+                e.target.value
+              );
+
+              setError("");
+              setSuccess("");
+            }}
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+          >
+
+            <option value="">
+              Select a batch
             </option>
-          ))}
-        </select>
+
+            {batches.map(
+              (batch) => (
+                <option
+                  key={batch._id}
+                  value={batch._id}
+                >
+                  {batch.name ||
+                    batch.batchName ||
+                    batch.title ||
+                    "Unnamed Batch"}
+                </option>
+              )
+            )}
+
+          </select>
+
+        </div>
+
+        {/* SESSION */}
+
+        <div>
+
+          <label className="mb-2 block text-sm font-medium text-gray-700">
+            Select Attendance Session
+          </label>
+
+          <select
+            value={selectedSession}
+            onChange={(e) => {
+              setSelectedSession(
+                e.target.value
+              );
+
+              setError("");
+              setSuccess("");
+            }}
+            disabled={
+              !selectedBatch ||
+              sessions.length === 0
+            }
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 disabled:bg-gray-100"
+          >
+
+            <option value="">
+              {selectedBatch
+                ? sessions.length > 0
+                  ? "Select a session"
+                  : "No attendance sessions yet"
+                : "Select a batch first"}
+            </option>
+
+            {sessions.map(
+              (session) => (
+                <option
+                  key={session._id}
+                  value={session._id}
+                >
+                  Week {session.week} -{" "}
+                  {formatDate(
+                    session.sessionDate
+                  )} -{" "}
+                  {session.title ||
+                    "Attendance Session"}
+                </option>
+              )
+            )}
+
+          </select>
+
+        </div>
+
       </div>
 
-      {/* SESSION INFORMATION */}
+      {/* =====================================================
+          SESSION INFO
+      ====================================================== */}
 
-      {selectedBatch && (
+      {currentSession && (
         <div className="grid gap-4 md:grid-cols-4">
 
-          <div className="rounded-xl border bg-white p-5">
-            <p className="text-sm text-gray-500">
+          {/* WEEK */}
+
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
+
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <CalendarDays size={16} />
               Week
+            </div>
+
+            <p className="mt-2 text-xl font-bold text-gray-900">
+              Week{" "}
+              {currentSession.week}
             </p>
 
-            <p className="mt-1 text-xl font-bold">
-              Automatically tracked
-            </p>
           </div>
 
-          <div className="rounded-xl border bg-white p-5">
-            <p className="text-sm text-gray-500">
-              Session date
+          {/* DATE */}
+
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
+
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <CalendarDays size={16} />
+              Session Date
+            </div>
+
+            <p className="mt-2 text-xl font-bold text-gray-900">
+              {formatDate(
+                currentSession.sessionDate
+              )}
             </p>
 
-            <p className="mt-1 text-xl font-bold">
-              Automatically tracked
-            </p>
           </div>
 
-          <div className="rounded-xl border bg-white p-5">
-            <p className="text-sm text-gray-500">
-              Session
+          {/* DURATION */}
+
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
+
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Clock size={16} />
+              Duration
+            </div>
+
+            <p className="mt-2 text-xl font-bold text-gray-900">
+              {currentSession.totalMinutes ??
+                0}{" "}
+              min
             </p>
 
-            <p className="mt-1 text-xl font-bold">
-              09:00 - 13:00
-            </p>
           </div>
 
-          <div className="rounded-xl border bg-white p-5">
+          {/* STATUS */}
+
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
+
             <p className="text-sm text-gray-500">
-              Students
+              Session Status
             </p>
 
-            <p className="mt-1 text-xl font-bold">
-              {students.length}
-            </p>
+            <span
+              className={`mt-2 inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getSessionStatusClass(
+                currentSession.status
+              )}`}
+            >
+              {currentSession.status}
+            </span>
+
           </div>
 
         </div>
       )}
 
-      {/* STUDENTS */}
+      {/* =====================================================
+          NO SESSION
+      ====================================================== */}
 
-      {selectedBatch && (
+      {selectedBatch &&
+        !selectedSession &&
+        !loading && (
+          <div className="rounded-xl border bg-white p-10 text-center shadow-sm">
+
+            <CalendarDays
+              size={40}
+              className="mx-auto mb-3 text-gray-400"
+            />
+
+            <h3 className="font-semibold text-gray-900">
+              No attendance session available
+            </h3>
+
+            <p className="mt-1 text-sm text-gray-500">
+              Start tracking a session first.
+              Future sessions will not appear here.
+            </p>
+
+          </div>
+        )}
+
+      {/* =====================================================
+          STUDENT ATTENDANCE
+      ====================================================== */}
+
+      {selectedSession && (
         <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
 
-          <div className="flex items-center justify-between border-b p-5">
+          {/* TABLE HEADER */}
+
+          <div className="flex flex-col justify-between gap-4 border-b p-5 md:flex-row md:items-center">
 
             <div>
+
               <h2 className="font-semibold text-gray-900">
                 Student Attendance
               </h2>
 
               <p className="text-sm text-gray-500">
-                Time determines Present/Late/Absent.
-                Excused has no time interval.
+                {currentSession?.title ||
+                  "Attendance Session"}
+                {" • "}
+                Week{" "}
+                {currentSession?.week}
+                {" • "}
+                {formatDate(
+                  currentSession?.sessionDate
+                )}
               </p>
+
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                loadStudents();
-                loadAttendance();
-              }}
-              className="flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50"
-            >
-              <RefreshCw size={16} />
-              Refresh
-            </button>
+            <div className="text-sm text-gray-500">
+              {students.length} student
+              {students.length === 1
+                ? ""
+                : "s"}
+            </div>
 
           </div>
 
           {loading ? (
-            <div className="p-10 text-center">
-              Loading...
+            <div className="p-10 text-center text-gray-500">
+
+              <RefreshCw
+                size={24}
+                className="mx-auto mb-3 animate-spin"
+              />
+
+              Loading attendance...
+
             </div>
           ) : students.length === 0 ? (
             <div className="p-10 text-center text-gray-500">
-              No students found.
+              No students found in this batch.
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -547,149 +944,203 @@ function Attendance() {
               <table className="w-full">
 
                 <thead className="bg-gray-50">
+
                   <tr>
-                    <th className="px-5 py-4 text-left">
+
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">
                       Student
                     </th>
 
-                    <th className="px-5 py-4 text-left">
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">
                       Email
                     </th>
 
-                    <th className="px-5 py-4 text-left">
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">
                       Check In
                     </th>
 
-                    <th className="px-5 py-4 text-left">
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">
                       Check Out
                     </th>
 
-                    <th className="px-5 py-4 text-left">
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">
                       Time
                     </th>
 
-                    <th className="px-5 py-4 text-left">
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">
                       Percentage
                     </th>
 
-                    <th className="px-5 py-4 text-left">
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">
                       Status
                     </th>
 
-                    <th className="px-5 py-4 text-left">
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-700">
                       Action
                     </th>
+
                   </tr>
+
                 </thead>
 
                 <tbody>
 
-                  {students.map((student) => {
-                    const studentId =
-                      getStudentId(student);
+                  {students.map(
+                    (student) => {
 
-                    const record =
-                      attendance[
-                        String(studentId)
-                      ];
+                      const studentId =
+                        getStudentId(
+                          student
+                        );
 
-                    return (
-                      <tr
-                        key={studentId}
-                        className="border-t"
-                      >
+                      const record =
+                        attendance[
+                          String(
+                            studentId
+                          )
+                        ];
 
-                        <td className="px-5 py-4 font-medium">
-                          {getStudentName(student)}
-                        </td>
+                      return (
+                        <tr
+                          key={studentId}
+                          className="border-t transition hover:bg-gray-50"
+                        >
 
-                        <td className="px-5 py-4 text-sm text-gray-500">
-                          {student.email || "-"}
-                        </td>
+                          {/* STUDENT */}
 
-                        <td className="px-5 py-4">
-                          {record?.checkInTime
-                            ? new Date(
-                                record.checkInTime
-                              ).toLocaleTimeString()
-                            : "-"}
-                        </td>
-
-                        <td className="px-5 py-4">
-                          {record?.checkOutTime
-                            ? new Date(
-                                record.checkOutTime
-                              ).toLocaleTimeString()
-                            : "-"}
-                        </td>
-
-                        <td className="px-5 py-4">
-                          {record?.attendedMinutes
-                            ? `${record.attendedMinutes} min`
-                            : "-"}
-                        </td>
-
-                        <td className="px-5 py-4">
-                          {record
-                            ? `${record.attendancePercentage || 0}%`
-                            : "-"}
-                        </td>
-
-                        <td className="px-5 py-4">
-
-                          <select
-                            value={
-                              record?.status ||
-                              "Absent"
-                            }
-                            disabled={
-                              saving ||
-                              !record?._id
-                            }
-                            onChange={(e) =>
-                              handleStatusChange(
-                                studentId,
-                                e.target.value
-                              )
-                            }
-                            className={`rounded-lg border px-3 py-2 text-sm font-medium ${getStatusClass(
-                              record?.status
-                            )}`}
-                          >
-                            {STATUS_OPTIONS.map(
-                              (status) => (
-                                <option
-                                  key={status}
-                                  value={status}
-                                >
-                                  {status}
-                                </option>
-                              )
+                          <td className="px-5 py-4 font-medium text-gray-900">
+                            {getStudentName(
+                              student
                             )}
-                          </select>
+                          </td>
 
-                        </td>
+                          {/* EMAIL */}
 
-                        <td className="px-5 py-4">
+                          <td className="px-5 py-4 text-sm text-gray-500">
+                            {student.email ||
+                              "-"}
+                          </td>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setExcuseStudent(
-                                student
-                              );
-                              setExcuseReason("");
-                            }}
-                            className="rounded-lg border border-blue-200 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50"
-                          >
-                            Excuse
-                          </button>
+                          {/* CHECK IN */}
 
-                        </td>
+                          <td className="px-5 py-4 text-sm">
+                            {formatTime(
+                              record?.checkInTime
+                            )}
+                          </td>
 
-                      </tr>
-                    );
-                  })}
+                          {/* CHECK OUT */}
+
+                          <td className="px-5 py-4 text-sm">
+                            {formatTime(
+                              record?.checkOutTime
+                            )}
+                          </td>
+
+                          {/* MINUTES */}
+
+                          <td className="px-5 py-4">
+
+                            {record
+                              ? `${record.attendedMinutes ?? 0} min`
+                              : "0 min"}
+
+                          </td>
+
+                          {/* PERCENTAGE */}
+
+                          <td className="px-5 py-4 font-medium">
+
+                            {record
+                              ? `${record.attendancePercentage ?? 0}%`
+                              : "0%"}
+
+                          </td>
+
+                          {/* STATUS */}
+
+                          <td className="px-5 py-4">
+
+                            <select
+                              value={
+                                record?.status ||
+                                "Absent"
+                              }
+                              disabled={
+                                saving ||
+                                !record?._id
+                              }
+                              onChange={(
+                                e
+                              ) =>
+                                handleStatusChange(
+                                  studentId,
+                                  e.target.value
+                                )
+                              }
+                              className={`rounded-lg border px-3 py-2 text-sm font-medium outline-none ${getStatusClass(
+                                record?.status ||
+                                  "Absent"
+                              )}`}
+                            >
+
+                              {STATUS_OPTIONS.map(
+                                (
+                                  status
+                                ) => (
+                                  <option
+                                    key={
+                                      status
+                                    }
+                                    value={
+                                      status
+                                    }
+                                  >
+                                    {
+                                      status
+                                    }
+                                  </option>
+                                )
+                              )}
+
+                            </select>
+
+                          </td>
+
+                          {/* ACTION */}
+
+                          <td className="px-5 py-4">
+
+                            <button
+                              type="button"
+                              disabled={
+                                !record?._id ||
+                                saving
+                              }
+                              onClick={() => {
+                                setExcuseStudent(
+                                  student
+                                );
+
+                                setExcuseReason(
+                                  ""
+                                );
+
+                                setError(
+                                  ""
+                                );
+                              }}
+                              className="rounded-lg border border-blue-200 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              Excuse
+                            </button>
+
+                          </td>
+
+                        </tr>
+                      );
+                    }
+                  )}
 
                 </tbody>
 
@@ -701,19 +1152,23 @@ function Attendance() {
         </div>
       )}
 
-      {/* EXCUSE MODAL */}
+      {/* =====================================================
+          EXCUSE MODAL
+      ====================================================== */}
 
       {excuseStudent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
 
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
 
-            <h2 className="text-lg font-bold">
+            <h2 className="text-lg font-bold text-gray-900">
               Approve Excuse
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              {getStudentName(excuseStudent)}
+              {getStudentName(
+                excuseStudent
+              )}
             </p>
 
             <textarea
@@ -724,7 +1179,7 @@ function Attendance() {
                 )
               }
               placeholder="Enter the reason for the excuse..."
-              className="mt-4 min-h-32 w-full rounded-lg border p-3 outline-none focus:border-blue-500"
+              className="mt-4 min-h-32 w-full rounded-lg border border-gray-300 p-3 outline-none focus:border-blue-500"
             />
 
             <div className="mt-5 flex justify-end gap-3">
@@ -732,10 +1187,12 @@ function Attendance() {
               <button
                 type="button"
                 onClick={() => {
-                  setExcuseStudent(null);
+                  setExcuseStudent(
+                    null
+                  );
                   setExcuseReason("");
                 }}
-                className="rounded-lg border px-4 py-2"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -744,9 +1201,11 @@ function Attendance() {
                 type="button"
                 disabled={saving}
                 onClick={handleExcuse}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
               >
-                Approve Excuse
+                {saving
+                  ? "Saving..."
+                  : "Approve Excuse"}
               </button>
 
             </div>

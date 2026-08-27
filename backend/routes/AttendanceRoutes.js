@@ -2,6 +2,8 @@ const express = require("express");
 
 const router = express.Router();
 
+const authMiddleware = require("../middleware/authMiddleware");
+
 const {
   checkIn,
   checkOut,
@@ -11,48 +13,70 @@ const {
   deleteAttendance,
 } = require("../controllers/attendanceControllers");
 
-const authMiddleware = require("../middleware/authMiddleware");
-
 // =========================================================
-// ATTENDANCE
+// STUDENT CHECK-IN
+// POST /api/attendance/check-in
 // =========================================================
 
-// Student check-in
 router.post(
   "/check-in",
   authMiddleware,
   checkIn
 );
 
-// Student check-out
+// =========================================================
+// STUDENT CHECK-OUT
+// POST /api/attendance/check-out
+// =========================================================
+
 router.post(
   "/check-out",
   authMiddleware,
   checkOut
 );
 
-// Approve excuse
+// =========================================================
+// APPROVE / CREATE EXCUSE
+// POST /api/attendance/excuse
+// =========================================================
+
 router.post(
   "/excuse",
   authMiddleware,
   excuseAttendance
 );
 
-// View attendance
+// =========================================================
+// GET ATTENDANCE
+// GET /api/attendance
+//
+// Examples:
+// /api/attendance?sessionId=123
+// /api/attendance?batchId=123
+// =========================================================
+
 router.get(
   "/",
   authMiddleware,
   getAttendance
 );
 
-// Update attendance
+// =========================================================
+// UPDATE ATTENDANCE
+// PUT /api/attendance/:id
+// =========================================================
+
 router.put(
   "/:id",
   authMiddleware,
   updateAttendance
 );
 
-// Delete attendance
+// =========================================================
+// DELETE ATTENDANCE
+// DELETE /api/attendance/:id
+// =========================================================
+
 router.delete(
   "/:id",
   authMiddleware,

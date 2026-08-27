@@ -1,24 +1,22 @@
+const mongoose = require("mongoose");
+
 const Attendance = require("../models/Attendance");
+const Session = require("../models/Session");
 const Batch = require("../models/Batch");
 const User = require("../models/User");
-
-const {
-  calculateWeek,
-  calculateAttendance,
-  getSessionDate,
-  buildSessionTimes,
-} = require("../services/attendanceTracker");
 
 // =========================================================
 // HELPERS
 // =========================================================
 
 const getUserId = (req) => {
-  return req.user?.id || req.user?._id;
+  return req.user?.id || req.user?._id || req.userId;
 };
 
 const getRole = (req) => {
-  return String(req.user?.role || "").toUpperCase();
+  return String(
+    req.user?.role || ""
+  ).toUpperCase();
 };
 
 const isAdmin = (req) => {
@@ -30,8 +28,20 @@ const isAdmin = (req) => {
   );
 };
 
+const isMentor = (req) => {
+  return getRole(req) === "MENTOR";
+};
+
+const isStudent = (req) => {
+  return getRole(req) === "STUDENT";
+};
+
+const isValidObjectId = (id) => {
+  return mongoose.Types.ObjectId.isValid(id);
+};
+
 // =========================================================
-// BATCH STUDENTS
+// BATCH HELPERS
 // =========================================================
 
 const getBatchStudentIds = (batch) => {
@@ -40,116 +50,235 @@ const getBatchStudentIds = (batch) => {
   }
 
   if (Array.isArray(batch.studentIds)) {
-    return batch.studentIds.map((student) =>
-      String(
+    return batch.studentIds.map((student) => {
+      const value =
         typeof student === "object"
-          ? student._id
-          : student
-      )
-    );
+          ? student?._id
+          : student;
+
+      return String(value);
+    });
   }
 
   if (Array.isArray(batch.students)) {
-    return batch.students.map((student) =>
-      String(
+    return batch.students.map((student) => {
+      const value =
         typeof student === "object"
-          ? student._id
-          : student
-      )
-    );
+          ? student?._id
+          : student;
+
+      return String(value);
+    });
   }
 
   return [];
 };
 
-const isStudentInBatch = (batch, studentId) => {
+const isStudentInBatch = (
+  batch,
+  studentId
+) => {
   return getBatchStudentIds(batch).includes(
     String(studentId)
   );
 };
 
-// =========================================================
-// MENTOR
-// =========================================================
-
-const isMentorAssigned = (batch, mentorId) => {
+const isMentorAssigned = (
+  batch,
+  mentorId
+) => {
   if (!batch || !mentorId) {
     return false;
   }
 
-  const mentorIds = batch.mentorIds || [];
+  const mentorIds =
+    Array.isArray(batch.mentorIds)
+      ? batch.mentorIds
+      : [];
 
   return mentorIds.some((id) => {
     const value =
       typeof id === "object"
-        ? id._id
+        ? id?._id
         : id;
 
-    return String(value) === String(mentorId);
+    return (
+      String(value) === String(mentorId)
+    );
   });
 };
 
 // =========================================================
-// FIND STUDENT BY EMAIL
+// FIND STUDENT
 // =========================================================
 
-const findStudentByEmail = async (email) => {
+const findStudentByEmail = async (
+  email
+) => {
   if (!email) {
     return null;
   }
 
   return User.findOne({
-    email: email.toLowerCase().trim(),
+    email: email
+      .toLowerCase()
+      .trim(),
   });
 };
 
 // =========================================================
-// GET SESSION INFORMATION
+// CALCULATE ATTENDANCE
 // =========================================================
 
-const getSessionInfo = (batch) => {
-  const now = new Date();
+const calculateAttendance = ({
+  session,
+  checkInTime,
+  checkOutTime,
+}) => {
+  if (
+    !session ||
+    !session.startedAt ||
+    !checkInTime ||
+    !checkOutTime
+  ) {
+    return {
+      attendedMinutes: 0,
+      attendancePercentage: 0,
+      status: "Absent",
+    };
+  }
 
-  const sessionDate = getSessionDate(now);
+  const sessionStart =
+    new Date(
+      session.startedAt
+    ).getTime();
 
-  const week = calculateWeek(
-    batch.startDate,
-    now
-  );
+  /*
+   * If the session is already stopped,
+   * use endedAt.
+   *
+   * If the session is still running,
+   * use the student's checkout time.
+   */
+  const sessionEnd = session.endedAt
+    ? new Date(
+        session.endedAt
+      ).getTime()
+    : new Date(
+        checkOutTime
+      ).getTime();
 
-  // If your Batch has these fields, use them.
-  const startTime =
-    batch.sessionStartTime || "09:00";
+  const checkIn =
+    new Date(
+      checkInTime
+    ).getTime();
 
-  const endTime =
-    batch.sessionEndTime || "13:00";
+  const checkOut =
+    new Date(
+      checkOutTime
+    ).getTime();
 
-  const [startHour, startMinute] =
-    String(startTime)
-      .split(":")
-      .map(Number);
+  if (
+    Number.isNaN(sessionStart) ||
+    Number.isNaN(sessionEnd) ||
+    Number.isNaN(checkIn) ||
+    Number.isNaN(checkOut)
+  ) {
+    return {
+      attendedMinutes: 0,
+      attendancePercentage: 0,
+      status: "Absent",
+    };
+  }
 
-  const [endHour, endMinute] =
-    String(endTime)
-      .split(":")
-      .map(Number);
+  if (sessionEnd <= sessionStart) {
+    return {
+      attendedMinutes: 0,
+      attendancePercentage: 0,
+      status: "Absent",
+    };
+  }
 
-  const {
-    sessionStartTime,
-    sessionEndTime,
-  } = buildSessionTimes({
-    sessionDate,
-    startHour,
-    startMinute,
-    endHour,
-    endMinute,
-  });
+  // =====================================================
+  // TOTAL SESSION TIME
+  // =====================================================
+
+  const totalSessionMinutes =
+    Math.max(
+      0,
+      Math.round(
+        (sessionEnd -
+          sessionStart) /
+          60000
+      )
+    );
+
+  if (
+    totalSessionMinutes <= 0
+  ) {
+    return {
+      attendedMinutes: 0,
+      attendancePercentage: 0,
+      status: "Absent",
+    };
+  }
+
+  // =====================================================
+  // CLAMP STUDENT TIME
+  // =====================================================
+
+  const effectiveStart =
+    Math.max(
+      checkIn,
+      sessionStart
+    );
+
+  const effectiveEnd =
+    Math.min(
+      checkOut,
+      sessionEnd
+    );
+
+  const attendedMinutes =
+    Math.max(
+      0,
+      Math.round(
+        (effectiveEnd -
+          effectiveStart) /
+          60000
+      )
+    );
+
+  const attendancePercentage =
+    Math.min(
+      100,
+      Math.round(
+        (attendedMinutes /
+          totalSessionMinutes) *
+          100
+      )
+    );
+
+  // =====================================================
+  // STATUS
+  // =====================================================
+
+  let status = "Absent";
+
+  if (
+    attendancePercentage >= 90
+  ) {
+    status = "Present";
+  } else if (
+    attendancePercentage >= 50
+  ) {
+    status = "Late";
+  }
 
   return {
-    week,
-    sessionDate,
-    sessionStartTime,
-    sessionEndTime,
+    attendedMinutes,
+    attendancePercentage,
+    status,
   };
 };
 
@@ -157,22 +286,40 @@ const getSessionInfo = (batch) => {
 // CHECK IN
 // =========================================================
 
-const checkIn = async (req, res) => {
+const checkIn = async (
+  req,
+  res
+) => {
   try {
     const {
       email,
-      batchId,
+      sessionId,
     } = req.body;
 
-    if (!email || !batchId) {
+    if (!email || !sessionId) {
       return res.status(400).json({
         message:
-          "Email and batchId are required",
+          "Email and sessionId are required",
       });
     }
 
+    if (
+      !isValidObjectId(sessionId)
+    ) {
+      return res.status(400).json({
+        message:
+          "Invalid sessionId",
+      });
+    }
+
+    // =====================================================
+    // FIND STUDENT
+    // =====================================================
+
     const student =
-      await findStudentByEmail(email);
+      await findStudentByEmail(
+        email
+      );
 
     if (!student) {
       return res.status(404).json({
@@ -181,14 +328,55 @@ const checkIn = async (req, res) => {
       });
     }
 
+    // =====================================================
+    // CHECK SESSION
+    // =====================================================
+
+    const session =
+      await Session.findById(
+        sessionId
+      );
+
+    if (!session) {
+      return res.status(404).json({
+        message:
+          "Session not found",
+      });
+    }
+
+    // =====================================================
+    // TRACKING MUST BE ACTIVE
+    // =====================================================
+
+    if (
+      session.status !==
+      "Tracking"
+    ) {
+      return res.status(400).json({
+        message:
+          "Attendance tracking is not currently active",
+      });
+    }
+
+    // =====================================================
+    // FIND BATCH
+    // =====================================================
+
     const batch =
-      await Batch.findById(batchId);
+      await Batch.findById(
+        session.batchId
+      );
 
     if (!batch) {
       return res.status(404).json({
-        message: "Batch not found",
+        message:
+          "Batch not found",
       });
     }
+
+    // =====================================================
+    // CHECK STUDENT IN BATCH
+    // =====================================================
 
     if (
       !isStudentInBatch(
@@ -202,19 +390,32 @@ const checkIn = async (req, res) => {
       });
     }
 
-    const session =
-      getSessionInfo(batch);
+    // =====================================================
+    // EXISTING ATTENDANCE
+    // =====================================================
 
     let attendance =
       await Attendance.findOne({
-        studentId: student._id,
-        batchId,
-        sessionDate:
-          session.sessionDate,
+        sessionId:
+          session._id,
+        studentId:
+          student._id,
       });
 
     if (attendance) {
-      if (attendance.checkInTime) {
+      if (
+        attendance.status ===
+        "Excused"
+      ) {
+        return res.status(400).json({
+          message:
+            "Excused attendance cannot be checked in",
+        });
+      }
+
+      if (
+        attendance.checkInTime
+      ) {
         return res.status(409).json({
           message:
             "Student has already checked in",
@@ -224,6 +425,12 @@ const checkIn = async (req, res) => {
 
       attendance.checkInTime =
         new Date();
+
+      attendance.sessionStartTime =
+        session.startedAt;
+
+      attendance.sessionEndTime =
+        session.endedAt;
 
       attendance.markedBy =
         student._id;
@@ -237,23 +444,56 @@ const checkIn = async (req, res) => {
       });
     }
 
+    // =====================================================
+    // CREATE ATTENDANCE
+    // =====================================================
+
     attendance =
       await Attendance.create({
-        studentId: student._id,
-        batchId,
-        week: session.week,
+        sessionId:
+          session._id,
+
+        studentId:
+          student._id,
+
+        batchId:
+          session.batchId,
+
+        week:
+          session.week,
+
         sessionDate:
           session.sessionDate,
+
         sessionStartTime:
-          session.sessionStartTime,
+          session.startedAt,
+
         sessionEndTime:
-          session.sessionEndTime,
-        checkInTime: new Date(),
-        checkOutTime: null,
-        attendedMinutes: 0,
-        attendancePercentage: 0,
-        status: "Absent",
-        markedBy: student._id,
+          session.endedAt,
+
+        checkInTime:
+          new Date(),
+
+        checkOutTime:
+          null,
+
+        attendedMinutes:
+          0,
+
+        attendancePercentage:
+          0,
+
+        status:
+          "Absent",
+
+        calculatedStatus:
+          "Absent",
+
+        manuallyOverridden:
+          false,
+
+        markedBy:
+          student._id,
       });
 
     return res.status(201).json({
@@ -279,22 +519,40 @@ const checkIn = async (req, res) => {
 // CHECK OUT
 // =========================================================
 
-const checkOut = async (req, res) => {
+const checkOut = async (
+  req,
+  res
+) => {
   try {
     const {
       email,
-      batchId,
+      sessionId,
     } = req.body;
 
-    if (!email || !batchId) {
+    if (!email || !sessionId) {
       return res.status(400).json({
         message:
-          "Email and batchId are required",
+          "Email and sessionId are required",
       });
     }
 
+    if (
+      !isValidObjectId(sessionId)
+    ) {
+      return res.status(400).json({
+        message:
+          "Invalid sessionId",
+      });
+    }
+
+    // =====================================================
+    // FIND STUDENT
+    // =====================================================
+
     const student =
-      await findStudentByEmail(email);
+      await findStudentByEmail(
+        email
+      );
 
     if (!student) {
       return res.status(404).json({
@@ -303,25 +561,33 @@ const checkOut = async (req, res) => {
       });
     }
 
-    const batch =
-      await Batch.findById(batchId);
+    // =====================================================
+    // FIND SESSION
+    // =====================================================
 
-    if (!batch) {
+    const session =
+      await Session.findById(
+        sessionId
+      );
+
+    if (!session) {
       return res.status(404).json({
         message:
-          "Batch not found",
+          "Session not found",
       });
     }
 
-    const session =
-      getSessionInfo(batch);
+    // =====================================================
+    // CHECK ATTENDANCE
+    // =====================================================
 
     const attendance =
       await Attendance.findOne({
-        studentId: student._id,
-        batchId,
-        sessionDate:
-          session.sessionDate,
+        sessionId:
+          session._id,
+
+        studentId:
+          student._id,
       });
 
     if (!attendance) {
@@ -331,14 +597,18 @@ const checkOut = async (req, res) => {
       });
     }
 
-    if (!attendance.checkInTime) {
+    if (
+      !attendance.checkInTime
+    ) {
       return res.status(400).json({
         message:
           "Student has not checked in",
       });
     }
 
-    if (attendance.checkOutTime) {
+    if (
+      attendance.checkOutTime
+    ) {
       return res.status(409).json({
         message:
           "Student has already checked out",
@@ -346,25 +616,37 @@ const checkOut = async (req, res) => {
       });
     }
 
+    // =====================================================
+    // EXCUSED
+    // =====================================================
+
+    if (
+      attendance.status ===
+      "Excused"
+    ) {
+      return res.status(400).json({
+        message:
+          "Excused attendance cannot be checked out",
+      });
+    }
+
+    // =====================================================
+    // CHECKOUT
+    // =====================================================
+
     const checkOutTime =
       new Date();
 
-    const result =
-      calculateAttendance({
-        sessionStartTime:
-          attendance.sessionStartTime,
-
-        sessionEndTime:
-          attendance.sessionEndTime,
-
-        checkInTime:
-          attendance.checkInTime,
-
-        checkOutTime,
-      });
-
     attendance.checkOutTime =
       checkOutTime;
+
+    const result =
+      calculateAttendance({
+        session,
+        checkInTime:
+          attendance.checkInTime,
+        checkOutTime,
+      });
 
     attendance.attendedMinutes =
       result.attendedMinutes;
@@ -372,18 +654,31 @@ const checkOut = async (req, res) => {
     attendance.attendancePercentage =
       result.attendancePercentage;
 
-    attendance.status =
+    attendance.calculatedStatus =
       result.status;
 
-    attendance.markedBy =
-      student._id;
+    // =====================================================
+    // DON'T OVERWRITE ADMIN OVERRIDE
+    // =====================================================
+
+    if (
+      !attendance.manuallyOverridden
+    ) {
+      attendance.status =
+        result.status;
+    }
+
+    attendance.sessionStartTime =
+      session.startedAt;
+
+    attendance.sessionEndTime =
+      session.endedAt;
 
     await attendance.save();
 
     return res.status(200).json({
       message:
         "Student checked out successfully",
-
       attendance,
     });
   } catch (error) {
@@ -401,7 +696,7 @@ const checkOut = async (req, res) => {
 };
 
 // =========================================================
-// EXCUSE
+// EXCUSE ATTENDANCE
 // =========================================================
 
 const excuseAttendance = async (
@@ -412,29 +707,57 @@ const excuseAttendance = async (
     if (!isAdmin(req)) {
       return res.status(403).json({
         message:
-          "Only admins can approve excuses",
+          "Only admins can excuse attendance",
       });
     }
 
     const {
       studentId,
-      batchId,
+      sessionId,
       reason,
     } = req.body;
 
     if (
       !studentId ||
-      !batchId ||
+      !sessionId ||
       !reason
     ) {
       return res.status(400).json({
         message:
-          "studentId, batchId and reason are required",
+          "studentId, sessionId and reason are required",
+      });
+    }
+
+    if (
+      !isValidObjectId(
+        studentId
+      ) ||
+      !isValidObjectId(
+        sessionId
+      )
+    ) {
+      return res.status(400).json({
+        message:
+          "Invalid studentId or sessionId",
+      });
+    }
+
+    const session =
+      await Session.findById(
+        sessionId
+      );
+
+    if (!session) {
+      return res.status(404).json({
+        message:
+          "Session not found",
       });
     }
 
     const batch =
-      await Batch.findById(batchId);
+      await Batch.findById(
+        session.batchId
+      );
 
     if (!batch) {
       return res.status(404).json({
@@ -455,29 +778,39 @@ const excuseAttendance = async (
       });
     }
 
-    const session =
-      getSessionInfo(batch);
-
     let attendance =
       await Attendance.findOne({
-        studentId,
-        batchId,
-        sessionDate:
-          session.sessionDate,
+        sessionId:
+          session._id,
+
+        studentId:
+          studentId,
       });
 
     if (!attendance) {
       attendance =
         new Attendance({
-          studentId,
-          batchId,
-          week: session.week,
+          sessionId:
+            session._id,
+
+          studentId:
+            studentId,
+
+          batchId:
+            session.batchId,
+
+          week:
+            session.week,
+
           sessionDate:
             session.sessionDate,
+
           sessionStartTime:
-            session.sessionStartTime,
+            session.startedAt,
+
           sessionEndTime:
-            session.sessionEndTime,
+            session.endedAt,
+
           markedBy:
             getUserId(req),
         });
@@ -486,10 +819,15 @@ const excuseAttendance = async (
     attendance.status =
       "Excused";
 
-    attendance.excuseReason =
-      reason;
+    attendance.calculatedStatus =
+      "Excused";
 
-    // Excused has NO time requirement
+    attendance.manuallyOverridden =
+      true;
+
+    attendance.excuseReason =
+      String(reason).trim();
+
     attendance.checkInTime =
       null;
 
@@ -535,48 +873,93 @@ const getAttendance = async (
   res
 ) => {
   try {
-    const role =
-      getRole(req);
-
     const userId =
       getUserId(req);
 
     const {
       batchId,
       studentId,
+      sessionId,
       week,
       sessionDate,
     } = req.query;
 
     const filter = {};
 
-    // -------------------------------------------------------
+    // =====================================================
     // ADMIN
-    // -------------------------------------------------------
+    // =====================================================
 
     if (isAdmin(req)) {
       if (batchId) {
+        if (
+          !isValidObjectId(
+            batchId
+          )
+        ) {
+          return res.status(400).json({
+            message:
+              "Invalid batchId",
+          });
+        }
+
         filter.batchId =
           batchId;
       }
 
       if (studentId) {
+        if (
+          !isValidObjectId(
+            studentId
+          )
+        ) {
+          return res.status(400).json({
+            message:
+              "Invalid studentId",
+          });
+        }
+
         filter.studentId =
           studentId;
       }
+
+      if (sessionId) {
+        if (
+          !isValidObjectId(
+            sessionId
+          )
+        ) {
+          return res.status(400).json({
+            message:
+              "Invalid sessionId",
+          });
+        }
+
+        filter.sessionId =
+          sessionId;
+      }
     }
 
-    // -------------------------------------------------------
+    // =====================================================
     // MENTOR
-    // -------------------------------------------------------
+    // =====================================================
 
-    else if (
-      role === "MENTOR"
-    ) {
+    else if (isMentor(req)) {
       if (!batchId) {
         return res.status(400).json({
           message:
             "batchId is required",
+        });
+      }
+
+      if (
+        !isValidObjectId(
+          batchId
+        )
+      ) {
+        return res.status(400).json({
+          message:
+            "Invalid batchId",
         });
       }
 
@@ -609,6 +992,17 @@ const getAttendance = async (
 
       if (studentId) {
         if (
+          !isValidObjectId(
+            studentId
+          )
+        ) {
+          return res.status(400).json({
+            message:
+              "Invalid studentId",
+          });
+        }
+
+        if (
           !isStudentInBatch(
             batch,
             studentId
@@ -623,21 +1017,62 @@ const getAttendance = async (
         filter.studentId =
           studentId;
       }
+
+      if (sessionId) {
+        if (
+          !isValidObjectId(
+            sessionId
+          )
+        ) {
+          return res.status(400).json({
+            message:
+              "Invalid sessionId",
+          });
+        }
+
+        filter.sessionId =
+          sessionId;
+      }
     }
 
-    // -------------------------------------------------------
+    // =====================================================
     // STUDENT
-    // -------------------------------------------------------
+    // =====================================================
 
-    else if (
-      role === "STUDENT"
-    ) {
+    else if (isStudent(req)) {
       filter.studentId =
         userId;
 
       if (batchId) {
+        if (
+          !isValidObjectId(
+            batchId
+          )
+        ) {
+          return res.status(400).json({
+            message:
+              "Invalid batchId",
+          });
+        }
+
         filter.batchId =
           batchId;
+      }
+
+      if (sessionId) {
+        if (
+          !isValidObjectId(
+            sessionId
+          )
+        ) {
+          return res.status(400).json({
+            message:
+              "Invalid sessionId",
+          });
+        }
+
+        filter.sessionId =
+          sessionId;
       }
     }
 
@@ -648,25 +1083,53 @@ const getAttendance = async (
       });
     }
 
-    // -------------------------------------------------------
+    // =====================================================
     // WEEK
-    // -------------------------------------------------------
+    // =====================================================
 
-    if (week) {
-      filter.week =
+    if (week !== undefined) {
+      const weekNumber =
         Number(week);
+
+      if (
+        !Number.isInteger(
+          weekNumber
+        ) ||
+        weekNumber < 1
+      ) {
+        return res.status(400).json({
+          message:
+            "Invalid week",
+        });
+      }
+
+      filter.week =
+        weekNumber;
     }
 
-    // -------------------------------------------------------
+    // =====================================================
     // DATE
-    // -------------------------------------------------------
+    // =====================================================
 
     if (sessionDate) {
       const start =
-        new Date(sessionDate);
+        new Date(
+          sessionDate
+        );
+
+      if (
+        Number.isNaN(
+          start.getTime()
+        )
+      ) {
+        return res.status(400).json({
+          message:
+            "Invalid sessionDate",
+        });
+      }
 
       const end =
-        new Date(sessionDate);
+        new Date(start);
 
       end.setDate(
         end.getDate() + 1
@@ -678,9 +1141,9 @@ const getAttendance = async (
       };
     }
 
-    // -------------------------------------------------------
+    // =====================================================
     // QUERY
-    // -------------------------------------------------------
+    // =====================================================
 
     const records =
       await Attendance.find(
@@ -695,11 +1158,16 @@ const getAttendance = async (
           "name batchName startDate mentorIds studentIds"
         )
         .populate(
+          "sessionId",
+          "title week sessionDate status startedAt endedAt totalMinutes"
+        )
+        .populate(
           "markedBy",
           "name email"
         )
         .sort({
           sessionDate: -1,
+          createdAt: -1,
         });
 
     return res.status(200).json({
@@ -724,7 +1192,7 @@ const getAttendance = async (
 };
 
 // =========================================================
-// UPDATE ATTENDANCE
+// ADMIN UPDATE / OVERRIDE
 // =========================================================
 
 const updateAttendance = async (
@@ -736,6 +1204,17 @@ const updateAttendance = async (
       return res.status(403).json({
         message:
           "Only admins can update attendance",
+      });
+    }
+
+    if (
+      !isValidObjectId(
+        req.params.id
+      )
+    ) {
+      return res.status(400).json({
+        message:
+          "Invalid attendance ID",
       });
     }
 
@@ -757,16 +1236,24 @@ const updateAttendance = async (
       excuseReason,
     } = req.body;
 
-    if (status) {
-      const validStatuses = [
-        "Present",
-        "Absent",
-        "Late",
-        "Excused",
-      ];
+    const validStatuses = [
+      "Present",
+      "Absent",
+      "Late",
+      "Excused",
+    ];
 
+    // =====================================================
+    // STATUS
+    // =====================================================
+
+    if (
+      status !== undefined
+    ) {
       if (
-        !validStatuses.includes(status)
+        !validStatuses.includes(
+          status
+        )
       ) {
         return res.status(400).json({
           message:
@@ -776,25 +1263,45 @@ const updateAttendance = async (
 
       attendance.status =
         status;
+
+      attendance.manuallyOverridden =
+        true;
     }
 
-    if (notes !== undefined) {
+    // =====================================================
+    // NOTES
+    // =====================================================
+
+    if (
+      notes !== undefined
+    ) {
       attendance.notes =
-        notes;
+        String(notes);
     }
+
+    // =====================================================
+    // EXCUSE REASON
+    // =====================================================
 
     if (
       excuseReason !== undefined
     ) {
       attendance.excuseReason =
-        excuseReason;
+        String(
+          excuseReason
+        );
     }
 
-    // Excused does not use time
+    // =====================================================
+    // EXCUSED
+    // =====================================================
+
     if (
-      attendance.status ===
-      "Excused"
+      status === "Excused"
     ) {
+      attendance.calculatedStatus =
+        "Excused";
+
       attendance.checkInTime =
         null;
 
@@ -813,6 +1320,10 @@ const updateAttendance = async (
 
     await attendance.save();
 
+    // =====================================================
+    // RETURN UPDATED
+    // =====================================================
+
     const updated =
       await Attendance.findById(
         attendance._id
@@ -824,6 +1335,10 @@ const updateAttendance = async (
         .populate(
           "batchId",
           "name batchName"
+        )
+        .populate(
+          "sessionId",
+          "title week sessionDate status startedAt endedAt totalMinutes"
         )
         .populate(
           "markedBy",
@@ -867,6 +1382,17 @@ const deleteAttendance = async (
       });
     }
 
+    if (
+      !isValidObjectId(
+        req.params.id
+      )
+    ) {
+      return res.status(400).json({
+        message:
+          "Invalid attendance ID",
+      });
+    }
+
     const attendance =
       await Attendance.findByIdAndDelete(
         req.params.id
@@ -896,6 +1422,10 @@ const deleteAttendance = async (
     });
   }
 };
+
+// =========================================================
+// EXPORTS
+// =========================================================
 
 module.exports = {
   checkIn,

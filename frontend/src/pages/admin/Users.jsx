@@ -433,13 +433,7 @@ function Users() {
 
                   {/* EDIT */}
 
-                  <button
-                    type="button"
-                    title="Edit user"
-                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
-                  >
-                    <Pencil size={17} />
-                  </button>
+                  
 
                   {/* PASSWORD */}
 

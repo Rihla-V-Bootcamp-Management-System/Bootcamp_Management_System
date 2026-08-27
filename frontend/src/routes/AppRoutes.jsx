@@ -5,7 +5,7 @@ import DashboardLayout from "../layouts/DashboardLayout";
 // =========================================================
 // PUBLIC PAGES
 // =========================================================
-
+import SessionManagement from "../pages/admin/SessionManagement";
 import Landing from "../pages/Landing";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -132,6 +132,10 @@ function AppRoutes() {
     element={<Attendance />}
   />
 
+  <Route
+    path="sessions"
+    element={<SessionManagement/>}
+  />
   <Route
     path="batches"
     element={<Batches />}

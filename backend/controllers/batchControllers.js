@@ -61,7 +61,12 @@ const getBatchById = async (req, res) => {
 
 const createBatch = async (req, res) => {
   try {
-    const { name } = req.body;
+    const {
+      name,
+      startDate,
+      sessionStartTime,
+      sessionEndTime,
+    } = req.body;
 
     if (!name || !name.trim()) {
       return res.status(400).json({
@@ -69,24 +74,34 @@ const createBatch = async (req, res) => {
       });
     }
 
+    if (!startDate) {
+      return res.status(400).json({
+        message: "Start date is required",
+      });
+    }
+
     const batch = await Batch.create({
       name: name.trim(),
+      startDate: new Date(startDate),
+      sessionStartTime: sessionStartTime || "09:00",
+      sessionEndTime: sessionEndTime || "13:00",
+      mentorIds: [],
+      studentIds: [],
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Batch created successfully",
       batch,
     });
   } catch (error) {
     console.error("Create batch error:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Failed to create batch",
       error: error.message,
     });
   }
 };
-
 // =========================================================
 // ASSIGN STUDENTS TO MENTOR + BATCH
 // POST /api/batches/:id/assign-mentor

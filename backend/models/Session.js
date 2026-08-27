@@ -1,22 +1,10 @@
 const mongoose = require("mongoose");
 
-const attendanceSchema = new mongoose.Schema(
+const sessionSchema = new mongoose.Schema(
   {
     // =====================================================
-    // REFERENCES
+    // BATCH
     // =====================================================
-
-    sessionId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Session",
-      required: true,
-    },
-
-    studentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
 
     batchId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -27,6 +15,12 @@ const attendanceSchema = new mongoose.Schema(
     // =====================================================
     // SESSION INFORMATION
     // =====================================================
+
+    title: {
+      type: String,
+      trim: true,
+      default: "Attendance Session",
+    },
 
     week: {
       type: Number,
@@ -39,41 +33,35 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
 
-    sessionStartTime: {
+    // Scheduled time entered by admin
+    scheduledStartTime: {
       type: Date,
       default: null,
     },
 
-    sessionEndTime: {
+    scheduledEndTime: {
       type: Date,
       default: null,
     },
 
     // =====================================================
-    // PARTICIPATION TIME
+    // ACTUAL TRACKING
     // =====================================================
 
-    checkInTime: {
+    startedAt: {
       type: Date,
       default: null,
     },
 
-    checkOutTime: {
+    endedAt: {
       type: Date,
       default: null,
     },
 
-    attendedMinutes: {
+    totalMinutes: {
       type: Number,
       default: 0,
       min: 0,
-    },
-
-    attendancePercentage: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 100,
     },
 
     // =====================================================
@@ -83,75 +71,48 @@ const attendanceSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: [
-        "Present",
-        "Absent",
-        "Late",
-        "Excused",
+        "Created",
+        "Open",
+        "Tracking",
+        "Stopped",
+        "Reviewed",
+        "Saved",
       ],
-      default: "Absent",
+      default: "Created",
     },
 
     // =====================================================
-    // AUTOMATIC STATUS
+    // CREATED BY
     // =====================================================
 
-    calculatedStatus: {
-      type: String,
-      enum: [
-        "Present",
-        "Absent",
-        "Late",
-        "Excused",
-      ],
-      default: "Absent",
-    },
-
-    // =====================================================
-    // ADMIN OVERRIDE
-    // =====================================================
-
-    manuallyOverridden: {
-      type: Boolean,
-      default: false,
-    },
-
-    // =====================================================
-    // EXCUSE
-    // =====================================================
-
-    excuseReason: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-
-    // =====================================================
-    // ADMIN / NOTES
-    // =====================================================
-
-    markedBy: {
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    notes: {
-      type: String,
-      trim: true,
-      default: "",
+    // =====================================================
+    // REVIEW
+    // =====================================================
+
+    reviewedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    reviewedAt: {
+      type: Date,
+      default: null,
     },
 
     // =====================================================
-    // ATTENDANCE SOURCE
+    // SAVED
     // =====================================================
 
-    source: {
-      type: String,
-      enum: [
-        "manual",
-        "google_meet_auto",
-      ],
-      default: "manual",
+    savedAt: {
+      type: Date,
+      default: null,
     },
   },
   {
@@ -160,20 +121,18 @@ const attendanceSchema = new mongoose.Schema(
 );
 
 // =====================================================
-// ONE ATTENDANCE RECORD PER STUDENT PER SESSION
+// ONE SESSION PER BATCH / WEEK / DATE
 // =====================================================
 
-attendanceSchema.index(
+sessionSchema.index(
   {
-    sessionId: 1,
-    studentId: 1,
+    batchId: 1,
+    week: 1,
+    sessionDate: 1,
   },
   {
     unique: true,
   }
 );
 
-module.exports = mongoose.model(
-  "Attendance",
-  attendanceSchema
-);
+module.exports = mongoose.model("Session", sessionSchema);

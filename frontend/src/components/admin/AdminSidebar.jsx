@@ -32,6 +32,8 @@ function AdminSidebar() {
       path: "/admin/batches",
       icon: Layers,
     },
+
+    
     {
       name: "Announcements",
       path: "/admin/announcements",
@@ -47,17 +49,22 @@ function AdminSidebar() {
         path: "/admin/mentor-assignment",
         icon: Users,
       },
-
+      {
+      name: "Attendance Session",
+      path: "/admin/sessions",
+      icon: Layers,
+    },
+     {
+      name: "Attendance",
+      path: "/admin/attendance",
+      icon: ClipboardList,
+    },
       {
         name: "Registrations",
         path: "/admin/registrations",
         icon: ClipboardList,
       },
-    {
-      name: "Attendance",
-      path: "/admin/attendance",
-      icon: ClipboardList,
-    },
+   
     {
       name: "Applications",
       path: "/admin/applications",

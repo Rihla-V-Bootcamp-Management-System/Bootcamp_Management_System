@@ -1,0 +1,8 @@
+{
+  "access_token": "ya29.a0AdMD6EjUTYJ1ALnmhQFlMMoS2pI-5Cr09SlNB7TH4Izn-9O7PtUy-6OW1f567qqdeMbXhr0f5N9eCi3uTavvpvrGidCXnidacesD_bksEsP_tC6uU8i6F8_YCYP7H4IMPUjCnFNGEtBsmcbX1VLwg85JxhKwTDy0V6shD-9QDkLdAEH6HqmBpqdAPeM7QYpltCUBp04aCgYKAUYSARMSFQHGX2MiXJjvBd975NDxrVLMQPMaug0206",
+  "refresh_token": "1//03UeOLujP4N1KCgYIARAAGAMSNwF-L9IrfC2c8f-QqcoG_GHyFd64SRinFT8mHHBpFI57AwNsHlVG2yOLdzPfIarW76WQGlgzPx0",
+  "scope": "https://www.googleapis.com/auth/meetings.space.readonly https://www.googleapis.com/auth/meetings.space.created",
+  "token_type": "Bearer",
+  "refresh_token_expires_in": 604799,
+  "expiry_date": 1787824883289
+}
