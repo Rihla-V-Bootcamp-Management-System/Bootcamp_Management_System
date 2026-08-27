@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["superadmin", "admin", "mentor", "student"],
       default: "student",
+      required: true,
     },
 
     assignedMentor: {
@@ -41,7 +42,13 @@ const userSchema = new mongoose.Schema(
 
     gender: {
       type: String,
-      enum: ["male", "female"],
+      enum: ["Male", "Female"],
+      default: null,
+    },
+
+    batchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Batch",
       default: null,
     },
 

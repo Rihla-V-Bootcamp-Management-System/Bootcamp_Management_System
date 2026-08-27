@@ -10,12 +10,24 @@ const formQuestionSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["text", "textarea", "select", "number"],
+      enum: [
+        "text",
+        "textarea",
+        "number",
+        "select",
+        "file",
+      ],
       default: "text",
     },
 
     options: {
       type: [String],
+      default: [],
+    },
+
+    fileTypes: {
+      type: [String],
+      enum: ["image", "pdf", "any"],
       default: [],
     },
 
@@ -39,4 +51,7 @@ const formQuestionSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("FormQuestion", formQuestionSchema);
+module.exports = mongoose.model(
+  "FormQuestion",
+  formQuestionSchema
+);

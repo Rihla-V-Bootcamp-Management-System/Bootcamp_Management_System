@@ -2,33 +2,152 @@ const mongoose = require("mongoose");
 
 const registrationSchema = new mongoose.Schema(
   {
+    seasonId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Season",
+    },
+
+    batchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Batch",
+    },
+
     fullName: {
       type: String,
       required: true,
       trim: true,
     },
 
+    gender: {
+      type: String,
+      required: true,
+      enum: ["Male", "Female"],
+      set: (value) => {
+        if (!value) return value;
+
+        const normalized = String(value).toLowerCase();
+
+        if (normalized === "male") {
+          return "Male";
+        }
+
+        if (normalized === "female") {
+          return "Female";
+        }
+
+        return value;
+      },
+    },
+
     email: {
       type: String,
       required: true,
-      trim: true,
       lowercase: true,
+      trim: true,
     },
 
-    phone: {
+    phoneNumber: {
       type: String,
       required: true,
       trim: true,
     },
-    gender: {
+
+    telegramUsername: {
       type: String,
-      enum: ["male", "female"],
       required: true,
+      trim: true,
     },
-                                                                                                                                               
-    batchId: {
+
+    educationLevel: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 3,
+    },
+
+    educationInstitution: {
       type: String,
       required: true,
+      enum: [
+        "Adama University",
+        "Addis Ababa University",
+        "Jimma University",
+        "Other",
+      ],
+    },
+
+    fieldOfStudy: {
+      type: String,
+      required: true,
+      enum: [
+        "Software Engineering",
+        "Computer Science",
+        "Electrical Engineering",
+        "Other",
+      ],
+    },
+
+    studentId: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    programmingExperience: {
+      type: String,
+      required: true,
+      enum: [
+        "No experience",
+        "Beginner",
+        "Intermediate",
+        "Advanced",
+      ],
+    },
+
+    githubLink: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    codeforcesLink: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    leetcodeLink: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    hoursPerWeek: {
+      type: Number,
+      required: true,
+      min: 35,
+    },
+
+    canCommitFiveHoursPerDay: {
+      type: Boolean,
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value === true;
+        },
+        message:
+          "Applicant must be able to commit at least 5 hours per day.",
+      },
+    },
+
+    motivation: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 20,
+      maxlength: 1000,
     },
 
     responses: {
@@ -39,18 +158,36 @@ const registrationSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: [
-        "Submitted",
-        "Shortlisted",
-        "Interviewed",
-        "Accepted",
-        "Rejected",
+        "SUBMITTED",
+        "SHORTLISTED",
+        "INTERVIEWED",
+        "ACCEPTED",
+        "REJECTED",
       ],
-      default: "Submitted",
+      default: "SUBMITTED",
     },
 
     interviewNotes: {
       type: String,
+      trim: true,
       default: "",
+    },
+
+    reviewedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    reviewedAt: {
+      type: Date,
+      default: null,
+    },
+
+    rejectionReason: {
+      type: String,
+      default: "",
+      trim: true,
     },
 
     submittedAt: {
@@ -68,4 +205,12 @@ const registrationSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Registration", registrationSchema);
+registrationSchema.index(
+  { email: 1, seasonId: 1 },
+  { unique: true }
+);
+
+module.exports = mongoose.model(
+  "Registration",
+  registrationSchema
+);

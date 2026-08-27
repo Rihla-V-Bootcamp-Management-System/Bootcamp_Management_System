@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -8,10 +8,11 @@ import {
   LogOut,
   ShieldCheck,
 } from "lucide-react";
+import useAuth from "../context/useAuth";
 import "./SuperAdminLayout.css";
 
 function SuperAdminLayout() {
-  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const navigation = [
     {
@@ -42,10 +43,7 @@ function SuperAdminLayout() {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    navigate("/login", { replace: true });
+    logout();
   };
 
   return (
@@ -63,7 +61,9 @@ function SuperAdminLayout() {
         </div>
 
         <nav className="superadmin-nav">
-          <p className="superadmin-nav-title">MAIN MENU</p>
+          <p className="superadmin-nav-title">
+            MAIN MENU
+          </p>
 
           {navigation.map((item) => {
             const Icon = item.icon;
@@ -74,7 +74,9 @@ function SuperAdminLayout() {
                 to={item.path}
                 end={item.path === "/superadmin"}
                 className={({ isActive }) =>
-                  `superadmin-nav-link ${isActive ? "active" : ""}`
+                  `superadmin-nav-link ${
+                    isActive ? "active" : ""
+                  }`
                 }
               >
                 <Icon size={19} />
@@ -84,6 +86,7 @@ function SuperAdminLayout() {
           })}
         </nav>
 
+        {/* LOGOUT */}
         <div className="superadmin-sidebar-bottom">
           <button
             type="button"
@@ -99,12 +102,17 @@ function SuperAdminLayout() {
       <main className="superadmin-main">
         <header className="superadmin-header">
           <div>
-            <p className="superadmin-header-label">ADMINISTRATION</p>
+            <p className="superadmin-header-label">
+              ADMINISTRATION
+            </p>
+
             <h1>Super Admin Panel</h1>
           </div>
 
           <div className="superadmin-profile">
-            <div className="superadmin-avatar">SA</div>
+            <div className="superadmin-avatar">
+              SA
+            </div>
 
             <div>
               <p className="superadmin-profile-name">

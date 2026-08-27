@@ -1,39 +1,45 @@
 import { useState } from "react";
+import { LockKeyhole } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import apiClient from "../services/apiClient";
 
 function SetPassword() {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const userID = searchParams.get("userID") || "";
   const otp = searchParams.get("otp") || "";
 
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     setError("");
-    setMessage("");
 
     if (!userID || !otp) {
       setError(
-        "This invitation link is missing your User ID or OTP."
+        "Your invitation link is missing your User ID or OTP."
       );
       return;
     }
 
-    if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters long.");
+    if (!password) {
+      setError("Please enter a new password.");
       return;
     }
 
-    if (newPassword !== confirmPassword) {
+    if (password.length < 8) {
+      setError(
+        "Password must be at least 8 characters."
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
@@ -41,77 +47,47 @@ function SetPassword() {
     try {
       setLoading(true);
 
-      const verifyResponse = await fetch(
-        "http://localhost:5000/api/auth/verify-otp",
+      const response = await apiClient.post(
+        "/auth/set-password",
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userID,
-            otp,
-          }),
+          userID,
+          otp,
+          newPassword: password,
         }
       );
 
-      const verifyData = await verifyResponse.json();
+      const { token, user } = response.data;
 
-      if (!verifyResponse.ok) {
-        throw new Error(
-          verifyData.message ||
-            "Invitation verification failed."
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+
+      if (user) {
+        localStorage.setItem(
+          "user",
+          JSON.stringify(user)
         );
       }
 
-      const passwordResponse = await fetch(
-        "http://localhost:5000/api/auth/set-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userID,
-            otp,
-            newPassword,
-          }),
-        }
-      );
+      setPassword("");
+      setConfirmPassword("");
 
-      const passwordData = await passwordResponse.json();
-
-      if (!passwordResponse.ok) {
-        throw new Error(
-          passwordData.message ||
-            "Failed to set password."
-        );
+      // Redirect based on the user's role
+      if (user?.role === "superadmin") {
+        navigate("/superadmin", { replace: true });
+      } else if (user?.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else if (user?.role === "mentor") {
+        navigate("/mentor", { replace: true });
+      } else if (user?.role === "student") {
+        navigate("/student", { replace: true });
+      } else {
+        navigate("/login", { replace: true });
       }
-
-      localStorage.setItem(
-        "token",
-        passwordData.token
-      );
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(passwordData.user)
-      );
-
-      setMessage(
-        "Password created successfully. Redirecting..."
-      );
-
-      setTimeout(() => {
-        if (passwordData.user.role === "superadmin") {
-          navigate("/superadmin");
-        } else {
-          navigate("/login");
-        }
-      }, 1200);
-    } catch (err) {
+    } catch (error) {
       setError(
-        err.message || "Something went wrong."
+        error.response?.data?.message ||
+          "Failed to set password."
       );
     } finally {
       setLoading(false);
@@ -119,198 +95,150 @@ function SetPassword() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px",
-        background: "#f8f9fc",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "460px",
-          background: "#ffffff",
-          padding: "32px",
-          borderRadius: "16px",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-        }}
-      >
-        <h1 style={{ marginBottom: "8px" }}>
-          Set Your Password
-        </h1>
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
 
-        <p
-          style={{
-            marginBottom: "24px",
-            color: "#666",
-            lineHeight: "1.6",
-          }}
-        >
-          Create your password to activate your
-          Bootcamp Management System account.
-        </p>
+        {/* ICON */}
+        <div className="mb-5 flex justify-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
+            <LockKeyhole className="h-7 w-7 text-blue-600" />
+          </div>
+        </div>
 
+        {/* HEADER */}
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Set New Password
+          </h1>
+
+          <p className="mt-2 text-sm text-gray-500">
+            Create a new password for your account.
+          </p>
+        </div>
+
+        {/* MISSING INVITATION DATA */}
         {!userID || !otp ? (
-          <div
-            style={{
-              padding: "14px",
-              borderRadius: "8px",
-              background: "#fff3f3",
-              color: "#c0392b",
-              marginBottom: "20px",
-            }}
-          >
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
             This invitation link is incomplete.
-            Please open the Set Your Password button
-            from your invitation email.
+            Please open the{" "}
+            <strong>Set Your Password</strong> link from
+            your invitation email.
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
-            <label
-              style={{
-                display: "block",
-                marginBottom: "8px",
-                fontWeight: "600",
-              }}
-            >
-              User ID
-            </label>
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
+            {/* USER ID */}
+            <div>
+              <label
+                htmlFor="userID"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                User ID
+              </label>
 
-            <input
-              type="text"
-              value={userID}
-              readOnly
-              style={{
-                width: "100%",
-                padding: "12px",
-                marginBottom: "18px",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                background: "#f5f5f5",
-                boxSizing: "border-box",
-              }}
-            />
+              <input
+                id="userID"
+                type="text"
+                value={userID}
+                readOnly
+                className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3 text-sm text-gray-600 outline-none"
+              />
+            </div>
 
-            <label
-              style={{
-                display: "block",
-                marginBottom: "8px",
-                fontWeight: "600",
-              }}
-            >
-              OTP
-            </label>
+            {/* OTP */}
+            <div>
+              <label
+                htmlFor="otp"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                OTP
+              </label>
 
-            <input
-              type="text"
-              value={otp}
-              readOnly
-              style={{
-                width: "100%",
-                padding: "12px",
-                marginBottom: "18px",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                background: "#f5f5f5",
-                boxSizing: "border-box",
-              }}
-            />
+              <input
+                id="otp"
+                type="text"
+                value={otp}
+                readOnly
+                className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3 text-sm text-gray-600 outline-none"
+              />
+            </div>
 
-            <label
-              style={{
-                display: "block",
-                marginBottom: "8px",
-                fontWeight: "600",
-              }}
-            >
-              New Password
-            </label>
+            {/* NEW PASSWORD */}
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                New Password
+              </label>
 
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) =>
-                setNewPassword(e.target.value)
-              }
-              placeholder="At least 8 characters"
-              required
-              style={{
-                width: "100%",
-                padding: "12px",
-                marginBottom: "18px",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                boxSizing: "border-box",
-              }}
-            />
+              <div className="relative">
+                <LockKeyhole
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
 
-            <label
-              style={{
-                display: "block",
-                marginBottom: "8px",
-                fontWeight: "600",
-              }}
-            >
-              Confirm Password
-            </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
+                  placeholder="Enter new password"
+                  disabled={loading}
+                  autoComplete="new-password"
+                  required
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100"
+                />
+              </div>
+            </div>
 
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) =>
-                setConfirmPassword(e.target.value)
-              }
-              placeholder="Repeat your password"
-              required
-              style={{
-                width: "100%",
-                padding: "12px",
-                marginBottom: "18px",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                boxSizing: "border-box",
-              }}
-            />
+            {/* CONFIRM PASSWORD */}
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                Confirm Password
+              </label>
 
+              <div className="relative">
+                <LockKeyhole
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) =>
+                    setConfirmPassword(e.target.value)
+                  }
+                  placeholder="Confirm new password"
+                  disabled={loading}
+                  autoComplete="new-password"
+                  required
+                  className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100"
+                />
+              </div>
+            </div>
+
+            {/* ERROR */}
             {error && (
-              <p
-                style={{
-                  color: "#c0392b",
-                  marginBottom: "16px",
-                }}
-              >
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
                 {error}
-              </p>
+              </div>
             )}
 
-            {message && (
-              <p
-                style={{
-                  color: "#238b45",
-                  marginBottom: "16px",
-                }}
-              >
-                {message}
-              </p>
-            )}
-
+            {/* SUBMIT */}
             <button
               type="submit"
               disabled={loading}
-              style={{
-                width: "100%",
-                padding: "13px",
-                border: "none",
-                borderRadius: "8px",
-                cursor: loading
-                  ? "not-allowed"
-                  : "pointer",
-                fontWeight: "700",
-              }}
+              className="w-full rounded-lg bg-blue-600 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading
                 ? "Setting Password..."
@@ -318,8 +246,12 @@ function SetPassword() {
             </button>
           </form>
         )}
+
+        <p className="mt-6 text-center text-xs text-gray-400">
+          Your password must contain at least 8 characters.
+        </p>
       </div>
-    </div>
+    </main>
   );
 }
 
