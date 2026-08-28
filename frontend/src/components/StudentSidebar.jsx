@@ -22,7 +22,7 @@ function StudentSidebar() {
     }`;
 
   return (
-    <aside className="flex h-screen w-60 flex-col bg-[#111827] text-white">
+    <div className="flex h-full w-full flex-col bg-[#111827] text-white">
       {/* LOGO */}
       <div className="flex h-[76px] shrink-0 items-center border-b border-white/10 px-5">
         <div>
@@ -142,7 +142,7 @@ function StudentSidebar() {
           <span>Logout</span>
         </button>
       </div>
-    </aside>
+    </div>
   );
 }
 

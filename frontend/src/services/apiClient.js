@@ -28,8 +28,20 @@ apiClient.interceptors.response.use(
       error.response?.data || error.message
     );
 
-    if (error.response?.status === 401) {
+    const isLoginRequest = error.config?.url?.includes("/auth/login");
+    const pathname = window.location.pathname;
+    const isPublicRoute =
+      pathname === "/" ||
+      pathname === "/login" ||
+      pathname === "/register" ||
+      pathname === "/apply" ||
+      pathname === "/first-login" ||
+      pathname === "/set-password";
+
+    // Only redirect to login for protected dashboard routes
+    if (error.response?.status === 401 && !isLoginRequest && !isPublicRoute) {
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       window.location.href = "/login";
     }
 
@@ -38,4 +50,3 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
-

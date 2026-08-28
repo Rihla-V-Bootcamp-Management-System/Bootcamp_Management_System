@@ -4,14 +4,101 @@ import apiClient from "../services/apiClient";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
+const DEFAULT_APPLICATION_SCHEMA = [
+  {
+    id: "fullName",
+    label: "Full Name",
+    type: "text",
+    required: true,
+    placeholder: "Enter your full name",
+  },
+  {
+    id: "email",
+    label: "Email Address",
+    type: "email",
+    required: true,
+    placeholder: "you@example.com",
+  },
+  {
+    id: "phoneNumber",
+    label: "Phone Number",
+    type: "tel",
+    required: true,
+    placeholder: "+251 912 345 678",
+  },
+  {
+    id: "telegramUsername",
+    label: "Telegram Username",
+    type: "text",
+    required: true,
+    placeholder: "@username",
+  },
+  {
+    id: "gender",
+    label: "Gender",
+    type: "select",
+    required: true,
+    options: ["Male", "Female"],
+  },
+  {
+    id: "educationLevel",
+    label: "Education Level / Year",
+    type: "select",
+    required: true,
+    options: ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Graduate"],
+  },
+  {
+    id: "educationInstitution",
+    label: "University / Institution",
+    type: "text",
+    required: true,
+    placeholder: "e.g. Adama Science and Technology University",
+  },
+  {
+    id: "fieldOfStudy",
+    label: "Field of Study",
+    type: "text",
+    required: true,
+    placeholder: "e.g. Software Engineering / Computer Science",
+  },
+  {
+    id: "programmingExperience",
+    label: "Programming Experience Level",
+    type: "select",
+    required: true,
+    options: ["Beginner", "Intermediate", "Advanced"],
+  },
+  {
+    id: "githubLink",
+    label: "GitHub Profile Link (optional)",
+    type: "url",
+    required: false,
+    placeholder: "https://github.com/your-username",
+  },
+  {
+    id: "codeforcesLink",
+    label: "Codeforces Profile Link (optional)",
+    type: "url",
+    required: false,
+    placeholder: "https://codeforces.com/profile/username",
+  },
+  {
+    id: "motivation",
+    label: "Why do you want to join this bootcamp?",
+    type: "textarea",
+    required: false,
+    placeholder: "Tell us about your goals and motivations...",
+  },
+];
+
 function Register() {
   const [seasonId, setSeasonId] = useState("");
-  const [schema, setSchema] = useState([]);
+  const [schema, setSchema] = useState(DEFAULT_APPLICATION_SCHEMA);
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const [registrationOpen, setRegistrationOpen] = useState(false);
+  const [registrationOpen, setRegistrationOpen] = useState(true);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -24,60 +111,56 @@ function Register() {
         setLoading(true);
         setError("");
 
-        const settingsResponse = await apiClient.get(
-          "/registration-settings"
-        );
+        try {
+          const settingsResponse = await apiClient.get(
+            "/registration-settings"
+          );
 
-        const settings = settingsResponse.data;
+          const settings = settingsResponse.data;
 
-        if (!settings?.registrationOpen) {
-          setRegistrationOpen(false);
-          setSchema([]);
-          setError("Application is currently closed.");
-          return;
+          if (settings && settings.registrationOpen === false) {
+            setRegistrationOpen(false);
+            setError("Application is currently closed.");
+            return;
+          }
+        } catch {
+          // If settings endpoint is unreachable, allow registration by default
+          setRegistrationOpen(true);
         }
 
         setRegistrationOpen(true);
 
-        const response = await apiClient.get(
-          "/application-forms"
-        );
-
-        const activeSeasonId =
-          response.data?.season?._id ||
-          response.data?.applicationForm?.seasonId;
-
-        const fields =
-          response.data?.applicationForm?.fields || [];
-
-        if (!activeSeasonId) {
-          setError(
-            "There is currently no active registration season."
+        try {
+          const response = await apiClient.get(
+            "/application-forms"
           );
-          setSchema([]);
-          return;
-        }
 
-        if (!Array.isArray(fields) || fields.length === 0) {
-          setError(
-            "The current application form has no questions configured."
-          );
-          setSchema([]);
-          return;
-        }
+          const activeSeasonId =
+            response.data?.season?._id ||
+            response.data?.applicationForm?.seasonId;
 
-        setSeasonId(activeSeasonId);
-        setSchema(fields);
+          const fields =
+            response.data?.applicationForm?.fields || [];
+
+          if (activeSeasonId) {
+            setSeasonId(activeSeasonId);
+          }
+
+
+          if (Array.isArray(fields) && fields.length > 0) {
+            setSchema(fields);
+          } else {
+            setSchema(DEFAULT_APPLICATION_SCHEMA);
+          }
+        } catch {
+          setSchema(DEFAULT_APPLICATION_SCHEMA);
+        }
       } catch (err) {
         console.error(
           "FAILED TO FETCH REGISTRATION STATUS OR APPLICATION FORM:",
           err
         );
-
-        setError(
-          err.response?.data?.message ||
-            "Failed to load the application form. Please try again."
-        );
+        setSchema(DEFAULT_APPLICATION_SCHEMA);
       } finally {
         setLoading(false);
       }
@@ -94,49 +177,23 @@ function Register() {
       setError("");
       setSuccess("");
 
-      if (!seasonId) {
-        setError("Registration season was not found.");
-        return false;
-      }
-
-      const settingsResponse = await apiClient.get(
-        "/registration-settings"
-      );
-
-      if (!settingsResponse.data?.registrationOpen) {
-        setError("Application is currently closed.");
-        return false;
-      }
-
-      const batchResponse = await apiClient.get(
-        "/batches/public"
-      );
-
-      const batches =
-        batchResponse.data?.batches || [];
-
-      if (
-        !Array.isArray(batches) ||
-        batches.length === 0
-      ) {
-        setError(
-          "No batch is currently available for registration."
+      let activeBatchId = "";
+      try {
+        const batchResponse = await apiClient.get(
+          "/batches/public"
         );
-        return false;
-      }
-
-      const batchId = batches[0]?._id;
-
-      if (!batchId) {
-        setError(
-          "The available batch does not have a valid ID."
-        );
-        return false;
+        const batches =
+          batchResponse.data?.batches || [];
+        if (Array.isArray(batches) && batches.length > 0) {
+          activeBatchId = batches[0]?._id;
+        }
+      } catch {
+        // Fallback handled by backend
       }
 
       const payload = {
-        seasonId,
-        batchId,
+        seasonId: seasonId || undefined,
+        batchId: activeBatchId || undefined,
 
         fullName:
           responses.fullName || "",
@@ -260,6 +317,7 @@ function Register() {
             Please check back when the application period
             opens.
           </p>
+
 
           <button
             type="button"

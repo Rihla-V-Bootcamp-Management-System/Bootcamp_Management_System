@@ -17,13 +17,9 @@ const router = express.Router();
 // =====================================================
 
 // GET /api/application-forms
-// Used by Admin FormBuilder
-//
-// Does NOT depend on registration being open.
+// Used by FormBuilder & Applicants
 router.get(
   "/",
-  authMiddleware,
-  roleMiddleware("admin"),
   getCurrentApplicationForm
 );
 
@@ -47,8 +43,6 @@ router.get(
 
 router.get(
   "/:seasonId",
-  authMiddleware,
-  roleMiddleware("admin"),
   getApplicationForm
 );
 

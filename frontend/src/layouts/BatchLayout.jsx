@@ -19,7 +19,7 @@ function BatchLayout() {
           FIXED BATCH NAVIGATION
       ===================================================== */}
 
-      <div className="sticky top-0 z-40 border-b border-[#E5E0D5] bg-white/95 shadow-sm backdrop-blur">
+      <div className="sticky top-20 z-20 border-b border-[#E5E0D5] bg-white/95 shadow-sm backdrop-blur">
 
         <div className="overflow-x-auto">
 

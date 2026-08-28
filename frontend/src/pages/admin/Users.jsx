@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 import {
   Search,
-  Pencil,
   KeyRound,
   UserX,
   Trash2,
   Plus,
   MoreHorizontal,
+  AlertTriangle,
 } from "lucide-react";
 
 const API_URL = "http://localhost:5000/api";
@@ -19,6 +20,8 @@ function Users() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   // =========================================================
   // TOKEN
@@ -82,7 +85,7 @@ function Users() {
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [loadUsers]);
 
   // =========================================================
   // FILTER USERS
@@ -157,14 +160,15 @@ function Users() {
   // DELETE
   // =========================================================
 
-  const handleDelete = async (user) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${user.name}?`
-    );
+  const confirmDelete = async () => {
+    if (!userToDelete) return;
+    const user = userToDelete;
 
-    if (!confirmed) return;
 
     try {
+      setDeleting(true);
+      setError("");
+
       await axios.delete(
         `${API_URL}/users/${user._id}`,
         getConfig()
@@ -175,13 +179,16 @@ function Users() {
           (item) => item._id !== user._id
         )
       );
+
+      toast.success(`${user.name || "User"} deleted successfully`);
+      setUserToDelete(null);
     } catch (err) {
       console.error("DELETE USER ERROR:", err);
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to delete user"
-      );
+      const errMsg = err.response?.data?.message || "Failed to delete user";
+      setError(errMsg);
+      toast.error(errMsg);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -299,6 +306,7 @@ function Users() {
               Super Admins
             </option>
           </select>
+
 
           <span className="hidden text-sm text-slate-400 sm:block">
             {filteredUsers.length} users
@@ -429,6 +437,7 @@ function Users() {
                     MANAGEMENT
                 ========================================= */}
 
+
                 <div className="flex justify-end gap-2">
 
                   {/* EDIT */}
@@ -461,7 +470,7 @@ function Users() {
                     type="button"
                     title="Delete user"
                     onClick={() =>
-                      handleDelete(user)
+                      setUserToDelete(user)
                     }
                     className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                   >
@@ -489,6 +498,47 @@ function Users() {
         )}
 
       </div>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center gap-3 text-red-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                <AlertTriangle size={24} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Delete User</h3>
+                <p className="text-xs text-gray-500">This action cannot be undone</p>
+              </div>
+            </div>
+
+            <p className="mt-4 text-sm text-gray-600">
+              Are you sure you want to delete <strong className="text-gray-900">{userToDelete.name}</strong> ({formatRole(userToDelete.role)})? All access and related data for this user will be removed.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setUserToDelete(null)}
+                disabled={deleting}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 disabled:opacity-50"
+              >
+                <Trash2 size={16} />
+                {deleting ? "Deleting..." : "Delete User"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

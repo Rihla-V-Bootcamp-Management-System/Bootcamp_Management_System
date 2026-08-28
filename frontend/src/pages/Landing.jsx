@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Info } from "lucide-react";
+import { Info, X } from "lucide-react";
 
 import Tracks from "../components/Tracks";
 import FAQ from "../components/FAQ";
@@ -19,6 +19,22 @@ function Landing() {
 
   const [about, setAbout] = useState(null);
   const [aboutLoading, setAboutLoading] = useState(true);
+
+  useEffect(() => {
+    if (loginOpen) {
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e) => {
+        if (e.key === "Escape") setLoginOpen(false);
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleKeyDown);
+      };
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [loginOpen]);
 
   useEffect(() => {
     const loadAbout = async () => {
@@ -52,7 +68,7 @@ function Landing() {
         "/registration-settings"
       );
 
-      if (!response.data?.registrationOpen) {
+      if (response.data && response.data.registrationOpen === false) {
         setApplicationClosed(true);
         return;
       }
@@ -63,11 +79,8 @@ function Landing() {
         "CHECK APPLICATION STATUS ERROR:",
         error
       );
-
-      setApplicationError(
-        error.response?.data?.message ||
-          "Unable to check application status."
-      );
+      // Open application modal so user can proceed
+      setApplicationOpen(true);
     } finally {
       setCheckingApplication(false);
     }
@@ -123,27 +136,29 @@ function Landing() {
 
       <FAQ />
 
+
       {loginOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm">
-
-          <div className="flex min-h-screen items-center justify-center p-6">
-
-            <div className="relative w-full max-w-[1200px]">
-
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/65 backdrop-blur-sm transition-opacity duration-200"
+          onClick={() => setLoginOpen(false)}
+        >
+          <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 lg:p-8">
+            <div
+              className="relative w-full max-w-[1100px]"
+              onClick={(e) => e.stopPropagation()}
+            >
               <button
                 type="button"
                 onClick={() => setLoginOpen(false)}
-                className="absolute -right-3 -top-3 z-[60] flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg text-gray-500 shadow-lg transition hover:bg-gray-100 hover:text-gray-900"
+                className="absolute -right-2 -top-2 sm:-right-4 sm:-top-4 z-[60] flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-700 shadow-2xl transition hover:scale-105 hover:bg-gray-100 hover:text-black"
+                title="Close"
               >
-                ×
+                <X size={20} />
               </button>
 
-              <Login />
-
+              <Login isModal={true} onClose={() => setLoginOpen(false)} />
             </div>
-
           </div>
-
         </div>
       )}
 
@@ -241,6 +256,7 @@ function Landing() {
                 </p>
 
               </div>
+
 
               <div className="mt-8">
                 <Register />

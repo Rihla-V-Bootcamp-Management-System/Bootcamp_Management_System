@@ -6,10 +6,11 @@ import {
 import apiClient from "../../../services/apiClient";
 
 function Modules() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const batchId = searchParams.get("batchId");
 
+  const [batches, setBatches] = useState([]);
   const [modules, setModules] = useState([]);
   const [batch, setBatch] = useState(null);
 
@@ -28,6 +29,25 @@ function Modules() {
     level: 1,
     order: 1,
   });
+
+  // =========================================================
+  // LOAD ALL BATCHES
+  // =========================================================
+
+  const loadAllBatches = async () => {
+    try {
+      const response = await apiClient.get("/batches");
+      const list = response.data?.batches || response.data?.data || response.data || [];
+      const validList = Array.isArray(list) ? list : [];
+      setBatches(validList);
+
+      if (!batchId && validList.length > 0) {
+        setSearchParams({ batchId: validList[0]._id });
+      }
+    } catch (err) {
+      console.error("LOAD ALL BATCHES ERROR:", err);
+    }
+  };
 
   // =========================================================
   // LOAD BATCH
@@ -53,7 +73,6 @@ function Modules() {
 
   const loadModules = async () => {
     if (!batchId) {
-      setError("No batch selected.");
       setLoading(false);
       return;
     }
@@ -62,18 +81,8 @@ function Modules() {
       setLoading(true);
       setError("");
 
-      console.log(
-        "Loading modules for batch:",
-        batchId
-      );
-
       const response = await apiClient.get(
         `/modules?batchId=${batchId}`
-      );
-
-      console.log(
-        "MODULES RESPONSE:",
-        response.data
       );
 
       setModules(response.data.modules || []);
@@ -97,8 +106,14 @@ function Modules() {
   // =========================================================
 
   useEffect(() => {
-    loadBatch();
-    loadModules();
+    loadAllBatches();
+  }, []);
+
+  useEffect(() => {
+    if (batchId) {
+      loadBatch();
+      loadModules();
+    }
   }, [batchId]);
 
   // =========================================================
@@ -151,6 +166,7 @@ function Modules() {
       setSaving(true);
       setError("");
       setSuccess("");
+
 
       const payload = {
         title: form.title.trim(),
@@ -284,7 +300,7 @@ function Modules() {
 
       <div className="rounded-xl border border-[#E5E0D5] bg-white p-6 shadow-sm">
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
           <div>
 
@@ -302,16 +318,33 @@ function Modules() {
 
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              resetForm();
-              setShowForm(true);
-            }}
-            className="w-fit rounded-lg bg-[#1D3866] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#162d52]"
-          >
-            + Add Module
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            {batches.length > 0 && (
+              <select
+                value={batchId || ""}
+                onChange={(e) => setSearchParams({ batchId: e.target.value })}
+                className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-800 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              >
+                {batches.map((b) => (
+                  <option key={b._id} value={b._id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            )}
+
+
+            <button
+              type="button"
+              onClick={() => {
+                resetForm();
+                setShowForm(true);
+              }}
+              className="w-fit rounded-lg bg-[#1D3866] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#162d52]"
+            >
+              + Add Module
+            </button>
+          </div>
 
         </div>
 
@@ -454,6 +487,7 @@ function Modules() {
             </button>
 
           </div>
+
 
         </form>
       )}

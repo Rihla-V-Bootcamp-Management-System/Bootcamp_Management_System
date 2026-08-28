@@ -62,92 +62,64 @@ const registrationSchema = new mongoose.Schema(
 
     educationLevel: {
       type: Number,
-      required: true,
+      default: 1,
       min: 1,
-      max: 3,
+      max: 5,
     },
 
     educationInstitution: {
       type: String,
-      required: true,
-      enum: [
-        "Adama University",
-        "Addis Ababa University",
-        "Jimma University",
-        "Other",
-      ],
+      default: "Other",
     },
 
     fieldOfStudy: {
       type: String,
-      required: true,
-      enum: [
-        "Software Engineering",
-        "Computer Science",
-        "Electrical Engineering",
-        "Other",
-      ],
+      default: "Other",
     },
 
     studentId: {
       type: String,
-      required: true,
+      default: "N/A",
       trim: true,
     },
 
     programmingExperience: {
       type: String,
-      required: true,
-      enum: [
-        "No experience",
-        "Beginner",
-        "Intermediate",
-        "Advanced",
-      ],
+      default: "Beginner",
     },
 
     githubLink: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
 
     codeforcesLink: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
 
     leetcodeLink: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
     },
 
     hoursPerWeek: {
       type: Number,
-      required: true,
-      min: 35,
+      default: 35,
     },
 
     canCommitFiveHoursPerDay: {
       type: Boolean,
-      required: true,
-      validate: {
-        validator: function (value) {
-          return value === true;
-        },
-        message:
-          "Applicant must be able to commit at least 5 hours per day.",
-      },
+      default: true,
     },
 
     motivation: {
       type: String,
-      required: true,
+      default: "",
       trim: true,
-      minlength: 20,
-      maxlength: 1000,
     },
 
     responses: {

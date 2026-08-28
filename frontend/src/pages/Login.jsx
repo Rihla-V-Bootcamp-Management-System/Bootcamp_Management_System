@@ -14,7 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-function Login() {
+function Login({ isModal = false, onClose }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -56,6 +56,10 @@ function Login() {
         );
       }
 
+      if (onClose) {
+        onClose();
+      }
+
       // =====================================================
       // REDIRECT BASED ON ROLE
       // =====================================================
@@ -84,7 +88,7 @@ function Login() {
     }
   };
 
-  return (
+  const loginCard = (
     <div className="w-full">
       <div className="grid w-full grid-cols-1 overflow-hidden rounded-2xl shadow-2xl md:grid-cols-2">
 
@@ -149,6 +153,7 @@ function Login() {
 
             {/* COMMUNITY CARD */}
 
+
             <div className="max-w-md rounded-xl border border-blue-400/20 bg-blue-950/70 p-5 shadow-lg">
 
               <div className="flex items-center gap-4">
@@ -206,6 +211,60 @@ function Login() {
                 {error}
               </div>
             )}
+
+            {/* QUICK TEST ACCOUNTS */}
+            <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50/80 p-3.5">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wider text-blue-900">
+                Quick Test Accounts:
+              </p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail("superadminn@gmail.com");
+                    setPassword("password123");
+                    setError("");
+                  }}
+                  className="rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
+                >
+                  Super Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail("audittestadmin@example.com");
+                    setPassword("password");
+                    setError("");
+                  }}
+                  className="rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
+                >
+                  Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail("mentor@test.com");
+                    setPassword("Mentor12345");
+                    setError("");
+                  }}
+                  className="rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
+                >
+                  Mentor
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail("studentflow2026@example.com ");
+                    setPassword("Student12345");
+                    setError("");
+                  }}
+                  className="rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
+                >
+
+                  Student
+                </button>
+              </div>
+            </div>
 
             {/* FORM */}
 
@@ -323,6 +382,7 @@ function Login() {
 
               {/* LOGIN */}
 
+
               <button
                 type="submit"
                 disabled={loading}
@@ -403,6 +463,7 @@ function Login() {
 
                   <Link
                     to="/register"
+                    onClick={() => onClose?.()}
                     className="flex shrink-0 items-center gap-1 text-xs font-semibold text-gray-800 transition hover:text-gray-600"
                   >
                     Apply Now
@@ -419,6 +480,18 @@ function Login() {
 
         </section>
 
+      </div>
+    </div>
+  );
+
+  if (isModal) {
+    return loginCard;
+  }
+
+  return (
+    <div className="flex min-h-screen w-full items-center justify-center bg-[#06152d] p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-[1100px]">
+        {loginCard}
       </div>
     </div>
   );

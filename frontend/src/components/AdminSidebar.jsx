@@ -1,149 +1,179 @@
 import {
   LayoutDashboard,
+  Users,
+  Layers,
+  Megaphone,
   ClipboardList,
   FileText,
-  Users,
-  UserCheck,
-  CalendarCheck,
-  Layers,
-  BookOpen,
   BarChart3,
   Settings,
-  HelpCircle,
-  Info,
+  LogOut,
 } from "lucide-react";
+
 import { NavLink } from "react-router-dom";
+import useAuth from "../../context/useAuth";
 
 function AdminSidebar() {
-  const mainLinks = [
+  const { logout } = useAuth();
+
+  const links = [
     {
-      label: "Dashboard",
-      path: "/admin/dashboard",
+      name: "Dashboard",
+      path: "/admin",
       icon: LayoutDashboard,
     },
     {
-      label: "Registrations",
-      path: "/admin/registrations",
-      icon: ClipboardList,
-    },
-    {
-      label: "Applications",
-      path: "/admin/applications",
-      icon: FileText,
-    },
-    {
-      label: "Students",
-      path: "/admin/students",
+      name: "Users",
+      path: "/admin/users",
       icon: Users,
     },
     {
-      label: "Users",
-      path: "/admin/users",
-      icon: UserCheck,
-    },
-    {
-      label: "Attendance",
-      path: "/admin/attendance",
-      icon: CalendarCheck,
-    },
-    {
-      label: "Batches",
+      name: "Batches",
       path: "/admin/batches",
       icon: Layers,
     },
     {
-      label: "Assignments",
-      path: "/admin/assignments",
-      icon: BookOpen,
+      name: "Modules",
+      path: "/admin/modules",
+      icon: Layers,
     },
     {
-      label: "Performance",
-      path: "/admin/performance",
+      name: "Daily Task",
+      path: "/admin/daily-tasks",
+      icon: Layers,
+    },
+    {
+      name: "Announcements",
+      path: "/admin/announcements",
+      icon: Megaphone,
+    },
+    {
+      name: "Register Mentor",
+      path: "/admin/register-mentor",
+      icon: Users,
+    },
+    {
+      name: "Mentor Assignment",
+      path: "/admin/mentor-assignment",
+      icon: Users,
+    },
+    {
+      name: "Attendance Session",
+      path: "/admin/sessions",
+      icon: Layers,
+    },
+    {
+      name: "FAQs",
+      path: "/admin/faqs",
+      icon: FileText,
+    },
+    {
+      name: "Registrations",
+      path: "/admin/registrations",
+      icon: ClipboardList,
+    },
+    {
+      name: "Attendance",
+      path: "/admin/attendance",
+      icon: ClipboardList,
+    },
+    {
+      name: "Assignment",
+      path: "/admin/assignments",
+      icon: ClipboardList,
+    },
+    {
+      name: "Applications",
+      path: "/admin/applications",
+      icon: FileText,
+    },
+    {
+      name: "Analytics",
+      path: "/admin/analytics",
       icon: BarChart3,
     },
-  ];
-
-  const contentLinks = [
     {
-      label: "About",
-      path: "/admin/about",
-      icon: Info,
-    },
-    {
-      label: "FAQ",
-      path: "/admin/faqs",
-      icon: HelpCircle,
+      name: "Settings",
+      path: "/admin/settings",
+      icon: Settings,
     },
   ];
 
   return (
-    <aside className="min-h-screen w-64 border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-      <div className="p-5">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          Admin Panel
-        </h2>
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-[#26364a] bg-[#071629] text-white">
+      <div className="flex h-full flex-col">
+
+        <div className="flex items-center gap-3 border-b border-[#26364a] px-6 py-5">
+          <img
+            src="/logo.jpg"
+            alt="ASTU MSJ Logo"
+            className="h-10 w-10 rounded-full object-contain"
+          />
+
+          <div>
+            <h1 className="text-xl font-bold text-white">
+              ASTU MSJ
+            </h1>
+
+            <p className="text-sm text-[#8f969e]">
+              Admin Portal
+            </p>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-3 py-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div className="space-y-1">
+
+            {links.map((link) => {
+              const Icon = link.icon;
+
+              return (
+                <NavLink
+                  key={link.path}
+                  to={link.path}
+                  end={link.path === "/admin"}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                      isActive
+                        ? "bg-[#18273a] text-white shadow-sm"
+                        : "text-[#aeb5bd] hover:bg-[#101f31] hover:text-white"
+                    }`
+                  }
+                >
+                  <Icon size={19} strokeWidth={1.8} />
+                  <span>{link.name}</span>
+                </NavLink>
+              );
+            })}
+
+          </div>
+        </nav>
+
+        <div className="border-t border-[#26364a] p-4">
+
+          <div className="mb-3 rounded-lg bg-[#18273a] px-4 py-3">
+            <p className="text-sm font-semibold text-white">
+              Admin
+            </p>
+
+            <p className="text-xs text-[#8f969e]">
+              Administrator
+            </p>
+          </div>
+
+
+          <button
+            onClick={logout}
+            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium text-[#aeb5bd] transition-all duration-200 hover:bg-[#101f31] hover:text-white"
+          >
+            <LogOut size={19} strokeWidth={1.8} />
+            <span>Logout</span>
+          </button>
+
+        </div>
+
       </div>
-
-      <nav className="space-y-1 px-3">
-        {/* MAIN */}
-        {mainLinks.map(({ label, path, icon: Icon }) => (
-          <NavLink
-            key={path}
-            to={path}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition ${
-                isActive
-                  ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-              }`
-            }
-          >
-            <Icon size={19} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-
-        {/* CONTENT */}
-        <div className="px-4 pb-2 pt-6">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-            Content
-          </p>
-        </div>
-
-        {contentLinks.map(({ label, path, icon: Icon }) => (
-          <NavLink
-            key={path}
-            to={path}
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition ${
-                isActive
-                  ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-              }`
-            }
-          >
-            <Icon size={19} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-
-        {/* SETTINGS */}
-        <div className="pt-4">
-          <NavLink
-            to="/admin/settings"
-            className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition ${
-                isActive
-                  ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-              }`
-            }
-          >
-            <Settings size={19} />
-            <span>Settings</span>
-          </NavLink>
-        </div>
-      </nav>
     </aside>
   );
 }

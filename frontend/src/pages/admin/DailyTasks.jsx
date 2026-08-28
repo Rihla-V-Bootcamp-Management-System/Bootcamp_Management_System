@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import {
   Plus,
@@ -22,14 +23,21 @@ const DAYS = [
 ];
 
 function DailyTasks() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const queryBatchId = searchParams.get("batchId");
+
   const [tasks, setTasks] = useState([]);
   const [batches, setBatches] = useState([]);
 
-  const [selectedBatch, setSelectedBatch] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState(
+    queryBatchId || ""
+  );
+
   const [selectedLevel, setSelectedLevel] = useState(1);
   const [selectedWeek, setSelectedWeek] = useState(1);
 
-  // Overview is the default
+  // Overview is the default tab
   const [activeTab, setActiveTab] = useState("Overview");
 
   const [loading, setLoading] = useState(false);
@@ -78,6 +86,8 @@ function DailyTasks() {
 
   const loadBatches = async () => {
     try {
+      setError("");
+
       const response = await axios.get(
         `${API_URL}/batches`,
         getConfig()
@@ -91,17 +101,34 @@ function DailyTasks() {
         data ||
         [];
 
-      setBatches(
-        Array.isArray(batchList)
-          ? batchList
-          : []
-      );
+      const validList = Array.isArray(batchList)
+        ? batchList
+        : [];
 
-      if (
-        Array.isArray(batchList) &&
-        batchList.length > 0
-      ) {
-        setSelectedBatch(batchList[0]._id);
+      setBatches(validList);
+
+      if (validList.length > 0) {
+        if (queryBatchId) {
+          const exists = validList.some(
+            (batch) =>
+              String(batch._id) === String(queryBatchId)
+          );
+
+          if (exists) {
+            setSelectedBatch(queryBatchId);
+          } else {
+            setSelectedBatch(validList[0]._id);
+            setSearchParams({
+              batchId: validList[0]._id,
+            });
+          }
+        } else if (!selectedBatch) {
+          setSelectedBatch(validList[0]._id);
+
+          setSearchParams({
+            batchId: validList[0]._id,
+          });
+        }
       }
     } catch (err) {
       console.error("LOAD BATCHES ERROR:", err);
@@ -112,6 +139,19 @@ function DailyTasks() {
       );
     }
   };
+
+  // =========================================================
+  // KEEP URL BATCH IN SYNC
+  // =========================================================
+
+  useEffect(() => {
+    if (
+      queryBatchId &&
+      queryBatchId !== selectedBatch
+    ) {
+      setSelectedBatch(queryBatchId);
+    }
+  }, [queryBatchId, selectedBatch]);
 
   // =========================================================
   // LOAD TASKS
@@ -155,13 +195,48 @@ function DailyTasks() {
   }, []);
 
   // =========================================================
+  // HANDLE BATCH CHANGE
+  // =========================================================
+
+  const handleBatchChange = (e) => {
+    const batchId = e.target.value;
+
+    setSelectedBatch(batchId);
+
+    setSearchParams({
+      batchId,
+    });
+
+    setActiveTab("Overview");
+  };
+
+  // =========================================================
+  // HANDLE LEVEL CHANGE
+  // =========================================================
+
+  const handleLevelChange = (e) => {
+    setSelectedLevel(Number(e.target.value));
+    setActiveTab("Overview");
+  };
+
+  // =========================================================
+  // HANDLE WEEK CHANGE
+  // =========================================================
+
+  const handleWeekChange = (e) => {
+    setSelectedWeek(Number(e.target.value));
+    setActiveTab("Overview");
+  };
+
+  // =========================================================
   // FILTER TASKS
   // =========================================================
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       const taskBatch =
-        task.batchId?._id || task.batchId;
+        task.batchId?._id ||
+        task.batchId;
 
       return (
         String(taskBatch) ===
@@ -243,7 +318,7 @@ function DailyTasks() {
     setEditingTask(task);
 
     setForm({
-      day: task.day,
+      day: task.day || "Monday",
       title: task.title || "",
       description: task.description || "",
       points: task.points ?? 0,
@@ -301,6 +376,11 @@ function DailyTasks() {
       return;
     }
 
+    if (Number(form.points) < 0) {
+      setError("Points cannot be negative.");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
@@ -315,7 +395,10 @@ function DailyTasks() {
         points: Number(form.points),
       };
 
-      // EDIT
+      // =====================================================
+      // UPDATE
+      // =====================================================
+
       if (editingTask) {
         await axios.put(
           `${API_URL}/daily-tasks/${editingTask._id}`,
@@ -324,7 +407,10 @@ function DailyTasks() {
         );
       }
 
+      // =====================================================
       // CREATE
+      // =====================================================
+
       else {
         await axios.post(
           `${API_URL}/daily-tasks`,
@@ -333,7 +419,15 @@ function DailyTasks() {
         );
       }
 
-      closeModal();
+      setShowModal(false);
+      setEditingTask(null);
+
+      setForm({
+        day: "Monday",
+        title: "",
+        description: "",
+        points: 10,
+      });
 
       await loadTasks();
     } catch (err) {
@@ -352,7 +446,7 @@ function DailyTasks() {
   };
 
   // =========================================================
-  // DELETE
+  // DELETE TASK
   // =========================================================
 
   const handleDelete = async (id) => {
@@ -397,6 +491,16 @@ function DailyTasks() {
       : [];
 
   // =========================================================
+  // SELECTED BATCH NAME
+  // =========================================================
+
+  const selectedBatchObject = batches.find(
+    (batch) =>
+      String(batch._id) ===
+      String(selectedBatch)
+  );
+
+  // =========================================================
   // RENDER
   // =========================================================
 
@@ -408,7 +512,6 @@ function DailyTasks() {
       ===================================================== */}
 
       <div className="border-b border-slate-200 bg-white px-6 py-6">
-
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
           <div>
@@ -431,21 +534,22 @@ function DailyTasks() {
             </div>
           </div>
 
-          {activeTab !== "Overview" && (
-            <button
-              type="button"
-              onClick={() =>
-                openAddModal(activeTab)
-              }
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
-            >
-              <Plus size={18} />
-              Add Task
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() =>
+              openAddModal(
+                activeTab === "Overview"
+                  ? "Monday"
+                  : activeTab
+              )
+            }
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+          >
+            <Plus size={18} />
+            Add Task
+          </button>
 
         </div>
-
       </div>
 
       {/* =====================================================
@@ -464,6 +568,7 @@ function DailyTasks() {
             <button
               type="button"
               onClick={() => setError("")}
+              className="rounded p-1 hover:bg-red-100"
             >
               <X size={18} />
             </button>
@@ -486,10 +591,8 @@ function DailyTasks() {
 
             <select
               value={selectedBatch}
-              onChange={(e) =>
-                setSelectedBatch(e.target.value)
-              }
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              onChange={handleBatchChange}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             >
               <option value="">
                 Select Batch
@@ -500,7 +603,10 @@ function DailyTasks() {
                   key={batch._id}
                   value={batch._id}
                 >
-                  {batch.name}
+                  {batch.name ||
+                    batch.title ||
+                    batch.batchName ||
+                    `Batch ${batch._id}`}
                 </option>
               ))}
             </select>
@@ -515,28 +621,14 @@ function DailyTasks() {
 
             <select
               value={selectedLevel}
-              onChange={(e) =>
-                setSelectedLevel(
-                  Number(e.target.value)
-                )
-              }
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              onChange={handleLevelChange}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             >
-              <option value={1}>
-                Level 1
-              </option>
-
-              <option value={2}>
-                Level 2
-              </option>
-
-              <option value={3}>
-                Level 3
-              </option>
-
-              <option value={4}>
-                Level 4
-              </option>
+              <option value={1}>Level 1</option>
+              <option value={2}>Level 2</option>
+              <option value={3}>Level 3</option>
+              <option value={4}>Level 4</option>
+              <option value={5}>Level 5</option>
             </select>
           </div>
 
@@ -549,72 +641,21 @@ function DailyTasks() {
 
             <select
               value={selectedWeek}
-              onChange={(e) =>
-                setSelectedWeek(
-                  Number(e.target.value)
-                )
-              }
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              onChange={handleWeekChange}
+              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             >
               {Array.from(
-                { length: 12 },
-                (_, index) => (
-                  <option
-                    key={index + 1}
-                    value={index + 1}
-                  >
-                    Week {index + 1}
-                  </option>
-                )
-              )}
+                { length: 16 },
+                (_, index) => index + 1
+              ).map((week) => (
+                <option
+                  key={week}
+                  value={week}
+                >
+                  Week {week}
+                </option>
+              ))}
             </select>
-          </div>
-
-        </div>
-
-        {/* ===================================================
-            STICKY DAILY NAVIGATION
-        =================================================== */}
-
-        <div className="sticky top-0 z-30 mb-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-
-          <div className="flex min-w-max">
-
-            {/* OVERVIEW */}
-
-            <button
-              type="button"
-              onClick={() =>
-                setActiveTab("Overview")
-              }
-              className={`border-b-2 px-5 py-4 text-sm transition ${
-                activeTab === "Overview"
-                  ? "border-blue-600 font-bold text-blue-600"
-                  : "border-transparent font-medium text-slate-500 hover:text-blue-600"
-              }`}
-            >
-              Overview
-            </button>
-
-            {/* DAYS */}
-
-            {DAYS.map((day) => (
-              <button
-                key={day}
-                type="button"
-                onClick={() =>
-                  setActiveTab(day)
-                }
-                className={`border-b-2 px-5 py-4 text-sm transition ${
-                  activeTab === day
-                    ? "border-blue-600 font-bold text-blue-600"
-                    : "border-transparent font-medium text-slate-500 hover:text-blue-600"
-                }`}
-              >
-                {day}
-              </button>
-            ))}
-
           </div>
 
         </div>
@@ -633,7 +674,11 @@ function DailyTasks() {
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Level {selectedLevel}
+              {selectedBatchObject?.name ||
+                selectedBatchObject?.title ||
+                selectedBatchObject?.batchName ||
+                "Selected Batch"}{" "}
+              · Level {selectedLevel}
             </p>
           </div>
 
@@ -642,6 +687,45 @@ function DailyTasks() {
               Loading...
             </span>
           )}
+
+        </div>
+
+        {/* ===================================================
+            DAY NAVIGATION
+        =================================================== */}
+
+        <div className="mb-6 flex gap-2 overflow-x-auto rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
+
+          <button
+            type="button"
+            onClick={() =>
+              setActiveTab("Overview")
+            }
+            className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition ${
+              activeTab === "Overview"
+                ? "bg-blue-600 text-white"
+                : "text-slate-600 hover:bg-slate-100"
+            }`}
+          >
+            Overview
+          </button>
+
+          {DAYS.map((day) => (
+            <button
+              key={day}
+              type="button"
+              onClick={() =>
+                setActiveTab(day)
+              }
+              className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                activeTab === day
+                  ? "bg-blue-600 text-white"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              {day}
+            </button>
+          ))}
 
         </div>
 
@@ -657,7 +741,6 @@ function DailyTasks() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 
               <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-
                 <p className="text-sm text-slate-500">
                   Total Tasks
                 </p>
@@ -665,11 +748,9 @@ function DailyTasks() {
                 <p className="mt-2 text-3xl font-bold text-slate-900">
                   {filteredTasks.length}
                 </p>
-
               </div>
 
               <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-
                 <p className="text-sm text-slate-500">
                   Weekly Points
                 </p>
@@ -677,11 +758,9 @@ function DailyTasks() {
                 <p className="mt-2 text-3xl font-bold text-blue-600">
                   {totalPoints}
                 </p>
-
               </div>
 
               <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-
                 <p className="text-sm text-slate-500">
                   Active Days
                 </p>
@@ -694,7 +773,6 @@ function DailyTasks() {
                     ).length
                   }
                 </p>
-
               </div>
 
             </div>
@@ -704,7 +782,6 @@ function DailyTasks() {
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
 
               <div className="border-b border-slate-200 px-6 py-5">
-
                 <h3 className="font-bold text-slate-900">
                   Weekly Tasks
                 </h3>
@@ -712,7 +789,6 @@ function DailyTasks() {
                 <p className="mt-1 text-sm text-slate-500">
                   Select a day above to manage its tasks.
                 </p>
-
               </div>
 
               <div className="divide-y divide-slate-100">
@@ -764,7 +840,6 @@ function DailyTasks() {
                 ))}
 
               </div>
-
             </div>
 
           </div>
@@ -906,7 +981,6 @@ function DailyTasks() {
                 ))}
 
               </>
-
             )}
 
           </div>
@@ -945,7 +1019,8 @@ function DailyTasks() {
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                disabled={loading}
+                className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
               >
                 <X size={20} />
               </button>
@@ -973,6 +1048,7 @@ function DailyTasks() {
                   onChange={handleChange}
                   className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 >
+
                   {DAYS.map((day) => (
                     <option
                       key={day}
@@ -981,6 +1057,7 @@ function DailyTasks() {
                       {day}
                     </option>
                   ))}
+
                 </select>
 
               </div>
@@ -999,6 +1076,7 @@ function DailyTasks() {
                   value={form.title}
                   onChange={handleChange}
                   placeholder="e.g. HTML Basics"
+                  required
                   className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
 
@@ -1037,6 +1115,7 @@ function DailyTasks() {
                   min="0"
                   value={form.points}
                   onChange={handleChange}
+                  required
                   className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
 

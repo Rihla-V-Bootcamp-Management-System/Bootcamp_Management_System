@@ -16,7 +16,7 @@ const {
   getSessionById,
   participantJoin,
   participantLeave,
-} = require("../controllers/sessionController");
+} = require("../controllers/SessionController");
 
 // =========================================================
 // GET ALL SESSIONS

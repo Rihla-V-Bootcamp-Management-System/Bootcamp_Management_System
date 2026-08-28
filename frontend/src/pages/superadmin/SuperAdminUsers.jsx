@@ -7,6 +7,11 @@ import {
   ShieldCheck,
   GraduationCap,
   UserRound,
+  Trash2,
+  AlertTriangle,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 function SuperAdminUsers() {
@@ -14,6 +19,8 @@ function SuperAdminUsers() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -24,6 +31,7 @@ function SuperAdminUsers() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   const loadUsers = async () => {
     try {
@@ -129,14 +137,13 @@ function SuperAdminUsers() {
     }
   };
 
-  const handleDeleteUser = async (userId, userName) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${userName}?`
-    );
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, roleFilter, statusFilter]);
 
-    if (!confirmed) {
-      return;
-    }
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    const { id: userId, name: userName } = userToDelete;
 
     try {
       setDeletingId(userId);
@@ -167,7 +174,8 @@ function SuperAdminUsers() {
         );
       }
 
-      setMessage(data.message);
+      setMessage(data.message || `${userName} has been removed successfully.`);
+
 
       // Remove deleted user immediately from the frontend.
       setUsers((currentUsers) =>
@@ -175,6 +183,8 @@ function SuperAdminUsers() {
           (user) => user._id !== userId
         )
       );
+
+      setUserToDelete(null);
 
       // Refresh from backend to keep frontend and database in sync.
       await loadUsers();
@@ -221,6 +231,12 @@ function SuperAdminUsers() {
       );
     });
   }, [users, search, roleFilter, statusFilter]);
+
+  const totalPages = Math.ceil(filteredUsers.length / pageSize) || 1;
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedUsers = useMemo(() => {
+    return filteredUsers.slice(startIndex, startIndex + pageSize);
+  }, [filteredUsers, startIndex, pageSize]);
 
   const adminCount = users.filter(
     (user) => user.role === "admin"
@@ -314,6 +330,7 @@ function SuperAdminUsers() {
 
           <div className="users-assign-field">
             <label>Email</label>
+
 
             <input
               type="email"
@@ -479,6 +496,7 @@ function SuperAdminUsers() {
               </select>
             </div>
 
+
             <select
               className="users-status-filter"
               value={statusFilter}
@@ -524,7 +542,7 @@ function SuperAdminUsers() {
                 </tr>
               ) : (
                 <>
-                  {filteredUsers.map((user) => {
+                  {paginatedUsers.map((user) => {
                     const displayRole =
                       getRoleName(user.role);
 
@@ -585,25 +603,27 @@ function SuperAdminUsers() {
                           {user.userID || "—"}
                         </td>
 
+
                         <td>
                           {canDelete ? (
                             <button
                               type="button"
-                              className="user-action-button"
+                              className="user-action-button text-red-500 hover:text-red-700"
                               title="Delete user"
                               disabled={
                                 deletingId ===
                                 user._id
                               }
                               onClick={() =>
-                                handleDeleteUser(
-                                  user._id,
-                                  user.name
-                                )
+                                setUserToDelete({
+                                  id: user._id,
+                                  name: user.name,
+                                  role: displayRole,
+                                })
                               }
                             >
-                              <MoreHorizontal
-                                size={18}
+                              <Trash2
+                                size={17}
                               />
                             </button>
                           ) : (
@@ -640,25 +660,87 @@ function SuperAdminUsers() {
 
         <div className="users-pagination">
           <span>
-            Showing {filteredUsers.length} of{" "}
-            {users.length} users
+            Showing {filteredUsers.length === 0 ? 0 : startIndex + 1} to{" "}
+            {Math.min(startIndex + pageSize, filteredUsers.length)} of{" "}
+            {filteredUsers.length} users
           </span>
 
-          <div>
-            <button disabled>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              disabled={currentPage <= 1}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              className="flex items-center gap-1"
+            >
+              <ChevronLeft size={15} />
               Previous
             </button>
 
-            <button className="active">
-              1
-            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+              <button
+                key={pageNum}
+                type="button"
+                className={currentPage === pageNum ? "active" : ""}
+                onClick={() => setCurrentPage(pageNum)}
+              >
+                {pageNum}
+              </button>
+            ))}
 
-            <button disabled>
+            <button
+              type="button"
+              disabled={currentPage >= totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              className="flex items-center gap-1"
+            >
               Next
+              <ChevronRight size={15} />
             </button>
           </div>
         </div>
       </div>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center gap-3 text-red-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                <AlertTriangle size={24} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Delete User</h3>
+                <p className="text-xs text-gray-500">This action cannot be undone</p>
+              </div>
+            </div>
+
+
+            <p className="mt-4 text-sm text-gray-600">
+              Are you sure you want to delete <strong className="text-gray-900">{userToDelete.name}</strong> ({userToDelete.role})? All associated permissions and access will be permanently removed.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setUserToDelete(null)}
+                disabled={Boolean(deletingId)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteUser}
+                disabled={Boolean(deletingId)}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 disabled:opacity-50"
+              >
+                <Trash2 size={16} />
+                {deletingId ? "Deleting..." : "Delete User"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -15,13 +15,17 @@
 
 .superadmin-sidebar {
   width: 250px;
-  min-height: 100vh;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
   background: #111827;
   border-right: 1px solid #202938;
   padding: 24px 16px;
-  flex-shrink: 0;
+  overflow-y: auto;
+  z-index: 40;
 }
 
 .superadmin-brand {
@@ -151,17 +155,23 @@
 
 .superadmin-main {
   flex: 1;
+  margin-left: 250px;
   min-width: 0;
+  min-height: 100vh;
   background: #f8f9fc;
 }
 
 .superadmin-header {
   min-height: 86px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 20px 36px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid #e9e9ef;
 }
 

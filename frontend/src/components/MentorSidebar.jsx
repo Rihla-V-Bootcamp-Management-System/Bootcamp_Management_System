@@ -22,7 +22,7 @@ function MentorSidebar() {
     }`;
 
   return (
-    <aside className="flex h-screen w-56 shrink-0 flex-col bg-gray-900 p-6 text-white">
+    <div className="flex h-full w-full flex-col bg-gray-900 p-6 text-white overflow-y-auto">
 
       {/* LOGO / NAME */}
       <h2 className="mb-8 text-xl font-bold">
@@ -106,7 +106,7 @@ function MentorSidebar() {
 
       </div>
 
-    </aside>
+    </div>
   );
 }
 

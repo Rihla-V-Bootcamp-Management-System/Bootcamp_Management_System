@@ -174,6 +174,7 @@ function Header({
   // MARK ALL NOTIFICATIONS AS READ
   // =========================================================
 
+
   const markAllAsRead = async () => {
     if (unreadCount === 0) {
       return;
@@ -208,6 +209,17 @@ function Header({
   // NOTIFICATION CLICK
   // =========================================================
 
+  const getStoredRole = () => {
+    const directRole = localStorage.getItem("role");
+    if (directRole) return directRole.toLowerCase();
+    try {
+      const saved = JSON.parse(localStorage.getItem("user") || "{}");
+      return (saved.role || "").toLowerCase();
+    } catch {
+      return "";
+    }
+  };
+
   const handleNotificationClick = async (
     notification
   ) => {
@@ -215,20 +227,16 @@ function Header({
       await markAsRead(notification._id);
     }
 
-    // If the notification contains an announcement,
-    // take the user to the appropriate announcements page.
-    if (
-      notification.type === "announcement" ||
-      notification.announcementId
-    ) {
-      const role =
-        localStorage.getItem("role");
+    const role = getStoredRole();
 
-      if (role === "mentor") {
-        navigate("/mentor/announcements");
-      } else if (role === "student") {
-        navigate("/student/announcements");
-      }
+    if (role === "admin") {
+      navigate("/admin/announcements");
+    } else if (role === "superadmin") {
+      navigate("/superadmin/audit-logs");
+    } else if (role === "mentor") {
+      navigate("/mentor/announcements");
+    } else {
+      navigate("/student/announcements");
     }
   };
 
@@ -239,10 +247,13 @@ function Header({
   const handleViewAnnouncements = () => {
     setNotificationsOpen(false);
 
-    const role =
-      localStorage.getItem("role");
+    const role = getStoredRole();
 
-    if (role === "mentor") {
+    if (role === "admin") {
+      navigate("/admin/announcements");
+    } else if (role === "superadmin") {
+      navigate("/superadmin/audit-logs");
+    } else if (role === "mentor") {
       navigate("/mentor/announcements");
     } else {
       navigate("/student/announcements");
@@ -310,6 +321,7 @@ function Header({
           {/* ===================================================
               SEARCH
           =================================================== */}
+
 
           <button
             type="button"
@@ -426,6 +438,7 @@ function Header({
                         />
                       )}
 
+
                       Mark all read
                     </button>
                   )}
@@ -523,6 +536,7 @@ function Header({
                             <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-slate-500">
                               {notification.message}
                             </p>
+
 
                             <p className="mt-2 text-[10px] text-slate-400">
                               {formatDate(

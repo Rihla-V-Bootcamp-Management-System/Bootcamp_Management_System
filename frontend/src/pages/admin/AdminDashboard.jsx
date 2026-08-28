@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Users,
@@ -34,7 +34,7 @@ function AdminDashboard() {
   // NO ANALYTICS API
   // =========================================================
 
-  const loadDashboard = async () => {
+  const loadDashboard = useCallback( async () => {
     try {
       setLoading(true);
       setError("");
@@ -105,11 +105,11 @@ function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  },[]);
 
   useEffect(() => {
     loadDashboard();
-  }, []);
+  }, [loadDashboard]);
 
   // =========================================================
   // DATA
@@ -363,7 +363,7 @@ function AdminDashboard() {
 
           </div>
 
-          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full border-[30px] border-[#F0F3F7]" />
+          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full border-30 border-[#F0F3F7]" />
 
           <div className="absolute -bottom-20 right-24 h-40 w-40 rounded-full bg-[#F7F5EF]" />
 

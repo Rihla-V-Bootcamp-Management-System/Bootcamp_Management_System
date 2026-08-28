@@ -40,14 +40,14 @@ const batchRoutes = require("./routes/batchRoutes");
 const levelRoutes = require("./routes/levelRoutes");
 
 // Modules
-const moduleRoutes = require("./routes/moduleRoutes");
+const moduleRoutes = require("./routes/ModuleRoutes");
 const moduleResourceRoutes = require("./routes/moduleResourceRoutes");
 
 // Daily Tasks
 const dailyTaskRoutes = require("./routes/dailyTaskRoutes");
 
 // Attendance & Progress
-const attendanceRoutes = require("./routes/attendanceRoutes");
+const attendanceRoutes = require("./routes/AttendanceRoutes");
 const progressRoutes = require("./routes/progressRoutes");
 
 // Sessions
@@ -63,7 +63,7 @@ const googleMeetAttendanceRoutes = require(
 const analyticsRoutes = require("./routes/analyticsRoutes");
 
 // Assignments & Submissions
-const assignmentRoutes = require("./routes/assignmentRoutes");
+const assignmentRoutes = require("./routes/AssignmentRoutes");
 const submissionRoutes = require("./routes/SubmissionRoutes");
 
 // Announcements & Notifications
