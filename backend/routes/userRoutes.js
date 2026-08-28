@@ -1,134 +1,198 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
-const User = require("../models/User");
+
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 
+const User = require("../models/User");
+
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+// =========================================================
+// GET ALL USERS
+// ADMIN + SUPERADMIN
+// GET /api/users
+// =========================================================
 
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        message: "Name, email, and password are required",
-      });
-    }
-
-    const existingUser = await User.findOne({ email });
-
-    if (existingUser) {
-      return res.status(400).json({
-        message: "User already exists",
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role: "student",
-    });
-
-    res.status(201).json({
-      message: "User registered successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    console.error("REGISTER ERROR:", error);
-
-    res.status(500).json({
-      message: "Registration failed",
-      error: error.message,
-    });
-  }
-});
-
-router.post("/login", async (req, res) => {
-  console.log("LOGIN ROUTE HIT");
-
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(401).json({
-        message: "Invalid email or password",
-      });
-    }
-
-    const passwordMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
-
-    if (!passwordMatch) {
-      return res.status(401).json({
-        message: "Invalid email or password",
-      });
-    }
-
-    res.json({
-      message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    console.error("LOGIN ERROR:", error);
-
-    res.status(500).json({
-      message: "Login failed",
-      error: error.message,
-    });
-  }
-});
-
-router.get("/:id", authMiddleware, async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id)
-      .select("-password")
-      .populate(
-        "assignedMentor",
-        "userID name email role"
+router.get(
+  "/",
+  authMiddleware,
+  roleMiddleware("admin", "superadmin"),
+  async (req, res) => {
+    try {
+      const page = Math.max(
+        parseInt(req.query.page, 10) || 1,
+        1
       );
 
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
+      const limit = Math.min(
+        Math.max(
+          parseInt(req.query.limit, 10) || 10,
+          1
+        ),
+        100
+      );
+
+      const skip = (page - 1) * limit;
+
+      const {
+        search,
+        role,
+        gender,
+      } = req.query;
+
+      const filter = {};
+
+      // =====================================================
+      // ROLE FILTER
+      // =====================================================
+
+      if (role) {
+        filter.role = role;
+      }
+
+      // =====================================================
+      // GENDER FILTER
+      // =====================================================
+
+      if (gender) {
+        filter.gender = gender;
+      }
+
+      // =====================================================
+      // SEARCH
+      // =====================================================
+
+      if (search) {
+        filter.$or = [
+          {
+            name: {
+              $regex: search,
+              $options: "i",
+            },
+          },
+          {
+            email: {
+              $regex: search,
+              $options: "i",
+            },
+          },
+        ];
+      }
+
+      // =====================================================
+      // GET USERS
+      // =====================================================
+
+      const [users, totalUsers] =
+        await Promise.all([
+          User.find(filter)
+            .select("-password -otp")
+            .populate(
+              "assignedMentor",
+              "userID name email role"
+            )
+            .populate(
+              "batchId",
+              "name"
+            )
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
+
+          User.countDocuments(filter),
+        ]);
+
+      const totalPages = Math.max(
+        Math.ceil(totalUsers / limit),
+        1
+      );
+
+      return res.status(200).json({
+        success: true,
+        total: totalUsers,
+        users,
+
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalUsers,
+          limit,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      });
+    } catch (error) {
+      console.error("GET USERS ERROR:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to load users",
+        error: error.message,
       });
     }
-
-    res.json({
-      user,
-    });
-  } catch (error) {
-    console.error("GET USER ERROR:", error);
-
-    res.status(400).json({
-      message: "Invalid user ID",
-    });
   }
-});
+);
+
+// =========================================================
+// GET USER BY ID
+// GET /api/users/:id
+// =========================================================
+
+router.get(
+  "/:id",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const user = await User.findById(
+        req.params.id
+      )
+        .select("-password -otp")
+        .populate(
+          "assignedMentor",
+          "userID name email role"
+        )
+        .populate(
+          "batchId",
+          "name"
+        );
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        user,
+      });
+    } catch (error) {
+      console.error(
+        "GET USER ERROR:",
+        error
+      );
+
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID",
+      });
+    }
+  }
+);
+
+// =========================================================
+// ADMIN TEST
+// GET /api/users/admin/test
+// =========================================================
 
 router.get(
   "/admin/test",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("admin", "superadmin"),
   (req, res) => {
-    res.json({
+    return res.status(200).json({
+      success: true,
       message: "Admin access granted",
       user: {
         id: req.user._id,
@@ -139,99 +203,126 @@ router.get(
     });
   }
 );
+
 // =========================================================
-// GET ALL USERS - ADMIN
-// GET /api/users
+// ASSIGN MENTOR TO STUDENT
+// PATCH /api/users/students/:studentId/mentor
 // =========================================================
 
-router.get(
-  "/",
-  authMiddleware,
-  roleMiddleware("admin"),
-  async (req, res) => {
-    try {
-      const users = await User.find()
-        .select("-password -otp")
-        .populate("assignedMentor", "name email role")
-        .populate("batchId", "name");
-
-      res.json({
-        success: true,
-        total: users.length,
-        users,
-      });
-    } catch (error) {
-      console.error("GET ALL USERS ERROR:", error);
-
-      res.status(500).json({
-        success: false,
-        message: "Failed to load users",
-        error: error.message,
-      });
-    }
-  }
-);
 router.patch(
   "/students/:studentId/mentor",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("admin", "superadmin"),
   async (req, res) => {
     try {
       const { mentorId } = req.body;
 
+      // ===================================================
+      // VALIDATE MENTOR ID
+      // ===================================================
+
       if (!mentorId) {
         return res.status(400).json({
+          success: false,
           message: "Mentor ID is required",
         });
       }
 
-      const student = await User.findById(req.params.studentId);
+      // ===================================================
+      // FIND STUDENT
+      // ===================================================
+
+      const student = await User.findById(
+        req.params.studentId
+      );
 
       if (!student) {
         return res.status(404).json({
+          success: false,
           message: "Student not found",
         });
       }
 
-      if (student.role !== "student") {
+      // ===================================================
+      // VALIDATE STUDENT
+      // ===================================================
+
+      if (
+        String(student.role).toLowerCase() !==
+        "student"
+      ) {
         return res.status(400).json({
+          success: false,
           message: "This user is not a student",
         });
       }
 
-      const mentor = await User.findById(mentorId);
+      // ===================================================
+      // FIND MENTOR
+      // ===================================================
+
+      const mentor = await User.findById(
+        mentorId
+      );
 
       if (!mentor) {
         return res.status(404).json({
+          success: false,
           message: "Mentor not found",
         });
       }
 
-      if (mentor.role !== "mentor") {
+      // ===================================================
+      // VALIDATE MENTOR
+      // ===================================================
+
+      if (
+        String(mentor.role).toLowerCase() !==
+        "mentor"
+      ) {
         return res.status(400).json({
+          success: false,
           message: "This user is not a mentor",
         });
       }
+
+      // ===================================================
+      // ASSIGN
+      // ===================================================
 
       student.assignedMentor = mentor._id;
 
       await student.save();
 
-      const updatedStudent = await User.findById(student._id)
-        .select("-password")
-        .populate(
-          "assignedMentor",
-          "userID name email role"
-        );
+      // ===================================================
+      // UPDATED STUDENT
+      // ===================================================
 
-      return res.json({
+      const updatedStudent =
+        await User.findById(student._id)
+          .select("-password -otp")
+          .populate(
+            "assignedMentor",
+            "userID name email role"
+          )
+          .populate(
+            "batchId",
+            "name"
+          );
+
+      return res.status(200).json({
+        success: true,
         message: "Mentor assigned successfully",
         student: updatedStudent,
       });
     } catch (error) {
-      console.error("ASSIGN MENTOR ERROR:", error);
+      console.error(
+        "ASSIGN MENTOR ERROR:",
+        error
+      );
 
       return res.status(500).json({
+        success: false,
         message: "Failed to assign mentor",
         error: error.message,
       });

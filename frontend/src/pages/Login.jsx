@@ -24,12 +24,19 @@ function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  // =========================================================
+  // LOGIN
+  // =========================================================
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setError("");
 
     if (!email.trim() || !password.trim()) {
-      setError("Please enter your email and password.");
+      setError(
+        "Please enter your email and password."
+      );
       return;
     }
 
@@ -44,12 +51,14 @@ function Login() {
       const user = response?.user;
 
       if (!user) {
-        throw new Error("Invalid login response.");
+        throw new Error(
+          "Invalid login response."
+        );
       }
 
-      // ==============================
+      // =====================================================
       // REDIRECT BASED ON ROLE
-      // ==============================
+      // =====================================================
 
       if (user.role === "superadmin") {
         navigate("/superadmin");
@@ -60,7 +69,9 @@ function Login() {
       } else if (user.role === "student") {
         navigate("/student");
       } else {
-        setError("Your account role is not recognized.");
+        setError(
+          "Your account role is not recognized."
+        );
       }
     } catch (error) {
       setError(
@@ -77,7 +88,9 @@ function Login() {
     <div className="w-full">
       <div className="grid w-full grid-cols-1 overflow-hidden rounded-2xl shadow-2xl md:grid-cols-2">
 
-        {/* ================= LEFT SIDE ================= */}
+        {/* ===================================================
+            LEFT SIDE
+        =================================================== */}
 
         <section className="relative flex min-h-[620px] overflow-hidden bg-[#06103D]">
 
@@ -87,8 +100,9 @@ function Login() {
 
           <div className="relative z-10 flex w-full flex-col justify-between p-8 sm:p-10 lg:p-12">
 
-            <div className="flex items-center gap-4">
+            {/* LOGO */}
 
+            <div className="flex items-center gap-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-blue-400/60 bg-blue-950/70 shadow-lg">
                 <span className="text-3xl font-bold text-white">
                   A
@@ -104,11 +118,11 @@ function Login() {
                   SUMMER BOOTCAMP
                 </p>
               </div>
-
             </div>
 
-            <div className="max-w-md">
+            {/* HERO TEXT */}
 
+            <div className="max-w-md">
               <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-blue-300">
                 ASTU MSJ Bootcamp
               </p>
@@ -126,12 +140,14 @@ function Login() {
               </h1>
 
               <p className="mt-6 max-w-md text-sm leading-7 text-gray-300">
-                Develop your skills, build real projects,
-                collaborate with your peers, and grow
-                together with the ASTU MSJ community.
+                Develop your skills, build real
+                projects, collaborate with your peers,
+                and grow together with the ASTU MSJ
+                community.
               </p>
-
             </div>
+
+            {/* COMMUNITY CARD */}
 
             <div className="max-w-md rounded-xl border border-blue-400/20 bg-blue-950/70 p-5 shadow-lg">
 
@@ -150,7 +166,8 @@ function Login() {
                   </p>
 
                   <p className="mt-1 text-sm text-gray-300">
-                    Learn, collaborate, and build together.
+                    Learn, collaborate, and build
+                    together.
                   </p>
                 </div>
 
@@ -159,32 +176,38 @@ function Login() {
             </div>
 
           </div>
-
         </section>
 
-        {/* ================= RIGHT SIDE ================= */}
+        {/* ===================================================
+            RIGHT SIDE
+        =================================================== */}
 
         <section className="flex min-h-[620px] items-center justify-center bg-[#F5F0E8] p-7 sm:p-9 lg:p-10">
 
           <div className="w-full max-w-[440px]">
 
-            <div className="mb-7">
+            {/* HEADER */}
 
+            <div className="mb-7">
               <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                 Welcome back
               </h1>
 
               <p className="mt-2 text-sm leading-6 text-gray-500">
-                Sign in to your ASTU MSJ Bootcamp account.
+                Sign in to your ASTU MSJ Bootcamp
+                account.
               </p>
-
             </div>
+
+            {/* ERROR */}
 
             {error && (
               <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
                 {error}
               </div>
             )}
+
+            {/* FORM */}
 
             <form
               onSubmit={handleSubmit}
@@ -194,7 +217,6 @@ function Login() {
               {/* EMAIL */}
 
               <div>
-
                 <label
                   htmlFor="email"
                   className="mb-2 block text-sm font-semibold text-gray-800"
@@ -224,13 +246,11 @@ function Login() {
                   />
 
                 </div>
-
               </div>
 
               {/* PASSWORD */}
 
               <div>
-
                 <label
                   htmlFor="password"
                   className="mb-2 block text-sm font-semibold text-gray-800"
@@ -266,10 +286,17 @@ function Login() {
                   <button
                     type="button"
                     onClick={() =>
-                      setShowPassword((prev) => !prev)
+                      setShowPassword(
+                        (prev) => !prev
+                      )
                     }
                     disabled={loading}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-800"
+                    aria-label={
+                      showPassword
+                        ? "Hide password"
+                        : "Show password"
+                    }
                   >
                     {showPassword ? (
                       <Eye size={18} />
@@ -279,7 +306,6 @@ function Login() {
                   </button>
 
                 </div>
-
               </div>
 
               {/* FORGOT PASSWORD */}
@@ -334,22 +360,19 @@ function Login() {
 
               </div>
 
-              {/* OTP */}
+              {/* FIRST LOGIN WITH OTP */}
 
-              <button
-                type="button"
-                disabled={loading}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-60"
+              <Link
+                to="/first-login"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
-
                 <ShieldCheck
                   size={18}
                   className="text-gray-800"
                 />
 
-                Login with OTP
-
-              </button>
+                First time login? Verify with OTP
+              </Link>
 
               {/* REGISTER */}
 

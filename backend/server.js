@@ -15,44 +15,79 @@ dotenv.config();
 
 const connectDB = require("./config/db");
 
-// ==========================================
+// =========================================================
 // ROUTES
-// ==========================================
+// =========================================================
 
-const moduleResourceRoutes = require("./routes/moduleResourceRoutes");
-const moduleRoutes = require("./routes/moduleRoutes");
+// Users & Authentication
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
+
+// Application / Registration
+const applicationFormRoutes = require("./routes/ApplicationFormRoutes");
+const courseRoutes = require("./routes/courseRoutes");
+const registrationRoutes = require("./routes/registrationRoutes");
+const registrationSettingsRoutes = require("./routes/registrationSettingsRoutes");
+
+// Email / Forms
+const emailTemplateRoutes = require("./routes/emailTemplateRoutes");
+const formQuestionRoutes = require("./routes/formQuestionRoutes");
+
+// Main System
 const mentorRoutes = require("./routes/mentorRoutes");
 const seasonRoutes = require("./routes/seasonRoutes");
 const batchRoutes = require("./routes/batchRoutes");
 const levelRoutes = require("./routes/levelRoutes");
 
+// Modules
+const moduleRoutes = require("./routes/moduleRoutes");
+const moduleResourceRoutes = require("./routes/moduleResourceRoutes");
+
+// Daily Tasks
 const dailyTaskRoutes = require("./routes/dailyTaskRoutes");
+
+// Attendance & Progress
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const progressRoutes = require("./routes/progressRoutes");
+
+// Sessions
+const sessionRoutes = require("./routes/sessionRoutes");
+
+// Google Meet
 const googleMeetRoutes = require("./routes/googleMeetRoutes");
 const googleMeetAttendanceRoutes = require(
   "./routes/googleMeetAttendanceRoutes"
 );
+
+// Analytics
 const analyticsRoutes = require("./routes/analyticsRoutes");
+
+// Assignments & Submissions
 const assignmentRoutes = require("./routes/assignmentRoutes");
 const submissionRoutes = require("./routes/SubmissionRoutes");
-const sessionRoutes = require("./routes/sessionRoutes");
 
+// Announcements & Notifications
+const announcementRoutes = require("./routes/AnnouncementRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+
+// Super Admin
 const superAdminRoutes = require("./routes/superAdminRoutes");
 
-// ==========================================
+// FAQ & About
+const faqRoutes = require("./routes/faqRoutes");
+const aboutRoutes = require("./routes/aboutRoutes");
+
+// =========================================================
 // APP CONFIG
-// ==========================================
+// =========================================================
 
 const app = express();
 
 const PORT = process.env.PORT || 5000;
 
-// ==========================================
+// =========================================================
 // MIDDLEWARE
-// ==========================================
+// =========================================================
 
 app.use(
   cors({
@@ -69,9 +104,9 @@ app.use(
   })
 );
 
-// ==========================================
+// =========================================================
 // HEALTH / TEST ROUTES
-// ==========================================
+// =========================================================
 
 app.get("/", (req, res) => {
   res.json({
@@ -88,155 +123,233 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// ==========================================
-// DAILY TASKS
-// ==========================================
+// =========================================================
+// API ROUTES
+// =========================================================
+
+// ---------------------------------------------------------
+// Users
+// ---------------------------------------------------------
+
+app.use("/api/users", userRoutes);
+
+// ---------------------------------------------------------
+// Authentication
+// ---------------------------------------------------------
+
+app.use("/api/auth", authRoutes);
+
+// ---------------------------------------------------------
+// Courses
+// ---------------------------------------------------------
+
+app.use("/api/courses", courseRoutes);
+
+// ---------------------------------------------------------
+// Application Forms
+// ---------------------------------------------------------
 
 app.use(
-  "/api/daily-tasks",
-  dailyTaskRoutes
+  "/api/application-forms",
+  applicationFormRoutes
 );
 
-// ==========================================
-// USERS & AUTHENTICATION
-// ==========================================
+// ---------------------------------------------------------
+// Registration
+// ---------------------------------------------------------
 
 app.use(
-  "/api/users",
-  userRoutes
+  "/api/registrations",
+  registrationRoutes
 );
 
-app.use(
-  "/api/auth",
-  authRoutes
-);
-// ==========================================
-// GOOGLE MEET ATTENDANCE
-// ==========================================
+// ---------------------------------------------------------
+// Registration Settings
+// ---------------------------------------------------------
 
 app.use(
-  "/api/google-meet",
-  googleMeetRoutes
-);
-// ==========================================
-// LEVELS
-// ==========================================
-app.use(
-  "/api/google-meet-attendance",
-  googleMeetAttendanceRoutes
-);
-app.use(
-  "/api/levels",
-  levelRoutes
+  "/api/registration-settings",
+  registrationSettingsRoutes
 );
 
-// ==========================================
-// MODULES
-// ==========================================
+// ---------------------------------------------------------
+// Email Templates
+// ---------------------------------------------------------
 
 app.use(
-  "/api/modules",
-  moduleRoutes
+  "/api/email-templates",
+  emailTemplateRoutes
 );
+
+// ---------------------------------------------------------
+// Form Questions
+// ---------------------------------------------------------
+
+app.use(
+  "/api/form-questions",
+  formQuestionRoutes
+);
+
+// ---------------------------------------------------------
+// Seasons
+// ---------------------------------------------------------
+
+app.use("/api/seasons", seasonRoutes);
+
+// ---------------------------------------------------------
+// Mentors
+// ---------------------------------------------------------
+
+app.use("/api/mentors", mentorRoutes);
+
+// ---------------------------------------------------------
+// Batches
+// ---------------------------------------------------------
+
+app.use("/api/batches", batchRoutes);
+
+// ---------------------------------------------------------
+// Levels
+// ---------------------------------------------------------
+
+app.use("/api/levels", levelRoutes);
+
+// ---------------------------------------------------------
+// Modules
+// ---------------------------------------------------------
+
+app.use("/api/modules", moduleRoutes);
 
 app.use(
   "/api/module-resources",
   moduleResourceRoutes
 );
 
-// ==========================================
-// SEASONS
-// ==========================================
+// ---------------------------------------------------------
+// Daily Tasks
+// ---------------------------------------------------------
 
 app.use(
-  "/api/seasons",
-  seasonRoutes
+  "/api/daily-tasks",
+  dailyTaskRoutes
 );
 
-// ==========================================
-// MENTORS
-// ==========================================
-
-app.use(
-  "/api/mentors",
-  mentorRoutes
-);
-
-// ==========================================
-// ANALYTICS
-// ==========================================
-
-app.use(
-  "/api/analytics",
-  analyticsRoutes
-);
-
-// ==========================================
-// BATCHES
-// ==========================================
-
-app.use(
-  "/api/batches",
-  batchRoutes
-);
-
-// ==========================================
-// ATTENDANCE
-// ==========================================
+// ---------------------------------------------------------
+// Attendance
+// ---------------------------------------------------------
 
 app.use(
   "/api/attendance",
   attendanceRoutes
 );
 
-// ==========================================
-// SESSIONS
-// ==========================================
+// ---------------------------------------------------------
+// Sessions
+// ---------------------------------------------------------
 
 app.use(
   "/api/sessions",
   sessionRoutes
 );
 
-// ==========================================
-// PROGRESS
-// ==========================================
+// ---------------------------------------------------------
+// Progress
+// ---------------------------------------------------------
 
 app.use(
   "/api/progress",
   progressRoutes
 );
 
-// ==========================================
-// ASSIGNMENTS
-// ==========================================
+// ---------------------------------------------------------
+// Assignments
+// ---------------------------------------------------------
 
 app.use(
   "/api/assignments",
   assignmentRoutes
 );
 
-// ==========================================
-// SUBMISSIONS
-// ==========================================
+// ---------------------------------------------------------
+// Submissions
+// ---------------------------------------------------------
 
 app.use(
   "/api/submissions",
   submissionRoutes
 );
 
-// ==========================================
-// SUPER ADMIN
-// ==========================================
+// ---------------------------------------------------------
+// Google Meet
+// ---------------------------------------------------------
+
+app.use(
+  "/api/google-meet",
+  googleMeetRoutes
+);
+
+app.use(
+  "/api/google-meet-attendance",
+  googleMeetAttendanceRoutes
+);
+
+// ---------------------------------------------------------
+// Analytics
+// ---------------------------------------------------------
+
+app.use(
+  "/api/analytics",
+  analyticsRoutes
+);
+
+// ---------------------------------------------------------
+// Announcements
+// ---------------------------------------------------------
+
+app.use(
+  "/api/announcements",
+  announcementRoutes
+);
+
+// ---------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------
+
+app.use(
+  "/api/notifications",
+  notificationRoutes
+);
+
+// ---------------------------------------------------------
+// Super Admin
+// ---------------------------------------------------------
 
 app.use(
   "/api/superadmin",
   superAdminRoutes
 );
 
-// ==========================================
+// ---------------------------------------------------------
+// FAQ
+// ---------------------------------------------------------
+
+app.use(
+  "/api/faqs",
+  faqRoutes
+);
+
+// ---------------------------------------------------------
+// About
+// ---------------------------------------------------------
+
+app.use(
+  "/api/about",
+  aboutRoutes
+);
+
+// =========================================================
 // 404 HANDLER
-// ==========================================
+// =========================================================
 
 app.use((req, res) => {
   res.status(404).json({
@@ -245,9 +358,9 @@ app.use((req, res) => {
   });
 });
 
-// ==========================================
+// =========================================================
 // GLOBAL ERROR HANDLER
-// ==========================================
+// =========================================================
 
 app.use((err, req, res, next) => {
   console.error("==========================================");
@@ -257,15 +370,13 @@ app.use((err, req, res, next) => {
 
   res.status(err.status || 500).json({
     success: false,
-    message:
-      err.message ||
-      "Internal server error",
+    message: err.message || "Internal server error",
   });
 });
 
-// ==========================================
+// =========================================================
 // START SERVER
-// ==========================================
+// =========================================================
 
 const startServer = async () => {
   try {
@@ -273,28 +384,121 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log("==========================================");
-      console.log(
-        "Bootcamp Management System Backend"
-      );
+      console.log("Bootcamp Management System Backend");
       console.log("==========================================");
+
       console.log(
         `Server running on http://localhost:${PORT}`
       );
+
       console.log(
         `Health check: http://localhost:${PORT}/api/health`
       );
+
       console.log(
-        `Sessions API: http://localhost:${PORT}/api/sessions`
+        `Users API: http://localhost:${PORT}/api/users`
       );
+
       console.log(
-        `Attendance API: http://localhost:${PORT}/api/attendance`
+        `Authentication API: http://localhost:${PORT}/api/auth`
       );
+
       console.log(
-        `Progress API: http://localhost:${PORT}/api/progress`
+        `Application Forms: http://localhost:${PORT}/api/application-forms`
       );
+
+      console.log(
+        `Courses: http://localhost:${PORT}/api/courses`
+      );
+
+      console.log(
+        `Registration API: http://localhost:${PORT}/api/registrations`
+      );
+
+      console.log(
+        `Registration Settings: http://localhost:${PORT}/api/registration-settings`
+      );
+
+      console.log(
+        `Email Templates: http://localhost:${PORT}/api/email-templates`
+      );
+
+      console.log(
+        `Form Questions: http://localhost:${PORT}/api/form-questions`
+      );
+
+      console.log(
+        `Seasons API: http://localhost:${PORT}/api/seasons`
+      );
+
       console.log(
         `Mentor API: http://localhost:${PORT}/api/mentors`
       );
+
+      console.log(
+        `Batches API: http://localhost:${PORT}/api/batches`
+      );
+
+      console.log(
+        `Levels API: http://localhost:${PORT}/api/levels`
+      );
+
+      console.log(
+        `Modules API: http://localhost:${PORT}/api/modules`
+      );
+
+      console.log(
+        `Daily Tasks API: http://localhost:${PORT}/api/daily-tasks`
+      );
+
+      console.log(
+        `Attendance API: http://localhost:${PORT}/api/attendance`
+      );
+
+      console.log(
+        `Sessions API: http://localhost:${PORT}/api/sessions`
+      );
+
+      console.log(
+        `Progress API: http://localhost:${PORT}/api/progress`
+      );
+
+      console.log(
+        `Assignments API: http://localhost:${PORT}/api/assignments`
+      );
+
+      console.log(
+        `Submissions API: http://localhost:${PORT}/api/submissions`
+      );
+
+      console.log(
+        `Announcements API: http://localhost:${PORT}/api/announcements`
+      );
+
+      console.log(
+        `Notifications API: http://localhost:${PORT}/api/notifications`
+      );
+
+      console.log(
+        `Google Meet API: http://localhost:${PORT}/api/google-meet`
+      );
+
+      console.log(
+        `Analytics API: http://localhost:${PORT}/api/analytics`
+      );
+
+      console.log(
+        `Super Admin API: http://localhost:${PORT}/api/superadmin`
+      );
+
+      console.log(
+        `FAQ API: http://localhost:${PORT}/api/faqs`
+      );
+
+      console.log(
+        `About API: http://localhost:${PORT}/api/about`
+      );
+
       console.log("==========================================");
     });
   } catch (error) {

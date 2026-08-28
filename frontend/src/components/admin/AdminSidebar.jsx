@@ -33,7 +33,11 @@ function AdminSidebar() {
       icon: Layers,
     },
 
-    
+    {
+      name: "Daily Task",
+      path: "/admin/daily-tasks",
+      icon: Layers,
+    },
     {
       name: "Announcements",
       path: "/admin/announcements",
@@ -53,18 +57,27 @@ function AdminSidebar() {
       name: "Attendance Session",
       path: "/admin/sessions",
       icon: Layers,
+      name: "FAQs",
+      path: "/admin/faqs",
+      icon: FileText,
+    },
+    {
+      name: "Registrations",
+      path: "/admin/registrations",
+      icon: ClipboardList,
     },
      {
       name: "Attendance",
       path: "/admin/attendance",
       icon: ClipboardList,
     },
-      {
-        name: "Registrations",
-        path: "/admin/registrations",
-        icon: ClipboardList,
-      },
    
+   
+    {
+      name: "Assignment",
+      path: "/admin/assignments",
+      icon: ClipboardList,
+    },
     {
       name: "Applications",
       path: "/admin/applications",
@@ -86,7 +99,6 @@ function AdminSidebar() {
     <aside className="fixed left-0 top-0 z-40 h-screen w-58 border-r border-[#26364a] bg-[#071629] text-white">
       <div className="flex h-full flex-col">
 
-        {/* Logo */}
         <div className="flex items-center gap-3 border-b border-[#26364a] px-6 py-5">
           <img
             src="/logo.jpg"
@@ -134,7 +146,6 @@ function AdminSidebar() {
           </div>
         </nav>
 
-        {/* Admin profile */}
         <div className="border-t border-[#26364a] p-4">
 
           <div className="mb-3 rounded-lg bg-[#18273a] px-4 py-3">
@@ -147,13 +158,11 @@ function AdminSidebar() {
             </p>
           </div>
 
-          {/* Logout */}
           <button
             onClick={logout}
             className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium text-[#aeb5bd] transition-all duration-200 hover:bg-[#101f31] hover:text-white"
           >
             <LogOut size={19} strokeWidth={1.8} />
-
             <span>Logout</span>
           </button>
 

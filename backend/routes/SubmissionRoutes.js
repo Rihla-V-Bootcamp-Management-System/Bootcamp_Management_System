@@ -14,12 +14,22 @@ const roleMiddleware = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
+// ======================================================
+// STUDENT
+// ======================================================
+
+// Submit / resubmit assignment
+// POST /api/submissions/:assignmentId
+
 router.post(
   "/:assignmentId",
   authMiddleware,
   roleMiddleware("student"),
   createSubmission
 );
+
+// Student's own submissions
+// GET /api/submissions/my
 
 router.get(
   "/my",
@@ -28,19 +38,22 @@ router.get(
   getMySubmissions
 );
 
+// ======================================================
+// MENTOR
+// ======================================================
+
+// All submissions from mentor's batches
+// GET /api/submissions/mentor
+
 router.get(
-  "/mentor/submissions",
+  "/mentor",
   authMiddleware,
   roleMiddleware("mentor"),
   getMentorSubmissions
 );
 
-router.get(
-  "/assignment/:assignmentId",
-  authMiddleware,
-  roleMiddleware("admin", "mentor"),
-  getAssignmentSubmissions
-);
+// Grade submission
+// PATCH /api/submissions/:id/grade
 
 router.patch(
   "/:id/grade",
@@ -49,11 +62,28 @@ router.patch(
   gradeSubmission
 );
 
+// Request resubmission
+// PATCH /api/submissions/:id/resubmit
+
 router.patch(
-  "/:id/request-resubmission",
+  "/:id/resubmit",
   authMiddleware,
   roleMiddleware("mentor"),
   requestResubmission
+);
+
+// ======================================================
+// ADMIN + MENTOR
+// ======================================================
+
+// All submissions for one assignment
+// GET /api/submissions/assignment/:assignmentId
+
+router.get(
+  "/assignment/:assignmentId",
+  authMiddleware,
+  roleMiddleware("admin", "mentor"),
+  getAssignmentSubmissions
 );
 
 module.exports = router;

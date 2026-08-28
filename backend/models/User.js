@@ -1,10 +1,11 @@
+
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    // ==============================
+    // =========================================================
     // BASIC INFORMATION
-    // ==============================
+    // =========================================================
 
     name: {
       type: String,
@@ -12,7 +13,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
-        email: {
+    email: {
       type: String,
       required: true,
       unique: true,
@@ -21,10 +22,11 @@ const userSchema = new mongoose.Schema(
     },
 
     googleUserId: {
-  type: String,
-  default: null,
-  trim: true,
-},
+      type: String,
+      default: null,
+      trim: true,
+    },
+
     password: {
       type: String,
       required: function () {
@@ -33,20 +35,35 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
-    // ==============================
+    // =========================================================
+    // USER ID
+    // =========================================================
+
+    userID: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+
+    // =========================================================
     // ROLE
-    // ==============================
+    // =========================================================
 
     role: {
       type: String,
-      enum: ["superadmin", "admin", "mentor", "student"],
+      enum: [
+        "superadmin",
+        "admin",
+        "mentor",
+        "student",
+      ],
       default: "student",
       required: true,
     },
 
-    // ==============================
+    // =========================================================
     // MENTOR INFORMATION
-    // ==============================
+    // =========================================================
 
     phone: {
       type: String,
@@ -60,9 +77,22 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
-    // ==============================
-    // MENTOR ASSIGNMENT
-    // ==============================
+    // =========================================================
+    // GENDER
+    // =========================================================
+
+    gender: {
+      type: String,
+      enum: ["Male", "Female"],
+      default: null,
+      required: function () {
+        return this.role === "student";
+      },
+    },
+
+    // =========================================================
+    // ASSIGNED MENTOR
+    // =========================================================
 
     assignedMentor: {
       type: mongoose.Schema.Types.ObjectId,
@@ -70,9 +100,9 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
-    // ==============================
+    // =========================================================
     // BATCH
-    // ==============================
+    // =========================================================
 
     batchId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -80,14 +110,42 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
-    // ==============================
-    // PASSWORD / OTP
-    // ==============================
+    // =========================================================
+    // PASSWORD RESET / FIRST LOGIN
+    // =========================================================
 
     mustResetPassword: {
       type: Boolean,
       default: false,
     },
+
+    // =========================================================
+    // ACCOUNT STATUS
+    // =========================================================
+
+    accountStatus: {
+      type: String,
+      enum: ["pending", "active"],
+      default: "active",
+    },
+
+    // =========================================================
+    // INVITATION TOKEN
+    // =========================================================
+
+    invitationToken: {
+      type: String,
+      default: null,
+    },
+
+    invitationTokenExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    // =========================================================
+    // OTP
+    // =========================================================
 
     otp: {
       type: String,
@@ -103,22 +161,49 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-
-    // ==============================
-    // STUDENT INFORMATION
-    // ==============================
-
-    gender: {
-      type: String,
-      enum: ["Male", "Female"],
-      required: function () {
-        return this.role === "student";
-      },
-    },
   },
   {
     timestamps: true,
   }
 );
 
+// =========================================================
+// AUTOMATIC USER ID
+// =========================================================
+//
+// IMPORTANT:
+// This middleware intentionally does NOT use next().
+// It uses the async Mongoose middleware style.
+//
+// =========================================================
+
+userSchema.pre("save", async function () {
+  // If user already has a userID, do nothing.
+  if (this.userID) {
+    return;
+  }
+
+  let userID;
+  let exists = true;
+
+  while (exists) {
+    const randomNumber = Math.floor(
+      100000 + Math.random() * 900000
+    );
+
+    userID = `USER${randomNumber}`;
+
+    exists = await mongoose.models.User.exists({
+      userID,
+    });
+  }
+
+  this.userID = userID;
+});
+
+// =========================================================
+// EXPORT
+// =========================================================
+
 module.exports = mongoose.model("User", userSchema);
+

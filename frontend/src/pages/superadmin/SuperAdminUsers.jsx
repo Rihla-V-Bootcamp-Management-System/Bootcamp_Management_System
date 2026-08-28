@@ -169,6 +169,14 @@ function SuperAdminUsers() {
 
       setMessage(data.message);
 
+      // Remove deleted user immediately from the frontend.
+      setUsers((currentUsers) =>
+        currentUsers.filter(
+          (user) => user._id !== userId
+        )
+      );
+
+      // Refresh from backend to keep frontend and database in sync.
       await loadUsers();
     } catch (err) {
       setError(
@@ -222,12 +230,20 @@ function SuperAdminUsers() {
     (user) => user.role === "mentor"
   ).length;
 
+  const superAdminCount = users.filter(
+    (user) => user.role === "superadmin"
+  ).length;
+
   const studentCount = users.filter(
     (user) => user.role === "student"
   ).length;
 
   const getRoleIcon = (roleValue) => {
     if (roleValue === "admin") {
+      return <ShieldCheck size={16} />;
+    }
+
+    if (roleValue === "superadmin") {
       return <ShieldCheck size={16} />;
     }
 
@@ -256,8 +272,8 @@ function SuperAdminUsers() {
           <h2>Users</h2>
 
           <p>
-            Manage administrators, mentors, and students in
-            the system.
+            Manage administrators, mentors, super administrators,
+            and students in the system.
           </p>
         </div>
       </div>
@@ -268,8 +284,8 @@ function SuperAdminUsers() {
             <h3>Assign User</h3>
 
             <p>
-              Create an Admin or Mentor account and send an
-              invitation.
+              Create an Admin, Mentor, or Super Admin account
+              and send an invitation.
             </p>
           </div>
 
@@ -325,6 +341,10 @@ function SuperAdminUsers() {
 
               <option value="admin">
                 Admin
+              </option>
+
+              <option value="superadmin">
+                Super Admin
               </option>
             </select>
           </div>
@@ -391,6 +411,17 @@ function SuperAdminUsers() {
 
         <div className="users-summary-card">
           <div className="users-summary-icon">
+            <ShieldCheck size={18} />
+          </div>
+
+          <div>
+            <span>Super Admins</span>
+            <strong>{superAdminCount}</strong>
+          </div>
+        </div>
+
+        <div className="users-summary-card">
+          <div className="users-summary-icon">
             <GraduationCap size={18} />
           </div>
 
@@ -436,6 +467,10 @@ function SuperAdminUsers() {
 
                 <option value="Mentor">
                   Mentor
+                </option>
+
+                <option value="Super Admin">
+                  Super Admin
                 </option>
 
                 <option value="Student">
@@ -500,7 +535,8 @@ function SuperAdminUsers() {
 
                     const canDelete =
                       user.role === "admin" ||
-                      user.role === "mentor";
+                      user.role === "mentor" ||
+                      user.role === "superadmin";
 
                     return (
                       <tr key={user._id}>

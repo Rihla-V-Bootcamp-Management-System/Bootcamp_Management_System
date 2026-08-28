@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { KeyRound, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -17,37 +16,70 @@ function FirstLogin() {
 
     setError("");
 
-    if (!userId.trim()) {
+    const trimmedUserId = userId.trim();
+    const trimmedOtp = otp.trim();
+
+    if (!trimmedUserId) {
       setError("Please enter your User ID.");
       return;
     }
 
-    if (!otp.trim()) {
+    if (!trimmedOtp) {
       setError("Please enter your OTP.");
+      return;
+    }
+
+    if (trimmedOtp.length !== 6) {
+      setError("OTP must be 6 digits.");
       return;
     }
 
     setLoading(true);
 
     try {
+      console.log("Sending OTP verification:", {
+        userID: trimmedUserId,
+        otp: trimmedOtp,
+      });
+
       const response = await apiClient.post(
         "/auth/verify-otp",
         {
-          userID: userId.trim(),
-          otp: otp.trim(),
+          userID: trimmedUserId,
+          otp: trimmedOtp,
         }
       );
 
-      if (response.data.verified === true) {
+      console.log(
+        "OTP verification response:",
+        response.data
+      );
+
+      if (response.data?.verified === true) {
         navigate("/set-password", {
           state: {
-            userID: userId.trim(),
-            otp: otp.trim(),
+            userID: trimmedUserId,
+            otp: trimmedOtp,
           },
         });
+
+        return;
       }
+
+      setError(
+        response.data?.message ||
+          "OTP verification was unsuccessful."
+      );
     } catch (error) {
-      console.error("OTP verification failed:", error);
+      console.error(
+        "OTP verification failed:",
+        error
+      );
+
+      console.error(
+        "Server response:",
+        error.response?.data
+      );
 
       setError(
         error.response?.data?.message ||
@@ -62,11 +94,15 @@ function FirstLogin() {
     <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
 
+        {/* ICON */}
+
         <div className="flex justify-center mb-5">
           <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
             <ShieldCheck className="w-7 h-7 text-blue-600" />
           </div>
         </div>
+
+        {/* HEADER */}
 
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">
@@ -78,10 +114,15 @@ function FirstLogin() {
           </p>
         </div>
 
+        {/* FORM */}
+
         <form
           onSubmit={handleSubmit}
           className="space-y-5"
         >
+
+          {/* USER ID */}
+
           <div>
             <label
               htmlFor="userId"
@@ -104,10 +145,13 @@ function FirstLogin() {
                   setUserId(e.target.value)
                 }
                 placeholder="Enter your User ID"
+                autoComplete="off"
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
+
+          {/* OTP */}
 
           <div>
             <label
@@ -122,20 +166,32 @@ function FirstLogin() {
               type="text"
               inputMode="numeric"
               value={otp}
-              onChange={(e) =>
-                setOtp(e.target.value)
-              }
+              onChange={(e) => {
+                const value =
+                  e.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, 6);
+
+                setOtp(value);
+              }}
               placeholder="Enter your OTP"
               maxLength={6}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+              autoComplete="one-time-code"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
+          {/* ERROR */}
+
           {error && (
-            <p className="text-sm text-red-500">
-              {error}
-            </p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-600">
+                {error}
+              </p>
+            </div>
           )}
+
+          {/* BUTTON */}
 
           <button
             type="submit"
@@ -148,14 +204,16 @@ function FirstLogin() {
           </button>
         </form>
 
+        {/* FOOTER */}
+
         <p className="text-xs text-gray-400 text-center mt-6">
           Your OTP was provided when your application
           was accepted.
         </p>
+
       </div>
     </main>
   );
 }
 
 export default FirstLogin;
-

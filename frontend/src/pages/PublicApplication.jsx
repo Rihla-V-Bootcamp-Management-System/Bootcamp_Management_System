@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import DynamicForm from "../components/DynamicForm";
 import apiClient from "../services/apiClient";
@@ -5,21 +6,22 @@ import apiClient from "../services/apiClient";
 function PublicApplication() {
   const [seasonId, setSeasonId] = useState("");
   const [season, setSeason] = useState(null);
-
   const [schema, setSchema] = useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const [loadingSeason, setLoadingSeason] = useState(true);
+  const [loadingForm, setLoadingForm] = useState(false);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // ==========================================
+  // =========================================================
   // LOAD CURRENT SEASON
-  // ==========================================
+  // =========================================================
 
   useEffect(() => {
     const loadCurrentSeason = async () => {
       try {
-        setLoading(true);
+        setLoadingSeason(true);
         setError("");
 
         const response = await apiClient.get(
@@ -35,6 +37,10 @@ function PublicApplication() {
           return;
         }
 
+        // -----------------------------------------------------
+        // SUPER ADMIN CONTROLS THIS
+        // -----------------------------------------------------
+
         if (!currentSeason.isOpen) {
           setError(
             "Registration is currently closed."
@@ -44,62 +50,68 @@ function PublicApplication() {
 
         setSeason(currentSeason);
         setSeasonId(currentSeason._id);
-      } catch (error) {
+
+      } catch (err) {
         console.error(
-          "Error loading current season:",
-          error
+          "LOAD CURRENT SEASON ERROR:",
+          err
         );
 
         setError(
-          error.response?.data?.message ||
+          err.response?.data?.message ||
             "Unable to load the current registration season."
         );
+      } finally {
+        setLoadingSeason(false);
       }
     };
 
     loadCurrentSeason();
   }, []);
 
-  // ==========================================
-  // LOAD APPLICATION FORM
-  // ==========================================
+  // =========================================================
+  // LOAD APPLICATION FORM FOR CURRENT SEASON
+  // =========================================================
 
   useEffect(() => {
-    if (!seasonId) {
-      return;
-    }
+    if (!seasonId) return;
 
     const loadApplicationForm = async () => {
       try {
-        setLoading(true);
+        setLoadingForm(true);
         setError("");
 
         const response = await apiClient.get(
           `/application-forms/${seasonId}`
         );
 
-        setSchema(response.data.fields || []);
-      } catch (error) {
+        setSchema(
+          Array.isArray(response.data?.fields)
+            ? response.data.fields
+            : []
+        );
+
+      } catch (err) {
         console.error(
-          "Error loading application form:",
-          error
+          "LOAD APPLICATION FORM ERROR:",
+          err
         );
 
         setError(
-          error.response?.data?.message ||
+          err.response?.data?.message ||
             "Application form is currently unavailable."
         );
       } finally {
-        setLoading(false);
+        setLoadingForm(false);
       }
     };
 
     loadApplicationForm();
   }, [seasonId]);
 
-  // ==========================================
+  // =========================================================
   // SUBMIT APPLICATION
-  // ==========================================
+  // =========================================================
 
   const handleSubmit = async (responses) => {
     try {
@@ -116,14 +128,15 @@ function PublicApplication() {
       );
 
       return true;
-    } catch (error) {
+
+    } catch (err) {
       console.error(
-        "Error submitting application:",
-        error
+        "SUBMIT APPLICATION ERROR:",
+        err
       );
 
       setError(
-        error.response?.data?.message ||
+        err.response?.data?.message ||
           "Failed to submit application. Please try again."
       );
 
@@ -131,95 +144,169 @@ function PublicApplication() {
     }
   };
 
-  // ==========================================
-  // LOADING
-  // ==========================================
+  // =========================================================
+  // LOADING SEASON
+  // =========================================================
 
-  if (loading) {
+  if (loadingSeason) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">
-          Loading application form...
-        </p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+
+        <div className="text-center">
+
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900" />
+
+          <p className="text-sm text-gray-600">
+            Checking registration availability...
+          </p>
+
+        </div>
+
       </div>
     );
   }
 
-  // ==========================================
-  // ERROR
-  // ==========================================
+  // =========================================================
+  // REGISTRATION CLOSED / ERROR
+  // =========================================================
 
-  if (error && schema.length === 0) {
+  if (error && !seasonId) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
-        <div className="text-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
 
-          <p className="text-red-600 mb-4">
+        <div className="w-full max-w-lg rounded-xl bg-white p-8 text-center shadow-lg">
+
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
+
+            <span className="text-2xl">
+              !
+            </span>
+
+          </div>
+
+          <h1 className="text-2xl font-bold text-gray-900">
+            Registration Unavailable
+          </h1>
+
+          <p className="mt-3 text-gray-600">
             {error}
           </p>
 
           <button
             type="button"
-            onClick={() => window.location.reload()}
-            className="rounded-lg bg-black px-6 py-3 text-white hover:bg-gray-800"
+            onClick={() =>
+              window.location.reload()
+            }
+            className="mt-6 rounded-lg bg-[#071629] px-6 py-3 text-sm font-medium text-white hover:bg-[#10233b]"
           >
             Try Again
           </button>
 
         </div>
+
       </div>
     );
   }
 
-  // ==========================================
-  // APPLICATION FORM
-  // ==========================================
+  // =========================================================
+  // LOADING FORM
+  // =========================================================
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+  if (loadingForm) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
 
-      <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-xl p-8">
-
-        <h1 className="text-3xl font-bold text-gray-900">
-          Bootcamp Application
-        </h1>
-
-        {season && (
-          <p className="text-gray-600 mt-2">
-            Applying for:{" "}
-            <span className="font-medium">
-              {season.name}
-            </span>
-          </p>
-        )}
-
-        <p className="text-gray-600 mt-2 mb-8">
-          Complete the form below to apply for the
-          bootcamp.
+        <p className="text-sm text-gray-600">
+          Loading application form...
         </p>
 
-        {error && (
-          <div className="mb-6 rounded-lg bg-red-50 p-4 text-red-600">
-            {error}
-          </div>
-        )}
+      </div>
+    );
+  }
 
-        {success && (
-          <div className="mb-6 rounded-lg bg-green-50 p-4 text-green-700">
-            {success}
-          </div>
-        )}
+  // =========================================================
+  // APPLICATION FORM
+  // =========================================================
 
-        {schema.length > 0 ? (
-          <DynamicForm
-            schema={schema}
-            onSubmit={handleSubmit}
-          />
-        ) : (
-          <p className="text-gray-500">
-            No application fields have been configured yet.
-          </p>
-        )}
+  return (
+    <div className="min-h-screen bg-gray-50 px-4 py-12">
+
+      <div className="mx-auto max-w-2xl">
+
+        <div className="rounded-xl bg-white p-8 shadow-lg">
+
+          {/* =================================================
+              HEADER
+          ================================================== */}
+
+          <div className="mb-8">
+
+            <h1 className="text-3xl font-bold text-gray-900">
+              Bootcamp Application
+            </h1>
+
+            {season?.name && (
+              <p className="mt-2 text-gray-600">
+                Applying for:
+                {" "}
+                <span className="font-semibold text-gray-900">
+                  {season.name}
+                </span>
+              </p>
+            )}
+
+            <p className="mt-3 text-gray-600">
+              Complete the form below to apply for the
+              bootcamp.
+            </p>
+
+          </div>
+
+          {/* =================================================
+              ERROR
+          ================================================== */}
+
+          {error && (
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          {/* =================================================
+              SUCCESS
+          ================================================== */}
+
+          {success && (
+            <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+              {success}
+            </div>
+          )}
+
+          {/* =================================================
+              FORM
+          ================================================== */}
+
+          {schema.length > 0 ? (
+
+            <DynamicForm
+              schema={schema}
+              onSubmit={handleSubmit}
+            />
+
+          ) : (
+
+            <div className="rounded-lg bg-gray-50 p-6 text-center">
+
+              <p className="text-sm text-gray-500">
+                The application form has not been configured
+                yet.
+              </p>
+
+            </div>
+
+          )}
+
+        </div>
 
       </div>
 
@@ -228,3 +315,4 @@ function PublicApplication() {
 }
 
 export default PublicApplication;
+

@@ -9,21 +9,26 @@ const batchSchema = new mongoose.Schema(
       unique: true,
     },
 
-    // When the batch started
     startDate: {
       type: Date,
       required: true,
     },
 
-    // Daily/session attendance interval
     sessionStartTime: {
       type: String,
+      required: true,
       default: "09:00",
     },
 
     sessionEndTime: {
       type: String,
+      required: true,
       default: "13:00",
+    },
+
+    endDate: {
+      type: Date,
+      default: null,
     },
 
     mentorIds: [

@@ -1,4 +1,4 @@
-import hero from "../assets/Hero.png";
+import hero from "../assets/hero.png";
 
 function Hero({ onRegistered}) {
   return (

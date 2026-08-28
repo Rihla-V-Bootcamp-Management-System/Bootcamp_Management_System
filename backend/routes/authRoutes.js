@@ -1,47 +1,46 @@
 const express = require("express");
 
-const router = express.Router();
+const authMiddleware = require("../middleware/authMiddleware");
+const roleMiddleware = require("../middleware/roleMiddleware");
 
 const {
   registerUser,
-  registerMentor,
   loginUser,
+  verifyOtp,
+  setPassword,
   getUserById,
+  getUsers,
 } = require("../controllers/authControllers");
 
-// =====================================================
-// STUDENT REGISTRATION
-// =====================================================
+const router = express.Router();
 
-router.post(
-  "/register",
-  registerUser
-);
+// REGISTER
+router.post("/register", registerUser);
 
-// =====================================================
-// MENTOR REGISTRATION
-// =====================================================
-
-router.post(
-  "/register-mentor",
-  registerMentor
-);
-
-// =====================================================
 // LOGIN
-// =====================================================
+router.post("/login", loginUser);
 
-router.post(
-  "/login",
-  loginUser
+// VERIFY OTP
+router.post("/verify-otp", verifyOtp);
+
+// SET PASSWORD
+router.post("/set-password", setPassword);
+
+// GET ALL USERS
+// SUPERADMIN ONLY
+router.get(
+  "/users",
+  authMiddleware,
+  roleMiddleware("superadmin"),
+  getUsers
 );
 
-// =====================================================
-// GET USER BY ID
-// =====================================================
-
+// GET SINGLE USER
+// ADMIN / SUPERADMIN
 router.get(
-  "/users/:id",
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin", "superadmin"),
   getUserById
 );
 
