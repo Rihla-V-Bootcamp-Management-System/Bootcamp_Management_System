@@ -152,6 +152,7 @@ function DashboardLayout({ role }) {
         };
       }
 
+
       if (path.includes("/admin/levels")) {
         return {
           title: "Levels",
@@ -311,6 +312,7 @@ function DashboardLayout({ role }) {
         };
       }
 
+
       if (path.includes("/student/submissions")) {
         return {
           title: "Submissions",
@@ -407,7 +409,7 @@ function DashboardLayout({ role }) {
           MAIN CONTENT
       ===================================================== */}
 
-      <div className="lg:ml-64">
+      <div className="flex-1 w-full lg:ml-64 overflow-x-hidden">
 
         {/* ===================================================
             TOP HEADER
@@ -432,6 +434,7 @@ function DashboardLayout({ role }) {
                 <h1 className="text-lg font-semibold text-slate-900 dark:text-white">
                   {pageInfo.title}
                 </h1>
+
 
                 <p className="hidden text-xs text-slate-500 sm:block dark:text-slate-400">
                   {pageInfo.description}
