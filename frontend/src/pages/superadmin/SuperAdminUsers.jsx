@@ -174,6 +174,17 @@ function SuperAdminUsers() {
     return "Student";
   };
 
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  };
+
+
   return (
     <div className="users-page">
       <div className="users-heading">

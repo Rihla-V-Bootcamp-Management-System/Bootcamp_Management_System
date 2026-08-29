@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Sparkles, Code2, Cpu, Network, Database, Layers } from "lucide-react";
 
 import sulamImg from "../assets/5798480543283351394_120.jpg";
+import abimg from "../assets/image.png"
 import abdulazizImg from "../assets/5798480543283351407_121.jpg";
 import nebiyuImg from "../assets/5888653338713197840_121.jpg";
 import fatiyaImg from "../assets/13721973862246817.jpg";
@@ -17,24 +18,26 @@ function Mentors() {
   const mentorsList = [
     {
       id: "temkin",
-      name: "Temkin Abdulmelik",
+      name: "Abdallah Abdurezak",
       badge: "Full-Stack Development",
       roleTitle: "FULL-STACK WEB DEVELOPMENT MENTOR",
       category: "AI Track",
       bio: "Dedicated instructor guiding students through modern full-stack web architecture, React component systems, and scalable backend services.",
-      image: temkinImg,
+      image: abimg,
       icon: Code2,
     },
     {
       id: "sulam",
-      name: "Sulam Husen",
+      name: "Sadam Husen",
       badge: "Web Dev & Architecture",
       roleTitle: "LEAD WEB MENTOR & SYSTEM ARCHITECT",
       category: "AI Track",
       bio: "Software engineer & system architect focused on scalable modern web apps, clean code standards, and mentoring junior developers.",
-      image: sulamImg,
+      image: abdulazizImg,
       icon: Layers,
     },
+
+
     {
       id: "abdulaziz",
       name: "Abdulaziz Isa",
@@ -42,9 +45,10 @@ function Mentors() {
       roleTitle: "SENIOR MENTOR & COMPETITIVE PROGRAMMING LEAD",
       category: "Algorithm",
       bio: "Specialized in data structures, algorithmic complexity, ICPC problem-solving strategies, and dynamic programming.",
-      image: abdulazizImg,
+      image: sulamImg,
       icon: Cpu,
     },
+
     {
       id: "nebiyu",
       name: "Nebiyu Musbah",
@@ -56,8 +60,18 @@ function Mentors() {
       icon: Network,
     },
     {
+      id: "temkin",
+      name: "Temkin Abdulmelik",
+      badge: "Full-Stack Development",
+      roleTitle: "FULL-STACK WEB DEVELOPMENT MENTOR",
+      category: "AI Track",
+      bio: "Dedicated instructor guiding students through modern full-stack web architecture, React component systems, and scalable backend services.",
+      image: temkinImg,
+      icon: Code2,
+    },
+    {
       id: "niham",
-      name: "Niham Kassim",
+      name: "Siham Kassim",
       badge: "Artificial Intelligence",
       roleTitle: "LEAD INTELLIGENCE & AI DEVELOPMENT",
       category: "AI Track",
@@ -67,7 +81,7 @@ function Mentors() {
     },
     {
       id: "lalu",
-      name: "Lalu Mohammed",
+      name: "Lelo Mohammed",
       badge: "Competitive Programming",
       roleTitle: "ALGORITHMS & LOGIC MENTOR",
       category: "Algorithm",
@@ -127,11 +141,10 @@ function Mentors() {
                   key={cat}
                   type="button"
                   onClick={() => setActiveCategory(cat)}
-                  className={`rounded-full px-5 py-2 text-xs font-semibold transition-all duration-200 ${
-                    isActive
+                  className={`rounded-full px-5 py-2 text-xs font-semibold transition-all duration-200 ${isActive
                       ? "bg-[#d8a84e] text-slate-950 shadow-lg shadow-[#d8a84e]/20 scale-105 font-bold"
                       : "border border-white/10 bg-white/5 text-slate-300 hover:border-white/25 hover:bg-white/10 hover:text-white"
-                  }`}
+                    }`}
                 >
                   {cat}
                 </button>
@@ -152,7 +165,7 @@ function Mentors() {
                 <div className="relative h-64 w-full overflow-hidden rounded-xl bg-slate-900">
                   <img
                     src={mentor.image}
-                    alt={mentor.name}
+
                     className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-105"
                     loading="lazy"
                   />

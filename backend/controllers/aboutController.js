@@ -7,8 +7,10 @@ const getAbout = async (req, res) => {
     }).sort({ createdAt: -1 });
 
     if (!about) {
-      return res.status(404).json({
-        message: "About information not found",
+      return res.json({
+        title: "About Our Bootcamp",
+        description: "Empowering next-generation builders through rigorous hands-on technical curriculum, collaborative mentorship, and project-based mastery.",
+        published: true,
       });
     }
 
@@ -29,8 +31,10 @@ const getAdminAbout = async (req, res) => {
     });
 
     if (!about) {
-      return res.status(404).json({
-        message: "About information not found",
+      return res.json({
+        title: "About Our Bootcamp",
+        description: "Empowering next-generation builders through rigorous hands-on technical curriculum, collaborative mentorship, and project-based mastery.",
+        published: true,
       });
     }
 
