@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import {
   Megaphone,
   ArrowLeft,
@@ -22,7 +21,6 @@ import {
   FileText,
   Layers,
 } from "lucide-react";
-
 import { useNavigate } from "react-router-dom";
 import apiClient from "../../services/apiClient";
 
@@ -32,7 +30,6 @@ function CreateAnnouncement() {
   const [creating, setCreating] = useState(false);
   const [loadingBatches, setLoadingBatches] = useState(true);
   const [batches, setBatches] = useState([]);
-
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -53,7 +50,6 @@ function CreateAnnouncement() {
   // =========================================================
   // LOAD BATCHES
   // =========================================================
-
   useEffect(() => {
     const fetchBatches = async () => {
       try {
@@ -90,7 +86,6 @@ function CreateAnnouncement() {
   // =========================================================
   // CATEGORIES
   // =========================================================
-
   const categories = [
     {
       value: "Contest",
@@ -127,7 +122,6 @@ function CreateAnnouncement() {
   // =========================================================
   // RECIPIENTS
   // =========================================================
-
   const recipientOptions = [
     {
       value: "Superadmin",
@@ -152,7 +146,6 @@ function CreateAnnouncement() {
   // =========================================================
   // INPUT CHANGE
   // =========================================================
-
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -168,7 +161,6 @@ function CreateAnnouncement() {
   // =========================================================
   // CATEGORY CHANGE
   // =========================================================
-
   const handleCategoryChange = (category) => {
     setFormData((previous) => ({
       ...previous,
@@ -182,7 +174,6 @@ function CreateAnnouncement() {
   // =========================================================
   // RECIPIENT TOGGLE
   // =========================================================
-
   const toggleRecipient = (recipient) => {
     setFormData((previous) => {
       const exists =
@@ -190,7 +181,6 @@ function CreateAnnouncement() {
 
       return {
         ...previous,
-
         recipients: exists
           ? previous.recipients.filter(
               (item) => item !== recipient
@@ -209,8 +199,9 @@ function CreateAnnouncement() {
   // =========================================================
   // VALIDATION
   // =========================================================
-
-  const validateForm = (submitStatus = formData.status) => {
+  const validateForm = (
+    submitStatus = formData.status
+  ) => {
     if (!formData.title.trim()) {
       return "Please enter an announcement title.";
     }
@@ -292,7 +283,6 @@ function CreateAnnouncement() {
   // =========================================================
   // SUBMIT
   // =========================================================
-
   const handleSubmit = async (
     event,
     submitStatus = formData.status
@@ -315,13 +305,9 @@ function CreateAnnouncement() {
 
       const payload = {
         title: formData.title.trim(),
-
         content: formData.content.trim(),
-
         type: formData.type,
-
         recipients: formData.recipients,
-
         batchId: formData.batchId,
 
         activeLink:
@@ -385,7 +371,6 @@ function CreateAnnouncement() {
   // =========================================================
   // HELPERS
   // =========================================================
-
   const getRecipientLabel = (value) => {
     const recipient =
       recipientOptions.find(
@@ -410,7 +395,6 @@ function CreateAnnouncement() {
   // =========================================================
   // UI
   // =========================================================
-
   return (
     <div className="space-y-6">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -418,7 +402,6 @@ function CreateAnnouncement() {
         {/* =================================================
             HEADER
         ================================================= */}
-
         <div className="mb-7">
           <button
             type="button"
@@ -428,12 +411,10 @@ function CreateAnnouncement() {
             className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:text-white"
           >
             <ArrowLeft size={17} />
-
             Back to Announcements
           </button>
 
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
-
             <div className="flex items-start gap-4">
 
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#1f6f5b] hover:bg-[#185848] text-white shadow-lg shadow-slate-200">
@@ -441,10 +422,9 @@ function CreateAnnouncement() {
               </div>
 
               <div>
-
                 <div className="flex flex-wrap items-center gap-3">
 
-                  <h1 className="text-2xl font-bold tracking-tight text-[#0F172A] sm:text-3xl">
+                  <h1 className="text-2xl font-bold tracking-tight text-[#0F172A] sm:text-3xl dark:text-white">
                     Create Announcement
                   </h1>
 
@@ -458,8 +438,8 @@ function CreateAnnouncement() {
                   Create and publish an announcement to
                   your bootcamp community.
                 </p>
-
               </div>
+
             </div>
           </div>
         </div>
@@ -467,10 +447,8 @@ function CreateAnnouncement() {
         {/* =================================================
             MESSAGES
         ================================================= */}
-
         {error && (
-          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
-
+          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-300">
             <AlertCircle
               size={19}
               className="mt-0.5 shrink-0"
@@ -489,8 +467,7 @@ function CreateAnnouncement() {
         )}
 
         {success && (
-          <div className="mb-6 flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-700">
-
+          <div className="mb-6 flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-700 dark:border-green-900/40 dark:bg-green-950/40 dark:text-green-300">
             <CheckCircle2 size={19} />
 
             <span className="font-medium">
@@ -501,20 +478,21 @@ function CreateAnnouncement() {
 
         <form
           onSubmit={(event) =>
-            handleSubmit(event, formData.status)
+            handleSubmit(
+              event,
+              formData.status
+            )
           }
         >
 
           {/* =================================================
               MAIN CONTENT + PUBLISHING
           ================================================= */}
-
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
 
             {/* =================================================
                 LEFT — CONTENT
             ================================================= */}
-
             <section className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
               <div className="border-b border-slate-100 dark:border-[#15253f] px-6 py-5">
@@ -526,7 +504,7 @@ function CreateAnnouncement() {
                   </div>
 
                   <div>
-                    <h2 className="font-semibold text-[#0F172A]">
+                    <h2 className="font-semibold text-[#0F172A] dark:text-white">
                       Announcement Content
                     </h2>
 
@@ -537,14 +515,13 @@ function CreateAnnouncement() {
                   </div>
 
                 </div>
+
               </div>
 
               <div className="space-y-6 p-6">
 
                 {/* TITLE */}
-
                 <div>
-
                   <div className="mb-2 flex items-center justify-between">
 
                     <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -567,13 +544,11 @@ function CreateAnnouncement() {
                     onChange={handleChange}
                     maxLength={200}
                     placeholder="e.g. JavaScript Session Tomorrow"
-                    className="w-full rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 hover:border-slate-300 dark:border-[#15253f] focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="w-full rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
-
                 </div>
 
                 {/* CATEGORY */}
-
                 <div>
 
                   <div className="mb-3">
@@ -616,8 +591,8 @@ function CreateAnnouncement() {
                             }
                             className={`group rounded-xl border p-3 text-left transition ${
                               selected
-                                ? "border-[#071629] bg-[#F1F5F9] shadow-sm ring-2 ring-slate-100"
-                                : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                                ? "border-[#1f6f5b] bg-emerald-50 dark:bg-emerald-950/40 shadow-sm"
+                                : "border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] hover:border-slate-300"
                             }`}
                           >
 
@@ -626,8 +601,8 @@ function CreateAnnouncement() {
                               <div
                                 className={`flex h-9 w-9 items-center justify-center rounded-lg transition ${
                                   selected
-                                    ? "bg-[#1f6f5b] hover:bg-[#185848] text-white"
-                                    : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
+                                    ? "bg-[#1f6f5b] text-white"
+                                    : "bg-slate-100 dark:bg-[#070e1b] text-slate-600 dark:text-slate-300 group-hover:bg-slate-200"
                                 }`}
                               >
                                 <Icon size={17} />
@@ -636,12 +611,12 @@ function CreateAnnouncement() {
                               <div
                                 className={`mt-1 flex h-4 w-4 items-center justify-center rounded-full border ${
                                   selected
-                                    ? "border-[#071629] bg-[#1f6f5b] hover:bg-[#185848]"
-                                    : "border-slate-300"
+                                    ? "border-[#1f6f5b] bg-[#1f6f5b]"
+                                    : "border-slate-300 dark:border-slate-600"
                                 }`}
                               >
                                 {selected && (
-                                  <span className="h-1.5 w-1.5 rounded-full bg-white dark:bg-[#0b1528]" />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
                                 )}
                               </div>
 
@@ -666,7 +641,6 @@ function CreateAnnouncement() {
                 </div>
 
                 {/* MESSAGE */}
-
                 <div>
 
                   <div className="mb-2 flex items-center justify-between">
@@ -707,14 +681,13 @@ function CreateAnnouncement() {
             {/* =================================================
                 RIGHT — PUBLISHING
             ================================================= */}
-
             <div className="space-y-6">
 
               <section className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
                 <div className="border-b border-slate-100 dark:border-[#15253f] px-5 py-5">
 
-                  <h2 className="font-semibold text-[#0F172A]">
+                  <h2 className="font-semibold text-[#0F172A] dark:text-white">
                     Publishing
                   </h2>
 
@@ -728,7 +701,6 @@ function CreateAnnouncement() {
                 <div className="space-y-5 p-5">
 
                   {/* STATUS */}
-
                   <div>
 
                     <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -782,20 +754,20 @@ function CreateAnnouncement() {
                             }}
                             className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left transition ${
                               selected
-                                ? "border-[#071629] bg-slate-50"
-                                : "border-slate-200 hover:border-slate-300"
+                                ? "border-[#1f6f5b] bg-emerald-50 dark:bg-emerald-950/40"
+                                : "border-slate-200 dark:border-[#15253f] dark:bg-[#0b1528] hover:border-slate-300"
                             }`}
                           >
 
                             <div
                               className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
                                 selected
-                                  ? "border-[#071629] bg-[#1f6f5b] hover:bg-[#185848]"
-                                  : "border-slate-300"
+                                  ? "border-[#1f6f5b] bg-[#1f6f5b]"
+                                  : "border-slate-300 dark:border-slate-600"
                               }`}
                             >
                               {selected && (
-                                <span className="h-1.5 w-1.5 rounded-full bg-white dark:bg-[#0b1528]" />
+                                <span className="h-1.5 w-1.5 rounded-full bg-white" />
                               )}
                             </div>
 
@@ -821,7 +793,6 @@ function CreateAnnouncement() {
                   </div>
 
                   {/* SCHEDULE DATE */}
-
                   {formData.status ===
                     "Scheduled" && (
                     <div>
@@ -844,7 +815,6 @@ function CreateAnnouncement() {
                   )}
 
                   {/* SUMMARY */}
-
                   <div className="border-t border-slate-100 dark:border-[#15253f] pt-5">
 
                     <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -922,12 +892,11 @@ function CreateAnnouncement() {
               </section>
 
               {/* QUICK INFO */}
-
               <div className="rounded-2xl border border-slate-200 dark:border-[#15253f] bg-[#1f6f5b] hover:bg-[#185848] p-5 text-white shadow-sm">
 
                 <div className="flex items-start gap-3">
 
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#0b1528]/10">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10">
                     <Megaphone size={17} />
                   </div>
 
@@ -954,7 +923,6 @@ function CreateAnnouncement() {
           {/* =================================================
               AUDIENCE
           ================================================= */}
-
           <section className="mt-6 rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
             <div className="border-b border-slate-100 dark:border-[#15253f] px-6 py-5">
@@ -967,7 +935,7 @@ function CreateAnnouncement() {
 
                 <div>
 
-                  <h2 className="font-semibold text-[#0F172A]">
+                  <h2 className="font-semibold text-[#0F172A] dark:text-white">
                     Audience
                   </h2>
 
@@ -978,6 +946,7 @@ function CreateAnnouncement() {
                 </div>
 
               </div>
+
             </div>
 
             <div className="p-6">
@@ -1008,13 +977,13 @@ function CreateAnnouncement() {
                         }
                         className={`relative rounded-2xl border p-5 text-left transition ${
                           selected
-                            ? "border-[#071629] bg-slate-50 shadow-sm ring-2 ring-slate-100"
-                            : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                            ? "border-[#1f6f5b] bg-emerald-50 dark:bg-emerald-950/40 shadow-sm"
+                            : "border-slate-200 dark:border-[#15253f] dark:bg-[#0b1528] hover:border-slate-300"
                         }`}
                       >
 
                         {selected && (
-                          <div className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-[#1f6f5b] hover:bg-[#185848] text-white">
+                          <div className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-[#1f6f5b] text-white">
                             <CheckCircle2
                               size={15}
                             />
@@ -1024,8 +993,8 @@ function CreateAnnouncement() {
                         <div
                           className={`flex h-12 w-12 items-center justify-center rounded-xl ${
                             selected
-                              ? "bg-[#1f6f5b] hover:bg-[#185848] text-white"
-                              : "bg-slate-100 text-slate-600"
+                              ? "bg-[#1f6f5b] text-white"
+                              : "bg-slate-100 dark:bg-[#070e1b] text-slate-600 dark:text-slate-300"
                           }`}
                         >
                           <Icon size={21} />
@@ -1044,7 +1013,7 @@ function CreateAnnouncement() {
                         <div className="mt-4 text-xs font-semibold">
 
                           {selected ? (
-                            <span className="text-slate-900 dark:text-white">
+                            <span className="text-[#1f6f5b] dark:text-emerald-400">
                               Selected
                             </span>
                           ) : (
@@ -1076,7 +1045,7 @@ function CreateAnnouncement() {
                       (recipient) => (
                         <span
                           key={recipient}
-                          className="rounded-full bg-white dark:bg-[#0b1528] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm ring-1 ring-slate-200"
+                          className="rounded-full bg-white dark:bg-[#0b1528] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm ring-1 ring-slate-200 dark:ring-[#15253f]"
                         >
                           {getRecipientLabel(
                             recipient
@@ -1095,7 +1064,6 @@ function CreateAnnouncement() {
           {/* =================================================
               EVENT & RESOURCE
           ================================================= */}
-
           <section className="mt-6 rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
             <div className="border-b border-slate-100 dark:border-[#15253f] px-6 py-5">
@@ -1108,7 +1076,7 @@ function CreateAnnouncement() {
 
                 <div>
 
-                  <h2 className="font-semibold text-[#0F172A]">
+                  <h2 className="font-semibold text-[#0F172A] dark:text-white">
                     Event & Resource
                   </h2>
 
@@ -1125,7 +1093,6 @@ function CreateAnnouncement() {
             <div className="p-6">
 
               {/* BATCH */}
-
               <div className="mb-5">
 
                 <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -1145,7 +1112,7 @@ function CreateAnnouncement() {
                   value={formData.batchId}
                   onChange={handleChange}
                   disabled={loadingBatches}
-                  className="w-full rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 dark:border-[#15253f] focus:border-[#071629] focus:ring-4 focus:ring-slate-100 disabled:bg-slate-50 dark:bg-[#070e1b]"
+                  className="w-full rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 dark:text-white focus:border-[#071629] focus:ring-4 focus:ring-slate-100 disabled:bg-slate-50 dark:disabled:bg-[#070e1b]"
                 >
 
                   <option value="">
@@ -1160,11 +1127,9 @@ function CreateAnnouncement() {
                       value={batch._id}
                     >
                       {batch.name}
-
                       {batch.year
                         ? ` — ${batch.year}`
                         : ""}
-
                       {batch.season
                         ? ` ${batch.season}`
                         : ""}
@@ -1181,11 +1146,9 @@ function CreateAnnouncement() {
               </div>
 
               {/* DATE + START + END */}
-
               <div className="grid gap-5 md:grid-cols-3">
 
                 {/* EVENT DATE */}
-
                 <div>
 
                   <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -1205,13 +1168,12 @@ function CreateAnnouncement() {
                     name="eventDate"
                     value={formData.eventDate}
                     onChange={handleChange}
-                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
 
                 </div>
 
                 {/* START TIME */}
-
                 <div>
 
                   <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -1231,13 +1193,12 @@ function CreateAnnouncement() {
                     name="startTime"
                     value={formData.startTime}
                     onChange={handleChange}
-                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
 
                 </div>
 
                 {/* END TIME */}
-
                 <div>
 
                   <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -1257,7 +1218,7 @@ function CreateAnnouncement() {
                     name="endTime"
                     value={formData.endTime}
                     onChange={handleChange}
-                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
 
                 </div>
@@ -1265,7 +1226,6 @@ function CreateAnnouncement() {
               </div>
 
               {/* LINK */}
-
               <div className="mt-5">
 
                 <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -1286,7 +1246,7 @@ function CreateAnnouncement() {
                   value={formData.activeLink}
                   onChange={handleChange}
                   placeholder="https://meet.google.com/..."
-                  className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                  className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                 />
 
               </div>
@@ -1309,29 +1269,31 @@ function CreateAnnouncement() {
           {/* =================================================
               BOTTOM ACTION BAR
           ================================================= */}
-
           <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-4 shadow-sm sm:flex-row sm:items-center sm:justify-end">
 
+            {/* CANCEL */}
             <button
               type="button"
               disabled={creating}
               onClick={() =>
                 navigate("/admin/announcements")
               }
-              className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-5 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:opacity-50"
+              className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-5 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-[#070e1b] disabled:opacity-50"
             >
               Cancel
             </button>
 
             {/* SAVE DRAFT */}
-
             <button
               type="button"
               disabled={creating}
               onClick={(event) =>
-                handleSubmit(event, "Draft")
+                handleSubmit(
+                  event,
+                  "Draft"
+                )
               }
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-5 py-3 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-5 py-3 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-slate-50 dark:hover:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-60"
             >
 
               {creating &&
@@ -1345,10 +1307,10 @@ function CreateAnnouncement() {
               )}
 
               Save Draft
+
             </button>
 
             {/* PUBLISH */}
-
             <button
               type="button"
               disabled={creating}
@@ -1358,7 +1320,7 @@ function CreateAnnouncement() {
                   "Published"
                 )
               }
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1f6f5b] hover:bg-[#185848] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1f6f5b] hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1f6f5b] hover:bg-[#185848] px-6 py-3 text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60"
             >
 
               {creating &&
@@ -1373,6 +1335,7 @@ function CreateAnnouncement() {
               )}
 
               Publish
+
             </button>
 
           </div>

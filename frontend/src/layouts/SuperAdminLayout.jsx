@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -10,6 +11,8 @@ import {
   Boxes,
   Sun,
   Moon,
+  Menu,
+  X,
 } from "lucide-react";
 
 import useAuth from "../context/useAuth";
@@ -20,6 +23,7 @@ import "./SuperAdminLayout.css";
 function SuperAdminLayout() {
   const { logout, user } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigation = [
     {
@@ -75,10 +79,22 @@ function SuperAdminLayout() {
     logout();
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
     <div className="superadmin-layout">
+      {/* ================= MOBILE OVERLAY ================= */}
+      {isMobileMenuOpen && (
+        <div 
+          className="superadmin-mobile-overlay" 
+          onClick={toggleMobileMenu}
+        />
+      )}
+
       {/* ================= SIDEBAR ================= */}
-      <aside className="superadmin-sidebar">
+      <aside className={`superadmin-sidebar ${isMobileMenuOpen ? "open" : ""}`}>
         {/* BRAND */}
         <div className="superadmin-brand">
           <div className="superadmin-brand-icon">
@@ -89,6 +105,14 @@ function SuperAdminLayout() {
             <h2>Super Admin</h2>
             <p>Management System</p>
           </div>
+
+          <button 
+            type="button" 
+            className="superadmin-close-btn"
+            onClick={toggleMobileMenu}
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* NAVIGATION */}
@@ -105,6 +129,7 @@ function SuperAdminLayout() {
                 key={item.path}
                 to={item.path}
                 end={item.path === "/superadmin"}
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={({ isActive }) =>
                   `superadmin-nav-link ${
                     isActive ? "active" : ""
@@ -135,12 +160,21 @@ function SuperAdminLayout() {
       <main className="superadmin-main">
         {/* HEADER */}
         <header className="superadmin-header">
-          <div>
-            <p className="superadmin-header-label">
-              ADMINISTRATION
-            </p>
+          <div className="superadmin-header-left">
+            <button 
+              type="button" 
+              className="superadmin-menu-btn"
+              onClick={toggleMobileMenu}
+            >
+              <Menu size={24} />
+            </button>
+            <div>
+              <p className="superadmin-header-label">
+                ADMINISTRATION
+              </p>
 
-            <h1>Super Admin Panel</h1>
+              <h1>Super Admin Panel</h1>
+            </div>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>

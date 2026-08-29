@@ -20,15 +20,15 @@ function DashboardLayout({ role }) {
 
   const getSidebar = () => {
     if (role === "admin") {
-      return <AdminSidebar />;
+      return <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />;
     }
 
     if (role === "mentor") {
-      return <MentorSidebar />;
+      return <MentorSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />;
     }
 
     if (role === "student") {
-      return <StudentSidebar />;
+      return <StudentSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />;
     }
 
     return null;
@@ -61,6 +61,48 @@ function DashboardLayout({ role }) {
           category: "COHORT MANAGEMENT",
           title: "Batches",
           description: "Organize cohort timelines, curricula, and enrollments.",
+        };
+      }
+      if (path.includes("/admin/registrations")) {
+        return {
+          category: "ADMISSIONS",
+          title: "Registrations",
+          description: "Manage student registrations and applications.",
+        };
+      }
+      if (path.includes("/admin/mentor-assignment")) {
+        return {
+          category: "MENTORSHIP",
+          title: "Mentor Assignment",
+          description: "Assign mentors to students and batches.",
+        };
+      }
+      if (path.includes("/admin/form-builder")) {
+        return {
+          category: "ADMISSIONS",
+          title: "Application Form Builder",
+          description: "Configure the student application form.",
+        };
+      }
+      if (path.includes("/admin/modules")) {
+        return {
+          category: "CURRICULUM",
+          title: "Modules",
+          description: "Manage bootcamp modules.",
+        };
+      }
+      if (path.includes("/admin/module-resources")) {
+        return {
+          category: "CURRICULUM",
+          title: "Module Resources",
+          description: "Manage module learning resources.",
+        };
+      }
+      if (path.includes("/admin/levels")) {
+        return {
+          category: "CURRICULUM",
+          title: "Levels",
+          description: "Manage bootcamp levels.",
         };
       }
       if (path.includes("/admin/daily-tasks")) {
@@ -96,6 +138,20 @@ function DashboardLayout({ role }) {
           category: "ADMISSIONS",
           title: "Applications",
           description: "Review and evaluate student admission applications.",
+        };
+      }
+      if (path.includes("/admin/analytics")) {
+        return {
+          category: "ANALYTICS",
+          title: "Analytics",
+          description: "View comprehensive bootcamp analytics and trends.",
+        };
+      }
+      if (path.includes("/admin/settings")) {
+        return {
+          category: "SETTINGS",
+          title: "Settings",
+          description: "Manage system configurations and preferences.",
         };
       }
       if (path.includes("/admin/profile")) {
@@ -186,6 +242,34 @@ function DashboardLayout({ role }) {
           description: "View assignment specifications and submit solutions.",
         };
       }
+      if (path.includes("/student/grades")) {
+        return {
+          category: "PERFORMANCE",
+          title: "Grades",
+          description: "View your grades and performance.",
+        };
+      }
+      if (path.includes("/student/submissions")) {
+        return {
+          category: "COURSEWORK",
+          title: "Submissions",
+          description: "View your submitted assignments.",
+        };
+      }
+      if (path.includes("/student/announcements")) {
+        return {
+          category: "COMMUNICATION",
+          title: "Announcements",
+          description: "View bootcamp announcements.",
+        };
+      }
+      if (path.includes("/student/my-mentor")) {
+        return {
+          category: "SUPPORT",
+          title: "My Mentor",
+          description: "View your assigned mentor.",
+        };
+      }
       if (path.includes("/student/profile")) {
         return {
           category: "ACCOUNT",
@@ -222,7 +306,7 @@ function DashboardLayout({ role }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] dark:bg-slate-950 text-[#20202a] dark:text-slate-100 flex">
+    <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] text-[#20202a] dark:text-slate-100 flex">
       {/* =====================================================
           DESKTOP SIDEBAR
       ===================================================== */}
@@ -250,9 +334,9 @@ function DashboardLayout({ role }) {
       {/* =====================================================
           MAIN VIEWPORT
       ===================================================== */}
-      <div className="flex-1 lg:ml-64 min-w-0 flex flex-col min-h-screen">
+      <div className="flex-1 lg:ml-64 min-w-0 flex flex-col min-h-screen overflow-x-hidden">
         {/* ===================================================
-            TOP HEADER (SUPERADMIN STYLE)
+            TOP HEADER
         =================================================== */}
         <header className="sticky top-0 z-30 flex min-h-[76px] items-center justify-between border-b border-[#e9e9ef] bg-white/95 px-6 py-4 backdrop-blur dark:border-[#15253f] dark:bg-[#070f1e]/95 sm:px-8">
           <div className="flex items-center gap-3">
@@ -272,6 +356,9 @@ function DashboardLayout({ role }) {
               <h1 className="text-lg font-extrabold text-[#20202a] dark:text-white leading-tight">
                 {pageInfo.title}
               </h1>
+              <p className="hidden text-xs text-slate-500 sm:block dark:text-slate-400">
+                {pageInfo.description}
+              </p>
             </div>
           </div>
 

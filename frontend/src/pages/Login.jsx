@@ -287,8 +287,8 @@ function Login({ isModal = false, onClose }) {
                 <button
                   type="button"
                   onClick={() => {
-                    setEmail("studentflow2026@example.com");
-                    setPassword("Student12345");
+                    setEmail("tesnim@gmail.com");
+                    setPassword("password123");
                     setError("");
                   }}
                   className="rounded-lg border dark:border-[#15253f] border-blue-200 bg-white dark:bg-[#0b1528] px-2.5 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
