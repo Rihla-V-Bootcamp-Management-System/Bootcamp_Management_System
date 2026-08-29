@@ -1,7 +1,12 @@
 import axios from "axios";
 
+let apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+if (import.meta.env.VITE_API_URL && !apiUrl.endsWith("/api")) {
+  apiUrl = `${apiUrl}/api`;
+}
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: apiUrl,
 });
 
 // Attach JWT token automatically
