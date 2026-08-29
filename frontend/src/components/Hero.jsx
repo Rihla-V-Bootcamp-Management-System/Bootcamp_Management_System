@@ -54,6 +54,13 @@ function Hero({ onRegistered}) {
 
             <a
               href="#about"
+              onClick={(e) => {
+                e.preventDefault();
+                const aboutEl = document.getElementById("about");
+                if (aboutEl) {
+                  aboutEl.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
               className="rounded-md border border-white/60 px-7 py-3.5 font-semibold text-white transition hover:bg-white/10"
             >
               Learn More

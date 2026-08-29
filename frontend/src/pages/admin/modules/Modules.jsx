@@ -42,7 +42,11 @@ function Modules() {
       setBatches(validList);
 
       if (!batchId && validList.length > 0) {
-        setSearchParams({ batchId: validList[0]._id });
+        const savedBatchId = localStorage.getItem("activeBatchId");
+        const foundSaved = validList.find((b) => b._id === savedBatchId);
+        const targetBatchId = foundSaved ? foundSaved._id : validList[0]._id;
+        setSearchParams({ batchId: targetBatchId });
+        localStorage.setItem("activeBatchId", targetBatchId);
       }
     } catch (err) {
       console.error("LOAD ALL BATCHES ERROR:", err);
@@ -157,6 +161,7 @@ function Modules() {
       return;
     }
 
+
     if (!form.title.trim()) {
       setError("Module title is required.");
       return;
@@ -166,7 +171,6 @@ function Modules() {
       setSaving(true);
       setError("");
       setSuccess("");
-
 
       const payload = {
         title: form.title.trim(),
@@ -332,7 +336,7 @@ function Modules() {
                 ))}
               </select>
             )}
-
+            
 
             <button
               type="button"

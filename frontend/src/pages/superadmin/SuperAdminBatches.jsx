@@ -148,6 +148,26 @@ function SuperAdminBatches() {
   };
 
   // =======================================================
+  // =======================================================
+  // AUTO DISMISS ALERTS
+  // =======================================================
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(""), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
+  // =======================================================
   // CREATE BATCH
   // =======================================================
 
@@ -195,7 +215,7 @@ function SuperAdminBatches() {
     try {
       setCreating(true);
 
-      await apiClient.post("/batches", {
+      const response = await apiClient.post("/batches", {
         name: form.name.trim(),
         year: Number(form.year),
         season: form.season,
@@ -203,9 +223,15 @@ function SuperAdminBatches() {
         endDate: form.endDate,
       });
 
-      setSuccess(
-        "Batch created successfully."
-      );
+      const newBatch = response.data?.batch || response.data;
+
+      // Save activeBatchId to localStorage so it persists across sessions
+      if (newBatch?._id) {
+        localStorage.setItem("activeBatchId", newBatch._id);
+      }
+
+      setSuccess("Batch created successfully!");
+      setError("");
 
       setForm({
         name: "",
@@ -217,8 +243,7 @@ function SuperAdminBatches() {
 
       setShowCreateModal(false);
 
-      // Reload page 1 so the newly created
-      // batch appears according to backend sorting.
+      // Reload list to include newly created batch
       await loadBatches(1);
     } catch (error) {
       console.error(
@@ -226,6 +251,7 @@ function SuperAdminBatches() {
         error
       );
 
+      setSuccess("");
       setError(
         error.response?.data?.message ||
           "Failed to create batch."
@@ -310,6 +336,7 @@ function SuperAdminBatches() {
   // =======================================================
   // VIEW BATCH
   // =======================================================
+
 
   const handleViewBatch = (batch) => {
     navigate(
@@ -470,6 +497,7 @@ function SuperAdminBatches() {
         </div>
       )}
 
+
       {/* =================================================
           SUMMARY
       ================================================= */}
@@ -605,6 +633,7 @@ function SuperAdminBatches() {
               : "Try another search or status filter."}
           </p>
 
+
           {batches.length === 0 && (
             <button
               type="button"
@@ -720,6 +749,7 @@ function SuperAdminBatches() {
       {/* =================================================
           CREATE BATCH MODAL
       ================================================= */}
+
 
       {showCreateModal && (
         <div
@@ -844,6 +874,7 @@ function SuperAdminBatches() {
                   </select>
                 </div>
               </div>
+
 
               {/* DATES */}
 
@@ -979,6 +1010,7 @@ function SummaryCard({
     </div>
   );
 }
+
 
 // =========================================================
 // BATCH CARD

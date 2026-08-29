@@ -184,7 +184,7 @@ const createSubmission = async (req, res) => {
       });
     }
 
-    // Check student assignment
+    // Check student assignment (if specific students assigned, enforce; otherwise open to batch)
     const assignedStudents =
       Array.isArray(
         assignment.assignedStudents
@@ -192,17 +192,19 @@ const createSubmission = async (req, res) => {
         ? assignment.assignedStudents
         : [];
 
-    const isAssigned =
-      assignedStudents.some((id) =>
+
+    if (assignedStudents.length > 0) {
+      const isAssigned = assignedStudents.some((id) =>
         isObjectIdEqual(id, studentId)
       );
 
-    if (!isAssigned) {
-      return res.status(403).json({
-        success: false,
-        message:
-          "You are not assigned to this assignment",
-      });
+      if (!isAssigned) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "You are not assigned to this assignment",
+        });
+      }
     }
 
     // Check deadline
@@ -375,6 +377,7 @@ const createSubmission = async (req, res) => {
 // STUDENT
 // GET MY SUBMISSIONS
 // ======================================================
+
 
 const getMySubmissions = async (
   req,
@@ -582,6 +585,7 @@ const getAssignmentSubmissions =
       // MENTOR AUTHORIZATION
       // ==================================================
 
+
       if (
         userRole === "mentor"
       ) {
@@ -785,6 +789,7 @@ const gradeSubmission = async (
 
     submission.status =
       "Graded";
+
 
     await submission.save();
 

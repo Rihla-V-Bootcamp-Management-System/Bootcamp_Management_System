@@ -1,121 +1,123 @@
+import { useEffect, useState } from "react";
+import apiClient from "../../services/apiClient";
+import {
+  Users,
+  GraduationCap,
+  UserRoundCheck,
+  ClipboardList,
+  Activity,
+} from "lucide-react";
+
 function SuperAdminDashboard() {
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    students: 0,
+    mentors: 0,
+    pendingApplications: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const response = await apiClient.get("/superadmin/stats");
+        setStats(response.data);
+      } catch (err) {
+        setError(err.response?.data?.message || err.message || "Failed to load dashboard statistics");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStats();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex min-h-screen">
+    <div className="dashboard-page">
+      <div className="dashboard-heading">
+        <p className="dashboard-eyebrow">OVERVIEW</p>
+        <h2>Super Admin Dashboard</h2>
+        <p>
+          Monitor and manage the bootcamp system from one place.
+        </p>
+      </div>
 
-        <aside className="w-64 border-r border-gray-200 bg-white">
-          <div className="border-b border-gray-200 p-5">
-            <h1 className="text-xl font-bold text-gray-900">
-              Super Admin
-            </h1>
+      {error && (
+        <div className="dashboard-panel">
+          <div className="dashboard-empty-state">
+            <p>{error}</p>
+          </div>
+        </div>
+      )}
 
-            <p className="mt-1 text-sm text-gray-500">
-              System Management
-            </p>
+      <section className="dashboard-stats">
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-top">
+            <div className="dashboard-stat-icon">
+              <Users size={19} />
+            </div>
           </div>
 
-          <nav className="p-4">
+          <span>Total Users</span>
+          <strong>{loading ? "..." : stats.totalUsers}</strong>
+        </div>
 
-            <div className="mb-6">
-              <p className="mb-2 px-3 text-xs font-semibold uppercase text-gray-400">
-                Main
-              </p>
-
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                Dashboard
-              </button>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-top">
+            <div className="dashboard-stat-icon">
+              <GraduationCap size={19} />
             </div>
+          </div>
 
-            <div className="mb-6">
-              <p className="mb-2 px-3 text-xs font-semibold uppercase text-gray-400">
-                Users
-              </p>
+          <span>Students</span>
+          <strong>{loading ? "..." : stats.students}</strong>
+        </div>
 
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                All Users
-              </button>
-
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                Admins
-              </button>
-
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                Mentors
-              </button>
-
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                Students
-              </button>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-top">
+            <div className="dashboard-stat-icon">
+              <UserRoundCheck size={19} />
             </div>
+          </div>
 
-            <div className="mb-6">
-              <p className="mb-2 px-3 text-xs font-semibold uppercase text-gray-400">
-                Registration
-              </p>
+          <span>Mentors</span>
+          <strong>{loading ? "..." : stats.mentors}</strong>
+        </div>
 
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                Registration Settings
-              </button>
-
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                Form Questions
-              </button>
-
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                Applications
-              </button>
-
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                Registration Status
-              </button>
+        <div className="dashboard-stat-card">
+          <div className="dashboard-stat-top">
+            <div className="dashboard-stat-icon">
+              <ClipboardList size={19} />
             </div>
+          </div>
 
+          <span>Pending Applications</span>
+          <strong>
+            {loading ? "..." : stats.pendingApplications}
+          </strong>
+        </div>
+      </section>
+
+      <section className="dashboard-overview">
+        <div className="dashboard-panel">
+          <div className="dashboard-panel-header">
             <div>
-              <p className="mb-2 px-3 text-xs font-semibold uppercase text-gray-400">
-                System
-              </p>
-
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                Audit Logs
-              </button>
-
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                Admin Management
-              </button>
-
-              <button className="w-full rounded-lg px-3 py-2 text-left text-sm">
-                Settings
-              </button>
-            </div>
-
-          </nav>
-        </aside>
-
-        <main className="flex-1">
-
-          <header className="border-b border-gray-200 bg-white px-6 py-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Super Admin Dashboard
-            </h2>
-          </header>
-
-          <section className="p-6">
-
-            <div className="rounded-xl border border-gray-200 bg-white p-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Dashboard
-              </h2>
-
-              <p className="mt-2 text-sm text-gray-500">
-                Super Admin system overview.
+              <h3>System Overview</h3>
+              <p>
+                A quick overview of your bootcamp management system.
               </p>
             </div>
 
-          </section>
+            <Activity size={19} />
+          </div>
 
-        </main>
-
-      </div>
+          <div className="dashboard-empty-state">
+            <p>No recent activity yet.</p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

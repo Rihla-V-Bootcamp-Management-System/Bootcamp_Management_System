@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import apiClient from "../../services/apiClient";
 import {
   User,
   Bell,
@@ -21,22 +22,13 @@ function SuperAdminSettings() {
   useEffect(() => {
     const loadRegistrationSettings = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/registration-settings"
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.message || "Failed to load registration settings"
-          );
-        }
+        const response = await apiClient.get("/registration-settings");
+        const data = response.data;
 
         setRegistrationOpen(Boolean(data.registrationOpen));
       } catch (err) {
         setError(
-          err.message || "Failed to load registration settings"
+          err.response?.data?.message || err.message || "Failed to load registration settings"
         );
       } finally {
         setLoadingRegistration(false);
@@ -52,41 +44,19 @@ function SuperAdminSettings() {
       setMessage("");
       setError("");
 
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        throw new Error("Authentication required");
-      }
-
       const nextValue = !registrationOpen;
 
-      const response = await fetch(
-        "http://localhost:5000/api/registration-settings/toggle",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            registrationOpen: nextValue,
-          }),
-        }
-      );
+      const response = await apiClient.patch("/registration-settings/toggle", {
+        registrationOpen: nextValue,
+      });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to update registration settings"
-        );
-      }
+      const data = response.data;
 
       setRegistrationOpen(Boolean(data.registrationOpen));
       setMessage(data.message || "Registration settings updated.");
     } catch (err) {
       setError(
-        err.message || "Failed to update registration settings"
+        err.response?.data?.message || err.message || "Failed to update registration settings"
       );
     } finally {
       setSavingRegistration(false);
@@ -159,6 +129,7 @@ function SuperAdminSettings() {
                   defaultValue="Bootcamp Management System"
                 />
               </div>
+
 
               <div className="settings-field">
                 <label>Organization Name</label>
@@ -284,6 +255,7 @@ function SuperAdminSettings() {
                     Temporarily restrict access while system maintenance is performed.
                   </span>
                 </div>
+
 
                 <button
                   className={`settings-toggle ${

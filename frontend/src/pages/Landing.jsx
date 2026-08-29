@@ -10,6 +10,12 @@ import Hero from "../components/Hero";
 import Navbar from "../components/Navbar";
 import apiClient from "../services/apiClient";
 
+const DEFAULT_ABOUT = {
+  title: "Empowering Future Tech Leaders & Software Engineers",
+  description:
+    "The ASTU MSJ Summer Bootcamp is an intensive learning program designed to equip students with hands-on software engineering, competitive programming, and collaborative problem-solving skills.\n\nThrough structured learning modules, daily hands-on tasks, and direct mentorship from experienced engineers, participants build real-world projects, hone competitive coding abilities, and prepare for top-tier technology careers.",
+};
+
 function Landing() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [applicationOpen, setApplicationOpen] = useState(false);
@@ -17,8 +23,8 @@ function Landing() {
   const [applicationClosed, setApplicationClosed] = useState(false);
   const [applicationError, setApplicationError] = useState("");
 
-  const [about, setAbout] = useState(null);
-  const [aboutLoading, setAboutLoading] = useState(true);
+  const [about, setAbout] = useState(DEFAULT_ABOUT);
+  const [aboutLoading, setAboutLoading] = useState(false);
 
   useEffect(() => {
     if (loginOpen) {
@@ -43,13 +49,16 @@ function Landing() {
 
         const response = await apiClient.get("/about");
 
-        setAbout(response.data || null);
+        if (response.data && response.data.title) {
+          setAbout(response.data);
+        } else {
+          setAbout(DEFAULT_ABOUT);
+        }
       } catch (error) {
         if (error.response?.status !== 404) {
           console.error("LOAD ABOUT ERROR:", error);
         }
-
-        setAbout(null);
+        setAbout(DEFAULT_ABOUT);
       } finally {
         setAboutLoading(false);
       }
@@ -86,6 +95,8 @@ function Landing() {
     }
   };
 
+  const currentAbout = about || DEFAULT_ABOUT;
+
   return (
     <main className="min-h-screen bg-[#06152d] text-white">
 
@@ -98,44 +109,42 @@ function Landing() {
         onRegistered={handleApply}
       />
 
-      {!aboutLoading && about && (
-        <section
-          id="about"
-          className="bg-white px-6 py-20 text-gray-900 lg:px-8"
-        >
-          <div className="mx-auto max-w-6xl">
+      <section
+        id="about"
+        className="bg-white px-6 py-20 text-gray-900 lg:px-8"
+      >
+        <div className="mx-auto max-w-6xl">
 
-            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.5fr] lg:items-center">
+          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.5fr] lg:items-center">
 
-              <div>
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-[#1769e0]">
-                  <Info size={17} />
-                  About Us
-                </div>
-
-                <h2 className="text-3xl font-bold leading-tight text-[#071629] sm:text-4xl">
-                  {about.title}
-                </h2>
+            <div>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-[#1769e0]">
+                <Info size={17} />
+                About Us
               </div>
 
-              <div>
-                <p className="whitespace-pre-line text-base leading-8 text-gray-600">
-                  {about.description}
-                </p>
-              </div>
+              <h2 className="text-3xl font-bold leading-tight text-[#071629] sm:text-4xl">
+                {currentAbout.title}
+              </h2>
+            </div>
 
+
+            <div>
+              <p className="whitespace-pre-line text-base leading-8 text-gray-600">
+                {currentAbout.description}
+              </p>
             </div>
 
           </div>
-        </section>
-      )}
+
+        </div>
+      </section>
 
       <Tracks />
 
       <Mentors />
 
       <FAQ />
-
 
       {loginOpen && (
         <div
@@ -230,42 +239,31 @@ function Landing() {
         </div>
       )}
 
+
       {applicationOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm">
-
-          <div className="flex min-h-screen items-center justify-center p-6">
-
-            <div className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-8 text-gray-900 shadow-2xl">
-
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/65 backdrop-blur-sm transition-opacity duration-200"
+          onClick={() => setApplicationOpen(false)}
+        >
+          <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 lg:p-8">
+            <div
+              className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-6 sm:p-8 text-gray-900 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
               <button
                 type="button"
                 onClick={() => setApplicationOpen(false)}
-                className="absolute right-5 top-5 text-xl text-gray-500 hover:text-gray-900"
+                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition hover:bg-gray-200 hover:text-black"
+                title="Close"
               >
-                ×
+                <X size={18} />
               </button>
 
-              <div className="pr-8">
-
-                <h1 className="text-3xl font-bold">
-                  Bootcamp Application
-                </h1>
-
-                <p className="mt-2 text-gray-600">
-                  Please complete the application form below.
-                </p>
-
-              </div>
-
-
-              <div className="mt-8">
+              <div className="pt-2">
                 <Register />
               </div>
-
             </div>
-
           </div>
-
         </div>
       )}
 

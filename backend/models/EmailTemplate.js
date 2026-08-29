@@ -4,13 +4,11 @@ const emailTemplateSchema = new mongoose.Schema(
   {
     type: {
       type: String,
+      enum: ["SHORTLISTED", "ACCEPTED", "REJECTED"],
       required: true,
-      enum: [
-        "SHORTLISTED",
-        "ACCEPTED",
-        "REJECTED",
-      ],
       unique: true,
+      uppercase: true,
+      trim: true,
     },
 
     subject: {
@@ -28,19 +26,10 @@ const emailTemplateSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-    updatedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
-    },
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model(
-  "EmailTemplate",
-  emailTemplateSchema
-);
+module.exports = mongoose.model("EmailTemplate", emailTemplateSchema);

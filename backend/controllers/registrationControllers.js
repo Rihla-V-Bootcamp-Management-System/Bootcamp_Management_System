@@ -86,41 +86,110 @@ const createRegistration = async (req, res) => {
       effectiveBatchId = activeBatch._id;
     }
 
+    // =================================================
     // 3. REQUIRED CORE FIELDS
-    if (!fullName || !email || !phoneNumber || !telegramUsername) {
+    // =================================================
+
+    // =================================================
+    // 3. EXTRACT CORE FIELDS INTELLIGENTLY FROM RESPONSES
+    // =================================================
+
+    const submitted = responses || {};
+
+    const finalFullName =
+      (fullName && fullName.trim()) ||
+      submitted.fullName ||
+      submitted.name ||
+      submitted.studentName ||
+      submitted["Full Name"] ||
+      submitted["Name"] ||
+      "Applicant";
+
+    const finalEmail =
+      (email && email.trim().toLowerCase()) ||
+      (submitted.email && String(submitted.email).trim().toLowerCase()) ||
+      (submitted.emailAddress && String(submitted.emailAddress).trim().toLowerCase()) ||
+      (submitted["Email"] && String(submitted["Email"]).trim().toLowerCase()) ||
+      (submitted["Email Address"] && String(submitted["Email Address"]).trim().toLowerCase());
+
+    const finalPhone =
+      (phoneNumber && phoneNumber.trim()) ||
+      submitted.phoneNumber ||
+      submitted.phone ||
+      submitted.mobile ||
+      submitted["Phone Number"] ||
+      submitted["Phone"] ||
+      "N/A";
+
+
+    const finalTelegram =
+      (telegramUsername && telegramUsername.trim()) ||
+      submitted.telegramUsername ||
+      submitted.telegram ||
+      submitted["Telegram username"] ||
+      submitted["Telegram"] ||
+      "N/A";
+
+    if (!finalEmail) {
       return res.status(400).json({
-        message: "Full name, email, phone number, and telegram username are required",
+        message: "Email address is required for registration",
       });
     }
 
+    // =================================================
     // 4. GENDER
-    const normalizedGender = gender && String(gender).toLowerCase() === "female" ? "Female" : "Male";
+    // =================================================
 
+    const normalizedGender =
+      gender && String(gender).toLowerCase() === "female"
+        ? "Female"
+        : "Male";
+
+    // =================================================
     // 5. EDUCATION LEVEL
+    // =================================================
+
     const parsedEducationLevel = Number(educationLevel);
     const validEducationLevel =
       !Number.isNaN(parsedEducationLevel) && parsedEducationLevel >= 1 && parsedEducationLevel <= 5
         ? parsedEducationLevel
         : 1;
 
+    // =================================================
     // 6. HOURS PER WEEK & COMMITMENT
+    // =================================================
+
     const parsedHours = Number(hoursPerWeek);
     const validHoursPerWeek = !Number.isNaN(parsedHours) && parsedHours > 0 ? parsedHours : 35;
     const validCommitment = canCommitFiveHoursPerDay !== false;
 
+    // =================================================
     // 8. RESPONSES
-    if (responses !== undefined && (typeof responses !== "object" || Array.isArray(responses))) {
+    // =================================================
+
+    if (
+      responses !== undefined &&
+      (typeof responses !== "object" ||
+        Array.isArray(responses))
+    ) {
       return res.status(400).json({
         message: "responses must be an object",
       });
     }
 
+    // =================================================
     // 9. FIND APPLICATION FORM (OPTIONAL)
-    const applicationForm = await ApplicationForm.findOne({
-      seasonId: new mongoose.Types.ObjectId(effectiveSeasonId),
-    });
+    // =================================================
 
+    const applicationForm =
+      await ApplicationForm.findOne({
+        seasonId: new mongoose.Types.ObjectId(effectiveSeasonId),
+      });
+
+    // =================================================
     // 10. VALIDATE DYNAMIC RESPONSES (IF FORM EXISTS)
+    // =================================================
+
     const submittedResponses = responses || {};
 
     if (applicationForm && Array.isArray(applicationForm.fields)) {
@@ -128,6 +197,7 @@ const createRegistration = async (req, res) => {
         const fieldId = field.id || field._id?.toString();
         const value = submittedResponses[fieldId];
 
+        // Required field
         if (
           field.required &&
           (value === undefined ||
@@ -142,72 +212,130 @@ const createRegistration = async (req, res) => {
       }
     }
 
+    // =================================================
     // 11. NORMALIZE EMAIL
-    const normalizedEmail = email.trim().toLowerCase();
+    // =================================================
 
+    const normalizedEmail =
+      email.trim().toLowerCase();
+
+    // =================================================
     // 12. DUPLICATE APPLICATION
-    const existingRegistration = await Registration.findOne({
-      email: normalizedEmail,
-      seasonId: effectiveSeasonId,
-    });
+    // =================================================
+
+    const existingRegistration =
+      await Registration.findOne({
+        email: normalizedEmail,
+        seasonId: effectiveSeasonId,
+      });
 
     if (existingRegistration) {
       return res.status(409).json({
-        message: "You have already applied for this season.",
+        message:
+          "You have already applied for this season.",
       });
     }
 
+    // =================================================
     // 13. CREATE REGISTRATION
-    const registration = await Registration.create({
-      seasonId: effectiveSeasonId,
-      batchId: effectiveBatchId,
-      fullName: fullName.trim(),
-      gender: normalizedGender,
-      email: normalizedEmail,
-      phoneNumber: (phoneNumber || "").trim(),
-      telegramUsername: (telegramUsername || "").trim(),
-      educationLevel: validEducationLevel,
-      educationInstitution: educationInstitution || "Other",
-      fieldOfStudy: fieldOfStudy || "Other",
-      studentId: (studentId || "N/A").trim(),
-      programmingExperience: programmingExperience || "Beginner",
-      githubLink: (githubLink || "").trim(),
-      codeforcesLink: (codeforcesLink || "").trim(),
-      leetcodeLink: (leetcodeLink || "").trim(),
-      hoursPerWeek: validHoursPerWeek,
-      canCommitFiveHoursPerDay: validCommitment,
-      motivation: (motivation || "").trim(),
-      responses: submittedResponses,
-      status: "SUBMITTED",
-      submittedAt: new Date(),
-    });
+    // =================================================
 
-    console.log("REGISTRATION CREATED:", registration._id);
+    const registration =
+      await Registration.create({
+        seasonId: effectiveSeasonId,
+        batchId: effectiveBatchId,
+
+        fullName: finalFullName,
+
+        gender: normalizedGender,
+
+        email: finalEmail,
+
+        phoneNumber: finalPhone,
+
+        telegramUsername: finalTelegram,
+
+        educationLevel:
+          validEducationLevel,
+
+        educationInstitution: educationInstitution || "Other",
+
+
+        fieldOfStudy: fieldOfStudy || "Other",
+
+        studentId:
+          (studentId || "N/A").trim(),
+
+        programmingExperience: programmingExperience || "Beginner",
+
+        githubLink:
+          (githubLink || "").trim(),
+
+        codeforcesLink:
+          (codeforcesLink || "").trim(),
+
+        leetcodeLink:
+          (leetcodeLink || "").trim(),
+
+        hoursPerWeek:
+          validHoursPerWeek,
+
+        canCommitFiveHoursPerDay: validCommitment,
+
+        motivation:
+          (motivation || "").trim(),
+
+        responses:
+          submittedResponses,
+
+        status: "SUBMITTED",
+
+        submittedAt: new Date(),
+      });
+
+    console.log(
+      "REGISTRATION CREATED:",
+      registration._id
+    );
 
     return res.status(201).json({
       success: true,
-      message: "Registration submitted successfully",
+      message:
+        "Registration submitted successfully",
       registration,
     });
   } catch (error) {
-    console.error("REGISTRATION ERROR:", error);
+    console.error(
+      "REGISTRATION ERROR:",
+      error
+    );
 
     if (error.code === 11000) {
       return res.status(409).json({
-        message: "This email has already been registered for this season",
+        message:
+          "This email has already been registered for this season",
       });
     }
 
     if (error.name === "ValidationError") {
       return res.status(400).json({
-        message: "Registration validation failed",
-        errors: Object.values(error.errors).map((err) => err.message),
+        message:
+          "Registration validation failed",
+
+        errors: Object.values(
+          error.errors
+        ).map(
+          (err) => err.message
+        ),
       });
     }
 
     return res.status(500).json({
-      message: "Failed to submit registration",
-      error: error.message,
+      message:
+        "Failed to submit registration",
+
+      error:
+        error.message,
     });
   }
 };
@@ -222,23 +350,40 @@ const getRegistrations = async (req, res) => {
   try {
     console.log("GET REGISTRATIONS");
 
-    const registrations = await Registration.find({})
-      .populate("seasonId", "name")
-      .populate("batchId", "name")
-      .populate("reviewedBy", "name email role")
-      .sort({ createdAt: -1 });
+    const registrations =
+      await Registration.find({})
+        .populate(
+          "seasonId",
+          "name"
+        )
+        .populate(
+          "batchId",
+          "name"
+        )
+        .populate(
+          "reviewedBy",
+          "name email role"
+        )
+        .sort({
+          createdAt: -1,
+        });
 
     return res.status(200).json({
       success: true,
       registrations,
     });
   } catch (error) {
-    console.error("GET REGISTRATIONS ERROR:", error);
+    console.error(
+      "GET REGISTRATIONS ERROR:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
-      message: "Failed to load registrations",
-      error: error.message,
+      message:
+        "Failed to load registrations",
+      error:
+        error.message,
     });
   }
 };
@@ -249,24 +394,39 @@ const getRegistrations = async (req, res) => {
 // GET /api/registrations/:id
 // =====================================================
 
-const getRegistrationById = async (req, res) => {
+const getRegistrationById = async (
+  req,
+  res
+) => {
   try {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
-        message: "Invalid registration ID",
+        message:
+          "Invalid registration ID",
       });
     }
 
-    const registration = await Registration.findById(id)
-      .populate("seasonId", "name")
-      .populate("batchId", "name")
-      .populate("reviewedBy", "name email role");
+    const registration =
+      await Registration.findById(id)
+        .populate(
+          "seasonId",
+          "name"
+        )
+        .populate(
+          "batchId",
+          "name"
+        )
+        .populate(
+          "reviewedBy",
+          "name email role"
+        );
 
     if (!registration) {
       return res.status(404).json({
-        message: "Registration not found",
+        message:
+          "Registration not found",
       });
     }
 
@@ -275,11 +435,16 @@ const getRegistrationById = async (req, res) => {
       registration,
     });
   } catch (error) {
-    console.error("GET REGISTRATION ERROR:", error);
+    console.error(
+      "GET REGISTRATION ERROR:",
+      error
+    );
 
     return res.status(500).json({
-      message: "Failed to load registration",
-      error: error.message,
+      message:
+        "Failed to load registration",
+      error:
+        error.message,
     });
   }
 };
@@ -290,9 +455,16 @@ const getRegistrationById = async (req, res) => {
 // PATCH /api/registrations/:id/status
 // =====================================================
 
-const updateRegistrationStatus = async (req, res) => {
+const updateRegistrationStatus = async (
+  req,
+  res
+) => {
   try {
-    const { status, rejectionReason } = req.body;
+    const {
+      status,
+      rejectionReason,
+    } = req.body;
+
 
     const validStatuses = [
       "SUBMITTED",
@@ -302,196 +474,425 @@ const updateRegistrationStatus = async (req, res) => {
       "REJECTED",
     ];
 
+    // =================================================
+    // VALIDATE STATUS
+    // =================================================
+
     if (!status) {
       return res.status(400).json({
-        message: "Status is required",
+        message:
+          "Status is required",
       });
     }
 
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
-        message: "Invalid status",
+        message:
+          "Invalid status",
       });
     }
 
-    const registration = await Registration.findById(req.params.id);
+    // =================================================
+    // FIND REGISTRATION
+    // =================================================
+
+    const registration =
+      await Registration.findById(
+        req.params.id
+      );
 
     if (!registration) {
       return res.status(404).json({
-        message: "Registration not found",
+        message:
+          "Registration not found",
       });
     }
 
-    const currentStatus = registration.status;
-    const allowedNextStatuses = allowedTransitions[currentStatus] || [];
+    // =================================================
+    // CHECK TRANSITION
+    // =================================================
 
-    if (!allowedNextStatuses.includes(status)) {
+    const currentStatus =
+      registration.status;
+
+    const allowedNextStatuses =
+      allowedTransitions[
+        currentStatus
+      ] || [];
+
+    if (
+      !allowedNextStatuses.includes(
+        status
+      )
+    ) {
       return res.status(400).json({
-        message: `Cannot change status from ${currentStatus} to ${status}`,
+        message:
+          `Cannot change status from ${currentStatus} to ${status}`,
       });
     }
 
-    registration.reviewedBy = req.user._id;
-    registration.reviewedAt = new Date();
+    // =================================================
+    // REVIEWER
+    // =================================================
+
+    registration.reviewedBy =
+      req.user._id;
+
+    registration.reviewedAt =
+      new Date();
+
+    // =================================================
+    // REJECTION
+    // =================================================
 
     if (status === "REJECTED") {
-      registration.rejectionReason = rejectionReason?.trim() || "No reason provided";
+      registration.rejectionReason =
+        rejectionReason?.trim() ||
+        "No reason provided";
     }
 
+    // =================================================
+    // ACCEPT
+    // =================================================
+
     if (status === "ACCEPTED") {
-      const existingUser = await User.findOne({
-        email: registration.email,
-      });
+      const existingUser =
+        await User.findOne({
+          email:
+            registration.email,
+        });
 
       if (existingUser) {
         return res.status(400).json({
-          message: "A user with this email already exists",
+          message:
+            "A user with this email already exists",
         });
       }
 
-      const lastUser = await User.findOne({
-        userID: { $regex: /^STU-\d{4}-\d+$/ },
-      }).sort({ userID: -1 });
+      // -----------------------------------------------
+      // GENERATE STUDENT ID
+      // -----------------------------------------------
+
+      const lastUser =
+        await User.findOne({
+          userID: {
+            $regex:
+              /^STU-\d{4}-\d+$/,
+          },
+        }).sort({
+          userID: -1,
+        });
 
       let nextNumber = 1;
 
       if (lastUser?.userID) {
-        const match = lastUser.userID.match(/(\d+)$/);
+        const match =
+          lastUser.userID.match(
+            /(\d+)$/
+          );
+
         if (match) {
-          nextNumber = parseInt(match[1], 10) + 1;
+          nextNumber =
+            parseInt(
+              match[1],
+              10
+            ) + 1;
         }
       }
 
-      const year = new Date().getFullYear();
-      const userID = `STU-${year}-${String(nextNumber).padStart(4, "0")}`;
+      const year =
+        new Date().getFullYear();
 
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const otpExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      const userID =
+        `STU-${year}-${String(
+          nextNumber
+        ).padStart(4, "0")}`;
 
-      const temporaryPassword = await bcrypt.hash(
-        Math.random().toString(36),
-        10
-      );
+      // -----------------------------------------------
+      // GENERATE OTP
+      // -----------------------------------------------
 
-      const createdUser = await User.create({
-        name: registration.fullName,
-        email: registration.email,
-        password: temporaryPassword,
-        role: "student",
-        gender: registration.gender,
-        userID,
-        otp,
-        otpExpiresAt,
-        mustResetPassword: true,
-      });
+      const otp =
+        Math.floor(
+          100000 +
+            Math.random() *
+              900000
+        ).toString();
 
-      registration.status = "ACCEPTED";
-      registration.decidedAt = new Date();
+      const otpExpiresAt =
+        new Date(
+          Date.now() +
+            24 * 60 * 60 * 1000
+        );
+
+      // -----------------------------------------------
+      // TEMPORARY PASSWORD
+      // -----------------------------------------------
+
+      const temporaryPassword =
+        await bcrypt.hash(
+          Math.random().toString(36),
+          10
+        );
+
+      // -----------------------------------------------
+      // CREATE USER
+      // -----------------------------------------------
+
+      const createdUser =
+        await User.create({
+          name:
+            registration.fullName,
+
+          email:
+            registration.email,
+
+
+          password:
+            temporaryPassword,
+
+          role: "student",
+
+          gender:
+            registration.gender,
+
+          userID,
+
+          otp,
+
+          otpExpiresAt,
+
+          mustResetPassword: true,
+        });
+
+      // -----------------------------------------------
+      // UPDATE REGISTRATION
+      // -----------------------------------------------
+
+      registration.status =
+        "ACCEPTED";
+
+      registration.decidedAt =
+        new Date();
 
       await registration.save();
 
+      // -----------------------------------------------
+      // AUDIT LOG
+      // -----------------------------------------------
+
       await createAuditLog({
-        actor: req.user._id,
-        actorRole: req.user.role,
-        action: "STATUS_CHANGE",
-        targetType: "Registration",
-        targetId: registration._id.toString(),
-        description: `${req.user.role} changed registration status from ${currentStatus} to ACCEPTED`,
+        actor:
+          req.user._id,
+
+        actorRole:
+          req.user.role,
+
+        action:
+          "STATUS_CHANGE",
+
+        targetType:
+          "Registration",
+
+        targetId:
+          registration._id.toString(),
+
+        description:
+          `${req.user.role} changed registration status from ${currentStatus} to ACCEPTED`,
+
         metadata: {
-          registrationId: registration._id.toString(),
-          applicantName: registration.fullName,
-          applicantEmail: registration.email,
-          previousStatus: currentStatus,
-          newStatus: "ACCEPTED",
-          studentUserID: createdUser.userID,
+          registrationId:
+            registration._id.toString(),
+
+          applicantName:
+            registration.fullName,
+
+          applicantEmail:
+            registration.email,
+
+          previousStatus:
+            currentStatus,
+
+          newStatus:
+            "ACCEPTED",
+
+          studentUserID:
+            createdUser.userID,
         },
       });
+
+      // -----------------------------------------------
+      // EMAIL
+      // -----------------------------------------------
 
       let emailSent = false;
 
       try {
-        await sendAcceptedEmail(registration, createdUser);
+        await sendAcceptedEmail(
+          registration,
+          createdUser
+        );
+
         emailSent = true;
       } catch (emailError) {
-        console.error("Accepted email error:", emailError.message);
+        console.error(
+          "Accepted email error:",
+          emailError.message
+        );
       }
 
       return res.status(200).json({
         success: true,
+
         message: emailSent
           ? "Registration accepted and student account created"
           : "Registration accepted and student account created, but email failed",
+
         emailSent,
+
         registration,
+
         user: {
-          userID: createdUser.userID,
-          name: createdUser.name,
-          email: createdUser.email,
-          role: createdUser.role,
-          gender: createdUser.gender,
+          userID:
+            createdUser.userID,
+
+          name:
+            createdUser.name,
+
+          email:
+            createdUser.email,
+
+          role:
+            createdUser.role,
+
+          gender:
+            createdUser.gender,
         },
       });
     }
 
-    // OTHER STATUS CHANGES (SHORTLISTED, INTERVIEWED, REJECTED)
-    registration.status = status;
+    // =================================================
+    // OTHER STATUS CHANGES
+    // =================================================
 
-    if (status === "SHORTLISTED" || status === "INTERVIEWED") {
-      registration.rejectionReason = "";
+    registration.status =
+      status;
+
+    if (
+      status === "SHORTLISTED" ||
+      status === "INTERVIEWED"
+    ) {
+      registration.rejectionReason =
+        "";
     }
 
     if (status === "REJECTED") {
-      registration.decidedAt = new Date();
+      registration.decidedAt =
+        new Date();
     }
 
     await registration.save();
 
+    // =================================================
+    // SEND EMAIL
+    // =================================================
+
     let emailSent = false;
 
     try {
-      if (status === "SHORTLISTED") {
-        await sendShortlistedEmail(registration);
+      if (
+        status ===
+        "SHORTLISTED"
+      ) {
+        await sendShortlistedEmail(
+          registration
+        );
+
         emailSent = true;
       }
 
-      if (status === "REJECTED") {
-        await sendRejectedEmail(registration);
+      if (
+        status ===
+        "REJECTED"
+      ) {
+        await sendRejectedEmail(
+          registration
+        );
+
         emailSent = true;
       }
     } catch (emailError) {
-      console.error("Status email error:", emailError.message);
+      console.error(
+        "Status email error:",
+        emailError.message
+      );
     }
 
+    // =================================================
+    // AUDIT LOG
+    // =================================================
+
     await createAuditLog({
-      actor: req.user._id,
-      actorRole: req.user.role,
-      action: "STATUS_CHANGE",
-      targetType: "Registration",
-      targetId: registration._id.toString(),
-      description: `${req.user.role} changed registration status from ${currentStatus} to ${status}`,
+      actor:
+        req.user._id,
+
+      actorRole:
+        req.user.role,
+
+      action:
+        "STATUS_CHANGE",
+
+      targetType:
+        "Registration",
+
+      targetId:
+        registration._id.toString(),
+
+      description:
+        `${req.user.role} changed registration status from ${currentStatus} to ${status}`,
+
       metadata: {
-        registrationId: registration._id.toString(),
-        applicantName: registration.fullName,
-        applicantEmail: registration.email,
-        previousStatus: currentStatus,
-        newStatus: status,
+        registrationId:
+          registration._id.toString(),
+
+
+        applicantName:
+          registration.fullName,
+
+        applicantEmail:
+          registration.email,
+
+        previousStatus:
+          currentStatus,
+
+        newStatus:
+          status,
       },
     });
 
     return res.status(200).json({
       success: true,
+
       message: emailSent
         ? `Registration status changed to ${status} and email sent`
         : `Registration status changed to ${status}`,
+
       emailSent,
+
       registration,
     });
   } catch (error) {
-    console.error("STATUS UPDATE ERROR:", error);
+    console.error(
+      "STATUS UPDATE ERROR:",
+      error
+    );
 
     return res.status(500).json({
-      message: "Server error",
-      error: error.message,
+      message:
+        "Server error",
+
+      error:
+        error.message,
     });
   }
 };

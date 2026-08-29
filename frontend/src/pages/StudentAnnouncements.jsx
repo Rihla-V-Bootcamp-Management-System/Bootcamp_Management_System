@@ -154,9 +154,32 @@ function StudentAnnouncements() {
       (item) => !item.isRead
     ).length;
 
-  // ============================================================
-  // UI
-  // ============================================================
+  const [activeTab, setActiveTab] = useState("All");
+
+  const filteredAnnouncements = announcements.filter((item) => {
+    const role = (
+      item.createdByRole ||
+      item.creatorRole ||
+      item.senderRole ||
+      item.createdBy?.role ||
+      ""
+    ).toLowerCase();
+
+    if (activeTab === "Admin") {
+      return (
+        role === "admin" ||
+        role === "superadmin" ||
+        item.isAdminAnnouncement === true
+      );
+    }
+    if (activeTab === "Mentor") {
+      return (
+        role === "mentor" ||
+        (!role.includes("admin") && item.isAdminAnnouncement !== true)
+      );
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-full bg-slate-50 p-6">
@@ -164,7 +187,8 @@ function StudentAnnouncements() {
 
         {/* HEADER */}
 
-        <div className="mb-7 flex items-center justify-between">
+
+        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
             <div className="relative rounded-xl bg-gray-900 p-3 text-white">
               <Megaphone size={22} />
@@ -180,8 +204,7 @@ function StudentAnnouncements() {
               </h1>
 
               <p className="mt-1 text-sm text-slate-500">
-                Stay updated with announcements
-                from your mentors.
+                Stay updated with announcements from your admins and mentors.
               </p>
             </div>
           </div>
@@ -193,6 +216,46 @@ function StudentAnnouncements() {
           >
             <RefreshCw size={17} />
             Refresh
+          </button>
+        </div>
+
+        {/* TAB FILTERS (All vs Admin vs Mentor) */}
+
+        <div className="mb-6 flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+          <button
+            type="button"
+            onClick={() => setActiveTab("All")}
+            className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${
+              activeTab === "All"
+                ? "bg-gray-900 text-white shadow-sm"
+                : "bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`}
+          >
+            All Announcements ({announcements.length})
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("Admin")}
+            className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${
+              activeTab === "Admin"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`}
+          >
+            Admin Announcements
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("Mentor")}
+            className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${
+              activeTab === "Mentor"
+                ? "bg-emerald-600 text-white shadow-sm"
+                : "bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`}
+          >
+            Mentor Announcements
           </button>
         </div>
 
@@ -238,11 +301,12 @@ function StudentAnnouncements() {
               className="mx-auto mb-3 animate-spin text-gray-700"
             />
 
+
             <p className="text-sm text-slate-500">
               Loading announcements...
             </p>
           </div>
-        ) : announcements.length === 0 ? (
+        ) : filteredAnnouncements.length === 0 ? (
           <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
             <Megaphone
               size={40}
@@ -250,17 +314,18 @@ function StudentAnnouncements() {
             />
 
             <h2 className="font-semibold text-slate-800">
-              No announcements
+              No {activeTab !== "All" ? activeTab : ""} announcements found
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              You don't have any announcements
-              yet.
+              {activeTab === "All"
+                ? "You don't have any announcements yet."
+                : `No ${activeTab.toLowerCase()} announcements match your filter.`}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {announcements.map(
+            {filteredAnnouncements.map(
               (announcement) => {
                 const style =
                   getTypeStyle(
@@ -338,6 +403,7 @@ function StudentAnnouncements() {
                     </p>
 
                     {/* FOOTER */}
+
 
                     <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
                       <div className="text-xs text-slate-400">

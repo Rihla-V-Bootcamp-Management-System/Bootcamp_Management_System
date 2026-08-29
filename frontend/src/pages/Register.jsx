@@ -146,12 +146,25 @@ function Register() {
             setSeasonId(activeSeasonId);
           }
 
-
-          if (Array.isArray(fields) && fields.length > 0) {
-            setSchema(fields);
-          } else {
-            setSchema(DEFAULT_APPLICATION_SCHEMA);
+          const coreIds = new Set(DEFAULT_APPLICATION_SCHEMA.map((f) => f.id));
+          const customMap = new Map();
+          if (Array.isArray(fields)) {
+            fields.forEach((f) => {
+              const key = f.id || f._id;
+              if (key) customMap.set(key, f);
+            });
           }
+
+
+          const baseSchema = DEFAULT_APPLICATION_SCHEMA.map((coreField) => {
+            return customMap.get(coreField.id) || coreField;
+          });
+
+          const customOnly = (Array.isArray(fields) ? fields : []).filter(
+            (f) => f && (f.id || f._id) && !coreIds.has(f.id || f._id)
+          );
+
+          setSchema([...baseSchema, ...customOnly]);
         } catch {
           setSchema(DEFAULT_APPLICATION_SCHEMA);
         }
@@ -256,7 +269,7 @@ function Register() {
 
       setSuccess(
         response.data?.message ||
-          "Application submitted successfully!"
+        "Application submitted successfully!"
       );
 
       return true;
@@ -272,11 +285,11 @@ function Register() {
 
       const message =
         Array.isArray(validationErrors) &&
-        validationErrors.length > 0
+          validationErrors.length > 0
           ? validationErrors.join(", ")
           : err.response?.data?.message ||
-            err.response?.data?.error ||
-            "Registration failed. Please check your information and try again.";
+          err.response?.data?.error ||
+          "Registration failed. Please check your information and try again.";
 
       setError(message);
 
@@ -288,7 +301,7 @@ function Register() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center">
+      <div className="flex min-h-75 items-center justify-center">
         <div className="text-center">
           <Loader2
             size={32}
@@ -312,12 +325,12 @@ function Register() {
             Application is currently closed
           </h1>
 
+
           <p className="mt-3 text-sm leading-6 text-gray-600">
             Registration is not available at the moment.
             Please check back when the application period
             opens.
           </p>
-
 
           <button
             type="button"
@@ -383,13 +396,7 @@ function Register() {
             your application.
           </p>
 
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="mt-6 rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
-          >
-            Back to Home
-          </button>
+
 
         </div>
       </div>

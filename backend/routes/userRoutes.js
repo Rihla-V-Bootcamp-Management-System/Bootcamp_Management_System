@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
@@ -181,6 +182,7 @@ router.get(
   }
 );
 
+
 // =========================================================
 // ADMIN TEST
 // GET /api/users/admin/test
@@ -324,6 +326,343 @@ router.patch(
       return res.status(500).json({
         success: false,
         message: "Failed to assign mentor",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// =========================================================
+// CREATE NEW USER ACCOUNT
+// POST /api/users
+// =========================================================
+
+router.post(
+  "/",
+  authMiddleware,
+  roleMiddleware("admin", "superadmin"),
+  async (req, res) => {
+    try {
+      const { name, email, password, role, gender, batchId } = req.body;
+
+
+      if (!name || !email || !password) {
+        return res.status(400).json({
+          success: false,
+          message: "Name, email, and password are required",
+        });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const existingUser = await User.findOne({ email: normalizedEmail });
+
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: "User with this email already exists",
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const user = await User.create({
+        name: name.trim(),
+        email: normalizedEmail,
+        password: hashedPassword,
+        role: role || "student",
+        gender: gender || "Male",
+        batchId: batchId || undefined,
+        accountStatus: "active",
+        mustResetPassword: false,
+      });
+
+      const populatedUser = await User.findById(user._id)
+        .select("-password -otp")
+        .populate("batchId", "name");
+
+      return res.status(201).json({
+        success: true,
+        message: "User created successfully",
+        user: populatedUser,
+      });
+    } catch (error) {
+      console.error("CREATE USER ERROR:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create user",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// =========================================================
+// UPDATE USER DETAILS (NAME, EMAIL, ROLE, BATCH)
+// PUT /api/users/:id
+// =========================================================
+
+router.put(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin", "superadmin"),
+  async (req, res) => {
+    try {
+      const { name, email, role, gender, batchId, status, accountStatus } = req.body;
+
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      if (
+        (user.role === "admin" || user.role === "superadmin" || role === "admin" || role === "superadmin") &&
+        req.user.role !== "superadmin"
+      ) {
+        return res.status(403).json({
+          success: false,
+          message: "Only Superadmins have the privilege to update or assign batches for Admin accounts.",
+        });
+      }
+
+      if (name) user.name = name.trim();
+      if (email) user.email = email.trim().toLowerCase();
+      if (role) user.role = role;
+      if (gender) user.gender = gender;
+      if (status || accountStatus) user.accountStatus = status || accountStatus;
+
+      if (batchId !== undefined) {
+        user.batchId = batchId ? batchId : null;
+      }
+
+      await user.save();
+
+      const updatedUser = await User.findById(user._id)
+        .select("-password -otp")
+        .populate("batchId", "name")
+        .populate("assignedMentor", "name email role");
+
+      return res.status(200).json({
+        success: true,
+        message: "User updated successfully",
+        user: updatedUser,
+      });
+    } catch (error) {
+      console.error("UPDATE USER ERROR:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update user",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// =========================================================
+// ASSIGN / CHANGE BATCH FOR USER
+// PATCH /api/users/:id/batch
+// =========================================================
+
+router.patch(
+  "/:id/batch",
+  authMiddleware,
+  roleMiddleware("admin", "superadmin"),
+  async (req, res) => {
+    try {
+      const { batchId } = req.body;
+
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+
+      if (
+        (user.role === "admin" || user.role === "superadmin") &&
+        req.user.role !== "superadmin"
+      ) {
+        return res.status(403).json({
+          success: false,
+          message: "Only Superadmins have the privilege to update or assign batches for Admin accounts.",
+        });
+      }
+
+      user.batchId = batchId ? batchId : null;
+      await user.save();
+
+      const updatedUser = await User.findById(user._id)
+        .select("-password -otp")
+        .populate("batchId", "name");
+
+      return res.status(200).json({
+        success: true,
+        message: "Batch assigned successfully",
+        user: updatedUser,
+      });
+    } catch (error) {
+      console.error("ASSIGN BATCH ERROR:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to assign batch",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// =========================================================
+// TOGGLE USER STATUS (ACTIVE / DISABLED)
+// PATCH /api/users/:id/status
+// =========================================================
+
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  roleMiddleware("admin", "superadmin"),
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      if (
+        (user.role === "admin" || user.role === "superadmin") &&
+        req.user.role !== "superadmin"
+      ) {
+        return res.status(403).json({
+          success: false,
+          message: "Only Superadmins have the privilege to modify status for Admin accounts.",
+        });
+      }
+
+      const targetStatus = req.body.status || (user.accountStatus === "disabled" ? "active" : "disabled");
+      user.accountStatus = targetStatus;
+      await user.save();
+
+      return res.status(200).json({
+        success: true,
+        message: `User status changed to ${targetStatus}`,
+        status: user.accountStatus,
+      });
+    } catch (error) {
+      console.error("TOGGLE USER STATUS ERROR:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update user status",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// =========================================================
+// RESET USER PASSWORD (ADMIN ACTION)
+// PATCH /api/users/:id/reset-password
+// =========================================================
+
+router.patch(
+  "/:id/reset-password",
+  authMiddleware,
+  roleMiddleware("admin", "superadmin"),
+  async (req, res) => {
+    try {
+      const { password, newPassword } = req.body;
+      const targetPassword = password || newPassword;
+
+      if (!targetPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "New password is required",
+        });
+      }
+
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      if (
+        (user.role === "admin" || user.role === "superadmin") &&
+        req.user.role !== "superadmin"
+      ) {
+        return res.status(403).json({
+          success: false,
+          message: "Only Superadmins have the privilege to reset password for Admin accounts.",
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(targetPassword, 10);
+      user.password = hashedPassword;
+      await user.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "User password reset successfully",
+      });
+    } catch (error) {
+      console.error("RESET USER PASSWORD ERROR:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to reset password",
+        error: error.message,
+      });
+    }
+  }
+);
+
+// =========================================================
+// DELETE USER ACCOUNT
+// DELETE /api/users/:id
+// =========================================================
+
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("admin", "superadmin"),
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      if (
+        (user.role === "admin" || user.role === "superadmin") &&
+        req.user.role !== "superadmin"
+      ) {
+        return res.status(403).json({
+          success: false,
+          message: "Only Superadmins have the privilege to delete Admin accounts.",
+        });
+      }
+
+      await User.findByIdAndDelete(req.params.id);
+
+      return res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+      });
+    } catch (error) {
+      console.error("DELETE USER ERROR:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to delete user",
         error: error.message,
       });
     }

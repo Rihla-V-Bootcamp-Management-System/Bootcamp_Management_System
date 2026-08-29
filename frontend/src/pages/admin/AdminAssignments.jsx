@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import apiClient from "../../services/apiClient";
 import {
   Plus,
   Trash2,
@@ -15,8 +15,6 @@ import {
   XCircle,
   ExternalLink,
 } from "lucide-react";
-
-const API_URL = "http://localhost:5000/api";
 
 const emptyQuestion = () => ({
   title: "",
@@ -60,12 +58,12 @@ const emptyForm = () => ({
 function AdminAssignments() {
   const [courses, setCourses] = useState([]);
   const [batches, setBatches] = useState([]);
-
   const [assignments, setAssignments] = useState([]);
 
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [loadingBatches, setLoadingBatches] = useState(true);
-  const [loadingAssignments, setLoadingAssignments] = useState(true);
+  const [loadingAssignments, setLoadingAssignments] =
+    useState(true);
 
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
@@ -87,21 +85,11 @@ function AdminAssignments() {
   const [success, setSuccess] = useState("");
 
   const [activeView, setActiveView] = useState("list");
-
   const [editingId, setEditingId] = useState(null);
-
   const [selectedAssignment, setSelectedAssignment] =
     useState(null);
 
   const [search, setSearch] = useState("");
-
-  const token = localStorage.getItem("token");
-
-  const authConfig = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
 
   // =========================================================
   // INITIAL LOAD
@@ -121,10 +109,7 @@ function AdminAssignments() {
     try {
       setLoadingCourses(true);
 
-      const response = await axios.get(
-        `${API_URL}/courses`,
-        authConfig
-      );
+      const response = await apiClient.get("/courses");
 
       setCourses(response.data.courses || []);
     } catch (err) {
@@ -147,10 +132,7 @@ function AdminAssignments() {
     try {
       setLoadingBatches(true);
 
-      const response = await axios.get(
-        `${API_URL}/batches`,
-        authConfig
-      );
+      const response = await apiClient.get("/batches");
 
       const data =
         response.data.batches ||
@@ -178,10 +160,7 @@ function AdminAssignments() {
     try {
       setLoadingAssignments(true);
 
-      const response = await axios.get(
-        `${API_URL}/assignments`,
-        authConfig
-      );
+      const response = await apiClient.get("/assignments");
 
       const data =
         response.data.assignments ||
@@ -218,10 +197,12 @@ function AdminAssignments() {
   };
 
   // =========================================================
-  // CREATE COURSE
+  // CREATE COURSE QUICKLY
   // =========================================================
 
-  const handleCreateCourse = async () => {
+  const handleCreateCourse = async (e) => {
+    e.preventDefault();
+
     if (!newCourseName.trim()) {
       setError("Course name is required.");
       return;
@@ -231,15 +212,10 @@ function AdminAssignments() {
       setCreatingCourse(true);
       setError("");
 
-      const response = await axios.post(
-        `${API_URL}/courses`,
-        {
-          name: newCourseName.trim(),
-          description:
-            newCourseDescription.trim(),
-        },
-        authConfig
-      );
+      const response = await apiClient.post("/courses", {
+        name: newCourseName.trim(),
+        description: newCourseDescription.trim(),
+      });
 
       const createdCourse = response.data.course;
 
@@ -276,10 +252,7 @@ function AdminAssignments() {
 
     setForm((prev) => ({
       ...prev,
-      topics: [
-        ...prev.topics,
-        emptyTopic(),
-      ],
+      topics: [...prev.topics, emptyTopic()],
     }));
 
     setExpandedTopics((prev) => ({
@@ -489,8 +462,7 @@ function AdminAssignments() {
       topics[topicIndex] = {
         ...topics[topicIndex],
         submissionFields: [
-          ...topics[topicIndex]
-            .submissionFields,
+          ...topics[topicIndex].submissionFields,
           emptySubmissionField(),
         ],
       };
@@ -512,8 +484,7 @@ function AdminAssignments() {
       const topics = [...prev.topics];
 
       const submissionFields = [
-        ...topics[topicIndex]
-          .submissionFields,
+        ...topics[topicIndex].submissionFields,
       ];
 
       submissionFields[fieldIndex] = {
@@ -543,11 +514,10 @@ function AdminAssignments() {
       topics[topicIndex] = {
         ...topics[topicIndex],
         submissionFields:
-          topics[topicIndex]
-            .submissionFields.filter(
-              (_, index) =>
-                index !== fieldIndex
-            ),
+          topics[topicIndex].submissionFields.filter(
+            (_, index) =>
+              index !== fieldIndex
+          ),
       };
 
       return {
@@ -612,9 +582,7 @@ function AdminAssignments() {
         if (
           !topic.questions[q].title.trim()
         ) {
-          return `Question ${
-            q + 1
-          } in Topic ${
+          return `Question ${q + 1} in Topic ${
             i + 1
           } needs a title.`;
         }
@@ -628,20 +596,14 @@ function AdminAssignments() {
         const attachment =
           topic.attachments[a];
 
-        if (
-          !attachment.title.trim()
-        ) {
-          return `Attachment ${
-            a + 1
-          } in Topic ${
+        if (!attachment.title.trim()) {
+          return `Attachment ${a + 1} in Topic ${
             i + 1
           } needs a title.`;
         }
 
         if (!attachment.url.trim()) {
-          return `Attachment ${
-            a + 1
-          } in Topic ${
+          return `Attachment ${a + 1} in Topic ${
             i + 1
           } needs a URL or file location.`;
         }
@@ -655,13 +617,10 @@ function AdminAssignments() {
         const field =
           topic.submissionFields[s];
 
-        // THIS FIXES YOUR PREVIOUS ERROR
         if (!field.label.trim()) {
           return `Submission Field ${
             s + 1
-          } in Topic ${
-            i + 1
-          } needs a label.`;
+          } in Topic ${i + 1} needs a label.`;
         }
       }
     }
@@ -676,11 +635,9 @@ function AdminAssignments() {
   const buildPayload = () => ({
     title: form.title.trim(),
 
-    description:
-      form.description.trim(),
+    description: form.description.trim(),
 
-    instructions:
-      form.instructions.trim(),
+    instructions: form.instructions.trim(),
 
     course: form.course,
 
@@ -693,56 +650,48 @@ function AdminAssignments() {
     topics: form.topics.map((topic) => ({
       title: topic.title.trim(),
 
-      description:
-        topic.description.trim(),
+      description: topic.description.trim(),
 
-      questions:
-        topic.questions.map(
-          (question) => ({
-            title:
-              question.title.trim(),
+      questions: topic.questions.map(
+        (question) => ({
+          title: question.title.trim(),
 
-            description:
-              question.description.trim(),
+          description:
+            question.description.trim(),
 
-            type: question.type,
+          type: question.type,
 
-            points: Number(
-              question.points || 0
-            ),
-          })
-        ),
+          points: Number(
+            question.points || 0
+          ),
+        })
+      ),
 
-      attachments:
-        topic.attachments.map(
-          (attachment) => ({
-            title:
-              attachment.title.trim(),
+      attachments: topic.attachments.map(
+        (attachment) => ({
+          title:
+            attachment.title.trim(),
 
-            type: attachment.type,
+          type: attachment.type,
 
-            url:
-              attachment.url.trim(),
+          url: attachment.url.trim(),
 
-            description:
-              attachment.description.trim(),
-          })
-        ),
+          description:
+            attachment.description.trim(),
+        })
+      ),
 
       submissionFields:
         topic.submissionFields
           .filter(
-            (field) =>
-              field.label.trim()
+            (field) => field.label.trim()
           )
           .map((field) => ({
-            label:
-              field.label.trim(),
+            label: field.label.trim(),
 
             type: field.type,
 
-            required:
-              Boolean(field.required),
+            required: Boolean(field.required),
           })),
     })),
   });
@@ -768,29 +717,24 @@ function AdminAssignments() {
     try {
       setSubmitting(true);
 
-      const payload =
-        buildPayload();
+      const payload = buildPayload();
 
       let response;
 
       if (editingId) {
-        response =
-          await axios.put(
-            `${API_URL}/assignments/${editingId}`,
-            payload,
-            authConfig
-          );
+        response = await apiClient.put(
+          `/assignments/${editingId}`,
+          payload
+        );
 
         showSuccess(
           "Assignment updated successfully."
         );
       } else {
-        response =
-          await axios.post(
-            `${API_URL}/assignments`,
-            payload,
-            authConfig
-          );
+        response = await apiClient.post(
+          "/assignments",
+          payload
+        );
 
         showSuccess(
           "Assignment created successfully."
@@ -832,12 +776,10 @@ function AdminAssignments() {
 
       let data = assignment;
 
-      // Get complete assignment
       if (assignment._id) {
         const response =
-          await axios.get(
-            `${API_URL}/assignments/${assignment._id}`,
-            authConfig
+          await apiClient.get(
+            `/assignments/${assignment._id}`
           );
 
         data =
@@ -928,8 +870,7 @@ function AdminAssignments() {
         maxScore:
           data.maxScore ?? "",
 
-        topics:
-          normalizedTopics,
+        topics: normalizedTopics,
       });
 
       setEditingId(data._id);
@@ -970,30 +911,24 @@ function AdminAssignments() {
   const handleDelete = async (
     assignment
   ) => {
-    const confirmed =
-      window.confirm(
-        `Delete "${assignment.title}"? This action cannot be undone.`
-      );
+    const confirmed = window.confirm(
+      `Delete "${assignment.title}"? This action cannot be undone.`
+    );
 
     if (!confirmed) return;
 
     try {
-      setDeletingId(
-        assignment._id
-      );
-
+      setDeletingId(assignment._id);
       setError("");
 
-      await axios.delete(
-        `${API_URL}/assignments/${assignment._id}`,
-        authConfig
+      await apiClient.delete(
+        `/assignments/${assignment._id}`
       );
 
       setAssignments((prev) =>
         prev.filter(
           (item) =>
-            item._id !==
-            assignment._id
+            item._id !== assignment._id
         )
       );
 
@@ -1023,34 +958,25 @@ function AdminAssignments() {
     assignment
   ) => {
     try {
-      setPublishingId(
-        assignment._id
-      );
-
+      setPublishingId(assignment._id);
       setError("");
 
       const nextPublished =
-        !Boolean(
-          assignment.published
-        );
+        !Boolean(assignment.published);
 
-      await axios.put(
-        `${API_URL}/assignments/${assignment._id}`,
+      await apiClient.put(
+        `/assignments/${assignment._id}`,
         {
-          published:
-            nextPublished,
-        },
-        authConfig
+          published: nextPublished,
+        }
       );
 
       setAssignments((prev) =>
         prev.map((item) =>
-          item._id ===
-          assignment._id
+          item._id === assignment._id
             ? {
                 ...item,
-                published:
-                  nextPublished,
+                published: nextPublished,
               }
             : item
         )
@@ -1087,9 +1013,8 @@ function AdminAssignments() {
       setError("");
 
       const response =
-        await axios.get(
-          `${API_URL}/assignments/${assignment._id}`,
-          authConfig
+        await apiClient.get(
+          `/assignments/${assignment._id}`
         );
 
       const data =
@@ -1140,12 +1065,10 @@ function AdminAssignments() {
       );
     }
 
-    const course =
-      courses.find(
-        (item) =>
-          item._id ===
-          assignment.course
-      );
+    const course = courses.find(
+      (item) =>
+        item._id === assignment.course
+    );
 
     return (
       course?.name ||
@@ -1157,8 +1080,7 @@ function AdminAssignments() {
   const getBatchName = (assignment) => {
     if (
       assignment.batchId &&
-      typeof assignment.batchId ===
-        "object"
+      typeof assignment.batchId === "object"
     ) {
       return (
         assignment.batchId.name ||
@@ -1167,12 +1089,10 @@ function AdminAssignments() {
       );
     }
 
-    const batch =
-      batches.find(
-        (item) =>
-          item._id ===
-          assignment.batchId
-      );
+    const batch = batches.find(
+      (item) =>
+        item._id === assignment.batchId
+    );
 
     return (
       batch?.name ||
@@ -1184,10 +1104,9 @@ function AdminAssignments() {
 
   const filteredAssignments =
     useMemo(() => {
-      const value =
-        search
-          .trim()
-          .toLowerCase();
+      const value = search
+        .trim()
+        .toLowerCase();
 
       if (!value) {
         return assignments;
@@ -1198,14 +1117,10 @@ function AdminAssignments() {
           assignment.title
             ?.toLowerCase()
             .includes(value) ||
-          getCourseName(
-            assignment
-          )
+          getCourseName(assignment)
             .toLowerCase()
             .includes(value) ||
-          getBatchName(
-            assignment
-          )
+          getBatchName(assignment)
             .toLowerCase()
             .includes(value)
       );
@@ -1258,9 +1173,7 @@ function AdminAssignments() {
 
             <button
               type="button"
-              onClick={() =>
-                setError("")
-              }
+              onClick={() => setError("")}
               className="shrink-0"
             >
               <X size={16} />
@@ -1270,9 +1183,7 @@ function AdminAssignments() {
 
         {success && (
           <div className="mb-5 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-            <CheckCircle2
-              size={17}
-            />
+            <CheckCircle2 size={17} />
             {success}
           </div>
         )}
@@ -1282,9 +1193,7 @@ function AdminAssignments() {
         <div className="mb-6 flex gap-2 overflow-x-auto border-b border-slate-200">
           <button
             type="button"
-            onClick={() =>
-              setActiveView("list")
-            }
+            onClick={() => setActiveView("list")}
             className={`border-b-2 px-4 py-3 text-sm font-semibold transition ${
               activeView === "list"
                 ? "border-slate-900 text-slate-900"
@@ -1296,9 +1205,7 @@ function AdminAssignments() {
 
           <button
             type="button"
-            onClick={() =>
-              setActiveView("create")
-            }
+            onClick={() => setActiveView("create")}
             className={`border-b-2 px-4 py-3 text-sm font-semibold transition ${
               activeView === "create"
                 ? "border-slate-900 text-slate-900"
@@ -1343,9 +1250,7 @@ function AdminAssignments() {
                   <input
                     value={search}
                     onChange={(e) =>
-                      setSearch(
-                        e.target.value
-                      )
+                      setSearch(e.target.value)
                     }
                     placeholder="Search assignments..."
                     className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
@@ -1365,8 +1270,7 @@ function AdminAssignments() {
                   Loading assignments...
                 </span>
               </div>
-            ) : filteredAssignments.length ===
-              0 ? (
+            ) : filteredAssignments.length === 0 ? (
               <div className="p-12 text-center">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
                   <Save
@@ -1387,9 +1291,7 @@ function AdminAssignments() {
                   type="button"
                   onClick={() => {
                     resetForm();
-                    setActiveView(
-                      "create"
-                    );
+                    setActiveView("create");
                   }}
                   className="mt-5 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white"
                 >
@@ -1402,9 +1304,7 @@ function AdminAssignments() {
                 {filteredAssignments.map(
                   (assignment) => (
                     <div
-                      key={
-                        assignment._id
-                      }
+                      key={assignment._id}
                       className="p-5 transition hover:bg-slate-50"
                     >
                       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -1498,9 +1398,7 @@ function AdminAssignments() {
                             }
                             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                           >
-                            <Pencil
-                              size={15}
-                            />
+                            <Pencil size={15} />
                             Edit
                           </button>
 
@@ -1528,9 +1426,7 @@ function AdminAssignments() {
                                 className="animate-spin"
                               />
                             ) : assignment.published ? (
-                              <XCircle
-                                size={15}
-                              />
+                              <XCircle size={15} />
                             ) : (
                               <CheckCircle2
                                 size={15}
@@ -1562,9 +1458,7 @@ function AdminAssignments() {
                                 className="animate-spin"
                               />
                             ) : (
-                              <Trash2
-                                size={15}
-                              />
+                              <Trash2 size={15} />
                             )}
                             Delete
                           </button>
@@ -1583,9 +1477,7 @@ function AdminAssignments() {
         ================================================== */}
 
         {activeView === "create" && (
-          <form
-            onSubmit={handleSubmit}
-          >
+          <form onSubmit={handleSubmit}>
 
             {/* BASIC INFORMATION */}
 
@@ -1650,12 +1542,8 @@ function AdminAssignments() {
 
                   <textarea
                     name="instructions"
-                    value={
-                      form.instructions
-                    }
-                    onChange={
-                      handleChange
-                    }
+                    value={form.instructions}
+                    onChange={handleChange}
                     rows={5}
                     placeholder="Explain what students need to do..."
                     className="w-full resize-y rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
@@ -1690,16 +1578,10 @@ function AdminAssignments() {
 
                     <select
                       name="course"
-                      value={
-                        form.course
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={form.course}
+                      onChange={handleChange}
                       required
-                      disabled={
-                        loadingCourses
-                      }
+                      disabled={loadingCourses}
                       className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                     >
                       <option value="">
@@ -1711,12 +1593,8 @@ function AdminAssignments() {
                       {courses.map(
                         (course) => (
                           <option
-                            key={
-                              course._id
-                            }
-                            value={
-                              course._id
-                            }
+                            key={course._id}
+                            value={course._id}
                           >
                             {course.name}
                           </option>
@@ -1728,9 +1606,7 @@ function AdminAssignments() {
                       <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
 
                         <input
-                          value={
-                            newCourseName
-                          }
+                          value={newCourseName}
                           onChange={(e) =>
                             setNewCourseName(
                               e.target.value
@@ -1781,16 +1657,10 @@ function AdminAssignments() {
 
                     <select
                       name="batchId"
-                      value={
-                        form.batchId
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={form.batchId}
+                      onChange={handleChange}
                       required
-                      disabled={
-                        loadingBatches
-                      }
+                      disabled={loadingBatches}
                       className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                     >
                       <option value="">
@@ -1802,12 +1672,8 @@ function AdminAssignments() {
                       {batches.map(
                         (batch) => (
                           <option
-                            key={
-                              batch._id
-                            }
-                            value={
-                              batch._id
-                            }
+                            key={batch._id}
+                            value={batch._id}
                           >
                             {batch.name ||
                               batch.batchName ||
@@ -1831,12 +1697,8 @@ function AdminAssignments() {
                     <input
                       type="datetime-local"
                       name="deadline"
-                      value={
-                        form.deadline
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={form.deadline}
+                      onChange={handleChange}
                       required
                       className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                     />
@@ -1851,12 +1713,8 @@ function AdminAssignments() {
                       type="number"
                       name="maxScore"
                       min="0"
-                      value={
-                        form.maxScore
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={form.maxScore}
+                      onChange={handleChange}
                       placeholder="100"
                       required
                       className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
@@ -1884,22 +1742,17 @@ function AdminAssignments() {
 
                 <button
                   type="button"
-                  onClick={
-                    addTopic
-                  }
+                  onClick={addTopic}
                   className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800"
                 >
-                  <Plus
-                    size={17}
-                  />
+                  <Plus size={17} />
                   Add Topic
                 </button>
               </div>
 
               <div className="p-6">
 
-                {form.topics.length ===
-                0 ? (
+                {form.topics.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
                     <p className="text-sm font-medium text-slate-600">
                       No topics added
@@ -1924,9 +1777,7 @@ function AdminAssignments() {
 
                         return (
                           <div
-                            key={
-                              topicIndex
-                            }
+                            key={topicIndex}
                             className="overflow-hidden rounded-xl border border-slate-200"
                           >
 
@@ -1944,24 +1795,15 @@ function AdminAssignments() {
                                 className="flex min-w-0 flex-1 items-center gap-3 text-left"
                               >
                                 {expanded ? (
-                                  <ChevronUp
-                                    size={
-                                      18
-                                    }
-                                  />
+                                  <ChevronUp size={18} />
                                 ) : (
-                                  <ChevronDown
-                                    size={
-                                      18
-                                    }
-                                  />
+                                  <ChevronDown size={18} />
                                 )}
 
                                 <span className="font-semibold text-slate-800">
                                   {topic.title ||
                                     `Topic ${
-                                      topicIndex +
-                                      1
+                                      topicIndex + 1
                                     }`}
                                 </span>
                               </button>
@@ -1975,11 +1817,7 @@ function AdminAssignments() {
                                 }
                                 className="ml-3 rounded-lg p-2 text-red-500 hover:bg-red-50"
                               >
-                                <Trash2
-                                  size={
-                                    17
-                                  }
-                                />
+                                <Trash2 size={17} />
                               </button>
                             </div>
 
@@ -1996,15 +1834,12 @@ function AdminAssignments() {
                                     </label>
 
                                     <input
-                                      value={
-                                        topic.title
-                                      }
+                                      value={topic.title}
                                       onChange={(e) =>
                                         updateTopic(
                                           topicIndex,
                                           "title",
-                                          e.target
-                                            .value
+                                          e.target.value
                                         )
                                       }
                                       placeholder="e.g. HTML Fundamentals"
@@ -2025,13 +1860,10 @@ function AdminAssignments() {
                                         updateTopic(
                                           topicIndex,
                                           "description",
-                                          e.target
-                                            .value
+                                          e.target.value
                                         )
                                       }
-                                      rows={
-                                        3
-                                      }
+                                      rows={3}
                                       className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                                     />
                                   </div>
@@ -2062,11 +1894,7 @@ function AdminAssignments() {
                                       }
                                       className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                                     >
-                                      <Plus
-                                        size={
-                                          15
-                                        }
-                                      />
+                                      <Plus size={15} />
                                       Add Question
                                     </button>
                                   </div>
@@ -2079,9 +1907,7 @@ function AdminAssignments() {
                                         questionIndex
                                       ) => (
                                         <div
-                                          key={
-                                            questionIndex
-                                          }
+                                          key={questionIndex}
                                           className="rounded-lg border border-slate-200 bg-slate-50 p-4"
                                         >
 
@@ -2103,11 +1929,7 @@ function AdminAssignments() {
                                               }
                                               className="text-red-500"
                                             >
-                                              <Trash2
-                                                size={
-                                                  16
-                                                }
-                                              />
+                                              <Trash2 size={16} />
                                             </button>
                                           </div>
 
@@ -2127,8 +1949,7 @@ function AdminAssignments() {
                                                     topicIndex,
                                                     questionIndex,
                                                     "title",
-                                                    e.target
-                                                      .value
+                                                    e.target.value
                                                   )
                                                 }
                                                 placeholder="Enter question"
@@ -2150,13 +1971,10 @@ function AdminAssignments() {
                                                     topicIndex,
                                                     questionIndex,
                                                     "description",
-                                                    e.target
-                                                      .value
+                                                    e.target.value
                                                   )
                                                 }
-                                                rows={
-                                                  2
-                                                }
+                                                rows={2}
                                                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
                                               />
                                             </div>
@@ -2175,8 +1993,7 @@ function AdminAssignments() {
                                                     topicIndex,
                                                     questionIndex,
                                                     "type",
-                                                    e.target
-                                                      .value
+                                                    e.target.value
                                                   )
                                                 }
                                                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
@@ -2215,8 +2032,7 @@ function AdminAssignments() {
                                                     topicIndex,
                                                     questionIndex,
                                                     "points",
-                                                    e.target
-                                                      .value
+                                                    e.target.value
                                                   )
                                                 }
                                                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
@@ -2256,11 +2072,7 @@ function AdminAssignments() {
                                       }
                                       className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                                     >
-                                      <Plus
-                                        size={
-                                          15
-                                        }
-                                      />
+                                      <Plus size={15} />
                                       Add Attachment
                                     </button>
                                   </div>
@@ -2290,8 +2102,7 @@ function AdminAssignments() {
                                                   topicIndex,
                                                   attachmentIndex,
                                                   "title",
-                                                  e.target
-                                                    .value
+                                                  e.target.value
                                                 )
                                               }
                                               placeholder="Attachment title"
@@ -2307,8 +2118,7 @@ function AdminAssignments() {
                                                   topicIndex,
                                                   attachmentIndex,
                                                   "type",
-                                                  e.target
-                                                    .value
+                                                  e.target.value
                                                 )
                                               }
                                               className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
@@ -2343,8 +2153,7 @@ function AdminAssignments() {
                                                   topicIndex,
                                                   attachmentIndex,
                                                   "url",
-                                                  e.target
-                                                    .value
+                                                  e.target.value
                                                 )
                                               }
                                               placeholder="URL / file location"
@@ -2360,8 +2169,7 @@ function AdminAssignments() {
                                                   topicIndex,
                                                   attachmentIndex,
                                                   "description",
-                                                  e.target
-                                                    .value
+                                                  e.target.value
                                                 )
                                               }
                                               placeholder="Description"
@@ -2378,11 +2186,7 @@ function AdminAssignments() {
                                               }
                                               className="justify-self-start rounded-lg px-3 py-2 text-red-500 hover:bg-red-50"
                                             >
-                                              <Trash2
-                                                size={
-                                                  16
-                                                }
-                                              />
+                                              <Trash2 size={16} />
                                             </button>
 
                                           </div>
@@ -2418,11 +2222,7 @@ function AdminAssignments() {
                                       }
                                       className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                                     >
-                                      <Plus
-                                        size={
-                                          15
-                                        }
-                                      />
+                                      <Plus size={15} />
                                       Add Field
                                     </button>
                                   </div>
@@ -2435,9 +2235,7 @@ function AdminAssignments() {
                                         fieldIndex
                                       ) => (
                                         <div
-                                          key={
-                                            fieldIndex
-                                          }
+                                          key={fieldIndex}
                                           className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 md:flex-row md:items-center"
                                         >
 
@@ -2455,8 +2253,7 @@ function AdminAssignments() {
                                                   topicIndex,
                                                   fieldIndex,
                                                   "label",
-                                                  e.target
-                                                    .value
+                                                  e.target.value
                                                 )
                                               }
                                               placeholder="e.g. GitHub Repository"
@@ -2478,8 +2275,7 @@ function AdminAssignments() {
                                                   topicIndex,
                                                   fieldIndex,
                                                   "type",
-                                                  e.target
-                                                    .value
+                                                  e.target.value
                                                 )
                                               }
                                               className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
@@ -2517,8 +2313,7 @@ function AdminAssignments() {
                                                   topicIndex,
                                                   fieldIndex,
                                                   "required",
-                                                  e.target
-                                                    .checked
+                                                  e.target.checked
                                                 )
                                               }
                                             />
@@ -2535,11 +2330,7 @@ function AdminAssignments() {
                                             }
                                             className="rounded-lg p-2 text-red-500 hover:bg-red-50"
                                           >
-                                            <Trash2
-                                              size={
-                                                16
-                                              }
-                                            />
+                                            <Trash2 size={16} />
                                           </button>
 
                                         </div>
@@ -2569,9 +2360,7 @@ function AdminAssignments() {
                 type="button"
                 onClick={() => {
                   resetForm();
-                  setActiveView(
-                    "list"
-                  );
+                  setActiveView("list");
                 }}
                 className="rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
@@ -2637,9 +2426,7 @@ function AdminAssignments() {
               <button
                 type="button"
                 onClick={() =>
-                  setSelectedAssignment(
-                    null
-                  )
+                  setSelectedAssignment(null)
                 }
                 className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
               >
@@ -2655,9 +2442,7 @@ function AdminAssignments() {
                 <div className="flex flex-wrap items-center gap-2">
 
                   <h1 className="text-2xl font-bold text-slate-900">
-                    {
-                      selectedAssignment.title
-                    }
+                    {selectedAssignment.title}
                   </h1>
 
                   <span
@@ -2674,9 +2459,7 @@ function AdminAssignments() {
                 </div>
 
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  {
-                    selectedAssignment.description
-                  }
+                  {selectedAssignment.description}
                 </p>
               </div>
 
@@ -2712,9 +2495,7 @@ function AdminAssignments() {
                   </p>
 
                   <p className="mt-1 font-semibold text-slate-800">
-                    {
-                      selectedAssignment.maxScore
-                    }
+                    {selectedAssignment.maxScore}
                   </p>
                 </div>
 
@@ -2726,10 +2507,8 @@ function AdminAssignments() {
                     Instructions
                   </h3>
 
-                  <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-700 whitespace-pre-wrap">
-                    {
-                      selectedAssignment.instructions
-                    }
+                  <div className="mt-2 whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-700">
+                    {selectedAssignment.instructions}
                   </div>
                 </div>
               )}
@@ -2741,10 +2520,8 @@ function AdminAssignments() {
                   Topics
                 </h3>
 
-                {(
-                  selectedAssignment.topics ||
-                  []
-                ).length === 0 ? (
+                {(selectedAssignment.topics || [])
+                  .length === 0 ? (
                   <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
                     No topics configured.
                   </div>
@@ -2770,18 +2547,14 @@ function AdminAssignments() {
 
                           {topic.description && (
                             <p className="mt-1 text-sm text-slate-500">
-                              {
-                                topic.description
-                              }
+                              {topic.description}
                             </p>
                           )}
 
                           {/* QUESTIONS */}
 
-                          {(
-                            topic.questions ||
-                            []
-                          ).length > 0 && (
+                          {(topic.questions || [])
+                            .length > 0 && (
                             <div className="mt-5">
 
                               <h5 className="mb-3 text-sm font-semibold text-slate-800">
@@ -2843,10 +2616,8 @@ function AdminAssignments() {
 
                           {/* ATTACHMENTS */}
 
-                          {(
-                            topic.attachments ||
-                            []
-                          ).length > 0 && (
+                          {(topic.attachments || [])
+                            .length > 0 && (
                             <div className="mt-5">
 
                               <h5 className="mb-3 text-sm font-semibold text-slate-800">
@@ -2889,9 +2660,7 @@ function AdminAssignments() {
                                       </div>
 
                                       <ExternalLink
-                                        size={
-                                          16
-                                        }
+                                        size={16}
                                         className="text-slate-400"
                                       />
                                     </a>
@@ -2904,10 +2673,8 @@ function AdminAssignments() {
 
                           {/* SUBMISSION FIELDS */}
 
-                          {(
-                            topic.submissionFields ||
-                            []
-                          ).length > 0 && (
+                          {(topic.submissionFields || [])
+                            .length > 0 && (
                             <div className="mt-5">
 
                               <h5 className="mb-3 text-sm font-semibold text-slate-800">
@@ -2930,15 +2697,11 @@ function AdminAssignments() {
                                     >
 
                                       <span className="text-sm text-slate-700">
-                                        {
-                                          field.label
-                                        }
+                                        {field.label}
                                       </span>
 
                                       <span className="text-xs font-medium text-slate-500">
-                                        {
-                                          field.type
-                                        }
+                                        {field.type}
 
                                         {field.required &&
                                           " • Required"}

@@ -86,20 +86,11 @@ const createAnnouncement = async (req, res) => {
       });
     }
 
-    if (!req.user.batchId) {
-      return res.status(400).json({
-        success: false,
-        message: "You are not assigned to a batch",
-      });
-    }
+    const targetBatchId = req.body.batchId || req.user.batchId;
 
-    const batch = await Batch.findById(req.user.batchId);
-
-    if (!batch) {
-      return res.status(404).json({
-        success: false,
-        message: "Assigned batch was not found",
-      });
+    let batch = null;
+    if (targetBatchId) {
+      batch = await Batch.findById(targetBatchId);
     }
 
     let finalStatus = status || "Draft";
@@ -120,21 +111,26 @@ const createAnnouncement = async (req, res) => {
 
     const announcement = await Announcement.create({
       title: title.trim(),
+      message: content.trim().substring(0, 200),
       content: content.trim(),
       type,
-      recipients,
-      batchId: req.user.batchId,
+      recipients: recipients || [],
+      recipientRoles: recipients || [],
+      sender: req.user._id,
+      senderRole: (req.user.role || "admin").toLowerCase(),
+      authorId: req.user._id,
+      batch: targetBatchId || null,
+      batchId: targetBatchId || null,
       activeLink: activeLink?.trim() || "",
       eventDate: eventDate || null,
       startTime: startTime?.trim() || "",
       endTime: endTime?.trim() || "",
       location: location?.trim() || "",
       publishDate: finalPublishDate,
-      authorId: req.user._id,
       status: finalStatus,
     });
 
-    if (finalStatus === "Published") {
+    if (finalStatus === "Published" && batch) {
       await sendAnnouncementNotifications(
         announcement,
         batch
@@ -144,7 +140,9 @@ const createAnnouncement = async (req, res) => {
     const populatedAnnouncement =
       await Announcement.findById(announcement._id)
         .populate("authorId", "name email role")
-        .populate("batchId", "name year season");
+        .populate("sender", "name email role")
+        .populate("batchId", "name year season")
+        .populate("batch", "name year season");
 
     return res.status(201).json({
       success: true,
@@ -158,6 +156,7 @@ const createAnnouncement = async (req, res) => {
     });
   } catch (error) {
     console.error("CREATE ANNOUNCEMENT ERROR:", error);
+
 
     return res.status(500).json({
       success: false,
@@ -335,6 +334,7 @@ const getAnnouncements = async (req, res) => {
     });
   }
 };
+
 
 // =========================================================
 // GET ADMIN'S OWN ANNOUNCEMENTS
@@ -524,6 +524,7 @@ const updateAnnouncement = async (req, res) => {
         "Other",
       ];
 
+
       if (!allowedTypes.includes(type)) {
         return res.status(400).json({
           success: false,
@@ -705,6 +706,7 @@ const publishAnnouncement = async (req, res) => {
       batchId: req.user.batchId,
       authorId: req.user._id,
     });
+    
 
     if (!announcement) {
       return res.status(404).json({

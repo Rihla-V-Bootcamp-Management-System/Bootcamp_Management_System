@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import apiClient from "../../services/apiClient";
 import {
   Search,
   Filter,
@@ -9,7 +10,6 @@ import {
   UserRound,
   Trash2,
   AlertTriangle,
-  X,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -33,45 +33,25 @@ function SuperAdminUsers() {
   const [deletingId, setDeletingId] = useState(null);
   const [userToDelete, setUserToDelete] = useState(null);
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
 
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        throw new Error("Authentication required");
-      }
-
-      const response = await fetch(
-        "http://localhost:5000/api/superadmin/users",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to load users"
-        );
-      }
+      const response = await apiClient.get("/superadmin/users");
+      const data = response.data;
 
       setUsers(data.users || []);
     } catch (err) {
-      setError(err.message || "Failed to load users");
+      setError(err.response?.data?.message || err.message || "Failed to load users");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [loadUsers]);
 
   const handleAssignUser = async (e) => {
     e.preventDefault();
@@ -87,35 +67,13 @@ function SuperAdminUsers() {
     try {
       setSaving(true);
 
-      const token = localStorage.getItem("token");
+      const response = await apiClient.post("/superadmin/assign", {
+        name: name.trim(),
+        email: email.trim(),
+        role,
+      });
 
-      if (!token) {
-        throw new Error("Authentication required");
-      }
-
-      const response = await fetch(
-        "http://localhost:5000/api/superadmin/assign",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: name.trim(),
-            email: email.trim(),
-            role,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to assign user"
-        );
-      }
+      const data = response.data;
 
       setMessage(
         data.emailSent
@@ -130,16 +88,12 @@ function SuperAdminUsers() {
       await loadUsers();
     } catch (err) {
       setError(
-        err.message || "Failed to assign user"
+        err.response?.data?.message || err.message || "Failed to assign user"
       );
     } finally {
       setSaving(false);
     }
   };
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, roleFilter, statusFilter]);
 
   const confirmDeleteUser = async () => {
     if (!userToDelete) return;
@@ -150,32 +104,10 @@ function SuperAdminUsers() {
       setMessage("");
       setError("");
 
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        throw new Error("Authentication required");
-      }
-
-      const response = await fetch(
-        `http://localhost:5000/api/superadmin/users/${userId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to delete user"
-        );
-      }
+      const response = await apiClient.delete(`/superadmin/users/${userId}`);
+      const data = response.data;
 
       setMessage(data.message || `${userName} has been removed successfully.`);
-
 
       // Remove deleted user immediately from the frontend.
       setUsers((currentUsers) =>
@@ -190,7 +122,7 @@ function SuperAdminUsers() {
       await loadUsers();
     } catch (err) {
       setError(
-        err.message || "Failed to delete user"
+        err.response?.data?.message || err.message || "Failed to delete user"
       );
     } finally {
       setDeletingId(null);
@@ -221,6 +153,7 @@ function SuperAdminUsers() {
       const displayStatus = user.mustResetPassword
         ? "Pending"
         : "Active";
+
 
       return (
         matchesSearch &&
@@ -331,7 +264,6 @@ function SuperAdminUsers() {
           <div className="users-assign-field">
             <label>Email</label>
 
-
             <input
               type="email"
               value={email}
@@ -391,6 +323,7 @@ function SuperAdminUsers() {
           </div>
         )}
       </div>
+
 
       <div className="users-summary">
         <div className="users-summary-card">
@@ -458,9 +391,10 @@ function SuperAdminUsers() {
               type="text"
               placeholder="Search users..."
               value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
             />
           </div>
 
@@ -470,9 +404,10 @@ function SuperAdminUsers() {
 
               <select
                 value={roleFilter}
-                onChange={(e) =>
-                  setRoleFilter(e.target.value)
-                }
+                onChange={(e) => {
+                  setRoleFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
               >
                 <option value="All">
                   All Roles
@@ -496,13 +431,13 @@ function SuperAdminUsers() {
               </select>
             </div>
 
-
             <select
               className="users-status-filter"
               value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(e.target.value)
-              }
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setCurrentPage(1);
+              }}
             >
               <option value="All">
                 All Status
@@ -545,6 +480,7 @@ function SuperAdminUsers() {
                   {paginatedUsers.map((user) => {
                     const displayRole =
                       getRoleName(user.role);
+                      
 
                     const displayStatus =
                       user.mustResetPassword
@@ -603,7 +539,6 @@ function SuperAdminUsers() {
                           {user.userID || "—"}
                         </td>
 
-
                         <td>
                           {canDelete ? (
                             <button
@@ -657,6 +592,7 @@ function SuperAdminUsers() {
             </tbody>
           </table>
         </div>
+
 
         <div className="users-pagination">
           <span>
@@ -713,7 +649,6 @@ function SuperAdminUsers() {
                 <p className="text-xs text-gray-500">This action cannot be undone</p>
               </div>
             </div>
-
 
             <p className="mt-4 text-sm text-gray-600">
               Are you sure you want to delete <strong className="text-gray-900">{userToDelete.name}</strong> ({userToDelete.role})? All associated permissions and access will be permanently removed.

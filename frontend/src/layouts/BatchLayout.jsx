@@ -4,9 +4,15 @@ function BatchLayout() {
   const { id } = useParams();
   const location = useLocation();
 
-  const batchId =
+  let batchId =
     id ||
-    new URLSearchParams(location.search).get("batchId");
+    new URLSearchParams(location.search).get("batchId") ||
+    localStorage.getItem("activeBatchId") ||
+    "";
+
+  if (batchId && localStorage.getItem("activeBatchId") !== batchId) {
+    localStorage.setItem("activeBatchId", batchId);
+  }
 
   const isActive = (path) => {
     return location.pathname === path;

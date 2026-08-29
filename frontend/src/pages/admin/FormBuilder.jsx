@@ -1,10 +1,97 @@
 import React, { useEffect, useState } from "react";
 import apiClient from "../../services/apiClient";
 
+const DEFAULT_APPLICATION_SCHEMA = [
+  {
+    id: "fullName",
+    label: "Full Name",
+    type: "text",
+    required: true,
+    placeholder: "Enter your full name",
+  },
+  {
+    id: "email",
+    label: "Email Address",
+    type: "email",
+    required: true,
+    placeholder: "you@example.com",
+  },
+  {
+    id: "phoneNumber",
+    label: "Phone Number",
+    type: "tel",
+    required: true,
+    placeholder: "+251 912 345 678",
+  },
+  {
+    id: "telegramUsername",
+    label: "Telegram Username",
+    type: "text",
+    required: true,
+    placeholder: "@username",
+  },
+  {
+    id: "gender",
+    label: "Gender",
+    type: "select",
+    required: true,
+    options: ["Male", "Female"],
+  },
+  {
+    id: "educationLevel",
+    label: "Education Level / Year",
+    type: "select",
+    required: true,
+    options: ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Graduate"],
+  },
+  {
+    id: "educationInstitution",
+    label: "University / Institution",
+    type: "text",
+    required: true,
+    placeholder: "e.g. Adama Science and Technology University",
+  },
+  {
+    id: "fieldOfStudy",
+    label: "Field of Study",
+    type: "text",
+    required: true,
+    placeholder: "e.g. Software Engineering / Computer Science",
+  },
+  {
+    id: "programmingExperience",
+    label: "Programming Experience Level",
+    type: "select",
+    required: true,
+    options: ["Beginner", "Intermediate", "Advanced"],
+  },
+  {
+    id: "githubLink",
+    label: "GitHub Profile Link (optional)",
+    type: "url",
+    required: false,
+    placeholder: "https://github.com/your-username",
+  },
+  {
+    id: "codeforcesLink",
+    label: "Codeforces Profile Link (optional)",
+    type: "url",
+    required: false,
+    placeholder: "https://codeforces.com/profile/username",
+  },
+  {
+    id: "motivation",
+    label: "Why do you want to join this bootcamp?",
+    type: "textarea",
+    required: false,
+    placeholder: "Tell us about your goals and motivations...",
+  },
+];
+
 function FormBuilder() {
   const [seasonId, setSeasonId] = useState("");
   const [season, setSeason] = useState(null);
-  const [fields, setFields] = useState([]);
+  const [fields, setFields] = useState(DEFAULT_APPLICATION_SCHEMA);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -34,24 +121,37 @@ function FormBuilder() {
 
       if (!applicationForm) {
         setError("Application form was not found.");
+        setFields(DEFAULT_APPLICATION_SCHEMA);
         return;
       }
 
       setSeason(currentSeason || null);
       setSeasonId(applicationForm.seasonId);
 
-      setFields(
-        Array.isArray(applicationForm.fields)
-          ? applicationForm.fields
-          : []
+      const rawFields = Array.isArray(applicationForm.fields) && applicationForm.fields.length > 0
+        ? applicationForm.fields
+        : DEFAULT_APPLICATION_SCHEMA;
+
+      const coreIds = new Set(DEFAULT_APPLICATION_SCHEMA.map((f) => f.id));
+      const customMap = new Map();
+      rawFields.forEach((f) => {
+        const key = f.id || f._id;
+        if (key) customMap.set(key, f);
+      });
+
+      const baseSchema = DEFAULT_APPLICATION_SCHEMA.map((coreField) => {
+        return customMap.get(coreField.id) || coreField;
+      });
+
+      const customOnly = rawFields.filter(
+        (f) => f && (f.id || f._id) && !coreIds.has(f.id || f._id)
       );
+
+
+      setFields([...baseSchema, ...customOnly]);
     } catch (err) {
       console.error("FETCH APPLICATION FORM ERROR:", err);
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to load application form."
-      );
+      setFields(DEFAULT_APPLICATION_SCHEMA);
     } finally {
       setLoading(false);
     }
@@ -211,6 +311,7 @@ function FormBuilder() {
   // LOADING
   // =====================================================
 
+
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
@@ -317,6 +418,7 @@ function FormBuilder() {
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Question
                   </label>
+
 
                   <input
                     type="text"
@@ -426,6 +528,7 @@ function FormBuilder() {
                       ))}
                     </div>
 
+
                     <button
                       type="button"
                       onClick={handleAddOption}
@@ -533,6 +636,7 @@ function FormBuilder() {
 
                           <div className="min-w-0 flex-1">
 
+
                             {/* QUESTION NUMBER */}
 
                             <div className="flex items-start gap-3">
@@ -623,6 +727,7 @@ function FormBuilder() {
             </div>
           </div>
         </div>
+
 
         {/* =================================================
             SAVE BAR

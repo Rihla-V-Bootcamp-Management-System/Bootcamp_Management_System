@@ -77,12 +77,22 @@ function DynamicForm({
             )}
 
             {/* =========================================
-                TEXT
+                TEXT / URL / TEL / LINK
             ========================================= */}
 
-            {field.type === "text" && (
+            {(field.type === "text" ||
+              field.type === "url" ||
+              field.type === "tel" ||
+              field.type === "link" ||
+              !field.type) && (
               <input
-                type="text"
+                type={
+                  field.type === "url"
+                    ? "url"
+                    : field.type === "tel"
+                    ? "tel"
+                    : "text"
+                }
                 value={responses[fieldKey] || ""}
                 onChange={(e) =>
                   handleChange(
@@ -90,6 +100,7 @@ function DynamicForm({
                     e.target.value
                   )
                 }
+                placeholder={field.placeholder || ""}
                 required={field.required}
                 className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
               />
@@ -117,6 +128,7 @@ function DynamicForm({
             {/* =========================================
                 NUMBER
             ========================================= */}
+
 
             {field.type === "number" && (
               <input
@@ -229,6 +241,7 @@ function DynamicForm({
             {/* =========================================
                 RADIO
             ========================================= */}
+
 
             {field.type === "radio" && (
               <div className="space-y-2">

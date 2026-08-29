@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-
-const API_URL = "http://localhost:5000/api";
+import apiClient from "../../services/apiClient";
 
 const templateTypes = [
   {
@@ -32,41 +31,20 @@ function EmailTemplates() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const getToken = () => {
-    return localStorage.getItem("token");
-  };
-
   const loadTemplate = async (type) => {
     try {
       setLoading(true);
       setError("");
       setMessage("");
 
-      const token = getToken();
+      const response = await apiClient.get(`/email-templates/${type}`);
+      const data = response.data;
 
-      const response = await fetch(
-        `${API_URL}/email-templates/${type}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to load email template"
-        );
-      }
-
-      setSubject(data.template.subject || "");
-      setText(data.template.text || "");
-      setHtml(data.template.html || "");
+      setSubject(data.template?.subject || "");
+      setText(data.template?.text || "");
+      setHtml(data.template?.html || "");
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || "Failed to load email template");
     } finally {
       setLoading(false);
     }
@@ -82,35 +60,15 @@ function EmailTemplates() {
       setError("");
       setMessage("");
 
-      const token = getToken();
-
-      const response = await fetch(
-        `${API_URL}/email-templates/${selectedType}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            subject,
-            text,
-            html,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to update email template"
-        );
-      }
+      await apiClient.patch(`/email-templates/${selectedType}`, {
+        subject,
+        text,
+        html,
+      });
 
       setMessage("Email template updated successfully.");
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || "Failed to update email template");
     } finally {
       setSaving(false);
     }
@@ -179,6 +137,7 @@ function EmailTemplates() {
                 Edit the message that applicants will receive.
               </p>
             </div>
+
 
             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
               {selectedType}

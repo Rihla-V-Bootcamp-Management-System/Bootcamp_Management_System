@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "../../services/apiClient";
 import {
   UserPlus,
   Mail,
@@ -30,17 +30,6 @@ function RegisterMentor() {
   const [loadingDetails, setLoadingDetails] = useState(false);
 
   // =====================================================
-  // GET TOKEN
-  // =====================================================
-
-  const getToken = () => {
-    return (
-      localStorage.getItem("token") ||
-      localStorage.getItem("authToken")
-    );
-  };
-
-  // =====================================================
   // LOAD REGISTERED MENTORS
   // =====================================================
 
@@ -49,16 +38,7 @@ function RegisterMentor() {
       setLoadingMentors(true);
       setError("");
 
-      const token = getToken();
-
-      const response = await axios.get(
-        "http://localhost:5000/api/mentors/mentors",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await apiClient.get("/mentors/mentors");
 
       console.log(
         "REGISTERED MENTORS RESPONSE:",
@@ -131,24 +111,13 @@ function RegisterMentor() {
     try {
       setLoading(true);
 
-      const token = getToken();
-
-      const response = await axios.post(
-        "http://localhost:5000/api/mentors/register",
-        {
-          name: formData.name.trim(),
-          email: formData.email.trim(),
-          phone: formData.phone.trim(),
-          telegramUsername:
-            formData.telegramUsername.trim(),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await apiClient.post("/mentors/register", {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        telegramUsername:
+          formData.telegramUsername.trim(),
+      });
 
       console.log(
         "MENTOR REGISTER RESPONSE:",
@@ -200,16 +169,8 @@ function RegisterMentor() {
       setLoadingDetails(true);
       setError("");
 
-      const token = getToken();
+      const response = await apiClient.get(`/mentors/${mentorId}`);
 
-      const response = await axios.get(
-        `http://localhost:5000/api/mentors/${mentorId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
 
       console.log(
         "MENTOR DETAILS RESPONSE:",
@@ -353,6 +314,7 @@ function RegisterMentor() {
 
               {/* EMAIL */}
 
+
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">
                   Email Address
@@ -475,6 +437,7 @@ function RegisterMentor() {
                 <h2 className="text-lg font-semibold text-gray-900">
                   Registered Mentors
                 </h2>
+
 
                 <p className="text-sm text-gray-500">
                   {mentors.length} mentor
@@ -614,6 +577,7 @@ function RegisterMentor() {
                       {/* ACTION */}
 
                       <td className="px-6 py-4 text-right">
+
 
                         <button
                           onClick={() =>
@@ -757,6 +721,7 @@ function RegisterMentor() {
 
                   <div className="rounded-xl border border-gray-200 p-4">
 
+
                     <p className="mb-1 text-xs font-medium uppercase text-gray-400">
                       Telegram
                     </p>
@@ -880,6 +845,7 @@ function RegisterMentor() {
                                 </td>
 
                               </tr>
+
 
                             )
                           )}

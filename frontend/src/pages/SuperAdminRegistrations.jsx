@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import apiClient from "../services/apiClient";
 import {
   Search,
   Filter,
@@ -39,10 +40,10 @@ function SuperAdminRegistrations() {
   // FORMAT DATE FOR DATETIME-LOCAL INPUT
   // =====================================================
 
-  const formatDateTimeLocal = (value) => {
-    if (!value) return "";
+  const formatDateTimeLocal = (dateString) => {
+    if (!dateString) return "";
 
-    const date = new Date(value);
+    const date = new Date(dateString);
 
     if (Number.isNaN(date.getTime())) {
       return "";
@@ -65,24 +66,15 @@ function SuperAdminRegistrations() {
     try {
       setSettingsLoading(true);
 
-      const response = await fetch(
-        "http://localhost:5000/api/registration-settings"
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to load registration settings"
-        );
-      }
+      const response = await apiClient.get("/registration-settings");
+      const data = response.data;
 
       setRegistrationOpen(Boolean(data.registrationOpen));
       setOpensAt(formatDateTimeLocal(data.opensAt));
       setClosesAt(formatDateTimeLocal(data.closesAt));
     } catch (err) {
       setError(
-        err.message || "Failed to load registration settings"
+        err.response?.data?.message || err.message || "Failed to load registration settings"
       );
     } finally {
       setSettingsLoading(false);
@@ -98,42 +90,27 @@ function SuperAdminRegistrations() {
       setLoading(true);
       setError("");
 
-      const token = localStorage.getItem("token");
+      const response = await apiClient.get("/registrations");
+      const data = response.data;
 
-      if (!token) {
-        throw new Error("Authentication required");
-      }
+      const list =
+        data.registrations ||
+        data.data ||
+        (Array.isArray(data) ? data : []);
 
-      const response = await fetch(
-        "http://localhost:5000/api/registrations",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to load registrations"
-        );
-      }
-
-      setApplications(
-        Array.isArray(data.registrations)
-          ? data.registrations
-          : []
-      );
+      setApplications(Array.isArray(list) ? list : []);
     } catch (err) {
       setError(
-        err.message || "Failed to load registrations"
+        err.response?.data?.message || err.message || "Failed to load registrations"
       );
     } finally {
       setLoading(false);
     }
   };
+
+  // =====================================================
+  // LOAD WHEN COMPONENT MOUNT
+  // =====================================================
 
   useEffect(() => {
     loadRegistrationSettings();
@@ -141,7 +118,7 @@ function SuperAdminRegistrations() {
   }, []);
 
   // =====================================================
-  // TOGGLE REGISTRATION
+  // TOGGLE REGISTRATION OPEN / CLOSE
   // =====================================================
 
   const handleRegistrationToggle = async () => {
@@ -150,37 +127,16 @@ function SuperAdminRegistrations() {
       setError("");
       setActionMessage("");
 
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        throw new Error("Authentication required");
-      }
-
       const newStatus = !registrationOpen;
 
-      const response = await fetch(
-        "http://localhost:5000/api/registration-settings/toggle",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            registrationOpen: newStatus,
-          }),
-        }
-      );
+      const response = await apiClient.patch("/registration-settings/toggle", {
+        registrationOpen: newStatus,
+      });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to update registration status"
-        );
-      }
+      const data = response.data;
 
       setRegistrationOpen(Boolean(data.registrationOpen));
+
 
       setActionMessage(
         data.message ||
@@ -190,7 +146,7 @@ function SuperAdminRegistrations() {
       );
     } catch (err) {
       setError(
-        err.message || "Failed to update registration status"
+        err.response?.data?.message || err.message || "Failed to update registration status"
       );
     } finally {
       setSettingsSaving(false);
@@ -222,34 +178,12 @@ function SuperAdminRegistrations() {
         );
       }
 
-      const token = localStorage.getItem("token");
+      const response = await apiClient.patch("/registration-settings/period", {
+        opensAt: openingDate.toISOString(),
+        closesAt: closingDate.toISOString(),
+      });
 
-      if (!token) {
-        throw new Error("Authentication required");
-      }
-
-      const response = await fetch(
-        "http://localhost:5000/api/registration-settings/period",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            opensAt: openingDate.toISOString(),
-            closesAt: closingDate.toISOString(),
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to save registration period"
-        );
-      }
+      const data = response.data;
 
       setRegistrationOpen(Boolean(data.registrationOpen));
 
@@ -259,7 +193,7 @@ function SuperAdminRegistrations() {
       );
     } catch (err) {
       setError(
-        err.message || "Failed to save registration period"
+        err.response?.data?.message || err.message || "Failed to save registration period"
       );
     } finally {
       setSettingsSaving(false);
@@ -280,34 +214,11 @@ function SuperAdminRegistrations() {
       setActionMessage("");
       setError("");
 
-      const token = localStorage.getItem("token");
+      const response = await apiClient.patch(`/registrations/${registrationId}/status`, {
+        status: newStatus,
+      });
 
-      if (!token) {
-        throw new Error("Authentication required");
-      }
-
-      const response = await fetch(
-        `http://localhost:5000/api/registrations/${registrationId}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            status: newStatus,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Failed to update registration status"
-        );
-      }
+      const data = response.data;
 
       setActionMessage(
         data.message ||
@@ -317,8 +228,7 @@ function SuperAdminRegistrations() {
       await loadRegistrations();
     } catch (err) {
       setError(
-        err.message ||
-          "Failed to update registration status"
+        err.response?.data?.message || err.message || "Failed to update status"
       );
     } finally {
       setActionId(null);
@@ -387,6 +297,7 @@ function SuperAdminRegistrations() {
   // =====================================================
   // COUNTS
   // =====================================================
+
 
   const submittedCount = applications.filter(
     (item) => item.status === "Submitted"
@@ -546,6 +457,7 @@ function SuperAdminRegistrations() {
 
         {/* TOGGLE */}
 
+
         <div className="registration-toggle-row">
           <div className="registration-toggle-info">
             <div className="registration-control-icon">
@@ -688,6 +600,7 @@ function SuperAdminRegistrations() {
           </div>
         </div>
 
+
         <div className="registration-stat">
           <div className="registration-stat-icon">
             <XCircle size={19} />
@@ -821,6 +734,7 @@ function SuperAdminRegistrations() {
                           application.department
                         )}
                       </td>
+                      
 
                       <td>
                         {application.submittedAt
@@ -929,6 +843,7 @@ function SuperAdminRegistrations() {
             </tbody>
           </table>
         </div>
+
 
         <div className="registration-pagination">
           <span>

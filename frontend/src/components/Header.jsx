@@ -32,6 +32,9 @@ function Header({
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [notificationsOpen, setNotificationsOpen] =
     useState(false);
 
@@ -170,10 +173,10 @@ function Header({
     }
   };
 
+
   // =========================================================
   // MARK ALL NOTIFICATIONS AS READ
   // =========================================================
-
 
   const markAllAsRead = async () => {
     if (unreadCount === 0) {
@@ -318,18 +321,45 @@ function Header({
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
 
+
           {/* ===================================================
               SEARCH
           =================================================== */}
 
-
-          <button
-            type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-white"
-            aria-label="Search"
-          >
-            <Search size={19} />
-          </button>
+          <div className="relative flex items-center">
+            {searchOpen ? (
+              <div className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-1.5 shadow-md transition-all">
+                <Search size={16} className="text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search dashboard..."
+                  autoFocus
+                  className="w-36 bg-transparent text-xs text-slate-800 outline-none sm:w-48"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSearchOpen(false);
+                  }}
+                  className="rounded p-0.5 text-slate-400 hover:text-slate-700"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-white"
+                aria-label="Search"
+              >
+                <Search size={19} />
+              </button>
+            )}
+          </div>
 
           {/* ===================================================
               CALENDAR
@@ -405,6 +435,7 @@ function Header({
             {notificationsOpen && (
               <div className="absolute right-0 top-12 z-50 w-[350px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
 
+
                 {/* HEADER */}
 
                 <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
@@ -437,7 +468,6 @@ function Header({
                           size={13}
                         />
                       )}
-
 
                       Mark all read
                     </button>
@@ -498,6 +528,7 @@ function Header({
 
                           {/* ICON */}
 
+
                           <div
                             className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
                               notification.isRead
@@ -536,7 +567,6 @@ function Header({
                             <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-slate-500">
                               {notification.message}
                             </p>
-
 
                             <p className="mt-2 text-[10px] text-slate-400">
                               {formatDate(

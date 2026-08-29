@@ -7,6 +7,9 @@ import {
   Megaphone,
   User,
   LogOut,
+  UserCheck,
+  ListTodo,
+  FileCheck,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import useAuth from "../context/useAuth";
@@ -37,7 +40,7 @@ function StudentSidebar() {
       </div>
 
       {/* NAVIGATION */}
-      <nav className="flex-1 overflow-y-auto px-3 py-5">
+      <nav className="flex-1 overflow-y-auto px-3 py-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <div className="space-y-1">
 
           {/* Dashboard */}
@@ -68,22 +71,28 @@ function StudentSidebar() {
             <ChartNoAxesColumn size={19} />
             <span>Progress</span>
           </NavLink>
+
+          {/* My Mentor */}
           <NavLink
             to="/student/my-mentor"
             end
             className={navClass}
           >
-            <ChartNoAxesColumn size={19} />
-            <span>Mymentor</span>
+            <UserCheck size={19} />
+            <span>My Mentor</span>
           </NavLink>
-            <NavLink
+
+          {/* Daily Tasks */}
+          <NavLink
             to="/student/daily-tasks"
             end
             className={navClass}
           >
-            <ChartNoAxesColumn size={19} />
+            <ListTodo size={19} />
             <span>Daily Tasks</span>
           </NavLink>
+
+          {/* Assignments */}
           <NavLink
             to="/student/assignments"
             className={navClass}
@@ -106,7 +115,7 @@ function StudentSidebar() {
             to="/student/submissions"
             className={navClass}
           >
-            <ClipboardList size={19} />
+            <FileCheck size={19} />
             <span>Submissions</span>
           </NavLink>
 

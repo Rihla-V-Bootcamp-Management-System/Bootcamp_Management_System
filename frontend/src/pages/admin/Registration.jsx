@@ -1,6 +1,92 @@
-
 import { useEffect, useState } from "react";
 import apiClient from "../../services/apiClient";
+
+const DEFAULT_APPLICATION_SCHEMA = [
+  {
+    id: "fullName",
+    label: "Full Name",
+    type: "text",
+    required: true,
+    placeholder: "Enter your full name",
+  },
+  {
+    id: "email",
+    label: "Email Address",
+    type: "email",
+    required: true,
+    placeholder: "you@example.com",
+  },
+  {
+    id: "phoneNumber",
+    label: "Phone Number",
+    type: "tel",
+    required: true,
+    placeholder: "+251 912 345 678",
+  },
+  {
+    id: "telegramUsername",
+    label: "Telegram Username",
+    type: "text",
+    required: true,
+    placeholder: "@username",
+  },
+  {
+    id: "gender",
+    label: "Gender",
+    type: "select",
+    required: true,
+    options: ["Male", "Female"],
+  },
+  {
+    id: "educationLevel",
+    label: "Education Level / Year",
+    type: "select",
+    required: true,
+    options: ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Graduate"],
+  },
+  {
+    id: "educationInstitution",
+    label: "University / Institution",
+    type: "text",
+    required: true,
+    placeholder: "e.g. Adama Science and Technology University",
+  },
+  {
+    id: "fieldOfStudy",
+    label: "Field of Study",
+    type: "text",
+    required: true,
+    placeholder: "e.g. Software Engineering / Computer Science",
+  },
+  {
+    id: "programmingExperience",
+    label: "Programming Experience Level",
+    type: "select",
+    required: true,
+    options: ["Beginner", "Intermediate", "Advanced"],
+  },
+  {
+    id: "githubLink",
+    label: "GitHub Profile Link (optional)",
+    type: "url",
+    required: false,
+    placeholder: "https://github.com/your-username",
+  },
+  {
+    id: "codeforcesLink",
+    label: "Codeforces Profile Link (optional)",
+    type: "url",
+    required: false,
+    placeholder: "https://codeforces.com/profile/username",
+  },
+  {
+    id: "motivation",
+    label: "Why do you want to join this bootcamp?",
+    type: "textarea",
+    required: false,
+    placeholder: "Tell us about your goals and motivations...",
+  },
+];
 
 function FormBuilder() {
   const [season, setSeason] = useState(null);
@@ -8,7 +94,7 @@ function FormBuilder() {
   const [form, setForm] = useState({
     title: "Application Form",
     description: "",
-    fields: [],
+    fields: DEFAULT_APPLICATION_SCHEMA,
   });
 
   const [loading, setLoading] = useState(true);
@@ -72,6 +158,7 @@ function FormBuilder() {
     }
   };
 
+
   // =========================================================
   // LOAD APPLICATION FORM FOR CURRENT SEASON
   // =========================================================
@@ -90,12 +177,29 @@ function FormBuilder() {
         response.data;
 
       if (data && typeof data === "object") {
+        const rawFields = Array.isArray(data.fields) && data.fields.length > 0
+          ? data.fields
+          : DEFAULT_APPLICATION_SCHEMA;
+
+        const coreIds = new Set(DEFAULT_APPLICATION_SCHEMA.map((f) => f.id));
+        const customMap = new Map();
+        rawFields.forEach((f) => {
+          const key = f.id || f._id;
+          if (key) customMap.set(key, f);
+        });
+
+        const baseSchema = DEFAULT_APPLICATION_SCHEMA.map((coreField) => {
+          return customMap.get(coreField.id) || coreField;
+        });
+
+        const customOnly = rawFields.filter(
+          (f) => f && (f.id || f._id) && !coreIds.has(f.id || f._id)
+        );
+
         setForm({
           title: data.title || "Application Form",
           description: data.description || "",
-          fields: Array.isArray(data.fields)
-            ? data.fields
-            : [],
+          fields: [...baseSchema, ...customOnly],
           _id: data._id,
         });
       }
@@ -218,6 +322,7 @@ function FormBuilder() {
       ) {
         return previous;
       }
+
 
       [
         fields[index],
@@ -388,6 +493,7 @@ function FormBuilder() {
     <div className="min-h-screen bg-gray-50 p-6 md:p-8">
       <div className="mx-auto max-w-6xl">
 
+
         {/* =====================================================
             HEADER
         ====================================================== */}
@@ -502,6 +608,7 @@ function FormBuilder() {
               <h2 className="text-lg font-semibold text-gray-900">
                 Application Fields
               </h2>
+
 
               <p className="mt-1 text-sm text-gray-500">
                 Add and arrange the fields applicants
@@ -620,6 +727,7 @@ function FormBuilder() {
 
                       <div className="grid gap-4 md:grid-cols-2">
 
+
                         {/* LABEL */}
 
                         <div>
@@ -716,6 +824,7 @@ function FormBuilder() {
                           <label className="mb-2 block text-sm font-medium text-gray-700">
                             Placeholder
                           </label>
+
 
                           <input
                             type="text"
@@ -830,4 +939,3 @@ function FormBuilder() {
 }
 
 export default FormBuilder;
-

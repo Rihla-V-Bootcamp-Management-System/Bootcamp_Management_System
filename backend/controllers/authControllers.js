@@ -1,4 +1,3 @@
-
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
@@ -185,6 +184,7 @@ const registerMentor = async (req, res) => {
       error
     );
 
+
     return res.status(500).json({
       success: false,
       message: "Mentor registration failed",
@@ -368,6 +368,7 @@ const loginUser = async (req, res) => {
   }
 };
 
+
 // =========================================================
 // VERIFY OTP
 // POST /api/auth/verify-otp
@@ -544,6 +545,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
+
     console.log(
       "OTP VERIFIED SUCCESSFULLY"
     );
@@ -716,6 +718,7 @@ const setPassword = async (req, res) => {
     // =====================================================
     // OTP MUST BE VERIFIED
     // =====================================================
+
 
     if (user.otpVerified !== true) {
       return res.status(400).json({
@@ -900,6 +903,7 @@ const getUserById = async (
 // PAGINATION + SEARCH + ROLE + GENDER
 // =========================================================
 
+
 const getUsers = async (
   req,
   res
@@ -1040,6 +1044,108 @@ const getUsers = async (
 };
 
 // =========================================================
+// FORGOT PASSWORD
+// POST /api/auth/forgot-password
+// =========================================================
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "No account found with this email address.",
+      });
+    }
+
+    const resetOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = resetOtp;
+    user.otpExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save();
+
+    console.log(`[PASSWORD RESET] Reset code for ${user.email} (${user.name}): ${resetOtp}`);
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset instructions have been sent to your email.",
+    });
+  } catch (error) {
+    console.error("FORGOT PASSWORD ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to process forgot password request",
+      error: error.message,
+    });
+  }
+};
+
+// =========================================================
+// RESET PASSWORD
+// POST /api/auth/reset-password
+// =========================================================
+
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and new password are required",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (otp && user.otp && user.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired reset code",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    user.mustResetPassword = false;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successfully. You can now login with your new password.",
+    });
+  } catch (error) {
+    console.error("RESET PASSWORD ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to reset password",
+      error: error.message,
+    });
+  }
+};
+
+// =========================================================
 // EXPORT
 // =========================================================
 
@@ -1051,5 +1157,6 @@ module.exports = {
   setPassword,
   getUserById,
   getUsers,
+  forgotPassword,
+  resetPassword,
 };
-

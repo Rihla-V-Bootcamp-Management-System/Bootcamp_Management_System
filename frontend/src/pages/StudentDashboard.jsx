@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CalendarDays,
   CheckCircle2,
@@ -32,12 +33,12 @@ const TOPICS = [
 // =========================================================
 
 const StudentDashboard = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [progressError, setProgressError] = useState("");
 
   const [dashboardData, setDashboardData] = useState({
     attendance: null,
-
     progress: {
       percentage: 0,
       completed: 0,
@@ -46,8 +47,12 @@ const StudentDashboard = () => {
       notStarted: TOPICS.length,
       total: TOPICS.length,
     },
-
-    assignments: null,
+    assignments: {
+      total: 0,
+      submitted: 0,
+      pending: 0,
+      graded: 0,
+    },
     averageGrade: null,
     announcements: [],
     deadlines: [],
@@ -63,23 +68,21 @@ const StudentDashboard = () => {
         setLoading(true);
         setProgressError("");
 
-        // ===============================================
-        // GET REAL STUDENT PROGRESS
-        // ===============================================
+        // Run parallel requests
+        const [progressRes, assignmentsRes, submissionsRes, announcementsRes, attendanceRes] =
+          await Promise.allSettled([
+            apiClient.get("/progress"),
+            apiClient.get("/assignments"),
+            apiClient.get("/submissions/my"),
+            apiClient.get("/announcements"),
+            apiClient.get("/attendance/my"),
+          ]);
 
-        const response = await apiClient.get("/progress");
-
-        console.log(
-          "Student progress response:",
-          response.data
-        );
-
+        // 1. Progress
         const progressList =
-          response.data?.progress || [];
-
-        // ===============================================
-        // CALCULATE STATUS COUNTS
-        // ===============================================
+          progressRes.status === "fulfilled"
+            ? progressRes.value.data?.progress || []
+            : [];
 
         const completed = progressList.filter(
           (item) => item.status === "Completed"
@@ -93,34 +96,89 @@ const StudentDashboard = () => {
           (item) => item.status === "Needs Improvement"
         ).length;
 
-        // Topics without a saved Progress document
-        // are treated as Not Started.
         const notStarted = Math.max(
-          TOPICS.length -
-            completed -
-            inProgress -
-            needsImprovement,
+          TOPICS.length - completed - inProgress - needsImprovement,
           0
         );
 
-        // ===============================================
-        // SAME CALCULATION AS STUDENT PROGRESS PAGE
-        // ===============================================
-
         const total = TOPICS.length;
-
         const percentage =
-          total > 0
-            ? Math.round((completed / total) * 100)
-            : 0;
+          total > 0 ? Math.round((completed / total) * 100) : 0;
 
-        // ===============================================
-        // UPDATE DASHBOARD
-        // ===============================================
+        // 2. Assignments & Submissions
+        const rawAssignments =
+          assignmentsRes.status === "fulfilled"
+            ? assignmentsRes.value.data?.assignments ||
+              assignmentsRes.value.data?.data ||
+              assignmentsRes.value.data ||
+              []
+            : [];
+        const assignmentList = Array.isArray(rawAssignments) ? rawAssignments : [];
 
-        setDashboardData((previous) => ({
-          ...previous,
+        const rawSubmissions =
+          submissionsRes.status === "fulfilled"
+            ? submissionsRes.value.data?.submissions ||
+              submissionsRes.value.data?.data ||
+              submissionsRes.value.data ||
+              []
+            : [];
+        const submissionList = Array.isArray(rawSubmissions) ? rawSubmissions : [];
 
+        const totalAssignments = assignmentList.length;
+        const submittedCount = submissionList.length;
+        const pendingCount = Math.max(totalAssignments - submittedCount, 0);
+
+        const gradedSubmissions = submissionList.filter(
+          (sub) => sub.status === "Graded" && sub.grade !== null && sub.grade !== undefined
+        );
+        const gradedCount = gradedSubmissions.length;
+
+
+        let avgGrade = null;
+        if (gradedCount > 0) {
+          const totalGrade = gradedSubmissions.reduce(
+            (sum, sub) => sum + Number(sub.grade || 0),
+            0
+          );
+          avgGrade = Math.round(totalGrade / gradedCount);
+        }
+
+        // 3. Announcements
+        const rawAnnouncements =
+          announcementsRes.status === "fulfilled"
+            ? announcementsRes.value.data?.announcements ||
+              announcementsRes.value.data?.data ||
+              announcementsRes.value.data ||
+              []
+            : [];
+        const announcementList = Array.isArray(rawAnnouncements) ? rawAnnouncements : [];
+
+        // 4. Attendance
+        let attendanceData = null;
+        if (attendanceRes.status === "fulfilled") {
+          const rawAtt = attendanceRes.value.data;
+          const records = rawAtt?.records || rawAtt?.attendance || (Array.isArray(rawAtt) ? rawAtt : []);
+          if (Array.isArray(records) && records.length > 0) {
+            const presentCount = records.filter(
+              (r) => r.status === "present" || r.status === "Present"
+            ).length;
+            const attPct = Math.round((presentCount / records.length) * 100);
+            attendanceData = {
+              percentage: attPct,
+              present: presentCount,
+              total: records.length,
+            };
+          }
+        }
+
+        // 5. Deadlines
+        const upcomingDeadlines = assignmentList
+          .filter((a) => a.deadline && new Date(a.deadline) > new Date())
+          .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+          .slice(0, 5);
+
+        setDashboardData({
+          attendance: attendanceData,
           progress: {
             percentage,
             completed,
@@ -129,7 +187,16 @@ const StudentDashboard = () => {
             notStarted,
             total,
           },
-        }));
+          assignments: {
+            total: totalAssignments,
+            submitted: submittedCount,
+            pending: pendingCount,
+            graded: gradedCount,
+          },
+          averageGrade: avgGrade,
+          announcements: announcementList.slice(0, 5),
+          deadlines: upcomingDeadlines,
+        });
       } catch (error) {
         console.error(
           "Student dashboard progress error:",
@@ -196,6 +263,7 @@ const StudentDashboard = () => {
           PROGRESS ERROR
       ===================================================== */}
 
+
       {progressError && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4">
           <p className="text-sm text-red-600">
@@ -225,6 +293,7 @@ const StudentDashboard = () => {
               : "No attendance data yet"
           }
           icon={CalendarDays}
+          onClick={() => navigate("/student/attendance")}
         />
 
         {/* Progress */}
@@ -234,6 +303,7 @@ const StudentDashboard = () => {
           value={`${progress.percentage}%`}
           description={`${progress.completed} topics completed`}
           icon={TrendingUp}
+          onClick={() => navigate("/student/progress")}
         />
 
         {/* Assignments */}
@@ -252,6 +322,7 @@ const StudentDashboard = () => {
               : "No assignment data yet"
           }
           icon={FileText}
+          onClick={() => navigate("/student/assignments")}
         />
 
         {/* Average Grade */}
@@ -270,6 +341,7 @@ const StudentDashboard = () => {
               : "No grades available yet"
           }
           icon={Award}
+          onClick={() => navigate("/student/grades")}
         />
       </div>
 
@@ -331,6 +403,7 @@ const StudentDashboard = () => {
           {/* Progress Statistics */}
 
           <div className="grid grid-cols-3 gap-3">
+
 
             <ProgressStat
               label="Completed"
@@ -472,6 +545,7 @@ const StudentDashboard = () => {
                   >
                     <div className="flex items-start justify-between gap-4">
 
+
                       <div>
                         <h3 className="font-medium text-gray-900">
                           {announcement.title}
@@ -563,9 +637,17 @@ const DashboardCard = ({
   value,
   description,
   icon: Icon,
+  onClick,
 }) => {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div
+      onClick={onClick}
+      className={`rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all ${
+        onClick
+          ? "cursor-pointer hover:-translate-y-1 hover:border-gray-300 hover:shadow-md"
+          : ""
+      }`}
+    >
       <div className="flex items-start justify-between">
 
         <div>
@@ -617,6 +699,7 @@ const ProgressStat = ({
   );
 };
 
+
 // =========================================================
 // ASSIGNMENT ROW
 // =========================================================
@@ -643,7 +726,7 @@ const AssignmentRow = ({ label, value }) => {
 
 const EmptyState = ({ message }) => {
   return (
-    <div className="flex min-h-[140px] items-center justify-center rounded-xl border border-dashed border-gray-200">
+    <div className="flex min-h-140 items-center justify-center rounded-xl border border-dashed border-gray-200">
 
       <p className="text-sm text-gray-400">
         {message}

@@ -31,20 +31,20 @@ const announcementSchema = new mongoose.Schema(
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
     },
 
     senderRole: {
       type: String,
-      enum: ["admin", "superadmin", "mentor"],
-      required: true,
+      enum: ["admin", "superadmin", "mentor", "Admin", "Superadmin", "Mentor"],
+      default: "admin",
     },
 
     // Keep authorId as an alias/reference from the other branch.
     authorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
     },
 
     // =====================================================
@@ -53,31 +53,11 @@ const announcementSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: [
-        "general",
-        "assignment",
-        "attendance",
-        "progress",
-        "custom",
-        "Contest",
-        "Session",
-        "Experience Sharing",
-        "Deadline",
-        "Special Event",
-        "Other",
-      ],
-      default: "general",
+      default: "Session",
     },
 
     eventType: {
       type: String,
-      enum: [
-        "Special Event",
-        "Competition",
-        "Guest Speaker",
-        "Career Event",
-        "Hackathon",
-      ],
       default: null,
     },
 
@@ -106,6 +86,11 @@ const announcementSchema = new mongoose.Schema(
     // RECIPIENTS
     // =====================================================
 
+    recipients: {
+      type: [String],
+      default: [],
+    },
+
     // Specific users who should receive the announcement
     recipientUsers: [
       {
@@ -116,12 +101,7 @@ const announcementSchema = new mongoose.Schema(
 
     // Recipient roles
     recipientRoles: {
-      type: [
-        {
-          type: String,
-          enum: ["Superadmin", "Mentor", "Student"],
-        },
-      ],
+      type: [String],
       default: [],
     },
 
