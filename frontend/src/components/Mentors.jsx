@@ -7,13 +7,13 @@ import nebiyuImage from "../assets/5888653338713197840_121.jpg";
 function Mentors() {
   const founders = [
     {
-      name: "Sadam Husen",
-      role: "Bootcamp Founder",
+      name: "Abdulaziz Isa",
+      role: "co-Founder",
       bio: "Leading the vision and direction of the ASTU MSJ Summer Bootcamp.",
       image: sadamImage,
     },
     {
-      name: "Abdulaziz Isa",
+      name: "sadam Hussein",
       role: "Co-Founder",
       bio: "Supporting the development and growth of the bootcamp community.",
       image: abdulazizImage,
