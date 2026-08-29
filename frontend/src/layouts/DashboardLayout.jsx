@@ -409,7 +409,7 @@ function DashboardLayout({ role }) {
           MAIN CONTENT
       ===================================================== */}
 
-      <div className="flex-1 w-full lg:ml-64 overflow-x-hidden">
+      <div className="flex-1 lg:ml-64 overflow-x-hidden">
 
         {/* ===================================================
             TOP HEADER
@@ -434,7 +434,7 @@ function DashboardLayout({ role }) {
                 <h1 className="text-lg font-semibold text-slate-900 dark:text-white">
                   {pageInfo.title}
                 </h1>
-
+                
 
                 <p className="hidden text-xs text-slate-500 sm:block dark:text-slate-400">
                   {pageInfo.description}

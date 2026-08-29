@@ -11,7 +11,7 @@ function AdminLayout() {
     <div className="min-h-screen bg-[#F7F5EF] text-white-900">
       <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      <div className="flex-1 w-full md:ml-64 overflow-x-hidden">
+      <div className="flex-1 md:ml-64 overflow-x-hidden">
         
         {/* Mobile Header Row for Hamburger */}
         <div className="flex items-center gap-3 bg-white px-6 py-3 border-b border-slate-200 md:hidden">

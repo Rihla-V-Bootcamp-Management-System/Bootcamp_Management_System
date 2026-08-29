@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import {
   Megaphone,
   ArrowLeft,
@@ -22,7 +21,6 @@ import {
   FileText,
   Layers,
 } from "lucide-react";
-
 import { useNavigate } from "react-router-dom";
 import apiClient from "../../services/apiClient";
 
@@ -32,7 +30,6 @@ function CreateAnnouncement() {
   const [creating, setCreating] = useState(false);
   const [loadingBatches, setLoadingBatches] = useState(true);
   const [batches, setBatches] = useState([]);
-
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -53,7 +50,6 @@ function CreateAnnouncement() {
   // =========================================================
   // LOAD BATCHES
   // =========================================================
-
   useEffect(() => {
     const fetchBatches = async () => {
       try {
@@ -90,7 +86,6 @@ function CreateAnnouncement() {
   // =========================================================
   // CATEGORIES
   // =========================================================
-
   const categories = [
     {
       value: "Contest",
@@ -127,7 +122,6 @@ function CreateAnnouncement() {
   // =========================================================
   // RECIPIENTS
   // =========================================================
-
   const recipientOptions = [
     {
       value: "Superadmin",
@@ -152,7 +146,6 @@ function CreateAnnouncement() {
   // =========================================================
   // INPUT CHANGE
   // =========================================================
-
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -168,7 +161,6 @@ function CreateAnnouncement() {
   // =========================================================
   // CATEGORY CHANGE
   // =========================================================
-
   const handleCategoryChange = (category) => {
     setFormData((previous) => ({
       ...previous,
@@ -182,7 +174,6 @@ function CreateAnnouncement() {
   // =========================================================
   // RECIPIENT TOGGLE
   // =========================================================
-
   const toggleRecipient = (recipient) => {
     setFormData((previous) => {
       const exists =
@@ -190,7 +181,6 @@ function CreateAnnouncement() {
 
       return {
         ...previous,
-
         recipients: exists
           ? previous.recipients.filter(
               (item) => item !== recipient
@@ -209,8 +199,9 @@ function CreateAnnouncement() {
   // =========================================================
   // VALIDATION
   // =========================================================
-
-  const validateForm = (submitStatus = formData.status) => {
+  const validateForm = (
+    submitStatus = formData.status
+  ) => {
     if (!formData.title.trim()) {
       return "Please enter an announcement title.";
     }
@@ -292,7 +283,6 @@ function CreateAnnouncement() {
   // =========================================================
   // SUBMIT
   // =========================================================
-
   const handleSubmit = async (
     event,
     submitStatus = formData.status
@@ -315,13 +305,9 @@ function CreateAnnouncement() {
 
       const payload = {
         title: formData.title.trim(),
-
         content: formData.content.trim(),
-
         type: formData.type,
-
         recipients: formData.recipients,
-
         batchId: formData.batchId,
 
         activeLink:
@@ -385,7 +371,6 @@ function CreateAnnouncement() {
   // =========================================================
   // HELPERS
   // =========================================================
-
   const getRecipientLabel = (value) => {
     const recipient =
       recipientOptions.find(
@@ -410,7 +395,6 @@ function CreateAnnouncement() {
   // =========================================================
   // UI
   // =========================================================
-
   return (
     <div className="min-h-full bg-[#F8FAFC] pb-10">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -418,7 +402,6 @@ function CreateAnnouncement() {
         {/* =================================================
             HEADER
         ================================================= */}
-
         <div className="mb-7">
           <button
             type="button"
@@ -428,12 +411,10 @@ function CreateAnnouncement() {
             className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-[#071629]"
           >
             <ArrowLeft size={17} />
-
             Back to Announcements
           </button>
 
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
-
             <div className="flex items-start gap-4">
 
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#071629] text-white shadow-lg shadow-slate-200">
@@ -441,7 +422,6 @@ function CreateAnnouncement() {
               </div>
 
               <div>
-
                 <div className="flex flex-wrap items-center gap-3">
 
                   <h1 className="text-2xl font-bold tracking-tight text-[#0F172A] sm:text-3xl">
@@ -458,8 +438,8 @@ function CreateAnnouncement() {
                   Create and publish an announcement to
                   your bootcamp community.
                 </p>
-
               </div>
+
             </div>
           </div>
         </div>
@@ -467,10 +447,8 @@ function CreateAnnouncement() {
         {/* =================================================
             MESSAGES
         ================================================= */}
-
         {error && (
           <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
-
             <AlertCircle
               size={19}
               className="mt-0.5 shrink-0"
@@ -490,7 +468,6 @@ function CreateAnnouncement() {
 
         {success && (
           <div className="mb-6 flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 px-4 py-4 text-sm text-green-700">
-
             <CheckCircle2 size={19} />
 
             <span className="font-medium">
@@ -501,20 +478,21 @@ function CreateAnnouncement() {
 
         <form
           onSubmit={(event) =>
-            handleSubmit(event, formData.status)
+            handleSubmit(
+              event,
+              formData.status
+            )
           }
         >
 
           {/* =================================================
               MAIN CONTENT + PUBLISHING
           ================================================= */}
-
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
 
             {/* =================================================
                 LEFT — CONTENT
             ================================================= */}
-
             <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
 
               <div className="border-b border-slate-100 px-6 py-5">
@@ -537,14 +515,13 @@ function CreateAnnouncement() {
                   </div>
 
                 </div>
+
               </div>
 
               <div className="space-y-6 p-6">
 
                 {/* TITLE */}
-
                 <div>
-
                   <div className="mb-2 flex items-center justify-between">
 
                     <label className="text-sm font-semibold text-slate-700">
@@ -569,11 +546,9 @@ function CreateAnnouncement() {
                     placeholder="e.g. JavaScript Session Tomorrow"
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
-
                 </div>
 
                 {/* CATEGORY */}
-
                 <div>
 
                   <div className="mb-3">
@@ -666,7 +641,6 @@ function CreateAnnouncement() {
                 </div>
 
                 {/* MESSAGE */}
-
                 <div>
 
                   <div className="mb-2 flex items-center justify-between">
@@ -707,7 +681,6 @@ function CreateAnnouncement() {
             {/* =================================================
                 RIGHT — PUBLISHING
             ================================================= */}
-
             <div className="space-y-6">
 
               <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -728,7 +701,6 @@ function CreateAnnouncement() {
                 <div className="space-y-5 p-5">
 
                   {/* STATUS */}
-
                   <div>
 
                     <label className="mb-3 block text-sm font-semibold text-slate-700">
@@ -821,7 +793,6 @@ function CreateAnnouncement() {
                   </div>
 
                   {/* SCHEDULE DATE */}
-
                   {formData.status ===
                     "Scheduled" && (
                     <div>
@@ -844,7 +815,6 @@ function CreateAnnouncement() {
                   )}
 
                   {/* SUMMARY */}
-
                   <div className="border-t border-slate-100 pt-5">
 
                     <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -922,7 +892,6 @@ function CreateAnnouncement() {
               </section>
 
               {/* QUICK INFO */}
-
               <div className="rounded-2xl border border-slate-200 bg-[#071629] p-5 text-white shadow-sm">
 
                 <div className="flex items-start gap-3">
@@ -954,7 +923,6 @@ function CreateAnnouncement() {
           {/* =================================================
               AUDIENCE
           ================================================= */}
-
           <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
 
             <div className="border-b border-slate-100 px-6 py-5">
@@ -978,6 +946,7 @@ function CreateAnnouncement() {
                 </div>
 
               </div>
+
             </div>
 
             <div className="p-6">
@@ -1095,7 +1064,6 @@ function CreateAnnouncement() {
           {/* =================================================
               EVENT & RESOURCE
           ================================================= */}
-
           <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
 
             <div className="border-b border-slate-100 px-6 py-5">
@@ -1125,7 +1093,6 @@ function CreateAnnouncement() {
             <div className="p-6">
 
               {/* BATCH */}
-
               <div className="mb-5">
 
                 <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
@@ -1160,11 +1127,9 @@ function CreateAnnouncement() {
                       value={batch._id}
                     >
                       {batch.name}
-
                       {batch.year
                         ? ` — ${batch.year}`
                         : ""}
-
                       {batch.season
                         ? ` ${batch.season}`
                         : ""}
@@ -1181,11 +1146,9 @@ function CreateAnnouncement() {
               </div>
 
               {/* DATE + START + END */}
-
               <div className="grid gap-5 md:grid-cols-3">
 
                 {/* EVENT DATE */}
-
                 <div>
 
                   <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
@@ -1211,7 +1174,6 @@ function CreateAnnouncement() {
                 </div>
 
                 {/* START TIME */}
-
                 <div>
 
                   <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
@@ -1237,7 +1199,6 @@ function CreateAnnouncement() {
                 </div>
 
                 {/* END TIME */}
-
                 <div>
 
                   <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
@@ -1265,7 +1226,6 @@ function CreateAnnouncement() {
               </div>
 
               {/* LINK */}
-
               <div className="mt-5">
 
                 <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
@@ -1309,29 +1269,31 @@ function CreateAnnouncement() {
           {/* =================================================
               BOTTOM ACTION BAR
           ================================================= */}
-
           <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-end">
 
+            {/* CANCEL */}
             <button
               type="button"
               disabled={creating}
               onClick={() =>
                 navigate("/admin/announcements")
               }
-              className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
+              className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
             >
               Cancel
             </button>
 
             {/* SAVE DRAFT */}
-
             <button
               type="button"
               disabled={creating}
               onClick={(event) =>
-                handleSubmit(event, "Draft")
+                handleSubmit(
+                  event,
+                  "Draft"
+                )
               }
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-[#071629] transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-200 hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
             >
 
               {creating &&
@@ -1345,10 +1307,10 @@ function CreateAnnouncement() {
               )}
 
               Save Draft
+
             </button>
 
             {/* PUBLISH */}
-
             <button
               type="button"
               disabled={creating}
@@ -1358,7 +1320,7 @@ function CreateAnnouncement() {
                   "Published"
                 )
               }
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#071629] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#10243D] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1769e0] px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#2878ed] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
             >
 
               {creating &&
@@ -1373,6 +1335,7 @@ function CreateAnnouncement() {
               )}
 
               Publish
+
             </button>
 
           </div>
