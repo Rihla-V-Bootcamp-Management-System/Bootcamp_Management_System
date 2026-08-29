@@ -71,12 +71,12 @@ function MyStudents() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] p-6">
+      <div className="space-y-6">
         <div className="flex min-h-[500px] items-center justify-center">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-500" />
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 dark:border-[#15253f] border-t-emerald-500" />
 
-            <p className="text-slate-500">
+            <p className="text-slate-500 dark:text-slate-400">
               Loading your students...
             </p>
           </div>
@@ -86,7 +86,7 @@ function MyStudents() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-6 text-slate-900">
+    <div className="space-y-6">
 
       {/* HEADER */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -96,14 +96,14 @@ function MyStudents() {
             My Students
           </h1>
 
-          <p className="mt-2 text-slate-500">
+          <p className="mt-2 text-slate-500 dark:text-slate-400">
             View the students assigned to you.
           </p>
         </div>
 
         <button
           onClick={loadStudents}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-5 py-3 font-semibold text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:bg-[#070e1b]"
         >
           <RefreshCw size={18} />
           Refresh
@@ -136,7 +136,7 @@ function MyStudents() {
       {/* STAT */}
       <div className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-3">
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
 
           <div className="flex items-center gap-4">
 
@@ -152,7 +152,7 @@ function MyStudents() {
                 {students.length}
               </p>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Assigned Students
               </p>
             </div>
@@ -161,14 +161,14 @@ function MyStudents() {
 
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
 
           <div className="flex items-center gap-4">
 
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#e5f1ed]">
               <GraduationCap
                 size={27}
-                className="text-blue-600"
+                className="text-[#1f6f5b]"
               />
             </div>
 
@@ -179,7 +179,7 @@ function MyStudents() {
                 ).length}
               </p>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Students With Batch
               </p>
             </div>
@@ -188,7 +188,7 @@ function MyStudents() {
 
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
 
           <div className="flex items-center gap-4">
 
@@ -204,7 +204,7 @@ function MyStudents() {
                 {filteredStudents.length}
               </p>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Students Showing
               </p>
             </div>
@@ -232,7 +232,7 @@ function MyStudents() {
               setSearch(e.target.value)
             }
             placeholder="Search your students..."
-            className="w-full rounded-2xl border border-slate-200 bg-white py-4 pl-12 pr-5 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] py-4 pl-12 pr-5 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
           />
 
         </div>
@@ -240,29 +240,29 @@ function MyStudents() {
       </div>
 
       {/* STUDENTS */}
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
         <div className="overflow-x-auto">
 
           <table className="w-full min-w-[800px]">
 
-            <thead className="border-b border-slate-200 bg-slate-50">
+            <thead className="border-b border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b]">
 
               <tr className="text-left">
 
-                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Student
                 </th>
 
-                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Email
                 </th>
 
-                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Batch
                 </th>
 
-                <th className="px-6 py-5 text-right text-sm font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-6 py-5 text-right text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Work
                 </th>
 
@@ -286,7 +286,7 @@ function MyStudents() {
                       className="mx-auto mb-4 text-slate-300"
                     />
 
-                    <p className="font-semibold text-slate-700">
+                    <p className="font-semibold text-slate-700 dark:text-slate-200">
                       No students found
                     </p>
 
@@ -306,7 +306,7 @@ function MyStudents() {
 
                     <tr
                       key={student._id}
-                      className="border-b border-slate-100 transition hover:bg-slate-50"
+                      className="border-b border-slate-100 dark:border-[#15253f] transition hover:bg-slate-50 dark:bg-[#070e1b]"
                     >
 
                       {/* STUDENT */}
@@ -330,7 +330,7 @@ function MyStudents() {
                               {student.name}
                             </p>
 
-                            <span className="mt-1 inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                            <span className="mt-1 inline-block rounded-full bg-[#e5f1ed] px-3 py-1 text-xs font-semibold text-[#1f6f5b]">
                               Student
                             </span>
 
@@ -344,7 +344,7 @@ function MyStudents() {
 
                       <td className="px-6 py-5">
 
-                        <div className="flex items-center gap-2 text-slate-600">
+                        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
 
                           <Mail size={17} />
 
@@ -359,7 +359,7 @@ function MyStudents() {
                       <td className="px-6 py-5">
 
                         {student.batchId ? (
-                          <span className="font-medium text-slate-700">
+                          <span className="font-medium text-slate-700 dark:text-slate-200">
                             {student.batchId.name}
                           </span>
                         ) : (
@@ -375,7 +375,7 @@ function MyStudents() {
                       <td className="px-6 py-5 text-right">
 
                         <button
-                          className="rounded-xl bg-emerald-600 px-4 py-2.5 font-semibold text-white transition hover:bg-emerald-700"
+                          className="rounded-xl bg-[#1f6f5b] px-4 py-2.5 font-semibold text-white transition hover:bg-[#185848]"
                         >
                           View Work
                         </button>

@@ -23,12 +23,13 @@ function Navbar({ onLogin, onRegister }) {
 
         {/* DESKTOP NAV LINKS */}
         <div className="hidden items-center gap-8 md:flex">
-          <Link
-            to="/"
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="font-medium text-white transition hover:text-[#d8a84e]"
           >
             Home
-          </Link>
+          </button>
 
           <a
             href="#about"
@@ -43,6 +44,10 @@ function Navbar({ onLogin, onRegister }) {
 
           <a
             href="#tracks"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById("tracks")?.scrollIntoView({ behavior: "smooth" });
+            }}
             className="font-medium text-gray-300 transition hover:text-[#d8a84e]"
           >
             Tracks
@@ -50,6 +55,10 @@ function Navbar({ onLogin, onRegister }) {
 
           <a
             href="#mentors"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById("mentors")?.scrollIntoView({ behavior: "smooth" });
+            }}
             className="font-medium text-gray-300 transition hover:text-[#d8a84e]"
           >
             Mentors
@@ -57,6 +66,10 @@ function Navbar({ onLogin, onRegister }) {
 
           <a
             href="#faq"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
+            }}
             className="font-medium text-gray-300 transition hover:text-[#d8a84e]"
           >
             FAQ
@@ -68,7 +81,7 @@ function Navbar({ onLogin, onRegister }) {
           <button
             type="button"
             onClick={onLogin}
-            className="rounded-md border border-white/20 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:border-transparent sm:px-4 sm:py-2 sm:text-sm sm:font-medium sm:text-gray-200 sm:hover:text-white"
+            className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-xs font-semibold text-white transition-all duration-200 hover:border-[#d8a84e] hover:bg-[#d8a84e]/15 hover:text-[#d8a84e] sm:px-5 sm:py-2.5 sm:text-sm"
           >
             Login
           </button>
@@ -76,7 +89,7 @@ function Navbar({ onLogin, onRegister }) {
           <button
             type="button"
             onClick={onRegister}
-            className="rounded-md bg-[#1769e0] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-[#2878ed] sm:px-5 sm:py-2.5 sm:text-sm"
+            className="rounded-full bg-[#1f6f5b] hover:bg-[#185848] px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:shadow-[#1f6f5b]/30 sm:px-5 sm:py-2.5 sm:text-sm"
           >
             Apply now
           </button>
@@ -98,13 +111,16 @@ function Navbar({ onLogin, onRegister }) {
       {mobileMenuOpen && (
         <div className="border-t border-white/10 bg-[#06152d] px-6 py-4 md:hidden">
           <div className="flex flex-col space-y-3 font-medium text-gray-300">
-            <Link
-              to="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="hover:text-[#d8a84e]"
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="text-left hover:text-[#d8a84e]"
             >
               Home
-            </Link>
+            </button>
             <a
               href="#about"
               onClick={(e) => {

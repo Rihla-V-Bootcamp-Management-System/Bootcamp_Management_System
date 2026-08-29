@@ -1,4 +1,6 @@
+const mongoose = require("mongoose");
 const Announcement = require("../models/Announcement");
+const AnnouncementRead = require("../models/AnnouncementRead");
 const User = require("../models/User");
 const Batch = require("../models/Batch");
 
@@ -7,16 +9,107 @@ const {
 } = require("../services/notificationService");
 
 // =========================================================
-// CREATE ANNOUNCEMENT
+// SEND ANNOUNCEMENT NOTIFICATIONS HELPER
+// =========================================================
+
+const sendAnnouncementNotifications = async (
+  announcement,
+  batch
+) => {
+  try {
+    const recipientIds = [];
+
+    // If specific recipient users were selected
+    if (
+      Array.isArray(announcement.recipientUsers) &&
+      announcement.recipientUsers.length > 0
+    ) {
+      recipientIds.push(...announcement.recipientUsers);
+    } else if (batch) {
+      if (
+        announcement.recipients?.includes("Student") ||
+        announcement.recipientRoles?.includes("student")
+      ) {
+        recipientIds.push(...(batch.studentIds || []));
+      }
+
+      if (
+        announcement.recipients?.includes("Mentor") ||
+        announcement.recipientRoles?.includes("mentor")
+      ) {
+        recipientIds.push(...(batch.mentorIds || []));
+      }
+    } else {
+      // Platform-wide
+      if (
+        announcement.recipients?.includes("Student") ||
+        announcement.recipientRoles?.includes("student")
+      ) {
+        const students = await User.find({ role: "student" }).select("_id");
+        recipientIds.push(...students.map((u) => u._id));
+      }
+      if (
+        announcement.recipients?.includes("Mentor") ||
+        announcement.recipientRoles?.includes("mentor")
+      ) {
+        const mentors = await User.find({ role: "mentor" }).select("_id");
+        recipientIds.push(...mentors.map((u) => u._id));
+      }
+    }
+
+    if (
+      announcement.recipients?.includes("Superadmin") ||
+      announcement.recipientRoles?.includes("superadmin")
+    ) {
+      const superAdmins = await User.find({
+        role: "superadmin",
+      }).select("_id");
+
+      recipientIds.push(
+        ...superAdmins.map((user) => user._id)
+      );
+    }
+
+    const uniqueRecipientIds = [
+      ...new Set(
+        recipientIds
+          .filter(Boolean)
+          .map((id) => id.toString())
+      ),
+    ];
+
+    if (uniqueRecipientIds.length === 0) {
+      return;
+    }
+
+    await createNotifications({
+      recipientIds: uniqueRecipientIds,
+      type: announcement.type || "Announcement",
+      title: announcement.title,
+      message: announcement.content || announcement.message,
+      referenceId: announcement._id,
+    });
+  } catch (error) {
+    console.error("ANNOUNCEMENT NOTIFICATION ERROR:", error);
+  }
+};
+
+// =========================================================
+// CREATE ANNOUNCEMENT (Admin & Mentor)
 // =========================================================
 
 const createAnnouncement = async (req, res) => {
   try {
+    const user = req.user;
+    const isMentor = user.role === "mentor";
+
     const {
       title,
       content,
+      message,
       type,
       recipients,
+      recipientUsers,
       activeLink,
       eventDate,
       startTime,
@@ -24,7 +117,11 @@ const createAnnouncement = async (req, res) => {
       publishDate,
       location,
       status,
+      batchId,
+      isSpecial,
     } = req.body;
+
+    const announcementContent = (content || message || "").trim();
 
     if (!title?.trim()) {
       return res.status(400).json({
@@ -33,92 +130,56 @@ const createAnnouncement = async (req, res) => {
       });
     }
 
-    if (!content?.trim()) {
+    if (!announcementContent) {
       return res.status(400).json({
         success: false,
         message: "Announcement content is required",
       });
     }
 
-    if (!type) {
-      return res.status(400).json({
-        success: false,
-        message: "Announcement category is required",
-      });
+    // Category / Type
+    const announcementType = type || "Session";
+
+    // Batch assignment
+    let targetBatchId = batchId || user.batchId;
+    if (isMentor && !targetBatchId) {
+      // Find batches where mentor is assigned
+      const assignedBatch = await Batch.findOne({ mentorIds: user._id });
+      if (assignedBatch) {
+        targetBatchId = assignedBatch._id;
+      }
     }
-
-    if (!Array.isArray(recipients) || recipients.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "At least one recipient is required",
-      });
-    }
-
-    const allowedTypes = [
-      "Contest",
-      "Session",
-      "Experience Sharing",
-      "Deadline",
-      "Other",
-    ];
-
-    if (!allowedTypes.includes(type)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid announcement category",
-      });
-    }
-
-    const allowedRecipients = [
-      "Superadmin",
-      "Mentor",
-      "Student",
-    ];
-
-    const invalidRecipient = recipients.some(
-      (recipient) => !allowedRecipients.includes(recipient)
-    );
-
-    if (invalidRecipient) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid announcement recipient",
-      });
-    }
-
-    const targetBatchId = req.body.batchId || req.user.batchId;
 
     let batch = null;
-    if (targetBatchId) {
+    if (targetBatchId && mongoose.Types.ObjectId.isValid(targetBatchId)) {
       batch = await Batch.findById(targetBatchId);
     }
 
-    let finalStatus = status || "Draft";
+    // Recipients
+    let finalRecipients = Array.isArray(recipients) && recipients.length > 0
+      ? recipients
+      : isMentor
+      ? ["Student"]
+      : ["Student", "Mentor"];
 
-    if (
-      !["Draft", "Scheduled", "Published"].includes(finalStatus)
-    ) {
-      finalStatus = "Draft";
+    let finalStatus = status || "Published";
+    if (!["Draft", "Scheduled", "Published"].includes(finalStatus)) {
+      finalStatus = "Published";
     }
 
-    let finalPublishDate = publishDate
-      ? new Date(publishDate)
-      : null;
-
-    if (finalStatus === "Published" && !finalPublishDate) {
-      finalPublishDate = new Date();
-    }
+    let finalPublishDate = publishDate ? new Date(publishDate) : new Date();
 
     const announcement = await Announcement.create({
       title: title.trim(),
-      message: content.trim().substring(0, 200),
-      content: content.trim(),
-      type,
-      recipients: recipients || [],
-      recipientRoles: recipients || [],
-      sender: req.user._id,
-      senderRole: (req.user.role || "admin").toLowerCase(),
-      authorId: req.user._id,
+      message: announcementContent.substring(0, 200),
+      content: announcementContent,
+      type: announcementType,
+      recipients: finalRecipients,
+      recipientRoles: finalRecipients.map((r) => r.toLowerCase()),
+      recipientUsers: Array.isArray(recipientUsers) ? recipientUsers : [],
+      sender: user._id,
+      senderRole: user.role.toLowerCase(),
+      authorId: user._id,
       batch: targetBatchId || null,
       batchId: targetBatchId || null,
       activeLink: activeLink?.trim() || "",
@@ -126,23 +187,20 @@ const createAnnouncement = async (req, res) => {
       startTime: startTime?.trim() || "",
       endTime: endTime?.trim() || "",
       location: location?.trim() || "",
+      isSpecial: Boolean(isSpecial),
       publishDate: finalPublishDate,
       status: finalStatus,
     });
 
-    if (finalStatus === "Published" && batch) {
-      await sendAnnouncementNotifications(
-        announcement,
-        batch
-      );
+    if (finalStatus === "Published") {
+      await sendAnnouncementNotifications(announcement, batch);
     }
 
-    const populatedAnnouncement =
-      await Announcement.findById(announcement._id)
-        .populate("authorId", "name email role")
-        .populate("sender", "name email role")
-        .populate("batchId", "name year season")
-        .populate("batch", "name year season");
+    const populatedAnnouncement = await Announcement.findById(announcement._id)
+      .populate("authorId", "name email role")
+      .populate("sender", "name email role")
+      .populate("batchId", "name year season")
+      .populate("batch", "name year season");
 
     return res.status(201).json({
       success: true,
@@ -156,8 +214,6 @@ const createAnnouncement = async (req, res) => {
     });
   } catch (error) {
     console.error("CREATE ANNOUNCEMENT ERROR:", error);
-
-
     return res.status(500).json({
       success: false,
       message: "Failed to create announcement",
@@ -167,251 +223,268 @@ const createAnnouncement = async (req, res) => {
 };
 
 // =========================================================
-// SEND ANNOUNCEMENT NOTIFICATIONS
-// =========================================================
-
-const sendAnnouncementNotifications = async (
-  announcement,
-  batch
-) => {
-  try {
-    const recipientIds = [];
-
-    if (announcement.recipients.includes("Student")) {
-      recipientIds.push(...(batch.studentIds || []));
-    }
-
-    if (announcement.recipients.includes("Mentor")) {
-      recipientIds.push(...(batch.mentorIds || []));
-    }
-
-    if (announcement.recipients.includes("Superadmin")) {
-      const superAdmins = await User.find({
-        role: "superadmin",
-      }).select("_id");
-
-      recipientIds.push(
-        ...superAdmins.map((user) => user._id)
-      );
-    }
-
-    const uniqueRecipientIds = [
-      ...new Set(
-        recipientIds.map((id) => id.toString())
-      ),
-    ];
-
-    if (uniqueRecipientIds.length === 0) {
-      return;
-    }
-
-    await createNotifications({
-      recipientIds: uniqueRecipientIds,
-      type: announcement.type,
-      title: announcement.title,
-      message: announcement.content,
-      referenceId: announcement._id,
-    });
-
-    console.log(
-      `Announcement notification sent to ${uniqueRecipientIds.length} users`
-    );
-  } catch (error) {
-    console.error(
-      "ANNOUNCEMENT NOTIFICATION ERROR:",
-      error
-    );
-  }
-};
-
-// =========================================================
-// GET ANNOUNCEMENTS FOR CURRENT USER
-// PAGINATED + NEWEST FIRST
+// GET ANNOUNCEMENTS FOR CURRENT USER (Role-Aware)
 // =========================================================
 
 const getAnnouncements = async (req, res) => {
   try {
     const user = req.user;
-
-    const page = Math.max(
-      parseInt(req.query.page, 10) || 1,
-      1
-    );
-
-    const limit = Math.min(
-      Math.max(
-        parseInt(req.query.limit, 10) || 10,
-        1
-      ),
-      50
-    );
-
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
     const skip = (page - 1) * limit;
 
     const query = {
       status: "Published",
-      publishDate: {
-        $lte: new Date(),
-      },
+      publishDate: { $lte: new Date() },
     };
 
-    // =====================================================
-    // SUPERADMIN
-    // =====================================================
-
-    if (user.role === "superadmin") {
-      query.recipients = "Superadmin";
+    if (req.query.type) {
+      query.type = req.query.type;
     }
 
-    // =====================================================
-    // ADMIN / MENTOR / STUDENT
-    // =====================================================
-
-    else {
-      if (!user.batchId) {
-        return res.status(200).json({
-          success: true,
-          count: 0,
-          announcements: [],
-          pagination: {
-            page,
-            limit,
-            total: 0,
-            totalPages: 0,
-          },
-        });
+    // Role-based filtering
+    if (user.role === "superadmin" || user.role === "admin") {
+      // Admins & Superadmins can view platform announcements
+      if (req.query.batchId) {
+        query.batchId = req.query.batchId;
       }
+    } else if (user.role === "mentor") {
+      // Find batches where this mentor is assigned
+      const mentorBatches = await Batch.find({ mentorIds: user._id }).select("_id");
+      const batchIds = mentorBatches.map((b) => b._id);
+      if (user.batchId) batchIds.push(user.batchId);
 
-      query.batchId = user.batchId;
-
-      if (user.role === "mentor") {
-        query.recipients = "Mentor";
-      }
-
-      if (user.role === "student") {
-        query.recipients = "Student";
-      }
-
-      // Admin can see all published announcements
-      // belonging to their batch.
+      query.$or = [
+        { authorId: user._id },
+        { sender: user._id },
+        {
+          $and: [
+            { recipients: { $in: ["Mentor", "mentor", "All", "all"] } },
+            { $or: [{ batchId: { $in: batchIds } }, { batchId: null }] },
+          ],
+        },
+      ];
+    } else if (user.role === "student") {
+      const studentBatchId = user.batchId;
+      query.$or = [
+        {
+          recipients: { $in: ["Student", "student", "All", "all"] },
+          $or: [
+            { batchId: studentBatchId },
+            { batch: studentBatchId },
+            { batchId: null, batch: null },
+          ],
+        },
+        { recipientUsers: user._id },
+      ];
     }
 
-    const [announcements, total] =
-      await Promise.all([
-        Announcement.find(query)
-          .populate("authorId", "name email role")
-          .populate("batchId", "name year season")
-          .sort({
-            publishDate: -1,
-            createdAt: -1,
-          })
-          .skip(skip)
-          .limit(limit),
+    const [announcements, total] = await Promise.all([
+      Announcement.find(query)
+        .populate("authorId", "name email role")
+        .populate("sender", "name email role")
+        .populate("batchId", "name year season")
+        .sort({ publishDate: -1, createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Announcement.countDocuments(query),
+    ]);
 
-        Announcement.countDocuments(query),
-      ]);
+    // Attach isRead status for current user if applicable
+    const announcementIds = announcements.map((a) => a._id);
+    const readRecords = await AnnouncementRead.find({
+      announcementId: { $in: announcementIds },
+      studentId: user._id,
+    });
+    const readSet = new Set(readRecords.map((r) => r.announcementId.toString()));
+
+    const transformed = announcements.map((a) => {
+      const obj = a.toObject();
+      obj.isRead = readSet.has(a._id.toString());
+      return obj;
+    });
 
     return res.status(200).json({
       success: true,
-      count: announcements.length,
-      announcements,
+      count: transformed.length,
+      announcements: transformed,
       pagination: {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / limit) || 1,
       },
     });
   } catch (error) {
-    console.error(
-      "GET ANNOUNCEMENTS ERROR:",
-      error
-    );
-
+    console.error("GET ANNOUNCEMENTS ERROR:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to fetch announcements",
+      error: error.message,
     });
   }
 };
 
-
 // =========================================================
-// GET ADMIN'S OWN ANNOUNCEMENTS
-// PAGINATED + NEWEST FIRST
+// GET USER'S OWN CREATED ANNOUNCEMENTS
 // =========================================================
 
 const getMyAnnouncements = async (req, res) => {
   try {
-    if (!req.user.batchId) {
-      return res.status(200).json({
-        success: true,
-        count: 0,
-        announcements: [],
-        pagination: {
-          page: 1,
-          limit: 10,
-          total: 0,
-          totalPages: 0,
-        },
-      });
-    }
-
-    const page = Math.max(
-      parseInt(req.query.page, 10) || 1,
-      1
-    );
-
-    const limit = Math.min(
-      Math.max(
-        parseInt(req.query.limit, 10) || 10,
-        1
-      ),
-      50
-    );
-
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 200);
     const skip = (page - 1) * limit;
 
-    const query = {
-      batchId: req.user.batchId,
-      authorId: req.user._id,
-    };
+    let query = {};
+    const role = String(req.user?.role || "").toLowerCase();
+    if (role === "superadmin" || role === "admin") {
+      query = {};
+    } else {
+      query = {
+        $or: [{ authorId: req.user._id }, { sender: req.user._id }],
+      };
+    }
 
-    const [announcements, total] =
-      await Promise.all([
-        Announcement.find(query)
-          .populate("authorId", "name email role")
-          .populate("batchId", "name year season")
-          .sort({
-            createdAt: -1,
-            publishDate: -1,
-          })
-          .skip(skip)
-          .limit(limit),
-
-        Announcement.countDocuments(query),
-      ]);
+    const [announcements, total] = await Promise.all([
+      Announcement.find(query)
+        .populate("authorId", "name email role")
+        .populate("sender", "name email role")
+        .populate("batchId", "name year season")
+        .sort({ createdAt: -1, publishDate: -1 })
+        .skip(skip)
+        .limit(limit),
+      Announcement.countDocuments(query),
+    ]);
 
     return res.status(200).json({
       success: true,
       count: announcements.length,
       announcements,
+      data: announcements,
       pagination: {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / limit) || 1,
       },
     });
   } catch (error) {
-    console.error(
-      "GET MY ANNOUNCEMENTS ERROR:",
-      error
-    );
-
+    console.error("GET MY ANNOUNCEMENTS ERROR:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to fetch your announcements",
+      error: error.message,
+    });
+  }
+};
+
+// =========================================================
+// MENTOR-SPECIFIC HANDLERS
+// =========================================================
+
+const getMentorBatches = async (req, res) => {
+  try {
+    const mentorId = req.user?._id || req.query.mentorId;
+    if (!mentorId) {
+      return res.status(400).json({
+        success: false,
+        message: "Mentor ID is required",
+      });
+    }
+
+    const batches = await Batch.find({
+      mentorIds: mentorId,
+    }).select("_id name year season startDate");
+
+    return res.status(200).json({
+      success: true,
+      batches,
+    });
+  } catch (error) {
+    console.error("GET MENTOR BATCHES ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load mentor batches",
+      error: error.message,
+    });
+  }
+};
+
+const getMentorStudents = async (req, res) => {
+  try {
+    const mentorId = req.user?._id || req.query.mentorId;
+    if (!mentorId) {
+      return res.status(400).json({
+        success: false,
+        message: "Mentor ID is required",
+      });
+    }
+
+    const batches = await Batch.find({ mentorIds: mentorId }).select("studentIds");
+    const studentIdsFromBatches = batches.flatMap((b) => b.studentIds || []);
+
+    const students = await User.find({
+      role: "student",
+      $or: [
+        { assignedMentor: mentorId },
+        { _id: { $in: studentIdsFromBatches } },
+      ],
+    }).select("_id name email batchId");
+
+    return res.status(200).json({
+      success: true,
+      students,
+    });
+  } catch (error) {
+    console.error("GET MENTOR STUDENTS ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load mentor students",
+      error: error.message,
+    });
+  }
+};
+
+const getMentorAnnouncements = async (req, res) => {
+  return getAnnouncements(req, res);
+};
+
+const getStudentAnnouncements = async (req, res) => {
+  return getAnnouncements(req, res);
+};
+
+// =========================================================
+// MARK ANNOUNCEMENT AS READ
+// =========================================================
+
+const markAnnouncementAsRead = async (req, res) => {
+  try {
+    const announcementId = req.params.id || req.params.announcementId;
+    const userId = req.user?._id || req.body.studentId;
+
+    if (!announcementId || !userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Announcement ID and User ID are required",
+      });
+    }
+
+    await AnnouncementRead.findOneAndUpdate(
+      { announcementId, studentId: userId },
+      { announcementId, studentId: userId, readAt: new Date() },
+      { upsert: true, new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Announcement marked as read",
+    });
+  } catch (error) {
+    console.error("MARK ANNOUNCEMENT AS READ ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to mark announcement as read",
+      error: error.message,
     });
   }
 };
@@ -424,10 +497,16 @@ const getAnnouncementById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const announcement = await Announcement.findOne({
-      _id: id,
-    })
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid announcement ID",
+      });
+    }
+
+    const announcement = await Announcement.findById(id)
       .populate("authorId", "name email role")
+      .populate("sender", "name email role")
       .populate("batchId", "name year season");
 
     if (!announcement) {
@@ -442,11 +521,7 @@ const getAnnouncementById = async (req, res) => {
       announcement,
     });
   } catch (error) {
-    console.error(
-      "GET ANNOUNCEMENT ERROR:",
-      error
-    );
-
+    console.error("GET ANNOUNCEMENT ERROR:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to fetch announcement",
@@ -461,6 +536,21 @@ const getAnnouncementById = async (req, res) => {
 const updateAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
+    const user = req.user;
+
+    const query = { _id: id };
+    if (user.role !== "superadmin") {
+      query.$or = [{ authorId: user._id }, { sender: user._id }];
+    }
+
+    const announcement = await Announcement.findOne(query);
+
+    if (!announcement) {
+      return res.status(404).json({
+        success: false,
+        message: "Announcement not found or you are not allowed to edit it",
+      });
+    }
 
     const {
       title,
@@ -474,177 +564,38 @@ const updateAnnouncement = async (req, res) => {
       publishDate,
       location,
       status,
+      isSpecial,
     } = req.body;
 
-    const announcement = await Announcement.findOne({
-      _id: id,
-      batchId: req.user.batchId,
-      authorId: req.user._id,
-    });
-
-    if (!announcement) {
-      return res.status(404).json({
-        success: false,
-        message:
-          "Announcement not found or you are not allowed to edit it",
-      });
-    }
-
-    const wasPublished =
-      announcement.status === "Published";
-
-    if (title !== undefined) {
-      if (!title.trim()) {
-        return res.status(400).json({
-          success: false,
-          message: "Announcement title is required",
-        });
-      }
-
-      announcement.title = title.trim();
-    }
-
+    if (title !== undefined) announcement.title = title.trim();
     if (content !== undefined) {
-      if (!content.trim()) {
-        return res.status(400).json({
-          success: false,
-          message: "Announcement content is required",
-        });
-      }
-
       announcement.content = content.trim();
+      announcement.message = content.trim().substring(0, 200);
     }
-
-    if (type !== undefined) {
-      const allowedTypes = [
-        "Contest",
-        "Session",
-        "Experience Sharing",
-        "Deadline",
-        "Other",
-      ];
-
-
-      if (!allowedTypes.includes(type)) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid announcement category",
-        });
-      }
-
-      announcement.type = type;
-    }
-
-    if (recipients !== undefined) {
-      const allowedRecipients = [
-        "Superadmin",
-        "Mentor",
-        "Student",
-      ];
-
-      if (
-        !Array.isArray(recipients) ||
-        recipients.length === 0 ||
-        recipients.some(
-          (recipient) =>
-            !allowedRecipients.includes(recipient)
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid announcement recipient",
-        });
-      }
-
-      announcement.recipients = recipients;
-    }
-
-    if (activeLink !== undefined) {
-      announcement.activeLink =
-        activeLink?.trim() || "";
-    }
-
-    if (eventDate !== undefined) {
-      announcement.eventDate =
-        eventDate || null;
-    }
-
-    if (startTime !== undefined) {
-      announcement.startTime =
-        startTime?.trim() || "";
-    }
-
-    if (endTime !== undefined) {
-      announcement.endTime =
-        endTime?.trim() || "";
-    }
-
-    if (location !== undefined) {
-      announcement.location =
-        location?.trim() || "";
-    }
-
-    if (publishDate !== undefined) {
-      announcement.publishDate =
-        publishDate || null;
-    }
-
-    if (status !== undefined) {
-      if (
-        !["Draft", "Scheduled", "Published"].includes(
-          status
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid announcement status",
-        });
-      }
-
-      announcement.status = status;
-    }
-
-    if (
-      announcement.status === "Published" &&
-      !announcement.publishDate
-    ) {
-      announcement.publishDate = new Date();
-    }
+    if (type !== undefined) announcement.type = type;
+    if (recipients !== undefined) announcement.recipients = recipients;
+    if (activeLink !== undefined) announcement.activeLink = activeLink.trim();
+    if (eventDate !== undefined) announcement.eventDate = eventDate;
+    if (startTime !== undefined) announcement.startTime = startTime.trim();
+    if (endTime !== undefined) announcement.endTime = endTime.trim();
+    if (location !== undefined) announcement.location = location.trim();
+    if (publishDate !== undefined) announcement.publishDate = publishDate;
+    if (isSpecial !== undefined) announcement.isSpecial = Boolean(isSpecial);
+    if (status !== undefined) announcement.status = status;
 
     await announcement.save();
 
-    if (
-      !wasPublished &&
-      announcement.status === "Published"
-    ) {
-      const batch = await Batch.findById(
-        announcement.batchId
-      );
-
-      if (batch) {
-        await sendAnnouncementNotifications(
-          announcement,
-          batch
-        );
-      }
-    }
-
-    const updatedAnnouncement =
-      await Announcement.findById(announcement._id)
-        .populate("authorId", "name email role")
-        .populate("batchId", "name year season");
+    const updated = await Announcement.findById(announcement._id)
+      .populate("authorId", "name email role")
+      .populate("batchId", "name year season");
 
     return res.status(200).json({
       success: true,
       message: "Announcement updated successfully",
-      announcement: updatedAnnouncement,
+      announcement: updated,
     });
   } catch (error) {
-    console.error(
-      "UPDATE ANNOUNCEMENT ERROR:",
-      error
-    );
-
+    console.error("UPDATE ANNOUNCEMENT ERROR:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to update announcement",
@@ -660,32 +611,30 @@ const updateAnnouncement = async (req, res) => {
 const deleteAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
+    const user = req.user;
 
-    const announcement =
-      await Announcement.findOneAndDelete({
-        _id: id,
-        batchId: req.user.batchId,
-        authorId: req.user._id,
-      });
+    const query = { _id: id };
+    if (user.role !== "superadmin") {
+      query.$or = [{ authorId: user._id }, { sender: user._id }];
+    }
+
+    const announcement = await Announcement.findOneAndDelete(query);
 
     if (!announcement) {
       return res.status(404).json({
         success: false,
-        message:
-          "Announcement not found or you are not allowed to delete it",
+        message: "Announcement not found or you are not allowed to delete it",
       });
     }
+
+    await AnnouncementRead.deleteMany({ announcementId: id });
 
     return res.status(200).json({
       success: true,
       message: "Announcement deleted successfully",
     });
   } catch (error) {
-    console.error(
-      "DELETE ANNOUNCEMENT ERROR:",
-      error
-    );
-
+    console.error("DELETE ANNOUNCEMENT ERROR:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to delete announcement",
@@ -700,67 +649,50 @@ const deleteAnnouncement = async (req, res) => {
 const publishAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
+    const user = req.user;
 
-    const announcement = await Announcement.findOne({
-      _id: id,
-      batchId: req.user.batchId,
-      authorId: req.user._id,
-    });
-    
+    const query = { _id: id };
+    if (user.role !== "superadmin") {
+      query.$or = [{ authorId: user._id }, { sender: user._id }];
+    }
+
+    const announcement = await Announcement.findOne(query);
 
     if (!announcement) {
       return res.status(404).json({
         success: false,
-        message:
-          "Announcement not found or you are not allowed to publish it",
+        message: "Announcement not found or you are not allowed to publish it",
       });
     }
 
-    const wasPublished =
-      announcement.status === "Published";
-
+    const wasPublished = announcement.status === "Published";
     announcement.status = "Published";
-
     if (!announcement.publishDate) {
       announcement.publishDate = new Date();
     }
 
     await announcement.save();
 
-    const batch = await Batch.findById(
-      req.user.batchId
-    );
-
-    if (!batch) {
-      return res.status(404).json({
-        success: false,
-        message: "Assigned batch was not found",
-      });
+    let batch = null;
+    if (announcement.batchId) {
+      batch = await Batch.findById(announcement.batchId);
     }
 
     if (!wasPublished) {
-      await sendAnnouncementNotifications(
-        announcement,
-        batch
-      );
+      await sendAnnouncementNotifications(announcement, batch);
     }
 
-    const publishedAnnouncement =
-      await Announcement.findById(announcement._id)
-        .populate("authorId", "name email role")
-        .populate("batchId", "name year season");
+    const published = await Announcement.findById(announcement._id)
+      .populate("authorId", "name email role")
+      .populate("batchId", "name year season");
 
     return res.status(200).json({
       success: true,
       message: "Announcement published successfully",
-      announcement: publishedAnnouncement,
+      announcement: published,
     });
   } catch (error) {
-    console.error(
-      "PUBLISH ANNOUNCEMENT ERROR:",
-      error
-    );
-
+    console.error("PUBLISH ANNOUNCEMENT ERROR:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to publish announcement",
@@ -777,6 +709,11 @@ module.exports = {
   createAnnouncement,
   getAnnouncements,
   getMyAnnouncements,
+  getMentorBatches,
+  getMentorStudents,
+  getMentorAnnouncements,
+  getStudentAnnouncements,
+  markAnnouncementAsRead,
   getAnnouncementById,
   updateAnnouncement,
   deleteAnnouncement,

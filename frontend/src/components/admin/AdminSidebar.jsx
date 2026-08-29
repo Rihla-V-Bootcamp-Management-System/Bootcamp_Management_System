@@ -8,13 +8,17 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  ShieldCheck,
+  UserCheck,
+  UserPlus,
+  HelpCircle,
+  Award,
 } from "lucide-react";
-
 import { NavLink } from "react-router-dom";
 import useAuth from "../../context/useAuth";
 
 function AdminSidebar() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const links = [
     {
@@ -32,49 +36,38 @@ function AdminSidebar() {
       path: "/admin/batches",
       icon: Layers,
     },
-
     {
       name: "Daily Task",
       path: "/admin/daily-tasks",
-      icon: Layers,
+      icon: ClipboardList,
     },
     {
       name: "Announcements",
       path: "/admin/announcements",
       icon: Megaphone,
     },
-          {
-        name: "Register Mentor",
-        path: "/admin/register-mentor",
-        icon: Users,
-      },
     {
-        name: "Mentor Assignment",
-        path: "/admin/mentor-assignment",
-        icon: Users,
-      },
-      {
+      name: "Register Mentor",
+      path: "/admin/register-mentor",
+      icon: UserPlus,
+    },
+    {
+      name: "Mentor Assignment",
+      path: "/admin/mentor-assignment",
+      icon: UserCheck,
+    },
+    {
       name: "Attendance Session",
       path: "/admin/sessions",
       icon: Layers,
-      name: "FAQs",
-      path: "/admin/faqs",
-      icon: FileText,
     },
     {
-      name: "Registrations",
-      path: "/admin/registrations",
-      icon: ClipboardList,
-    },
-     {
-      name: "Attendance",
+      name: "Attendance Tracker",
       path: "/admin/attendance",
-      icon: ClipboardList,
+      icon: UserCheck,
     },
-   
-   
     {
-      name: "Assignment",
+      name: "Assignments",
       path: "/admin/assignments",
       icon: ClipboardList,
     },
@@ -84,9 +77,24 @@ function AdminSidebar() {
       icon: FileText,
     },
     {
+      name: "Certificates",
+      path: "/admin/certificates",
+      icon: Award,
+    },
+    {
       name: "Analytics",
       path: "/admin/analytics",
       icon: BarChart3,
+    },
+    {
+      name: "FAQs",
+      path: "/admin/faqs",
+      icon: HelpCircle,
+    },
+    {
+      name: "My Profile",
+      path: "/admin/profile",
+      icon: Users,
     },
     {
       name: "Settings",
@@ -96,78 +104,66 @@ function AdminSidebar() {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-58 border-r border-[#26364a] bg-[#071629] text-white">
-      <div className="flex h-full flex-col">
-
-        <div className="flex items-center gap-3 border-b border-[#26364a] px-6 py-5">
-          <img
-            src="/logo.jpg"
-            alt="ASTU MSJ Logo"
-            className="h-10 w-10 rounded-full object-contain"
-          />
-
-          <div>
-            <h1 className="text-xl font-bold text-white">
-              ASTU MSJ
-            </h1>
-
-            <p className="text-sm text-[#8f969e]">
-              Admin Portal
-            </p>
-          </div>
+    <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-[#15253f] bg-[#070d18] px-4 py-6 text-white overflow-hidden">
+      {/* BRAND */}
+      <div className="flex items-center gap-3 px-2 pb-6 border-b border-[#15253f]">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1f6f5b] text-white shadow-xs">
+          <ShieldCheck size={22} />
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          <div className="space-y-1">
-
-            {links.map((link) => {
-              const Icon = link.icon;
-
-              return (
-                <NavLink
-                  key={link.path}
-                  to={link.path}
-                  end={link.path === "/admin"}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? "bg-[#18273a] text-white shadow-sm"
-                        : "text-[#aeb5bd] hover:bg-[#101f31] hover:text-white"
-                    }`
-                  }
-                >
-                  <Icon size={19} strokeWidth={1.8} />
-                  <span>{link.name}</span>
-                </NavLink>
-              );
-            })}
-
-          </div>
-        </nav>
-
-        <div className="border-t border-[#26364a] p-4">
-
-          <div className="mb-3 rounded-lg bg-[#18273a] px-4 py-3">
-            <p className="text-sm font-semibold text-white">
-              Admin
-            </p>
-
-            <p className="text-xs text-[#8f969e]">
-              Administrator
-            </p>
-          </div>
-
-          <button
-            onClick={logout}
-            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium text-[#aeb5bd] transition-all duration-200 hover:bg-[#101f31] hover:text-white"
-          >
-            <LogOut size={19} strokeWidth={1.8} />
-            <span>Logout</span>
-          </button>
-
+        <div>
+          <h2 className="text-sm font-extrabold text-white leading-tight">
+            ASTU MSJ
+          </h2>
+          <p className="text-[11px] font-medium text-slate-400">
+            Admin Panel
+          </p>
         </div>
+      </div>
 
+      {/* NAVIGATION */}
+      <nav className="flex-1 overflow-y-auto space-y-1 pr-1 [scrollbar-width:thin] [scrollbar-color:#202938_transparent]">
+        <p className="px-3 pb-2 pt-1 text-[10px] font-extrabold tracking-wider text-[#6f7887] uppercase">
+          MAIN MENU
+        </p>
+
+        {links.map((link) => {
+          const Icon = link.icon;
+
+          return (
+            <NavLink
+              key={link.path}
+              to={link.path}
+              end={link.path === "/admin"}
+              className={({ isActive }) =>
+                `flex min-h-[42px] items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-150 ${
+                  isActive
+                    ? "bg-[#1f6f5b] text-white shadow-md font-bold"
+                    : "text-[#aeb6c2] hover:bg-[#15253f] hover:text-white"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} className="shrink-0" />
+                  <span className="truncate">{link.name}</span>
+                </>
+              )}
+            </NavLink>
+          );
+        })}
+      </nav>
+
+      {/* LOGOUT */}
+      <div className="border-t border-[#202938] pt-4 mt-auto">
+        <button
+          type="button"
+          onClick={logout}
+          className="flex w-full min-h-[42px] items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#aeb6c2] transition hover:bg-[#2a2023] hover:text-[#e17a7a]"
+        >
+          <LogOut size={18} strokeWidth={1.8} />
+          <span>Logout</span>
+        </button>
       </div>
     </aside>
   );

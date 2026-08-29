@@ -79,6 +79,19 @@ const authMiddleware = async (req, res, next) => {
     }
 
     // =======================================================
+    // CHECK SUSPENDED STATUS
+    // =======================================================
+    if (user.accountStatus === "suspended" || user.accountStatus === "disabled") {
+      return res.status(403).json({
+        success: false,
+        isSuspended: true,
+        message: user.suspensionReason
+          ? `Your account has been suspended. Reason: "${user.suspensionReason}". Please contact the bootcamp administration.`
+          : "Your account is currently suspended. Access denied.",
+      });
+    }
+
+    // =======================================================
     // ATTACH USER TO REQUEST
     // =======================================================
 

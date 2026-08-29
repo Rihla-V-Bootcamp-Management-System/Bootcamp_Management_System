@@ -8,34 +8,33 @@ import {
   User,
   ChevronDown,
   RefreshCw,
+  Eye,
 } from "lucide-react";
-
 import apiClient from "../services/apiClient";
 
 const STATUS_STYLES = {
   Completed: {
     label: "Completed",
     icon: CheckCircle2,
-    className: "bg-green-100 text-green-700",
+    badgeClass: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800",
   },
   "In Progress": {
     label: "In Progress",
     icon: Clock3,
-    className: "bg-blue-100 text-blue-700",
+    badgeClass: "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800",
   },
   "Not Started": {
     label: "Not Started",
     icon: Circle,
-    className: "bg-gray-100 text-gray-600",
+    badgeClass: "bg-slate-50 text-slate-600 dark:bg-slate-800/60 dark:text-slate-400 border border-slate-200 dark:border-slate-700",
   },
   "Needs Improvement": {
     label: "Needs Improvement",
     icon: AlertCircle,
-    className: "bg-orange-100 text-orange-700",
+    badgeClass: "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800",
   },
 };
 
-// Must match the Progress model exactly
 const TOPICS = [
   "HTML/CSS",
   "JavaScript",
@@ -57,7 +56,7 @@ function MentorProgress() {
   const [studentsError, setStudentsError] = useState("");
   const [progressError, setProgressError] = useState("");
 
-  // Load mentor's assigned students once on mount.
+  // Load mentor's assigned students on mount
   useEffect(() => {
     let cancelled = false;
 
@@ -93,9 +92,6 @@ function MentorProgress() {
     };
   }, []);
 
-  // Single source of truth for fetching one student's progress —
-  // used by both the auto-load effect below and the manual refresh button,
-  // so they can't drift out of sync with each other.
   const fetchStudentProgress = useCallback(async (studentId, { signalCancelled } = {}) => {
     setProgressLoading(true);
     setProgressError("");
@@ -134,10 +130,6 @@ function MentorProgress() {
     };
   }, [selectedStudentId, fetchStudentProgress]);
 
-  const refreshProgress = () => {
-    if (selectedStudentId) fetchStudentProgress(selectedStudentId);
-  };
-
   const selectedStudent = useMemo(
     () => students.find((s) => (s._id || s.id) === selectedStudentId),
     [students, selectedStudentId]
@@ -157,212 +149,224 @@ function MentorProgress() {
   const overallProgress = Math.round((completedCount / TOPICS.length) * 100);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-6 rounded-2xl bg-white p-5 shadow-sm">
-          <div className="mb-3 flex items-center gap-2">
-            <User size={20} className="text-gray-700" />
-            <h2 className="font-semibold text-gray-900">Select student</h2>
-          </div>
-
-          {studentsLoading && (
-            <div className="flex items-center gap-2 py-3 text-sm text-gray-500">
-              <RefreshCw size={16} className="animate-spin" />
-              Loading assigned students...
-            </div>
-          )}
-
-          {!studentsLoading && studentsError && (
-            <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700">
-              <p className="font-medium">{studentsError}</p>
-            </div>
-          )}
-
-          {!studentsLoading && !studentsError && students.length === 0 && (
-            <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-500">
-              No students are currently assigned to you.
-            </div>
-          )}
-
-          {!studentsLoading && !studentsError && students.length > 0 && (
-            <div className="relative">
-              <select
-                value={selectedStudentId}
-                onChange={(e) => setSelectedStudentId(e.target.value)}
-                className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 text-sm font-medium text-gray-800 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-100"
-              >
-                {students.map((student) => {
-                  const id = student._id || student.id;
-                  const name = student.name || student.fullName || "Unnamed student";
-                  const email = student.email || "";
-                  return (
-                    <option key={id} value={id}>
-                      {name}{email ? ` — ${email}` : ""}
-                    </option>
-                  );
-                })}
-              </select>
-              <ChevronDown
-                size={18}
-                className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
-              />
-            </div>
-          )}
+    <div className="space-y-8">
+      {/* HEADER */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-[10px] font-extrabold tracking-widest text-[#1f6f5b] dark:text-emerald-400 uppercase">
+            ANALYTICS & STUDENT PROGRESS
+          </p>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Progress Tracker
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+            View live curriculum topics and completion updates reported by your assigned students.
+          </p>
         </div>
 
-        {selectedStudent && (
-          <div className="mb-6 rounded-2xl bg-gray-900 p-5 text-white shadow-sm">
-            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-              <div>
-                <p className="text-sm text-gray-400">Selected student</p>
-                <h2 className="mt-1 text-xl font-bold">
-                  {selectedStudent.name || selectedStudent.fullName || "Unnamed student"}
-                </h2>
-                {selectedStudent.email && (
-                  <p className="mt-1 text-sm text-gray-400">{selectedStudent.email}</p>
-                )}
+        <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-600 dark:border-[#15253f] dark:bg-[#070e1b] dark:text-slate-300">
+          <Eye size={15} className="text-[#1f6f5b] dark:text-emerald-400" />
+          <span>Read-Only View</span>
+        </div>
+      </div>
+
+      {/* STUDENT SELECTOR CARD */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <User size={18} className="text-[#1f6f5b] dark:text-emerald-400" />
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              Select Assigned Student
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => selectedStudentId && fetchStudentProgress(selectedStudentId)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-[#15253f] dark:bg-[#070e1b] dark:text-slate-300"
+          >
+            <RefreshCw size={13} className={progressLoading ? "animate-spin" : ""} />
+            Refresh
+          </button>
+        </div>
+
+        {studentsLoading ? (
+          <div className="flex items-center gap-2 py-3 text-xs text-slate-400">
+            <RefreshCw size={14} className="animate-spin text-[#1f6f5b]" />
+            Loading assigned students...
+          </div>
+        ) : studentsError ? (
+          <div className="rounded-xl bg-red-50 p-4 text-xs font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-900">
+            {studentsError}
+          </div>
+        ) : students.length === 0 ? (
+          <p className="text-xs text-slate-400 py-2">
+            No students currently assigned to your mentorship cohort.
+          </p>
+        ) : (
+          <div className="relative">
+            <select
+              value={selectedStudentId}
+              onChange={(e) => setSelectedStudentId(e.target.value)}
+              className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-900 outline-none transition focus:border-[#1f6f5b] dark:border-[#15253f] dark:bg-[#070e1b] dark:text-white"
+            >
+              {students.map((student) => {
+                const sId = student._id || student.id;
+                return (
+                  <option key={sId} value={sId}>
+                    {student.name} — {student.email} {student.batchId?.name ? `(${student.batchId.name})` : ""}
+                  </option>
+                );
+              })}
+            </select>
+            <ChevronDown
+              size={16}
+              className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+          </div>
+        )}
+      </div>
+
+      {progressError && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300">
+          <div className="flex items-center gap-2">
+            <AlertCircle size={16} className="text-red-600" />
+            <p className="font-bold">Unable to load progress: {progressError}</p>
+          </div>
+        </div>
+      )}
+
+      {selectedStudent && (
+        <>
+          {/* STATS OVERVIEW */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-slate-400">Overall Progress</p>
+                  <p className="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white">
+                    {overallProgress}%
+                  </p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e5f1ed] text-[#1f6f5b] dark:bg-[#10261f] dark:text-[#34d399]">
+                  <BookOpen size={20} />
+                </div>
               </div>
+              <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-[#070e1b]">
+                <div
+                  className="h-full rounded-full bg-[#1f6f5b]"
+                  style={{ width: `${overallProgress}%` }}
+                />
+              </div>
+            </div>
 
-              <button
-                type="button"
-                onClick={refreshProgress}
-                disabled={progressLoading}
-                className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <RefreshCw size={16} className={progressLoading ? "animate-spin" : ""} />
-                Refresh
-              </button>
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-slate-400">Completed</p>
+                  <p className="mt-1 text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {completedCount}
+                  </p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
+                  <CheckCircle2 size={20} />
+                </div>
+              </div>
+              <p className="mt-3 text-[11px] text-slate-400">Out of {TOPICS.length} curriculum topics</p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-slate-400">In Progress</p>
+                  <p className="mt-1 text-3xl font-extrabold text-blue-600 dark:text-blue-400">
+                    {inProgressCount}
+                  </p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
+                  <Clock3 size={20} />
+                </div>
+              </div>
+              <p className="mt-3 text-[11px] text-slate-400">Topics currently being practiced</p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-slate-400">Needs Attention</p>
+                  <p className="mt-1 text-3xl font-extrabold text-amber-600 dark:text-amber-400">
+                    {needsImprovementCount}
+                  </p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
+                  <AlertCircle size={20} />
+                </div>
+              </div>
+              <p className="mt-3 text-[11px] text-slate-400">Requires review or guidance</p>
             </div>
           </div>
-        )}
 
-        {progressError && (
-          <div className="mb-6 flex items-start gap-3 rounded-xl bg-red-50 p-4 text-sm text-red-700">
-            <AlertCircle size={20} className="mt-0.5 shrink-0" />
-            <div>
-              <p className="font-semibold">Unable to load progress</p>
-              <p className="mt-1">{progressError}</p>
-            </div>
-          </div>
-        )}
-
-        {progressLoading ? (
-          <div className="flex min-h-[300px] items-center justify-center rounded-2xl bg-white shadow-sm">
-            <div className="text-center">
-              <RefreshCw size={32} className="mx-auto animate-spin text-gray-500" />
-              <p className="mt-3 text-sm text-gray-500">Loading student progress...</p>
-            </div>
-          </div>
-        ) : selectedStudent ? (
-          <>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <SummaryCard
-                label="Overall progress"
-                value={`${overallProgress}%`}
-                icon={<BookOpen size={22} className="text-gray-700" />}
-                iconBg="bg-gray-100"
-                footer={
-                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-gray-100">
-                    <div
-                      className="h-full rounded-full bg-gray-900 transition-all"
-                      style={{ width: `${overallProgress}%` }}
-                    />
-                  </div>
-                }
-              />
-              <SummaryCard
-                label="Completed"
-                value={completedCount}
-                icon={<CheckCircle2 size={22} className="text-green-600" />}
-                iconBg="bg-green-100"
-                footer={<p className="mt-3 text-xs text-gray-500">Out of {TOPICS.length} topics</p>}
-              />
-              <SummaryCard
-                label="In progress"
-                value={inProgressCount}
-                icon={<Clock3 size={22} className="text-blue-600" />}
-                iconBg="bg-blue-100"
-                footer={<p className="mt-3 text-xs text-gray-500">Topics currently being learned</p>}
-              />
-              <SummaryCard
-                label="Needs improvement"
-                value={needsImprovementCount}
-                icon={<AlertCircle size={22} className="text-orange-600" />}
-                iconBg="bg-orange-100"
-                footer={<p className="mt-3 text-xs text-gray-500">Topics requiring attention</p>}
-              />
-            </div>
-
-            <div className="mt-6 rounded-2xl bg-white shadow-sm">
-              <div className="border-b border-gray-100 p-5">
-                <h2 className="text-lg font-bold text-gray-900">Topic progress</h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Detailed progress for each bootcamp topic.
+          {/* TOPIC PROGRESS TABLE (READ-ONLY FOR MENTORS) */}
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-xs dark:border-[#15253f] dark:bg-[#0b1528] overflow-hidden">
+            <div className="border-b border-slate-100 p-6 dark:border-[#15253f] flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  Curriculum Topics & Student Status
+                </h2>
+                <p className="mt-0.5 text-xs text-slate-400">
+                  Live status reported by {selectedStudent.name}.
                 </p>
               </div>
+            </div>
 
-              <div className="divide-y divide-gray-100">
-                {TOPICS.map((topic) => {
-                  const item = progressByTopic[topic];
-                  const status = item?.status || "Not Started";
-                  const statusInfo = STATUS_STYLES[status] || STATUS_STYLES["Not Started"];
-                  const StatusIcon = statusInfo.icon;
+            <div className="divide-y divide-slate-100 dark:divide-[#15253f]">
+              {TOPICS.map((topic) => {
+                const item = progressByTopic[topic];
+                const status = item?.status || "Not Started";
+                const statusInfo = STATUS_STYLES[status] || STATUS_STYLES["Not Started"];
+                const StatusIcon = statusInfo.icon;
 
-                  return (
-                    <div key={topic} className="p-5 transition hover:bg-gray-50">
-                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="rounded-xl bg-gray-100 p-2.5">
-                            <BookOpen size={18} className="text-gray-600" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{topic}</h3>
-                            {item?.notes && (
-                              <p className="mt-1 text-sm text-gray-500">{item.notes}</p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div
-                          className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${statusInfo.className}`}
-                        >
-                          <StatusIcon size={14} />
-                          {statusInfo.label}
-                        </div>
+                return (
+                  <div
+                    key={topic}
+                    className="flex flex-col gap-4 p-5 transition hover:bg-slate-50 dark:hover:bg-[#070e1b] sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#070e1b] border border-slate-200 dark:border-[#15253f] text-slate-700 dark:text-slate-300 font-bold text-xs">
+                        <BookOpen size={18} />
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-bold text-slate-900 dark:text-white">
+                          {topic}
+                        </h3>
+                        {item?.notes ? (
+                          <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                            Note: {item.notes}
+                          </p>
+                        ) : (
+                          <p className="mt-0.5 text-[10px] text-slate-400">
+                            {item?.updatedAt ? `Last updated: ${new Date(item.updatedAt).toLocaleDateString()}` : "No student notes yet"}
+                          </p>
+                        )}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="flex min-h-[300px] items-center justify-center rounded-2xl bg-white shadow-sm">
-            <div className="text-center">
-              <User size={40} className="mx-auto text-gray-300" />
-              <h3 className="mt-4 font-semibold text-gray-800">Select a student</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Choose an assigned student to view their progress.
-              </p>
+
+                    {/* READ-ONLY STATUS BADGE */}
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${statusInfo.badgeClass}`}
+                      >
+                        <StatusIcon size={13} />
+                        {statusInfo.label}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SummaryCard({ label, value, icon, iconBg, footer }) {
-  return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-500">{label}</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
-        </div>
-        <div className={`rounded-xl p-3 ${iconBg}`}>{icon}</div>
-      </div>
-      {footer}
+        </>
+      )}
     </div>
   );
 }

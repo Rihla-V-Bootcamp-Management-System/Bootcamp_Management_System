@@ -67,8 +67,14 @@ const assignmentRoutes = require("./routes/AssignmentRoutes");
 const submissionRoutes = require("./routes/SubmissionRoutes");
 
 // Announcements & Notifications
-const announcementRoutes = require("./routes/AnnouncementRoutes");
+const announcementRoutes = require("./routes/announcementRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+
+// Capstone Projects
+const capstoneProjectRoutes = require("./routes/capstoneProjectRoutes");
+
+// Certificates
+const adminCertificateRoutes = require("./routes/adminCertificateRoutes");
 
 // Super Admin
 const superAdminRoutes = require("./routes/superAdminRoutes");
@@ -200,6 +206,7 @@ app.use("/api/seasons", seasonRoutes);
 // Mentors
 // ---------------------------------------------------------
 
+app.use("/api/mentor", mentorRoutes);
 app.use("/api/mentors", mentorRoutes);
 
 // ---------------------------------------------------------
@@ -318,6 +325,24 @@ app.use(
 app.use(
   "/api/notifications",
   notificationRoutes
+);
+
+// ---------------------------------------------------------
+// Capstone Projects
+// ---------------------------------------------------------
+
+app.use(
+  "/api/capstone-projects",
+  capstoneProjectRoutes
+);
+
+// ---------------------------------------------------------
+// Certificates
+// ---------------------------------------------------------
+
+app.use(
+  "/api/certificates",
+  adminCertificateRoutes
 );
 
 // ---------------------------------------------------------

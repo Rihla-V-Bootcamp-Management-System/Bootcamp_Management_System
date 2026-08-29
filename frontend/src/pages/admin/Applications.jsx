@@ -155,7 +155,7 @@ function Applications() {
   ) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-gray-500">
+        <p className="text-gray-500 dark:text-slate-400">
           Loading applications...
         </p>
       </div>
@@ -172,11 +172,11 @@ function Applications() {
           HEADER
       ================================================= */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           Applications
         </h1>
 
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
           Manage bootcamp applications and
           registration email templates.
         </p>
@@ -185,7 +185,7 @@ function Applications() {
       {/* =================================================
           TABS
       ================================================= */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-[#15253f]">
         <div className="flex gap-6">
 
           <button
@@ -195,7 +195,7 @@ function Applications() {
             }
             className={`border-b-2 px-1 pb-3 text-sm font-semibold transition ${
               activeTab === "applications"
-                ? "border-[#071629] text-[#071629]"
+                ? "border-[#071629] text-slate-900 dark:text-white"
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
@@ -209,7 +209,7 @@ function Applications() {
             }
             className={`border-b-2 px-1 pb-3 text-sm font-semibold transition ${
               activeTab === "email-templates"
-                ? "border-[#071629] text-[#071629]"
+                ? "border-[#071629] text-slate-900 dark:text-white"
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
@@ -293,17 +293,17 @@ function Applications() {
           {/* =================================================
               APPLICATIONS TABLE
           ================================================= */}
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
             {/* FILTER */}
-            <div className="flex flex-col gap-4 border-b border-gray-200 p-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-4 border-b border-gray-200 dark:border-[#15253f] p-5 md:flex-row md:items-center md:justify-between">
 
               <div>
-                <h2 className="font-semibold text-gray-900">
+                <h2 className="font-semibold text-slate-900 dark:text-white">
                   Student Applications
                 </h2>
 
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-slate-400">
                   {filteredApplications.length} application
                   {filteredApplications.length !== 1
                     ? "s"
@@ -316,7 +316,7 @@ function Applications() {
                 onChange={(event) =>
                   setFilter(event.target.value)
                 }
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+                className="rounded-lg border border-gray-300 dark:border-[#15253f] px-3 py-2 text-sm outline-none focus:border-[#1f6f5b]"
               >
                 <option value="All">
                   All
@@ -347,7 +347,7 @@ function Applications() {
 
             {/* TABLE */}
             {filteredApplications.length === 0 ? (
-              <div className="p-10 text-center text-gray-500">
+              <div className="p-10 text-center text-gray-500 dark:text-slate-400">
                 No applications found.
               </div>
             ) : (
@@ -355,26 +355,26 @@ function Applications() {
 
                 <table className="w-full text-left">
 
-                  <thead className="border-b border-gray-200 bg-gray-50">
+                  <thead className="border-b border-gray-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b]">
                     <tr>
 
-                      <th className="px-5 py-4 text-sm font-semibold text-gray-700">
+                      <th className="px-5 py-4 text-sm font-semibold text-gray-700 dark:text-slate-200">
                         Applicant
                       </th>
 
-                      <th className="px-5 py-4 text-sm font-semibold text-gray-700">
+                      <th className="px-5 py-4 text-sm font-semibold text-gray-700 dark:text-slate-200">
                         Email
                       </th>
 
-                      <th className="px-5 py-4 text-sm font-semibold text-gray-700">
+                      <th className="px-5 py-4 text-sm font-semibold text-gray-700 dark:text-slate-200">
                         Batch
                       </th>
 
-                      <th className="px-5 py-4 text-sm font-semibold text-gray-700">
+                      <th className="px-5 py-4 text-sm font-semibold text-gray-700 dark:text-slate-200">
                         Status
                       </th>
 
-                      <th className="px-5 py-4 text-sm font-semibold text-gray-700">
+                      <th className="px-5 py-4 text-sm font-semibold text-gray-700 dark:text-slate-200">
                         Action
                       </th>
 
@@ -386,18 +386,18 @@ function Applications() {
                       (application) => (
                         <tr
                           key={application._id}
-                          className="border-b border-gray-100 hover:bg-gray-50"
+                          className="border-b border-gray-100 dark:border-[#15253f] hover:bg-slate-50 dark:bg-[#070e1b]"
                         >
 
                           {/* APPLICANT */}
                           <td className="px-5 py-4">
 
-                            <p className="font-medium text-gray-900">
+                            <p className="font-medium text-slate-900 dark:text-white">
                               {application.fullName ||
                                 "-"}
                             </p>
 
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-slate-400">
                               {application.gender ||
                                 "-"}
                             </p>
@@ -405,13 +405,13 @@ function Applications() {
                           </td>
 
                           {/* EMAIL */}
-                          <td className="px-5 py-4 text-sm text-gray-600">
+                          <td className="px-5 py-4 text-sm text-gray-600 dark:text-slate-300">
                             {application.email ||
                               "-"}
                           </td>
 
                           {/* BATCH */}
-                          <td className="px-5 py-4 text-sm text-gray-600">
+                          <td className="px-5 py-4 text-sm text-gray-600 dark:text-slate-300">
                             {getBatchName(
                               application.batchId
                             )}
@@ -438,7 +438,7 @@ function Applications() {
                                   application
                                 )
                               }
-                              className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                              className="text-sm font-medium text-[#1f6f5b] hover:text-blue-800"
                             >
                               View Details
                             </button>
@@ -510,12 +510,12 @@ function getBatchName(batch) {
 // =====================================================
 function SummaryCard({ title, value }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <p className="text-sm text-gray-500">
+    <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm">
+      <p className="text-sm text-gray-500 dark:text-slate-400">
         {title}
       </p>
 
-      <p className="mt-2 text-2xl font-bold text-gray-900">
+      <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
         {value}
       </p>
     </div>
@@ -534,7 +534,7 @@ function StatusBadge({ status }) {
       "bg-yellow-100 text-yellow-700",
 
     INTERVIEWED:
-      "bg-blue-100 text-blue-700",
+      "bg-blue-100 text-[#185848]",
 
     ACCEPTED:
       "bg-green-100 text-green-700",
@@ -603,17 +603,17 @@ function ApplicationDetails({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
 
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white shadow-xl">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white dark:bg-[#0b1528] shadow-xl">
 
         {/* HEADER */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-[#15253f] px-6 py-5">
 
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
               Application Details
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
               {application.fullName ||
                 "-"}
             </p>
@@ -622,7 +622,7 @@ function ApplicationDetails({
           <button
             type="button"
             onClick={onClose}
-            className="text-2xl text-gray-400 hover:text-gray-700"
+            className="text-2xl text-gray-400 hover:text-gray-700 dark:text-slate-200"
           >
             ×
           </button>
@@ -635,7 +635,7 @@ function ApplicationDetails({
           {/* PERSONAL INFORMATION */}
           <section>
 
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
               Personal Information
             </h3>
 
@@ -735,7 +735,7 @@ function ApplicationDetails({
           {/* PROGRAMMING INFORMATION */}
           <section>
 
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
               Programming Information
             </h3>
 
@@ -791,11 +791,11 @@ function ApplicationDetails({
           {/* MOTIVATION */}
           <section>
 
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
               Motivation
             </h3>
 
-            <div className="rounded-lg bg-gray-50 p-4 text-sm leading-6 text-gray-700">
+            <div className="rounded-lg bg-slate-50 dark:bg-[#070e1b] p-4 text-sm leading-6 text-gray-700 dark:text-slate-200">
               {application.motivation ||
                 "-"}
             </div>
@@ -805,7 +805,7 @@ function ApplicationDetails({
           {/* STATUS */}
           <section>
 
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
               Application Status
             </h3>
 
@@ -820,7 +820,7 @@ function ApplicationDetails({
           {/* DYNAMIC RESPONSES */}
           <section>
 
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
               Application Responses
             </h3>
 
@@ -851,7 +851,7 @@ function ApplicationDetails({
 
             ) : (
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-slate-400">
                 No additional responses.
               </p>
 
@@ -863,11 +863,11 @@ function ApplicationDetails({
           {application.interviewNotes && (
             <section>
 
-              <h3 className="mb-3 text-lg font-semibold text-gray-900">
+              <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">
                 Interview Notes
               </h3>
 
-              <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-700">
+              <div className="rounded-lg bg-slate-50 dark:bg-[#070e1b] p-4 text-sm text-gray-700 dark:text-slate-200">
                 {
                   application.interviewNotes
                 }
@@ -895,9 +895,9 @@ function ApplicationDetails({
 
           {/* STATUS ACTIONS */}
           {nextStatuses.length > 0 && (
-            <section className="border-t border-gray-200 pt-6">
+            <section className="border-t border-gray-200 dark:border-[#15253f] pt-6">
 
-              <h3 className="mb-4 text-lg font-semibold text-gray-900">
+              <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
                 Update Status
               </h3>
 
@@ -921,11 +921,11 @@ function ApplicationDetails({
                           ? "bg-red-600 hover:bg-red-700"
                           : status ===
                             "ACCEPTED"
-                          ? "bg-green-600 hover:bg-green-700"
+                          ? "bg-[#1f6f5b] hover:bg-[#185848]"
                           : status ===
                             "SHORTLISTED"
                           ? "bg-yellow-600 hover:bg-yellow-700"
-                          : "bg-blue-600 hover:bg-blue-700"
+                          : "bg-[#1f6f5b] hover:bg-[#185848]"
                       } disabled:cursor-not-allowed disabled:opacity-50`}
                     >
                       {updating
@@ -952,13 +952,13 @@ function ApplicationDetails({
 // =====================================================
 function Info({ label, value }) {
   return (
-    <div className="rounded-lg bg-gray-50 p-3">
+    <div className="rounded-lg bg-slate-50 dark:bg-[#070e1b] p-3">
 
-      <p className="text-xs font-medium uppercase text-gray-500">
+      <p className="text-xs font-medium uppercase text-gray-500 dark:text-slate-400">
         {label}
       </p>
 
-      <p className="mt-1 break-words text-sm text-gray-900">
+      <p className="mt-1 break-words text-sm text-slate-900 dark:text-white">
         {formatValue(value)}
       </p>
 

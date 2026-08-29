@@ -1,5 +1,4 @@
 import { Outlet, NavLink } from "react-router-dom";
-
 import {
   LayoutDashboard,
   Users,
@@ -9,14 +8,18 @@ import {
   LogOut,
   ShieldCheck,
   Boxes,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 import useAuth from "../context/useAuth";
+import { useTheme } from "../context/ThemeContext";
 
 import "./SuperAdminLayout.css";
 
 function SuperAdminLayout() {
   const { logout, user } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme();
 
   const navigation = [
     {
@@ -48,6 +51,11 @@ function SuperAdminLayout() {
       label: "Settings",
       path: "/superadmin/settings",
       icon: Settings,
+    },
+    {
+      label: "My Profile",
+      path: "/superadmin/profile",
+      icon: Users,
     },
   ];
 
@@ -135,20 +143,44 @@ function SuperAdminLayout() {
             <h1>Super Admin Panel</h1>
           </div>
 
-          {/* PROFILE */}
-          <div className="superadmin-profile">
-            <div className="superadmin-avatar">
-              {getInitials(user?.name)}
-            </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            {/* THEME TOGGLE BUTTON */}
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+              style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "10px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                border: darkMode ? "1px solid #15253f" : "1px solid #e2e8f0",
+                background: darkMode ? "#070e1b" : "#ffffff",
+                color: darkMode ? "#ffffff" : "#334155",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
 
-            <div>
-              <p className="superadmin-profile-name">
-                {user?.name || "Super Admin"}
-              </p>
+            {/* PROFILE */}
+            <div className="superadmin-profile">
+              <div className="superadmin-avatar">
+                {getInitials(user?.name)}
+              </div>
 
-              <p className="superadmin-profile-role">
-                {user?.role || "System Administrator"}
-              </p>
+              <div>
+                <p className="superadmin-profile-name">
+                  {user?.name || "Super Admin"}
+                </p>
+
+                <p className="superadmin-profile-role">
+                  {user?.role || "System Administrator"}
+                </p>
+              </div>
             </div>
           </div>
         </header>

@@ -94,11 +94,11 @@ function StudentAssignmentDetails() {
   // =========================================================
   if (loading) {
     return (
-      <div className="min-h-full bg-slate-50 p-5 sm:p-6 md:p-8">
+      <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-5 sm:p-6 md:p-8">
         <main className="mx-auto max-w-6xl">
           <div className="mb-6 h-5 w-40 animate-pulse rounded bg-slate-200" />
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
             <div className="h-4 w-32 animate-pulse rounded bg-slate-200" />
 
             <div className="mt-4 h-8 w-72 animate-pulse rounded bg-slate-200" />
@@ -109,7 +109,7 @@ function StudentAssignmentDetails() {
               {[1, 2, 3].map((item) => (
                 <div
                   key={item}
-                  className="h-20 animate-pulse rounded-xl bg-slate-100"
+                  className="h-20 animate-pulse rounded-xl bg-slate-100 dark:bg-[#070e1b]"
                 />
               ))}
             </div>
@@ -124,18 +124,18 @@ function StudentAssignmentDetails() {
   // =========================================================
   if (!assignment) {
     return (
-      <div className="min-h-full bg-slate-50 p-5 sm:p-6 md:p-8">
+      <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-5 sm:p-6 md:p-8">
         <main className="mx-auto flex max-w-6xl justify-center">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg font-bold text-[#111827]">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-8 text-center shadow-sm">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#e5f1ed] text-lg font-bold text-[#111827]">
               !
             </div>
 
-            <h2 className="mt-5 text-xl font-bold text-slate-900">
+            <h2 className="mt-5 text-xl font-bold text-slate-900 dark:text-white">
               Assignment Not Found
             </h2>
 
-            <p className="mt-2 text-sm leading-6 text-slate-500">
+            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
               {error ||
                 "We could not find this assignment."}
             </p>
@@ -143,7 +143,7 @@ function StudentAssignmentDetails() {
             <button
               type="button"
               onClick={handleBack}
-              className="mt-6 rounded-xl bg-[#111827] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f2937]"
+              className="mt-6 rounded-xl bg-[#1f6f5b] hover:bg-[#185848] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#185848]"
             >
               Back to Assignments
             </button>
@@ -176,7 +176,7 @@ function StudentAssignmentDetails() {
   // PAGE
   // =========================================================
   return (
-    <div className="min-h-full bg-slate-50 p-5 text-slate-800 sm:p-6 md:p-8">
+    <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-5 text-slate-800 dark:text-slate-100 sm:p-6 md:p-8">
       <main className="mx-auto max-w-6xl">
 
         {/* =================================================
@@ -204,7 +204,7 @@ function StudentAssignmentDetails() {
         {/* =================================================
             ASSIGNMENT HEADER
         ================================================= */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm sm:p-6">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
 
             {/* TITLE */}
@@ -213,13 +213,13 @@ function StudentAssignmentDetails() {
                 {courseName}
               </p>
 
-              <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                 {assignment.title ||
                   "Untitled Assignment"}
               </h1>
 
               {assignment.description && (
-                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400">
                   {assignment.description}
                 </p>
               )}
@@ -229,7 +229,7 @@ function StudentAssignmentDetails() {
             <button
               type="button"
               onClick={handleSubmitAssignment}
-              className="shrink-0 rounded-xl bg-[#111827] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1f2937]"
+              className="shrink-0 rounded-xl bg-[#1f6f5b] hover:bg-[#185848] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#185848]"
             >
               Submit Assignment
             </button>
@@ -241,12 +241,12 @@ function StudentAssignmentDetails() {
           <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
 
             {/* DEADLINE */}
-            <div className="rounded-xl bg-slate-50 p-4">
+            <div className="rounded-xl bg-slate-50 dark:bg-[#070e1b] p-4">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Deadline
               </p>
 
-              <p className="mt-2 text-sm font-semibold text-slate-800">
+              <p className="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
                 {assignment.deadline
                   ? new Date(
                       assignment.deadline
@@ -256,12 +256,12 @@ function StudentAssignmentDetails() {
             </div>
 
             {/* MAX SCORE */}
-            <div className="rounded-xl bg-slate-50 p-4">
+            <div className="rounded-xl bg-slate-50 dark:bg-[#070e1b] p-4">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Maximum Score
               </p>
 
-              <p className="mt-2 text-sm font-semibold text-slate-800">
+              <p className="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
                 {assignment.maxScore ??
                   assignment.totalPoints ??
                   "Not specified"}
@@ -269,12 +269,12 @@ function StudentAssignmentDetails() {
             </div>
 
             {/* TOPICS */}
-            <div className="rounded-xl bg-slate-50 p-4">
+            <div className="rounded-xl bg-slate-50 dark:bg-[#070e1b] p-4">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Topics
               </p>
 
-              <p className="mt-2 text-sm font-semibold text-slate-800">
+              <p className="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
                 {topics.length}
               </p>
             </div>
@@ -287,11 +287,11 @@ function StudentAssignmentDetails() {
         <section className="mt-7">
 
           <div className="mb-4">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
               Assignment Questions
             </h2>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Review the questions before submitting your work.
             </p>
           </div>
@@ -300,8 +300,8 @@ function StudentAssignmentDetails() {
               NO TOPICS
           ================================================= */}
           {topics.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-              <p className="text-sm text-slate-500">
+            <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-8 text-center shadow-sm">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 No topics or questions have been added yet.
               </p>
             </div>
@@ -323,24 +323,24 @@ function StudentAssignmentDetails() {
                         topic._id ||
                         `${topic.title}-${topicIndex}`
                       }
-                      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+                      className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm sm:p-6"
                     >
 
                       {/* TOPIC HEADER */}
                       <div className="flex items-start gap-3">
 
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-sm font-bold text-[#111827]">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#e5f1ed] text-sm font-bold text-[#111827]">
                           {topicIndex + 1}
                         </div>
 
                         <div className="min-w-0">
-                          <h3 className="text-lg font-bold text-slate-900">
+                          <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                             {topic.title ||
                               "Topic"}
                           </h3>
 
                           {topic.description && (
-                            <p className="mt-1 text-sm text-slate-500">
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                               {topic.description}
                             </p>
                           )}
@@ -351,7 +351,7 @@ function StudentAssignmentDetails() {
                           NO QUESTIONS
                       ================================================= */}
                       {questions.length === 0 ? (
-                        <div className="mt-5 rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+                        <div className="mt-5 rounded-xl bg-slate-50 dark:bg-[#070e1b] p-4 text-sm text-slate-500 dark:text-slate-400">
                           No questions in this topic.
                         </div>
                       ) : (
@@ -367,7 +367,7 @@ function StudentAssignmentDetails() {
                                   question._id ||
                                   `${topicIndex}-${questionIndex}`
                                 }
-                                className="rounded-xl border border-slate-200 p-4 transition hover:border-slate-300"
+                                className="rounded-xl border border-slate-200 dark:border-[#15253f] p-4 transition hover:border-slate-300"
                               >
 
                                 <div className="flex gap-3">
@@ -383,7 +383,7 @@ function StudentAssignmentDetails() {
                                   <div className="min-w-0">
 
                                     {/* QUESTION */}
-                                    <p className="text-sm font-semibold leading-6 text-slate-800">
+                                    <p className="text-sm font-semibold leading-6 text-slate-800 dark:text-slate-100">
                                       {question.question ||
                                         question.text ||
                                         "Question"}
@@ -393,7 +393,7 @@ function StudentAssignmentDetails() {
                                     <div className="mt-2 flex flex-wrap gap-3">
 
                                       {question.type && (
-                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize text-slate-500">
+                                        <span className="rounded-full bg-slate-100 dark:bg-[#070e1b] px-2.5 py-1 text-xs font-medium capitalize text-slate-500 dark:text-slate-400">
                                           Type:{" "}
                                           {
                                             question.type
@@ -403,7 +403,7 @@ function StudentAssignmentDetails() {
 
                                       {question.points !==
                                         undefined && (
-                                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-[#111827]">
+                                        <span className="rounded-full bg-slate-100 dark:bg-[#070e1b] px-2.5 py-1 text-xs font-medium text-[#111827]">
                                           {
                                             question.points
                                           }{" "}
@@ -435,7 +435,7 @@ function StudentAssignmentDetails() {
             <button
               type="button"
               onClick={handleSubmitAssignment}
-              className="rounded-xl bg-[#111827] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1f2937]"
+              className="rounded-xl bg-[#1f6f5b] hover:bg-[#185848] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#185848]"
             >
               Submit Assignment
             </button>

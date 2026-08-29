@@ -3,6 +3,7 @@ const express = require("express");
 const {
   scheduleSession,
   syncSessionNow,
+  previewSessionParticipants,
 } = require("../controllers/googleMeetAttendanceController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -20,6 +21,16 @@ router.post(
 );
 
 // =====================================================
+// PREVIEW GOOGLE MEET PARTICIPANTS (BEFORE SYNC)
+// =====================================================
+
+router.get(
+  "/:id/participants",
+  authMiddleware,
+  previewSessionParticipants
+);
+
+// =====================================================
 // SYNC GOOGLE MEET ATTENDANCE
 // =====================================================
 
@@ -29,4 +40,4 @@ router.post(
   syncSessionNow
 );
 
-module.exports = router;
+module.exports = router;

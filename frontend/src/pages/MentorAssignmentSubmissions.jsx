@@ -202,7 +202,7 @@ function MentorAssignmentSubmissions() {
 
       case "pending":
       default:
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return "bg-[#e5f1ed] text-[#185848] border-blue-200";
     }
   };
 
@@ -222,13 +222,13 @@ function MentorAssignmentSubmissions() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 p-6 md:p-8">
+      <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] p-6 md:p-8">
         <div className="mx-auto max-w-6xl">
-          <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-white shadow-sm">
+          <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-white dark:bg-[#0b1528] shadow-sm">
             <div className="text-center">
-              <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
+              <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#1f6f5b]" />
 
-              <p className="mt-4 text-sm font-medium text-slate-700">
+              <p className="mt-4 text-sm font-medium text-slate-700 dark:text-slate-200">
                 Loading submissions...
               </p>
 
@@ -243,7 +243,7 @@ function MentorAssignmentSubmissions() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-6xl">
         {/* HEADER */}
         <div className="mb-6">
@@ -254,7 +254,7 @@ function MentorAssignmentSubmissions() {
                 `/mentor/assignments/${assignmentId}`
               )
             }
-            className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-blue-600"
+            className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 transition hover:text-[#1f6f5b]"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Assignment
@@ -262,20 +262,20 @@ function MentorAssignmentSubmissions() {
 
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
             <div>
-              <p className="text-sm font-medium text-blue-600">
+              <p className="text-sm font-medium text-[#1f6f5b]">
                 Mentor
               </p>
 
-              <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
+              <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white md:text-3xl">
                 Assignment Submissions
               </h1>
 
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                 Review and grade student submissions.
               </p>
 
               {assignment?.title && (
-                <p className="mt-3 font-medium text-slate-700">
+                <p className="mt-3 font-medium text-slate-700 dark:text-slate-200">
                   {assignment.title}
                 </p>
               )}
@@ -285,7 +285,7 @@ function MentorAssignmentSubmissions() {
               type="button"
               onClick={() => loadSubmissions(true)}
               disabled={refreshing}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <RefreshCcw
                 className={`h-4 w-4 ${
@@ -317,18 +317,18 @@ function MentorAssignmentSubmissions() {
 
         {/* STATS */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Total
             </p>
 
-            <p className="mt-2 text-3xl font-bold text-slate-900">
+            <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
               {stats.total}
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Graded
             </p>
 
@@ -337,18 +337,18 @@ function MentorAssignmentSubmissions() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Pending
             </p>
 
-            <p className="mt-2 text-3xl font-bold text-blue-600">
+            <p className="mt-2 text-3xl font-bold text-[#1f6f5b]">
               {stats.pending}
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Resubmissions
             </p>
 
@@ -360,29 +360,29 @@ function MentorAssignmentSubmissions() {
 
         {/* EMPTY */}
         {submissions.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
+          <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-10 text-center shadow-sm">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-[#070e1b]">
               <User className="h-7 w-7 text-slate-400" />
             </div>
 
-            <h2 className="mt-4 text-lg font-semibold text-slate-900">
+            <h2 className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
               No submissions yet
             </h2>
 
-            <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
+            <p className="mx-auto mt-2 max-w-md text-sm text-slate-500 dark:text-slate-400">
               Students have not submitted this assignment yet.
             </p>
           </div>
         ) : (
           <>
             {/* DESKTOP TABLE */}
-            <div className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm md:block">
-              <div className="border-b border-slate-100 px-6 py-4">
-                <h2 className="font-semibold text-slate-900">
+            <div className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm md:block">
+              <div className="border-b border-slate-100 dark:border-[#15253f] px-6 py-4">
+                <h2 className="font-semibold text-slate-900 dark:text-white">
                   Student Submissions
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Select a submission to review.
                 </p>
               </div>
@@ -390,24 +390,24 @@ function MentorAssignmentSubmissions() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-slate-100 bg-slate-50 text-left">
-                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <tr className="border-b border-slate-100 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] text-left">
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         Student
                       </th>
 
-                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         Submitted
                       </th>
 
-                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         Grade
                       </th>
 
-                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         Status
                       </th>
 
-                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         Action
                       </th>
                     </tr>
@@ -424,22 +424,22 @@ function MentorAssignmentSubmissions() {
                       return (
                         <tr
                           key={submission._id}
-                          className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
+                          className="border-b border-slate-100 dark:border-[#15253f] last:border-0 hover:bg-slate-50 dark:bg-[#070e1b]"
                         >
                           <td className="px-6 py-5">
                             <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
-                                <User className="h-5 w-5 text-blue-600" />
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5f1ed]">
+                                <User className="h-5 w-5 text-[#1f6f5b]" />
                               </div>
 
                               <div>
-                                <p className="font-semibold text-slate-900">
+                                <p className="font-semibold text-slate-900 dark:text-white">
                                   {getStudentName(
                                     submission
                                   )}
                                 </p>
 
-                                <p className="mt-1 text-xs text-slate-500">
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                                   {getStudentEmail(
                                     submission
                                   )}
@@ -449,7 +449,7 @@ function MentorAssignmentSubmissions() {
                           </td>
 
                           <td className="px-6 py-5">
-                            <div className="flex items-center gap-2 text-sm text-slate-600">
+                            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                               <Clock3 className="h-4 w-4" />
 
                               {formatDate(
@@ -460,7 +460,7 @@ function MentorAssignmentSubmissions() {
 
                           <td className="px-6 py-5">
                             {grade !== null ? (
-                              <span className="font-semibold text-slate-900">
+                              <span className="font-semibold text-slate-900 dark:text-white">
                                 {grade}
                               </span>
                             ) : (
@@ -500,7 +500,7 @@ function MentorAssignmentSubmissions() {
                                   `/mentor/submissions/${submission._id}`
                                 )
                               }
-                              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700"
+                              className="inline-flex items-center gap-2 rounded-lg bg-[#1f6f5b] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#185848]"
                             >
                               <Eye className="h-4 w-4" />
                               Review
@@ -526,22 +526,22 @@ function MentorAssignmentSubmissions() {
                 return (
                   <div
                     key={submission._id}
-                    className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+                    className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
-                          <User className="h-5 w-5 text-blue-600" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5f1ed]">
+                          <User className="h-5 w-5 text-[#1f6f5b]" />
                         </div>
 
                         <div>
-                          <p className="font-semibold text-slate-900">
+                          <p className="font-semibold text-slate-900 dark:text-white">
                             {getStudentName(
                               submission
                             )}
                           </p>
 
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
                             {getStudentEmail(
                               submission
                             )}
@@ -558,13 +558,13 @@ function MentorAssignmentSubmissions() {
                       </span>
                     </div>
 
-                    <div className="mt-5 grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                    <div className="mt-5 grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-[#15253f] pt-4">
                       <div>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
                           Submitted
                         </p>
 
-                        <p className="mt-1 text-sm font-medium text-slate-800">
+                        <p className="mt-1 text-sm font-medium text-slate-800 dark:text-slate-100">
                           {formatDate(
                             submission.submittedAt
                           )}
@@ -572,11 +572,11 @@ function MentorAssignmentSubmissions() {
                       </div>
 
                       <div>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
                           Grade
                         </p>
 
-                        <p className="mt-1 text-sm font-semibold text-slate-800">
+                        <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">
                           {grade !== null
                             ? grade
                             : "Not graded"}
@@ -591,7 +591,7 @@ function MentorAssignmentSubmissions() {
                           `/mentor/submissions/${submission._id}`
                         )
                       }
-                      className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-700"
+                      className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] px-4 py-3 text-sm font-medium text-white hover:bg-[#185848]"
                     >
                       <Eye className="h-4 w-4" />
                       Review Submission

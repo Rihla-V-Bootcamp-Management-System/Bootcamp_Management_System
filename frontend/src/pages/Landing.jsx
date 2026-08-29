@@ -4,6 +4,7 @@ import { Info, X } from "lucide-react";
 import Tracks from "../components/Tracks";
 import FAQ from "../components/FAQ";
 import Mentors from "../components/Mentors";
+import AboutSection from "../components/AboutSection";
 import Login from "./Login";
 import Register from "./Register";
 import Hero from "../components/Hero";
@@ -98,7 +99,7 @@ function Landing() {
   const currentAbout = about || DEFAULT_ABOUT;
 
   return (
-    <main className="min-h-screen bg-[#06152d] text-white">
+    <main className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] text-white">
 
       <Navbar
         onLogin={() => setLoginOpen(true)}
@@ -109,36 +110,7 @@ function Landing() {
         onRegistered={handleApply}
       />
 
-      <section
-        id="about"
-        className="bg-white px-6 py-20 text-gray-900 lg:px-8"
-      >
-        <div className="mx-auto max-w-6xl">
-
-          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.5fr] lg:items-center">
-
-            <div>
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-[#1769e0]">
-                <Info size={17} />
-                About Us
-              </div>
-
-              <h2 className="text-3xl font-bold leading-tight text-[#071629] sm:text-4xl">
-                {currentAbout.title}
-              </h2>
-            </div>
-
-
-            <div>
-              <p className="whitespace-pre-line text-base leading-8 text-gray-600">
-                {currentAbout.description}
-              </p>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
+      <AboutSection about={currentAbout} />
 
       <Tracks />
 
@@ -159,7 +131,7 @@ function Landing() {
               <button
                 type="button"
                 onClick={() => setLoginOpen(false)}
-                className="absolute -right-2 -top-2 sm:-right-4 sm:-top-4 z-[60] flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-700 shadow-2xl transition hover:scale-105 hover:bg-gray-100 hover:text-black"
+                className="absolute -right-2 -top-2 sm:-right-4 sm:-top-4 z-[60] flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-[#0b1528] text-gray-700 dark:text-slate-200 shadow-2xl transition hover:scale-105 hover:bg-gray-100 dark:bg-[#070e1b] hover:text-black"
                 title="Close"
               >
                 <X size={20} />
@@ -174,7 +146,7 @@ function Landing() {
       {checkingApplication && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm">
 
-          <div className="rounded-xl bg-white px-8 py-6 text-center text-gray-900 shadow-2xl">
+          <div className="rounded-xl bg-white dark:bg-[#0b1528] px-8 py-6 text-center text-slate-900 dark:text-white shadow-2xl">
 
             <p className="text-sm font-medium">
               Checking application status...
@@ -188,13 +160,13 @@ function Landing() {
       {applicationClosed && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6 backdrop-blur-sm">
 
-          <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center text-gray-900 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-[#0b1528] p-8 text-center text-slate-900 dark:text-white shadow-2xl">
 
             <h2 className="text-2xl font-bold">
               Application is currently closed
             </h2>
 
-            <p className="mt-3 text-sm leading-6 text-gray-600">
+            <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-slate-300">
               Registration is not available at the moment.
               Please check back when the application period
               opens.
@@ -203,7 +175,7 @@ function Landing() {
             <button
               type="button"
               onClick={() => setApplicationClosed(false)}
-              className="mt-6 rounded-lg bg-[#071629] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#10233b]"
+              className="mt-6 rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1f6f5b] hover:bg-[#185848]"
             >
               Close
             </button>
@@ -216,7 +188,7 @@ function Landing() {
       {applicationError && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6 backdrop-blur-sm">
 
-          <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center text-gray-900 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-[#0b1528] p-8 text-center text-slate-900 dark:text-white shadow-2xl">
 
             <h2 className="text-2xl font-bold">
               Unable to check application
@@ -229,7 +201,7 @@ function Landing() {
             <button
               type="button"
               onClick={() => setApplicationError("")}
-              className="mt-6 rounded-lg bg-[#071629] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#10233b]"
+              className="mt-6 rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1f6f5b] hover:bg-[#185848]"
             >
               Close
             </button>
@@ -247,13 +219,13 @@ function Landing() {
         >
           <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 lg:p-8">
             <div
-              className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-6 sm:p-8 text-gray-900 shadow-2xl"
+              className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white dark:bg-[#0b1528] p-6 sm:p-8 text-slate-900 dark:text-white shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 type="button"
                 onClick={() => setApplicationOpen(false)}
-                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition hover:bg-gray-200 hover:text-black"
+                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 dark:bg-[#070e1b] text-gray-600 dark:text-slate-300 transition hover:bg-gray-200 hover:text-black"
                 title="Close"
               >
                 <X size={18} />

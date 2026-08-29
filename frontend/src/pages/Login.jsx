@@ -130,7 +130,7 @@ function Login({ isModal = false, onClose }) {
 
         <section className="relative hidden flex-col justify-between overflow-hidden bg-[#06103D] md:flex md:min-h-[560px]">
 
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#e5f1ed]0/10 blur-3xl" />
 
           <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-blue-400/10 blur-3xl" />
 
@@ -190,7 +190,7 @@ function Login({ isModal = false, onClose }) {
 
               <div className="flex items-center gap-4">
 
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/15">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#e5f1ed]0/15">
                   <FileText
                     size={20}
                     className="text-blue-300"
@@ -226,11 +226,11 @@ function Login({ isModal = false, onClose }) {
             {/* HEADER */}
 
             <div className="mb-6">
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                 Welcome back
               </h1>
 
-              <p className="mt-1.5 text-sm leading-6 text-gray-500">
+              <p className="mt-1.5 text-sm leading-6 text-gray-500 dark:text-slate-400">
                 Sign in to your ASTU MSJ Bootcamp
                 account.
               </p>
@@ -246,7 +246,7 @@ function Login({ isModal = false, onClose }) {
 
 
             {/* QUICK TEST ACCOUNTS */}
-            <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50/80 p-3">
+            <div className="mb-6 rounded-xl border border-blue-200 bg-[#e5f1ed]/80 p-3">
               <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-blue-900">
                 Quick Test Accounts:
               </p>
@@ -258,7 +258,7 @@ function Login({ isModal = false, onClose }) {
                     setPassword("password123");
                     setError("");
                   }}
-                  className="flex-1 whitespace-nowrap rounded-lg border border-blue-200 bg-white px-2 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
+                  className="flex-1 whitespace-nowrap rounded-lg border dark:border-[#15253f] border-blue-200 bg-white dark:bg-[#0b1528] px-2 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
                 >
                   Super Admin
                 </button>
@@ -269,7 +269,7 @@ function Login({ isModal = false, onClose }) {
                     setPassword("password");
                     setError("");
                   }}
-                  className="flex-1 whitespace-nowrap rounded-lg border border-blue-200 bg-white px-2 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
+                  className="flex-1 whitespace-nowrap rounded-lg border dark:border-[#15253f] border-blue-200 bg-white dark:bg-[#0b1528] px-2 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
                 >
                   Admin
                 </button>
@@ -280,7 +280,7 @@ function Login({ isModal = false, onClose }) {
                     setPassword("Mentor12345");
                     setError("");
                   }}
-                  className="rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
+                  className="rounded-lg border dark:border-[#15253f] border-blue-200 bg-white dark:bg-[#0b1528] px-2.5 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
                 >
                   Mentor
                 </button>
@@ -291,7 +291,7 @@ function Login({ isModal = false, onClose }) {
                     setPassword("Student12345");
                     setError("");
                   }}
-                  className="rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
+                  className="rounded-lg border dark:border-[#15253f] border-blue-200 bg-white dark:bg-[#0b1528] px-2.5 py-1.5 text-center text-xs font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100/70 hover:border-blue-300"
                 >
                   Student
                 </button>
@@ -310,7 +310,7 @@ function Login({ isModal = false, onClose }) {
               <div>
                 <label
                   htmlFor="email"
-                  className="mb-2 block text-sm font-semibold text-gray-800"
+                  className="mb-2 block text-sm font-semibold text-gray-800 dark:text-slate-100"
                 >
                   Email address
                 </label>
@@ -333,7 +333,7 @@ function Login({ isModal = false, onClose }) {
                     disabled={loading}
                     autoComplete="email"
                     required
-                    className="h-12 w-full rounded-lg border border-gray-300 bg-white pl-11 pr-4 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 hover:border-gray-400 focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10 disabled:bg-gray-100"
+                    className="h-12 w-full rounded-lg border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] pl-11 pr-4 text-sm text-gray-800 dark:text-slate-100 outline-none transition placeholder:text-gray-400 hover:border-gray-400 focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10 disabled:bg-gray-100 dark:bg-[#070e1b]"
                   />
 
                 </div>
@@ -345,7 +345,7 @@ function Login({ isModal = false, onClose }) {
               <div>
                 <label
                   htmlFor="password"
-                  className="mb-2 block text-sm font-semibold text-gray-800"
+                  className="mb-2 block text-sm font-semibold text-gray-800 dark:text-slate-100"
                 >
                   Password
                 </label>
@@ -372,7 +372,7 @@ function Login({ isModal = false, onClose }) {
                     disabled={loading}
                     autoComplete="current-password"
                     required
-                    className="h-12 w-full rounded-lg border border-gray-300 bg-white pl-11 pr-11 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 hover:border-gray-400 focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10 disabled:bg-gray-100"
+                    className="h-12 w-full rounded-lg border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] pl-11 pr-11 text-sm text-gray-800 dark:text-slate-100 outline-none transition placeholder:text-gray-400 hover:border-gray-400 focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10 disabled:bg-gray-100 dark:bg-[#070e1b]"
                   />
 
                   <button
@@ -383,7 +383,7 @@ function Login({ isModal = false, onClose }) {
                       )
                     }
                     disabled={loading}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-800"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-800 dark:text-slate-100"
                     aria-label={
                       showPassword
                         ? "Hide password"
@@ -411,7 +411,7 @@ function Login({ isModal = false, onClose }) {
                     setForgotError("");
                     setShowForgotModal(true);
                   }}
-                  className="text-xs font-semibold text-gray-700 transition hover:text-gray-900 hover:underline"
+                  className="text-xs font-semibold text-gray-700 transition hover:text-slate-900 dark:text-white hover:underline"
                 >
                   Forgot password?
                 </button>
@@ -422,7 +422,7 @@ function Login({ isModal = false, onClose }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-gray-900 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-70"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] text-sm font-semibold text-white shadow-sm transition hover:bg-[#185848] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-70"
               >
 
                 {loading ? (
@@ -461,11 +461,11 @@ function Login({ isModal = false, onClose }) {
 
               <Link
                 to="/first-login"
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 dark:border-[#15253f] bg-white text-sm font-semibold text-gray-700 dark:text-slate-200 transition hover:bg-slate-50 dark:bg-[#070e1b]"
               >
                 <ShieldCheck
                   size={18}
-                  className="text-gray-800"
+                  className="text-gray-800 dark:text-slate-100"
                 />
 
                 First time login? Verify with OTP
@@ -477,22 +477,22 @@ function Login({ isModal = false, onClose }) {
 
                 <div className="flex items-center gap-3">
 
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#0b1528] shadow-sm">
 
                     <FileText
                       size={19}
-                      className="text-gray-800"
+                      className="text-gray-800 dark:text-slate-100"
                     />
 
                   </div>
 
                   <div className="min-w-0 flex-1">
 
-                    <p className="text-xs font-semibold text-gray-900">
+                    <p className="text-xs font-semibold text-slate-900 dark:text-white">
                       Don't have an account?
                     </p>
 
-                    <p className="mt-1 text-[11px] text-gray-500">
+                    <p className="mt-1 text-[11px] text-gray-500 dark:text-slate-400">
                       Apply for the ASTU MSJ Bootcamp.
                     </p>
 
@@ -501,7 +501,7 @@ function Login({ isModal = false, onClose }) {
                   <Link
                     to="/register"
                     onClick={() => onClose?.()}
-                    className="flex shrink-0 items-center gap-1 text-xs font-semibold text-gray-800 transition hover:text-gray-600"
+                    className="flex shrink-0 items-center gap-1 text-xs font-semibold text-gray-800 dark:text-slate-100 transition hover:text-gray-600 dark:text-slate-300"
                   >
                     Apply Now
                     <ArrowRight size={14} />
@@ -539,21 +539,21 @@ function Login({ isModal = false, onClose }) {
           onClick={() => setShowForgotModal(false)}
         >
           <div
-            className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl sm:p-8"
+            className="relative w-full max-w-md rounded-2xl bg-white dark:bg-[#0b1528] p-6 shadow-2xl sm:p-8"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               onClick={() => setShowForgotModal(false)}
-              className="absolute right-4 top-4 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+              className="absolute right-4 top-4 rounded-full p-1 text-gray-400 hover:bg-gray-100 dark:bg-[#070e1b] hover:text-gray-700 dark:text-slate-200"
             >
               <X size={18} />
             </button>
 
-            <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
               Forgot Password?
             </h2>
-            <p className="mt-1.5 text-xs text-gray-500 sm:text-sm">
+            <p className="mt-1.5 text-xs text-gray-500 dark:text-slate-400 sm:text-sm">
               Enter your email address and we'll send you instructions to reset your password.
             </p>
 
@@ -583,7 +583,7 @@ function Login({ isModal = false, onClose }) {
             ) : (
               <form onSubmit={handleForgotSubmit} className="mt-5 space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-slate-200 mb-1.5">
                     Email Address
                   </label>
                   <div className="relative">
@@ -594,7 +594,7 @@ function Login({ isModal = false, onClose }) {
                       onChange={(e) => setForgotEmail(e.target.value)}
                       placeholder="you@gmail.com"
                       required
-                      className="h-11 w-full rounded-lg border border-gray-300 pl-10 pr-4 text-xs text-gray-900 focus:border-gray-900 focus:outline-none"
+                      className="h-11 w-full rounded-lg border border-gray-300 dark:border-[#15253f] pl-10 pr-4 text-xs text-slate-900 dark:text-white focus:border-gray-900 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -603,14 +603,14 @@ function Login({ isModal = false, onClose }) {
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(false)}
-                    className="flex-1 rounded-lg border border-gray-300 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                    className="flex-1 rounded-lg border border-gray-300 dark:border-[#15253f] py-2.5 text-xs font-semibold text-gray-700 dark:text-slate-200 hover:bg-slate-50 dark:bg-[#070e1b]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={forgotLoading}
-                    className="flex-1 rounded-lg bg-gray-900 py-2.5 text-xs font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
+                    className="flex-1 rounded-lg bg-[#1f6f5b] py-2.5 text-xs font-semibold text-white hover:bg-[#185848] disabled:opacity-50"
                   >
                     {forgotLoading ? "Sending..." : "Send Reset Link"}
                   </button>

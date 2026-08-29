@@ -278,8 +278,20 @@ const loginUser = async (req, res) => {
     }
 
     // =====================================================
-    // ACCOUNT STATUS
+    // ACCOUNT STATUS / SUSPENSION
     // =====================================================
+
+    if (user.accountStatus === "suspended" || user.accountStatus === "disabled") {
+      console.log("LOGIN BLOCKED: User is suspended");
+
+      return res.status(403).json({
+        success: false,
+        isSuspended: true,
+        message: user.suspensionReason
+          ? `Your account has been suspended. Reason: "${user.suspensionReason}". Please contact the bootcamp administration.`
+          : "Your account has been suspended by administration. Access denied.",
+      });
+    }
 
     if (user.accountStatus !== "active") {
       return res.status(403).json({

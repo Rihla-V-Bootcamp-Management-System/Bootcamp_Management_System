@@ -19,6 +19,7 @@ import Register from "../pages/Register";
 import SetPassword from "../pages/SetPassword";
 import FirstLogin from "../pages/FirstLogin";
 import PublicApplication from "../pages/PublicApplication";
+import Profile from "../pages/Profile";
 
 // ============================================================
 // MENTOR PAGES
@@ -60,6 +61,7 @@ import StudentGrades from "../pages/StudentGrades";
 import StudentAnnouncements from "../pages/StudentAnnouncements";
 import AnnouncementNotification from "../pages/AnnouncementNotification";
 import StudentDailyTasks from "../pages/StudentDailyTasks";
+import StudentCertificates from "../pages/StudentCertificates";
 
 // ============================================================
 // ADMIN PAGES
@@ -93,6 +95,8 @@ import CreateSpecialAnnouncement from "../pages/admin/CreateSpecialAnnouncement"
 
 import RegisterMentor from "../pages/admin/RegisterMentor";
 import Levels from "../pages/admin/levels/Levels";
+import CapstoneProjects from "../pages/admin/CapstoneProjects";
+import AdminCertificates from "../pages/admin/AdminCertificates";
 
 // ============================================================
 // SUPER ADMIN PAGES
@@ -254,6 +258,13 @@ function AppRoutes() {
             element={<DailyTasks />}
           />
 
+          {/* Capstone Projects */}
+
+          <Route
+            path="capstone-projects"
+            element={<CapstoneProjects />}
+          />
+
         </Route>
 
         {/* Registration */}
@@ -308,6 +319,13 @@ function AppRoutes() {
           element={<Analytics />}
         />
 
+        {/* Certificates */}
+
+        <Route
+          path="certificates"
+          element={<AdminCertificates />}
+        />
+
         {/* Settings */}
 
         <Route
@@ -327,6 +345,13 @@ function AppRoutes() {
         <Route
           path="about"
           element={<About />}
+        />
+
+        {/* Profile */}
+
+        <Route
+          path="profile"
+          element={<Profile />}
         />
 
       </Route>
@@ -435,15 +460,7 @@ function AppRoutes() {
 
         <Route
           path="profile"
-          element={
-            <div className="min-h-full bg-slate-50 p-6">
-              <div className="mx-auto max-w-6xl">
-                <h1 className="text-2xl font-bold text-slate-900">
-                  Mentor Profile
-                </h1>
-              </div>
-            </div>
-          }
+          element={<Profile />}
         />
 
       </Route>
@@ -562,19 +579,18 @@ function AppRoutes() {
           element={<StudentDailyTasks />}
         />
 
+        {/* Certificates */}
+
+        <Route
+          path="certificates"
+          element={<StudentCertificates />}
+        />
+
         {/* Profile */}
 
         <Route
           path="profile"
-          element={
-            <div className="min-h-full bg-slate-50 p-6">
-              <div className="mx-auto max-w-6xl">
-                <h1 className="text-2xl font-bold text-slate-900">
-                  Student Profile
-                </h1>
-              </div>
-            </div>
-          }
+          element={<Profile />}
         />
 
       </Route>
@@ -644,7 +660,20 @@ function AppRoutes() {
           element={<SuperAdminSettings />}
         />
 
+        {/* Profile */}
+
+        <Route
+          path="profile"
+          element={<Profile />}
+        />
+
       </Route>
+
+      {/* Global /profile */}
+      <Route
+        path="/profile"
+        element={<Profile />}
+      />
 
       {/* ======================================================
           FALLBACK

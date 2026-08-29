@@ -390,7 +390,7 @@ function CreateSpecialAnnouncement() {
   // =========================================================
 
   return (
-    <div className="min-h-full bg-[#F8FAFC] pb-10">
+    <div className="space-y-6">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
         {/* =================================================
@@ -403,7 +403,7 @@ function CreateSpecialAnnouncement() {
             onClick={() =>
               navigate("/admin/announcements")
             }
-            className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-[#071629]"
+            className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:text-white"
           >
             <ArrowLeft size={17} />
             Back to Announcements
@@ -411,7 +411,7 @@ function CreateSpecialAnnouncement() {
 
           <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
             <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#071629] text-white shadow-lg shadow-slate-200">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#1f6f5b] hover:bg-[#185848] text-white shadow-lg shadow-slate-200">
                 <PartyPopper size={25} />
               </div>
 
@@ -426,7 +426,7 @@ function CreateSpecialAnnouncement() {
                   </span>
                 </div>
 
-                <p className="mt-1.5 max-w-2xl text-sm text-slate-500">
+                <p className="mt-1.5 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
                   Create and publish an important special
                   event announcement for your bootcamp
                   community.
@@ -481,10 +481,10 @@ function CreateSpecialAnnouncement() {
                 LEFT — CONTENT
             ================================================= */}
 
-            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-100 px-6 py-5">
+            <section className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
+              <div className="border-b border-slate-100 dark:border-[#15253f] px-6 py-5">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#071629]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#070e1b] text-slate-900 dark:text-white">
                     <FileText size={19} />
                   </div>
 
@@ -493,7 +493,7 @@ function CreateSpecialAnnouncement() {
                       Special Event Content
                     </h2>
 
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                       Write the important information
                       about the special event.
                     </p>
@@ -507,7 +507,7 @@ function CreateSpecialAnnouncement() {
 
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <label className="text-sm font-semibold text-slate-700">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                       Title
                       <span className="ml-1 text-red-500">
                         *
@@ -526,7 +526,7 @@ function CreateSpecialAnnouncement() {
                     onChange={handleChange}
                     maxLength={200}
                     placeholder="e.g. Annual Bootcamp Hackathon 2026"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="w-full rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 hover:border-slate-300 dark:border-[#15253f] focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
                 </div>
 
@@ -534,14 +534,14 @@ function CreateSpecialAnnouncement() {
 
                 <div>
                   <div className="mb-3">
-                    <label className="text-sm font-semibold text-slate-700">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                       Event Type
                       <span className="ml-1 text-red-500">
                         *
                       </span>
                     </label>
 
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                       Select the type of special event.
                     </p>
                   </div>
@@ -573,7 +573,7 @@ function CreateSpecialAnnouncement() {
                             <div
                               className={`flex h-9 w-9 items-center justify-center rounded-lg transition ${
                                 selected
-                                  ? "bg-[#071629] text-white"
+                                  ? "bg-[#1f6f5b] hover:bg-[#185848] text-white"
                                   : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
                               }`}
                             >
@@ -583,21 +583,21 @@ function CreateSpecialAnnouncement() {
                             <div
                               className={`mt-1 flex h-4 w-4 items-center justify-center rounded-full border ${
                                 selected
-                                  ? "border-[#071629] bg-[#071629]"
+                                  ? "border-[#071629] bg-[#1f6f5b] hover:bg-[#185848]"
                                   : "border-slate-300"
                               }`}
                             >
                               {selected && (
-                                <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                                <span className="h-1.5 w-1.5 rounded-full bg-white dark:bg-[#0b1528]" />
                               )}
                             </div>
                           </div>
 
-                          <p className="mt-3 text-xs font-semibold text-slate-900">
+                          <p className="mt-3 text-xs font-semibold text-slate-900 dark:text-white">
                             {eventType.label}
                           </p>
 
-                          <p className="mt-1 hidden text-[10px] leading-4 text-slate-500 xl:block">
+                          <p className="mt-1 hidden text-[10px] leading-4 text-slate-500 dark:text-slate-400 xl:block">
                             {eventType.description}
                           </p>
                         </button>
@@ -610,7 +610,7 @@ function CreateSpecialAnnouncement() {
 
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <label className="text-sm font-semibold text-slate-700">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                       Message
                       <span className="ml-1 text-red-500">
                         *
@@ -628,7 +628,7 @@ function CreateSpecialAnnouncement() {
                     onChange={handleChange}
                     rows={10}
                     placeholder="Write the full special event announcement here..."
-                    className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3.5 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full resize-none rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm leading-6 text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
 
                   <p className="mt-2 text-xs text-slate-400">
@@ -646,13 +646,13 @@ function CreateSpecialAnnouncement() {
             ================================================= */}
 
             <div className="space-y-6">
-              <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-100 px-5 py-5">
+              <section className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
+                <div className="border-b border-slate-100 dark:border-[#15253f] px-5 py-5">
                   <h2 className="font-semibold text-[#0F172A]">
                     Publishing
                   </h2>
 
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     Decide when this special announcement
                     becomes visible.
                   </p>
@@ -663,7 +663,7 @@ function CreateSpecialAnnouncement() {
                   {/* STATUS */}
 
                   <div>
-                    <label className="mb-3 block text-sm font-semibold text-slate-700">
+                    <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-200">
                       Status
                     </label>
 
@@ -714,21 +714,21 @@ function CreateSpecialAnnouncement() {
                             <div
                               className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
                                 selected
-                                  ? "border-[#071629] bg-[#071629]"
+                                  ? "border-[#071629] bg-[#1f6f5b] hover:bg-[#185848]"
                                   : "border-slate-300"
                               }`}
                             >
                               {selected && (
-                                <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                                <span className="h-1.5 w-1.5 rounded-full bg-white dark:bg-[#0b1528]" />
                               )}
                             </div>
 
                             <div>
-                              <p className="text-xs font-semibold text-slate-900">
+                              <p className="text-xs font-semibold text-slate-900 dark:text-white">
                                 {option.label}
                               </p>
 
-                              <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
+                              <p className="mt-0.5 text-[11px] leading-4 text-slate-500 dark:text-slate-400">
                                 {option.description}
                               </p>
                             </div>
@@ -742,7 +742,7 @@ function CreateSpecialAnnouncement() {
 
                   {formData.status === "Scheduled" && (
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
+                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
                         Publish date
                       </label>
 
@@ -751,47 +751,47 @@ function CreateSpecialAnnouncement() {
                         name="publishDate"
                         value={formData.publishDate}
                         onChange={handleChange}
-                        className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                        className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-3 py-3 text-sm outline-none focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                       />
                     </div>
                   )}
 
                   {/* SUMMARY */}
 
-                  <div className="border-t border-slate-100 pt-5">
+                  <div className="border-t border-slate-100 dark:border-[#15253f] pt-5">
                     <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
                       Summary
                     </h3>
 
                     <div className="space-y-3">
                       <div className="flex items-center justify-between gap-4">
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           Event type
                         </span>
 
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                        <span className="rounded-full bg-slate-100 dark:bg-[#070e1b] px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
                           {selectedEventType?.label ||
                             "Not selected"}
                         </span>
                       </div>
 
                       <div className="flex items-center justify-between gap-4">
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           Batch
                         </span>
 
-                        <span className="text-right text-xs font-semibold text-slate-700">
+                        <span className="text-right text-xs font-semibold text-slate-700 dark:text-slate-200">
                           {selectedBatch?.name ||
                             "Not selected"}
                         </span>
                       </div>
 
                       <div className="flex items-center justify-between gap-4">
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           Event date
                         </span>
 
-                        <span className="text-right text-xs font-semibold text-slate-700">
+                        <span className="text-right text-xs font-semibold text-slate-700 dark:text-slate-200">
                           {formData.eventDate
                             ? new Date(
                                 `${formData.eventDate}T00:00:00`
@@ -801,22 +801,22 @@ function CreateSpecialAnnouncement() {
                       </div>
 
                       <div className="flex items-center justify-between gap-4">
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           Location
                         </span>
 
-                        <span className="max-w-[180px] truncate text-right text-xs font-semibold text-slate-700">
+                        <span className="max-w-[180px] truncate text-right text-xs font-semibold text-slate-700 dark:text-slate-200">
                           {formData.location ||
                             "Not set"}
                         </span>
                       </div>
 
                       <div className="flex items-center justify-between gap-4">
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           Recipients
                         </span>
 
-                        <span className="text-xs font-semibold text-slate-700">
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                           {formData.recipients.length ===
                           0
                             ? "None"
@@ -835,9 +835,9 @@ function CreateSpecialAnnouncement() {
 
               {/* QUICK INFO */}
 
-              <div className="rounded-2xl border border-slate-200 bg-[#071629] p-5 text-white shadow-sm">
+              <div className="rounded-2xl border border-slate-200 dark:border-[#15253f] bg-[#1f6f5b] hover:bg-[#185848] p-5 text-white shadow-sm">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#0b1528]/10">
                     <PartyPopper size={17} />
                   </div>
 
@@ -862,10 +862,10 @@ function CreateSpecialAnnouncement() {
               AUDIENCE
           ================================================= */}
 
-          <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-100 px-6 py-5">
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
+            <div className="border-b border-slate-100 dark:border-[#15253f] px-6 py-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#071629]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#070e1b] text-slate-900 dark:text-white">
                   <Users size={19} />
                 </div>
 
@@ -874,7 +874,7 @@ function CreateSpecialAnnouncement() {
                     Audience
                   </h2>
 
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                     Who should receive this special
                     event announcement?
                   </p>
@@ -909,7 +909,7 @@ function CreateSpecialAnnouncement() {
                         }`}
                       >
                         {selected && (
-                          <div className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-[#071629] text-white">
+                          <div className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-[#1f6f5b] hover:bg-[#185848] text-white">
                             <CheckCircle2 size={15} />
                           </div>
                         )}
@@ -917,24 +917,24 @@ function CreateSpecialAnnouncement() {
                         <div
                           className={`flex h-12 w-12 items-center justify-center rounded-xl ${
                             selected
-                              ? "bg-[#071629] text-white"
+                              ? "bg-[#1f6f5b] hover:bg-[#185848] text-white"
                               : "bg-slate-100 text-slate-600"
                           }`}
                         >
                           <Icon size={21} />
                         </div>
 
-                        <h3 className="mt-4 font-semibold text-slate-900">
+                        <h3 className="mt-4 font-semibold text-slate-900 dark:text-white">
                           {recipient.label}
                         </h3>
 
-                        <p className="mt-1 text-xs leading-5 text-slate-500">
+                        <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
                           {recipient.description}
                         </p>
 
                         <div className="mt-4 text-xs font-semibold">
                           {selected ? (
-                            <span className="text-[#071629]">
+                            <span className="text-slate-900 dark:text-white">
                               Selected
                             </span>
                           ) : (
@@ -950,9 +950,9 @@ function CreateSpecialAnnouncement() {
               </div>
 
               {formData.recipients.length > 0 && (
-                <div className="mt-5 rounded-xl bg-slate-50 px-4 py-3">
+                <div className="mt-5 rounded-xl bg-slate-50 dark:bg-[#070e1b] px-4 py-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-500">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                       Selected:
                     </span>
 
@@ -960,7 +960,7 @@ function CreateSpecialAnnouncement() {
                       (recipient) => (
                         <span
                           key={recipient}
-                          className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200"
+                          className="rounded-full bg-white dark:bg-[#0b1528] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm ring-1 ring-slate-200"
                         >
                           {getRecipientLabel(
                             recipient
@@ -978,10 +978,10 @@ function CreateSpecialAnnouncement() {
               EVENT DETAILS
           ================================================= */}
 
-          <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-100 px-6 py-5">
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
+            <div className="border-b border-slate-100 dark:border-[#15253f] px-6 py-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#071629]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#070e1b] text-slate-900 dark:text-white">
                   <Calendar size={19} />
                 </div>
 
@@ -990,7 +990,7 @@ function CreateSpecialAnnouncement() {
                     Event Details
                   </h2>
 
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                     Add the batch, date, time, optional
                     location, and optional resource.
                   </p>
@@ -1003,7 +1003,7 @@ function CreateSpecialAnnouncement() {
               {/* BATCH */}
 
               <div className="mb-5">
-                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
                   <Layers size={15} />
                   Batch
                   <span className="text-red-500">
@@ -1016,7 +1016,7 @@ function CreateSpecialAnnouncement() {
                   value={formData.batchId}
                   onChange={handleChange}
                   disabled={loadingBatches}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100 disabled:bg-slate-50"
+                  className="w-full rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 dark:border-[#15253f] focus:border-[#071629] focus:ring-4 focus:ring-slate-100 disabled:bg-slate-50 dark:bg-[#070e1b]"
                 >
                   <option value="">
                     {loadingBatches
@@ -1051,7 +1051,7 @@ function CreateSpecialAnnouncement() {
               <div className="grid gap-5 md:grid-cols-3">
 
                 <div>
-                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
                     <Calendar size={15} />
                     Event date
                     <span className="text-red-500">
@@ -1064,12 +1064,12 @@ function CreateSpecialAnnouncement() {
                     name="eventDate"
                     value={formData.eventDate}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
                     <Clock3 size={15} />
                     Start time
                     <span className="text-red-500">
@@ -1082,12 +1082,12 @@ function CreateSpecialAnnouncement() {
                     name="startTime"
                     value={formData.startTime}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
                     <Clock3 size={15} />
                     End time
                     <span className="font-normal text-slate-400">
@@ -1100,7 +1100,7 @@ function CreateSpecialAnnouncement() {
                     name="endTime"
                     value={formData.endTime}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
                 </div>
               </div>
@@ -1108,7 +1108,7 @@ function CreateSpecialAnnouncement() {
               {/* LOCATION — OPTIONAL */}
 
               <div className="mt-5">
-                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
                   <MapPin size={15} />
                   Location
                   <span className="font-normal text-slate-400">
@@ -1122,7 +1122,7 @@ function CreateSpecialAnnouncement() {
                   value={formData.location}
                   onChange={handleChange}
                   placeholder="e.g. ASTU Innovation Center"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                  className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                 />
 
                 <p className="mt-2 text-xs text-slate-400">
@@ -1134,7 +1134,7 @@ function CreateSpecialAnnouncement() {
               {/* LINK */}
 
               <div className="mt-5">
-                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
                   <LinkIcon size={15} />
                   Active link
                   <span className="font-normal text-slate-400">
@@ -1148,12 +1148,12 @@ function CreateSpecialAnnouncement() {
                   value={formData.activeLink}
                   onChange={handleChange}
                   placeholder="https://meet.google.com/..."
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                  className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                 />
               </div>
 
-              <div className="mt-4 rounded-xl bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-500">
-                <span className="font-semibold text-slate-700">
+              <div className="mt-4 rounded-xl bg-slate-50 dark:bg-[#070e1b] px-4 py-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
                   Special event information:
                 </span>{" "}
                 The event date and start time are required
@@ -1167,7 +1167,7 @@ function CreateSpecialAnnouncement() {
               BOTTOM ACTION BAR
           ================================================= */}
 
-          <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-end">
+          <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-4 shadow-sm sm:flex-row sm:items-center sm:justify-end">
 
             {/* CANCEL */}
 
@@ -1177,7 +1177,7 @@ function CreateSpecialAnnouncement() {
               onClick={() =>
                 navigate("/admin/announcements")
               }
-              className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
+              className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-5 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:opacity-50"
             >
               Cancel
             </button>
@@ -1199,7 +1199,7 @@ function CreateSpecialAnnouncement() {
                     ?.requestSubmit();
                 }, 0);
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-[#071629] transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-5 py-3 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {creating &&
               formData.status === "Draft" ? (
@@ -1225,7 +1225,7 @@ function CreateSpecialAnnouncement() {
                   status: "Published",
                 }));
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#071629] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#10243D] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1f6f5b] hover:bg-[#185848] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1f6f5b] hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {creating ? (
                 <Loader2

@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { Plus, Users, Calendar, Clock, Layers, BookOpen } from "lucide-react";
 import apiClient from "../../services/apiClient";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
+import Input from "../../components/ui/Input";
 
 function Batches() {
   const [batches, setBatches] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
   const [showForm, setShowForm] = useState(false);
-  const [editingBatchId, setEditingBatchId] = useState(null);
-
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -28,49 +27,31 @@ function Batches() {
   const loadBatches = async () => {
     try {
       setLoading(true);
-      setError("");
-
       const response = await apiClient.get("/batches");
-
-      console.log("BATCHES RESPONSE:", response.data);
-
       setBatches(response.data.batches || []);
     } catch (err) {
       console.error("LOAD BATCHES ERROR:", err);
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to load batches"
-      );
+      toast.error(err.response?.data?.message || "Failed to load batches");
     } finally {
       setLoading(false);
     }
   };
-
-  // =========================================================
-  // INITIAL LOAD
-  // =========================================================
 
   useEffect(() => {
     loadBatches();
   }, []);
 
   // =========================================================
-  // FORM CHANGE
+  // FORM CHANGE & RESET
   // =========================================================
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-
-  // =========================================================
-  // RESET FORM
-  // =========================================================
 
   const resetForm = () => {
     setFormData({
@@ -79,32 +60,28 @@ function Batches() {
       sessionStartTime: "09:00",
       sessionEndTime: "13:00",
     });
-
-    setEditingBatchId(null);
     setShowForm(false);
   };
 
   // =========================================================
-  // CREATE / UPDATE
+  // CREATE BATCH
   // =========================================================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      setError("Batch name is required.");
+      toast.error("Batch name is required.");
       return;
     }
 
     if (!formData.startDate) {
-      setError("Start date is required.");
+      toast.error("Start date is required.");
       return;
     }
 
     try {
       setSaving(true);
-      setError("");
-      setSuccess("");
 
       const payload = {
         name: formData.name.trim(),
@@ -113,425 +90,198 @@ function Batches() {
         sessionEndTime: formData.sessionEndTime,
       };
 
-      if (editingBatchId) {
-        await apiClient.put(
-          `/batches/${editingBatchId}`,
-          payload
-        );
-
-        setSuccess("Batch updated successfully.");
-      } else {
-        await apiClient.post(
-          "/batches",
-          payload
-        );
-
-        setSuccess("Batch created successfully.");
-      }
+      await apiClient.post("/batches", payload);
+      toast.success("Batch created successfully.");
 
       resetForm();
-
       await loadBatches();
     } catch (err) {
       console.error("SAVE BATCH ERROR:", err);
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to save batch"
-      );
+      toast.error(err.response?.data?.message || "Failed to create batch");
     } finally {
       setSaving(false);
     }
   };
 
-  // =========================================================
-  // EDIT
-  // =========================================================
-
-  const handleEdit = (batch) => {
-    setEditingBatchId(batch._id);
-
-    setFormData({
-      name: batch.name || "",
-      startDate: batch.startDate
-        ? new Date(batch.startDate)
-            .toISOString()
-            .split("T")[0]
-        : "",
-      sessionStartTime:
-        batch.sessionStartTime || "09:00",
-      sessionEndTime:
-        batch.sessionEndTime || "13:00",
-    });
-
-    setShowForm(true);
-    setError("");
-    setSuccess("");
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  // =========================================================
-  // DELETE
-  // =========================================================
-
-  const handleDelete = async (batch) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${batch.name}?`
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      setError("");
-      setSuccess("");
-
-      await apiClient.delete(
-        `/batches/${batch._id}`
-      );
-
-      setSuccess("Batch deleted successfully.");
-
-      await loadBatches();
-    } catch (err) {
-      console.error("DELETE BATCH ERROR:", err);
-
-      setError(
-        err.response?.data?.message ||
-          "Failed to delete batch"
-      );
-    }
-  };
-
-  // =========================================================
-  // UI
-  // =========================================================
-
   return (
-    <div className="space-y-6">
-
+    <div className="space-y-8">
       {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            Batches & Cohorts
+          </h1>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            Manage academic batches, enrolled students, and scheduled modules.
+          </p>
+        </div>
 
-      <div>
-        <h1 className="text-2xl font-bold text-[#071629]">
-          Batches
-        </h1>
-
-        <p className="mt-1 text-sm text-[#52627A]">
-          Manage bootcamp batches and their students.
-        </p>
+        <Button
+          onClick={() => setShowForm(!showForm)}
+          className="self-start sm:self-auto"
+        >
+          <Plus size={16} />
+          {showForm ? "Close Form" : "Create New Batch"}
+        </Button>
       </div>
 
-      {/* SUCCESS */}
-
-      {success && (
-        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-          <p className="text-sm font-medium text-green-700">
-            {success}
-          </p>
-        </div>
-      )}
-
-      {/* ERROR */}
-
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm font-medium text-red-700">
-            {error}
-          </p>
-        </div>
-      )}
-
-      {/* FORM */}
-
+      {/* CREATE BATCH FORM */}
       {showForm && (
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-xl border border-[#E5E0D5] bg-white p-6 shadow-sm"
-        >
-          <h2 className="text-lg font-semibold text-[#071629]">
-            {editingBatchId
-              ? "Edit Batch"
-              : "Add New Batch"}
-          </h2>
-
-          <div className="mt-5 grid gap-5 md:grid-cols-2">
-
-            {/* NAME */}
-
+        <Card className="border border-slate-200 dark:border-slate-800 animate-in fade-in-50 duration-200">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <label className="text-sm font-medium text-[#52627A]">
-                Batch Name
-              </label>
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                Create New Batch
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Set up a new student cohort and daily schedule.
+              </p>
+            </div>
+          </div>
 
-              <input
-                type="text"
+          <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input
+                label="Batch Name"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="e.g. Batch 3"
-                className="mt-2 w-full rounded-lg border border-[#D9D5CB] px-3 py-2.5 text-sm outline-none focus:border-[#1D3866]"
+                placeholder="e.g. Batch 3 (Summer 2026)"
+                required
               />
-            </div>
 
-            {/* START DATE */}
-
-            <div>
-              <label className="text-sm font-medium text-[#52627A]">
-                Start Date
-              </label>
-
-              <input
+              <Input
+                label="Start Date"
                 type="date"
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
-                className="mt-2 w-full rounded-lg border border-[#D9D5CB] px-3 py-2.5 text-sm outline-none focus:border-[#1D3866]"
+                required
               />
-            </div>
 
-            {/* SESSION START */}
-
-            <div>
-              <label className="text-sm font-medium text-[#52627A]">
-                Session Start
-              </label>
-
-              <input
+              <Input
+                label="Daily Session Start Time"
                 type="time"
                 name="sessionStartTime"
                 value={formData.sessionStartTime}
                 onChange={handleChange}
-                className="mt-2 w-full rounded-lg border border-[#D9D5CB] px-3 py-2.5 text-sm outline-none focus:border-[#1D3866]"
+                required
               />
-            </div>
 
-            {/* SESSION END */}
-
-            <div>
-              <label className="text-sm font-medium text-[#52627A]">
-                Session End
-              </label>
-
-              <input
+              <Input
+                label="Daily Session End Time"
                 type="time"
                 name="sessionEndTime"
                 value={formData.sessionEndTime}
                 onChange={handleChange}
-                className="mt-2 w-full rounded-lg border border-[#D9D5CB] px-3 py-2.5 text-sm outline-none focus:border-[#1D3866]"
+                required
               />
             </div>
 
-          </div>
-
-          {/* BUTTONS */}
-
-          <div className="mt-6 flex gap-3">
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded-lg bg-[#1D3866] px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-            >
-              {saving
-                ? "Saving..."
-                : editingBatchId
-                ? "Save Changes"
-                : "Create Batch"}
-            </button>
-
-            <button
-              type="button"
-              onClick={resetForm}
-              className="rounded-lg border border-[#D9D5CB] px-5 py-2.5 text-sm font-medium text-[#52627A] hover:bg-[#F7F5EF]"
-            >
-              Cancel
-            </button>
-
-          </div>
-        </form>
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <Button variant="outline" onClick={resetForm}>
+                Cancel
+              </Button>
+              <Button type="submit" loading={saving}>
+                Create Batch
+              </Button>
+            </div>
+          </form>
+        </Card>
       )}
 
       {/* ALL BATCHES */}
-
-      <div className="flex items-center justify-between">
-
-        <div>
-          <h2 className="text-lg font-semibold text-[#071629]">
-            All Batches
-          </h2>
-
-          <p className="mt-1 text-sm text-[#8A96A8]">
-            {batches.length} batches registered
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            resetForm();
-            setShowForm(true);
-          }}
-          className="rounded-lg bg-[#1D3866] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#162d52]"
-        >
-          + Add Batch
-        </button>
-
-      </div>
-
-      {/* LOADING */}
-
       {loading ? (
-        <div className="rounded-xl border border-[#E5E0D5] bg-white p-10 text-center">
-          <p className="text-sm text-[#8A96A8]">
-            Loading batches...
-          </p>
+        <div className="flex items-center justify-center py-20">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#1f6f5b] border-t-transparent" />
         </div>
       ) : batches.length === 0 ? (
-
-        <div className="rounded-xl border border-[#E5E0D5] bg-white p-10 text-center">
-          <p className="text-sm font-medium text-[#52627A]">
-            No batches found.
+        <Card className="text-center py-16">
+          <Layers size={40} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            No Batches Found
+          </h3>
+          <p className="mt-1 text-xs text-slate-400">
+            Click "Create New Batch" to add your first cohort.
           </p>
-        </div>
-
+        </Card>
       ) : (
-
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-
           {batches.map((batch) => (
-
-            <div
-              key={batch._id}
-              className="rounded-xl border border-[#E5E0D5] bg-white p-6 shadow-sm"
-            >
-
-              {/* CLICK BATCH */}
-
-              <Link
-                to={`/admin/batches/${batch._id}`}
-                className="block rounded-lg transition hover:bg-[#F7F5EF]"
-              >
-
+            <Card key={batch._id} hover className="flex flex-col justify-between">
+              <div>
                 <div className="flex items-start justify-between">
-
                   <div>
-                    <h3 className="text-lg font-semibold text-[#071629]">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
                       {batch.name}
                     </h3>
-
-                    <p className="mt-1 text-sm text-[#52627A]">
-                      Bootcamp Batch
+                    <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                      Bootcamp Cohort
                     </p>
                   </div>
-
-                  <span className="rounded-full bg-[#E4EFE9] px-3 py-1 text-xs font-medium text-[#35634F]">
+                  <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                     Active
                   </span>
-
                 </div>
 
-                <div className="mt-5 space-y-2 text-sm">
-
-                  <div className="flex justify-between">
-                    <span className="text-[#8A96A8]">
-                      Start Date
+                <div className="mt-5 space-y-2.5 rounded-xl bg-slate-50 p-3.5 dark:bg-slate-800/60 text-xs">
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                    <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                      <Calendar size={14} /> Start Date:
                     </span>
-
-                    <span className="font-medium text-[#071629]">
+                    <span className="font-semibold text-slate-900 dark:text-white">
                       {batch.startDate
-                        ? new Date(
-                            batch.startDate
-                          ).toLocaleDateString()
+                        ? new Date(batch.startDate).toLocaleDateString()
                         : "-"}
                     </span>
                   </div>
 
-                  <div className="flex justify-between">
-                    <span className="text-[#8A96A8]">
-                      Session
+                  <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                    <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                      <Clock size={14} /> Daily Sessions:
                     </span>
-
-                    <span className="font-medium text-[#071629]">
-                      {batch.sessionStartTime || "09:00"}
-                      {" - "}
-                      {batch.sessionEndTime || "13:00"}
+                    <span className="font-semibold text-slate-900 dark:text-white">
+                      {batch.sessionStartTime || "09:00"} - {batch.sessionEndTime || "13:00"}
                     </span>
                   </div>
-
                 </div>
 
-                <div className="mt-5 grid grid-cols-3 border-t border-[#E5E0D5] pt-4">
-
-                  <div>
-                    <p className="text-xs text-[#8A96A8]">
-                      Students
-                    </p>
-
-                    <p className="text-lg font-bold text-[#071629]">
+                <div className="mt-5 grid grid-cols-3 gap-2 border-t border-slate-100 dark:border-slate-800 pt-4 text-center">
+                  <div className="rounded-lg bg-slate-50/80 dark:bg-slate-800/40 p-2">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Students</p>
+                    <p className="mt-0.5 text-sm font-bold text-slate-900 dark:text-white">
                       {batch.studentIds?.length || 0}
                     </p>
                   </div>
 
-                  <div>
-                    <p className="text-xs text-[#8A96A8]">
-                      Mentors
-                    </p>
-
-                    <p className="text-lg font-bold text-[#071629]">
+                  <div className="rounded-lg bg-slate-50/80 dark:bg-slate-800/40 p-2">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Mentors</p>
+                    <p className="mt-0.5 text-sm font-bold text-slate-900 dark:text-white">
                       {batch.mentorIds?.length || 0}
                     </p>
                   </div>
 
-                  <div>
-                    <p className="text-xs text-[#8A96A8]">
-                      Modules
-                    </p>
-
-                    <p className="text-lg font-bold text-[#071629]">
+                  <div className="rounded-lg bg-slate-50/80 dark:bg-slate-800/40 p-2">
+                    <p className="text-[10px] uppercase font-bold text-slate-400">Modules</p>
+                    <p className="mt-0.5 text-sm font-bold text-slate-900 dark:text-white">
                       {batch.moduleCount || 0}
                     </p>
                   </div>
-
                 </div>
-
-              </Link>
-
-              {/* ACTIONS */}
-
-              <div className="mt-5 flex gap-2">
-
-                <button
-                  type="button"
-                  onClick={() => handleEdit(batch)}
-                  className="flex-1 rounded-lg border border-[#D9D5CB] px-3 py-2 text-sm font-medium text-[#52627A] hover:bg-[#F7F5EF]"
-                >
-                  Edit
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleDelete(batch)}
-                  className="flex-1 rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
-                >
-                  Delete
-                </button>
-
               </div>
 
-            </div>
-
+              <div className="mt-6 flex items-center gap-2 border-t border-slate-100 dark:border-slate-800 pt-4">
+                <Link
+                  to={`/admin/batches/${batch._id}`}
+                  className="w-full text-center rounded-xl bg-[#1f6f5b] py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#185848] transition"
+                >
+                  Manage Batch & Curriculum
+                </Link>
+              </div>
+            </Card>
           ))}
-
         </div>
-
       )}
-
     </div>
   );
 }

@@ -37,7 +37,7 @@ function AdminSettings() {
         <button
           type="button"
           onClick={handleSave}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-white dark:bg-[#0b1528] dark:text-slate-900 dark:text-white dark:hover:bg-slate-200"
         >
           <Save className="h-4 w-4" />
           Save Changes
@@ -52,7 +52,7 @@ function AdminSettings() {
       )}
 
       {/* GENERAL SETTINGS */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <section className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm dark:border-slate-800 dark:bg-[#1f6f5b]">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
@@ -106,7 +106,7 @@ function AdminSettings() {
       </section>
 
       {/* NOTIFICATIONS */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <section className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm dark:border-slate-800 dark:bg-[#1f6f5b]">
         <div className="mb-6">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
             <Bell className="h-5 w-5" />
@@ -138,7 +138,7 @@ function AdminSettings() {
       </section>
 
       {/* EMAIL CONFIGURATION */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <section className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm dark:border-slate-800 dark:bg-[#1f6f5b]">
         <div className="mb-6">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
             <Mail className="h-5 w-5" />
@@ -178,7 +178,7 @@ function AdminSettings() {
       </section>
 
       {/* SECURITY */}
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <section className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm dark:border-slate-800 dark:bg-[#1f6f5b]">
         <div className="mb-6">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
             <Shield className="h-5 w-5" />
@@ -225,7 +225,7 @@ function SettingToggle({
         aria-label={`Toggle ${title}`}
         className={`relative h-6 w-11 shrink-0 rounded-full transition ${
           enabled
-            ? "bg-slate-900 dark:bg-white"
+            ? "bg-[#1f6f5b] dark:bg-white"
             : "bg-slate-300 dark:bg-slate-700"
         }`}
       >
@@ -233,7 +233,7 @@ function SettingToggle({
           className={`absolute top-1 h-4 w-4 rounded-full bg-white transition ${
             enabled ? "left-6" : "left-1"
           } ${
-            enabled ? "dark:bg-slate-900" : "dark:bg-slate-300"
+            enabled ? "dark:bg-[#1f6f5b]" : "dark:bg-slate-300"
           }`}
         />
       </button>

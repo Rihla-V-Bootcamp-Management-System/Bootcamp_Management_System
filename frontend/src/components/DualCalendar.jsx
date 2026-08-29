@@ -73,17 +73,17 @@ function DualCalendar() {
   const weekDays = ["S", "M", "T", "W", "T", "F", "S"];
 
   return (
-    <div className="absolute right-0 top-12 z-50 w-[290px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+    <div className="absolute right-0 top-12 z-50 w-[290px] overflow-hidden rounded-2xl border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] shadow-xl">
 
       {/* HEADER */}
-      <div className="bg-[#071629] px-4 py-3 text-white">
+      <div className="bg-[#1f6f5b] hover:bg-[#185848] px-4 py-3 text-white">
 
         <div className="flex items-center justify-between">
 
           <button
             type="button"
             onClick={previousMonth}
-            className="flex h-7 w-7 items-center justify-center rounded-md transition hover:bg-white/10"
+            className="flex h-7 w-7 items-center justify-center rounded-md transition hover:bg-white dark:bg-[#0b1528]/10"
           >
             <ChevronLeft size={16} />
           </button>
@@ -101,7 +101,7 @@ function DualCalendar() {
           <button
             type="button"
             onClick={nextMonth}
-            className="flex h-7 w-7 items-center justify-center rounded-md transition hover:bg-white/10"
+            className="flex h-7 w-7 items-center justify-center rounded-md transition hover:bg-white dark:bg-[#0b1528]/10"
           >
             <ChevronRight size={16} />
           </button>
@@ -147,7 +147,7 @@ function DualCalendar() {
                   title={hijri}
                   className={`flex h-8 w-8 flex-col items-center justify-center rounded-lg ${
                     isToday(day)
-                      ? "bg-[#071629] text-white"
+                      ? "bg-[#1f6f5b] hover:bg-[#185848] text-white"
                       : "text-slate-700 hover:bg-slate-100"
                   }`}
                 >
@@ -177,12 +177,12 @@ function DualCalendar() {
         </div>
 
         {/* TODAY */}
-        <div className="mt-3 border-t border-slate-100 pt-2">
+        <div className="mt-3 border-t border-slate-100 dark:border-[#15253f] pt-2">
 
           <button
             type="button"
             onClick={goToToday}
-            className="flex w-full items-center justify-center gap-1.5 rounded-lg py-1.5 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-100"
+            className="flex w-full items-center justify-center gap-1.5 rounded-lg py-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300 transition hover:bg-slate-100 dark:bg-[#070e1b]"
           >
             <CalendarDays size={13} />
 
@@ -199,7 +199,7 @@ function DualCalendar() {
             Today
           </p>
 
-          <p className="text-[11px] font-semibold text-slate-700">
+          <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-200">
             {today.toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",

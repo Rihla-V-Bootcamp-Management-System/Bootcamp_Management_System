@@ -71,13 +71,13 @@ function StudentGrades() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-100 p-6 md:p-8">
+      <div className="min-h-screen bg-slate-100 dark:bg-[#070e1b] p-6 md:p-8">
         <div className="mx-auto max-w-7xl">
-          <h1 className="text-3xl font-bold text-slate-900">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
             My Grades
           </h1>
 
-          <p className="mt-4 text-sm text-slate-500">
+          <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
             Loading your grades...
           </p>
         </div>
@@ -86,16 +86,16 @@ function StudentGrades() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6 md:p-8">
+    <div className="min-h-screen bg-slate-100 dark:bg-[#070e1b] p-6 md:p-8">
       <div className="mx-auto max-w-7xl">
 
         {/* HEADER */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
             My Grades
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             View your assignment grades and mentor feedback.
           </p>
         </div>
@@ -109,12 +109,12 @@ function StudentGrades() {
 
         {/* EMPTY */}
         {submissions.length === 0 ? (
-          <div className="rounded-xl bg-white p-12 text-center shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-700">
+          <div className="rounded-xl bg-white dark:bg-[#0b1528] p-12 text-center shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-200">
               No grades yet
             </h2>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Your submitted assignments and grades will appear here.
             </p>
           </div>
@@ -131,20 +131,20 @@ function StudentGrades() {
               return (
                 <div
                   key={submission._id}
-                  className="rounded-xl bg-white p-6 shadow-sm"
+                  className="rounded-xl bg-white dark:bg-[#0b1528] p-6 shadow-sm"
                 >
 
                   {/* ASSIGNMENT INFO */}
-                  <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 md:flex-row md:items-start md:justify-between">
+                  <div className="flex flex-col gap-4 border-b border-slate-100 dark:border-[#15253f] pb-5 md:flex-row md:items-start md:justify-between">
 
                     <div>
-                      <h2 className="text-xl font-bold text-slate-900">
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                         {getAssignmentTitle(
                           submission
                         )}
                       </h2>
 
-                      <p className="mt-1 text-sm font-medium text-blue-600">
+                      <p className="mt-1 text-sm font-medium text-[#1f6f5b]">
                         {getCourse(submission)}
                       </p>
                     </div>
@@ -167,34 +167,34 @@ function StudentGrades() {
                   {/* GRADE */}
                   <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
 
-                    <div className="rounded-lg bg-slate-50 p-4">
-                      <p className="text-xs text-slate-500">
+                    <div className="rounded-lg bg-slate-50 dark:bg-[#070e1b] p-4">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Score
                       </p>
 
-                      <p className="mt-1 text-2xl font-bold text-slate-900">
+                      <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
                         {submission.grade ??
                           "Not graded"}
                       </p>
                     </div>
 
-                    <div className="rounded-lg bg-slate-50 p-4">
-                      <p className="text-xs text-slate-500">
+                    <div className="rounded-lg bg-slate-50 dark:bg-[#070e1b] p-4">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Maximum Score
                       </p>
 
-                      <p className="mt-1 text-2xl font-bold text-slate-900">
+                      <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
                         {assignment?.maxScore ??
                           "-"}
                       </p>
                     </div>
 
-                    <div className="rounded-lg bg-slate-50 p-4">
-                      <p className="text-xs text-slate-500">
+                    <div className="rounded-lg bg-slate-50 dark:bg-[#070e1b] p-4">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Graded At
                       </p>
 
-                      <p className="mt-2 text-sm font-medium text-slate-700">
+                      <p className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                         {formatDate(
                           submission.gradedAt
                         )}
@@ -206,14 +206,14 @@ function StudentGrades() {
                   {/* FEEDBACK */}
                   <div className="mt-5">
 
-                    <h3 className="text-sm font-semibold text-slate-800">
+                    <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                       Mentor Feedback
                     </h3>
 
-                    <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <div className="mt-2 rounded-lg border border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-4">
 
                       {submission.feedback ? (
-                        <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                        <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700 dark:text-slate-200">
                           {submission.feedback}
                         </p>
                       ) : (
@@ -228,9 +228,9 @@ function StudentGrades() {
 
                   {/* MENTOR */}
                   {submission.gradedBy && (
-                    <div className="mt-4 text-xs text-slate-500">
+                    <div className="mt-4 text-xs text-slate-500 dark:text-slate-400">
                       Graded by{" "}
-                      <span className="font-medium text-slate-700">
+                      <span className="font-medium text-slate-700 dark:text-slate-200">
                         {submission.gradedBy.name ||
                           submission.gradedBy.email}
                       </span>

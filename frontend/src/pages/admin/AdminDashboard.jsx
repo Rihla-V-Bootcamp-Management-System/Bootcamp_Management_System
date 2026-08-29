@@ -13,9 +13,12 @@ import {
   RefreshCw,
   CalendarDays,
   GraduationCap,
+  Sparkles,
 } from "lucide-react";
 
 import apiClient from "../../services/apiClient";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
 
 function AdminDashboard() {
   const [data, setData] = useState({
@@ -29,12 +32,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // =========================================================
-  // LOAD DASHBOARD DATA DIRECTLY FROM EXISTING APIS
-  // NO ANALYTICS API
-  // =========================================================
-
-  const loadDashboard = useCallback( async () => {
+  const loadDashboard = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -44,15 +42,7 @@ function AdminDashboard() {
         apiClient.get("/batches"),
       ]);
 
-      console.log("USERS RESPONSE:", usersResponse.data);
-      console.log("BATCHES RESPONSE:", batchesResponse.data);
-
-      // -------------------------------------------------------
-      // USERS
-      // -------------------------------------------------------
-
       const usersData = usersResponse.data;
-
       const users =
         usersData.users ||
         usersData.data ||
@@ -69,16 +59,10 @@ function AdminDashboard() {
 
       const admins = users.filter((user) => {
         const role = user.role?.toLowerCase();
-
         return role === "admin" || role === "superadmin";
       }).length;
 
-      // -------------------------------------------------------
-      // BATCHES
-      // -------------------------------------------------------
-
       const batchesData = batchesResponse.data;
-
       const batchList =
         batchesData.batches ||
         batchesData.data ||
@@ -93,36 +77,20 @@ function AdminDashboard() {
         batchList,
       });
     } catch (err) {
-      console.error(
-        "LOAD DASHBOARD ERROR:",
-        err.response?.data || err.message
-      );
-
+      console.error("LOAD DASHBOARD ERROR:", err);
       setError(
-        err.response?.data?.message ||
-          "Failed to load dashboard data."
+        err.response?.data?.message || "Failed to load dashboard data."
       );
     } finally {
       setLoading(false);
     }
-  },[]);
+  }, []);
 
   useEffect(() => {
     loadDashboard();
   }, [loadDashboard]);
 
-  // =========================================================
-  // DATA
-  // =========================================================
-
-  const totalUsers =
-    data.students +
-    data.mentors +
-    data.admins;
-
-  // =========================================================
-  // STAT CARDS
-  // =========================================================
+  const totalUsers = data.students + data.mentors + data.admins;
 
   const statCards = [
     {
@@ -135,7 +103,7 @@ function AdminDashboard() {
     {
       title: "Students",
       value: data.students,
-      description: "Students in the system",
+      description: "Students in system",
       icon: GraduationCap,
       href: "/admin/users",
     },
@@ -149,133 +117,69 @@ function AdminDashboard() {
     {
       title: "Batches",
       value: data.batches,
-      description: "Bootcamp batches",
+      description: "Bootcamp cohorts",
       icon: Layers3,
       href: "/admin/batches",
     },
   ];
 
-  // =========================================================
-  // LOADING
-  // =========================================================
-
   if (loading) {
     return (
-      <div className="min-h-full bg-[#F7F5EF] p-6 md:p-8">
-        <div className="animate-pulse space-y-8">
-
-          <div>
-            <div className="h-8 w-40 rounded bg-slate-200" />
-            <div className="mt-3 h-4 w-72 rounded bg-slate-200" />
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-            {[1, 2, 3, 4].map((item) => (
-              <div
-                key={item}
-                className="h-36 rounded-2xl bg-white"
-              />
-            ))}
-          </div>
-
-          <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-            <div className="h-80 rounded-2xl bg-white" />
-            <div className="h-80 rounded-2xl bg-white" />
-          </div>
-
-        </div>
+      <div className="flex items-center justify-center py-24">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#1f6f5b] border-t-transparent" />
       </div>
     );
   }
-
-  // =========================================================
-  // ERROR
-  // =========================================================
 
   if (error) {
     return (
-      <div className="min-h-full bg-[#F7F5EF] p-6 md:p-8">
-
-        <div className="rounded-2xl border border-red-200 bg-white p-8 shadow-sm">
-
-          <div className="flex items-start gap-4">
-
-            <div className="rounded-xl bg-red-50 p-3">
-              <RefreshCw
-                size={22}
-                className="text-red-600"
-              />
-            </div>
-
-            <div className="flex-1">
-
-              <h2 className="text-lg font-bold text-[#071629]">
-                Dashboard data could not be loaded
-              </h2>
-
-              <p className="mt-1 text-sm text-[#52627A]">
-                {error}
-              </p>
-
-              <button
-                onClick={loadDashboard}
-                className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#1D3866] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#162D52]"
-              >
-                <RefreshCw size={16} />
-                Try Again
-              </button>
-
-            </div>
-
+      <Card className="border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20">
+        <div className="flex items-center gap-4">
+          <div className="rounded-xl bg-red-100 p-3 text-red-600 dark:bg-red-900/40">
+            <RefreshCw size={20} />
           </div>
-
+          <div>
+            <h2 className="text-base font-bold text-red-800 dark:text-red-300">
+              Dashboard data could not be loaded
+            </h2>
+            <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>
+            <Button size="sm" onClick={loadDashboard} className="mt-3">
+              Try Again
+            </Button>
+          </div>
         </div>
-
-      </div>
+      </Card>
     );
   }
 
-  // =========================================================
-  // UI
-  // =========================================================
-
   return (
-    <div className="min-h-full bg-[#F7F5EF] p-6 md:p-8">
-
-      {/* HEADER */}
-
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-
+    <div className="space-y-8">
+      {/* PAGE HEADING */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1D3866]">
-            Administration
+          <p className="text-[10px] font-extrabold tracking-widest text-[#1f6f5b] dark:text-emerald-400 uppercase">
+            ADMINISTRATION
           </p>
-
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#071629]">
+          <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Dashboard
           </h1>
-
-          <p className="mt-2 text-sm text-[#52627A]">
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
             Monitor your bootcamp and manage everything from one place.
           </p>
-
         </div>
 
         <button
+          type="button"
           onClick={loadDashboard}
-          className="inline-flex w-fit items-center gap-2 rounded-lg border border-[#D9D5CB] bg-white px-4 py-2.5 text-sm font-semibold text-[#52627A] shadow-sm transition hover:border-[#1D3866] hover:text-[#1D3866]"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-[#15253f] dark:bg-[#0b1528] dark:text-slate-200 dark:hover:bg-[#0f1d33]"
         >
-          <RefreshCw size={16} />
+          <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
           Refresh
         </button>
-
       </div>
 
       {/* STAT CARDS */}
-
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-
         {statCards.map((card) => {
           const Icon = card.icon;
 
@@ -283,455 +187,151 @@ function AdminDashboard() {
             <Link
               key={card.title}
               to={card.href}
-              className="group rounded-2xl border border-[#E5E0D5] bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-[#C9D2E2] hover:shadow-md"
+              className="group rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-xs transition duration-200 hover:-translate-y-1 hover:border-[#1f6f5b] dark:border-[#15253f] dark:bg-[#0b1528] dark:hover:border-emerald-500/50"
             >
-
               <div className="flex items-start justify-between">
-
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#EEF2F7] text-[#1D3866]">
-                  <Icon size={21} />
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#e5f1ed] text-[#1f6f5b] dark:bg-[#10261f] dark:text-[#34d399] shadow-xs">
+                  <Icon size={20} />
                 </div>
 
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg text-[#8A96A8] transition group-hover:bg-[#F1F4F8] group-hover:text-[#1D3866]">
-                  <ArrowUpRight size={17} />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition group-hover:text-[#1f6f5b] dark:text-slate-500 dark:text-slate-400 dark:group-hover:text-emerald-400">
+                  <ArrowUpRight size={16} />
                 </div>
-
               </div>
 
               <div className="mt-5">
-
-                <p className="text-sm font-medium text-[#52627A]">
+                <p className="text-xs font-semibold text-slate-400 dark:text-slate-400">
                   {card.title}
                 </p>
 
-                <p className="mt-1 text-3xl font-bold tracking-tight text-[#071629]">
+                <p className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                   {card.value}
                 </p>
 
-                <p className="mt-2 text-xs text-[#8A96A8]">
+                <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500 dark:text-slate-400">
                   {card.description}
                 </p>
-
               </div>
-
             </Link>
           );
         })}
-
       </div>
 
       {/* WELCOME + SYSTEM OVERVIEW */}
-
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-
-        <div className="relative overflow-hidden rounded-2xl border border-[#E5E0D5] bg-white p-7 shadow-sm">
-
+      <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+        {/* WELCOME CARD */}
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-7 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
           <div className="relative z-10">
-
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1D3866] text-white shadow-sm">
-              <ShieldCheck size={23} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1f6f5b] text-white shadow-xs">
+              <ShieldCheck size={24} />
             </div>
 
-            <h2 className="mt-5 text-2xl font-bold tracking-tight text-[#071629]">
+            <h2 className="mt-5 text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               Welcome to your admin workspace
             </h2>
 
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#52627A]">
+            <p className="mt-2.5 max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-500 dark:text-slate-400">
               Manage students, mentors, batches, modules, daily tasks,
               attendance, and other bootcamp activities from one
               centralized workspace.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
-
               <Link
                 to="/admin/batches"
-                className="inline-flex items-center gap-2 rounded-lg bg-[#1D3866] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#162D52]"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#1f6f5b] px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-[#185848] active:scale-[0.98]"
               >
                 View Batches
-                <ArrowUpRight size={16} />
+                <ArrowUpRight size={14} />
               </Link>
 
               <Link
                 to="/admin/users"
-                className="inline-flex items-center gap-2 rounded-lg border border-[#D9D5CB] bg-white px-4 py-2.5 text-sm font-semibold text-[#52627A] transition hover:border-[#1D3866] hover:text-[#1D3866]"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 dark:border-[#15253f] dark:bg-[#070e1b] dark:text-slate-200 dark:hover:bg-[#0f1d33]"
               >
                 Manage Users
               </Link>
-
             </div>
-
           </div>
-
-          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full border-30 border-[#F0F3F7]" />
-
-          <div className="absolute -bottom-20 right-24 h-40 w-40 rounded-full bg-[#F7F5EF]" />
-
         </div>
 
-        {/* SYSTEM OVERVIEW */}
-
-        <div className="rounded-2xl border border-[#E5E0D5] bg-white p-6 shadow-sm">
-
-          <div className="flex items-center justify-between">
-
+        {/* SYSTEM OVERVIEW CARD */}
+        <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-7 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-[#15253f]">
             <div>
-
-              <h2 className="text-lg font-bold text-[#071629]">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">
                 System Overview
               </h2>
-
-              <p className="mt-1 text-xs text-[#8A96A8]">
+              <p className="mt-0.5 text-xs text-slate-400">
                 Current platform statistics
               </p>
-
             </div>
-
-            <div className="rounded-lg bg-[#EEF2F7] p-2 text-[#1D3866]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#e5f1ed] text-[#1f6f5b] dark:bg-[#10261f] dark:text-[#34d399]">
               <Layers3 size={18} />
             </div>
-
           </div>
 
-          <div className="mt-6 space-y-5">
-
-            <ProgressRow
-              label="Students"
-              value={data.students}
-              total={totalUsers}
-            />
-
-            <ProgressRow
-              label="Mentors"
-              value={data.mentors}
-              total={totalUsers}
-            />
-
-            <ProgressRow
-              label="Administrators"
-              value={data.admins}
-              total={totalUsers}
-            />
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* BATCH OVERVIEW */}
-
-      <div className="mt-6 rounded-2xl border border-[#E5E0D5] bg-white shadow-sm">
-
-        <div className="flex flex-col gap-4 border-b border-[#E5E0D5] p-6 sm:flex-row sm:items-center sm:justify-between">
-
-          <div>
-
-            <h2 className="text-lg font-bold text-[#071629]">
-              Batch Overview
-            </h2>
-
-            <p className="mt-1 text-sm text-[#8A96A8]">
-              Monitor your current bootcamp batches.
-            </p>
-
-          </div>
-
-          <Link
-            to="/admin/batches"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-[#1D3866] hover:underline"
-          >
-            View all batches
-            <ArrowUpRight size={15} />
-          </Link>
-
-        </div>
-
-        <div className="p-6">
-
-          {data.batchList.length === 0 ? (
-
-            <div className="rounded-xl border border-dashed border-[#D9D5CB] bg-[#F7F5EF] p-8 text-center">
-
-              <Layers3
-                size={28}
-                className="mx-auto text-[#8A96A8]"
+          <div className="mt-5 space-y-4 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-slate-600 dark:text-slate-400">
+                Students
+              </span>
+              <span className="font-bold text-slate-900 dark:text-white">
+                {data.students}
+              </span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-[#070e1b]">
+              <div
+                className="h-full rounded-full bg-[#1f6f5b]"
+                style={{
+                  width: `${
+                    totalUsers ? (data.students / totalUsers) * 100 : 0
+                  }%`,
+                }}
               />
-
-              <p className="mt-3 text-sm font-semibold text-[#52627A]">
-                No batches found
-              </p>
-
-              <Link
-                to="/admin/batches"
-                className="mt-4 inline-flex rounded-lg bg-[#1D3866] px-4 py-2 text-sm font-semibold text-white"
-              >
-                Create Batch
-              </Link>
-
             </div>
 
-          ) : (
-
-            <div className="grid gap-4 lg:grid-cols-2">
-
-              {data.batchList.map((batch) => {
-
-                const batchId =
-                  batch._id ||
-                  batch.id;
-
-                return (
-                  <Link
-                    key={batchId}
-                    to={`/admin/batches/${batchId}`}
-                    className="group rounded-xl border border-[#E5E0D5] p-5 transition hover:border-[#BFCADA] hover:bg-[#FBFBFA]"
-                  >
-
-                    <div className="flex items-start justify-between gap-4">
-
-                      <div className="flex items-center gap-3">
-
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEF2F7] text-[#1D3866]">
-                          <Layers3 size={19} />
-                        </div>
-
-                        <div>
-
-                          <h3 className="font-bold text-[#071629]">
-                            {batch.name || batch.title || "Unnamed Batch"}
-                          </h3>
-
-                          <p className="mt-1 text-xs text-[#8A96A8]">
-                            Bootcamp Batch
-                          </p>
-
-                        </div>
-
-                      </div>
-
-                      <ArrowUpRight
-                        size={18}
-                        className="text-[#8A96A8] transition group-hover:text-[#1D3866]"
-                      />
-
-                    </div>
-
-                    <div className="mt-5 grid grid-cols-2 gap-3">
-
-                      <div className="rounded-lg bg-[#F7F5EF] p-3">
-
-                        <div className="flex items-center gap-2 text-[#8A96A8]">
-                          <Users size={15} />
-                          <span className="text-xs">
-                            Students
-                          </span>
-                        </div>
-
-                        <p className="mt-1 text-lg font-bold text-[#071629]">
-                          {batch.studentIds?.length ||
-                            batch.students ||
-                            0}
-                        </p>
-
-                      </div>
-
-                      <div className="rounded-lg bg-[#F7F5EF] p-3">
-
-                        <div className="flex items-center gap-2 text-[#8A96A8]">
-                          <UserRoundCheck size={15} />
-                          <span className="text-xs">
-                            Mentors
-                          </span>
-                        </div>
-
-                        <p className="mt-1 text-lg font-bold text-[#071629]">
-                          {batch.mentorIds?.length ||
-                            batch.mentors ||
-                            0}
-                        </p>
-
-                      </div>
-
-                    </div>
-
-                    <div className="mt-4 flex items-center gap-2 text-xs text-[#8A96A8]">
-
-                      <CalendarDays size={14} />
-
-                      <span>
-                        Starts{" "}
-                        {batch.startDate
-                          ? new Date(
-                              batch.startDate
-                            ).toLocaleDateString()
-                          : "Not set"}
-                      </span>
-
-                    </div>
-
-                  </Link>
-                );
-              })}
-
+            <div className="flex items-center justify-between pt-2">
+              <span className="font-semibold text-slate-600 dark:text-slate-400">
+                Mentors
+              </span>
+              <span className="font-bold text-slate-900 dark:text-white">
+                {data.mentors}
+              </span>
             </div>
-          )}
+            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-[#070e1b]">
+              <div
+                className="h-full rounded-full bg-emerald-500"
+                style={{
+                  width: `${
+                    totalUsers ? (data.mentors / totalUsers) * 100 : 0
+                  }%`,
+                }}
+              />
+            </div>
 
+            <div className="flex items-center justify-between pt-2">
+              <span className="font-semibold text-slate-600 dark:text-slate-400">
+                Administrators
+              </span>
+              <span className="font-bold text-slate-900 dark:text-white">
+                {data.admins}
+              </span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-[#070e1b]">
+              <div
+                className="h-full rounded-full bg-teal-600"
+                style={{
+                  width: `${
+                    totalUsers ? (data.admins / totalUsers) * 100 : 0
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
         </div>
-
       </div>
-
-      {/* QUICK ACTIONS */}
-
-      <div className="mt-6">
-
-        <div className="mb-4">
-
-          <h2 className="text-lg font-bold text-[#071629]">
-            Quick Actions
-          </h2>
-
-          <p className="mt-1 text-sm text-[#8A96A8]">
-            Jump directly to common administrative tasks.
-          </p>
-
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-
-          <QuickAction
-            to="/admin/users"
-            icon={UserPlus}
-            title="Manage Users"
-            description="View and manage accounts"
-          />
-
-          <QuickAction
-            to="/admin/mentor-assignment"
-            icon={UserRoundCog}
-            title="Assign Mentors"
-            description="Manage student mentors"
-          />
-
-          <QuickAction
-            to="/admin/daily-tasks"
-            icon={ClipboardCheck}
-            title="Daily Tasks"
-            description="Manage weekly tasks"
-          />
-
-          <QuickAction
-            to="/admin/modules"
-            icon={BookOpen}
-            title="Modules"
-            description="Manage learning modules"
-          />
-
-        </div>
-
-      </div>
-
-      {/* FOOTER */}
-
-      <div className="mt-8 flex flex-col gap-2 border-t border-[#E5E0D5] pt-5 text-xs text-[#8A96A8] sm:flex-row sm:items-center sm:justify-between">
-
-        <span>
-          Bootcamp Management System
-        </span>
-
-        <span className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-green-500" />
-          System connected
-        </span>
-
-      </div>
-
     </div>
-  );
-}
-
-// =========================================================
-// PROGRESS ROW
-// =========================================================
-
-function ProgressRow({ label, value, total }) {
-  const percentage =
-    total > 0
-      ? Math.round((value / total) * 100)
-      : 0;
-
-  return (
-    <div>
-
-      <div className="flex items-center justify-between">
-
-        <span className="text-sm text-[#52627A]">
-          {label}
-        </span>
-
-        <span className="text-sm font-bold text-[#071629]">
-          {value}
-        </span>
-
-      </div>
-
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#EEF0F3]">
-
-        <div
-          className="h-full rounded-full bg-[#1D3866] transition-all duration-500"
-          style={{
-            width: `${percentage}%`,
-          }}
-        />
-
-      </div>
-
-    </div>
-  );
-}
-
-// =========================================================
-// QUICK ACTION
-// =========================================================
-
-function QuickAction({
-  to,
-  icon: Icon,
-  title,
-  description,
-}) {
-  return (
-    <Link
-      to={to}
-      className="group rounded-xl border border-[#E5E0D5] bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-[#C9D2E2] hover:shadow-md"
-    >
-
-      <div className="flex items-center gap-4">
-
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EEF2F7] text-[#1D3866] transition group-hover:bg-[#1D3866] group-hover:text-white">
-          <Icon size={20} />
-        </div>
-
-        <div className="min-w-0 flex-1">
-
-          <h3 className="font-semibold text-[#071629]">
-            {title}
-          </h3>
-
-          <p className="mt-1 text-xs text-[#8A96A8]">
-            {description}
-          </p>
-
-        </div>
-
-        <ArrowUpRight
-          size={17}
-          className="shrink-0 text-[#B0B8C4] transition group-hover:text-[#1D3866]"
-        />
-
-      </div>
-
-    </Link>
   );
 }
 

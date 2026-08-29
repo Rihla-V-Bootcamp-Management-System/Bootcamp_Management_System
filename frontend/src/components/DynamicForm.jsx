@@ -31,7 +31,7 @@ function DynamicForm({
 
   if (!Array.isArray(schema) || schema.length === 0) {
     return (
-      <div className="py-6 text-center text-gray-500">
+      <div className="py-6 text-center text-gray-500 dark:text-slate-400">
         No application fields have been configured yet.
       </div>
     );
@@ -65,7 +65,7 @@ function DynamicForm({
             ========================================= */}
 
             {field.type !== "checkbox" && (
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                 {field.label}
 
                 {field.required && (
@@ -102,7 +102,7 @@ function DynamicForm({
                 }
                 placeholder={field.placeholder || ""}
                 required={field.required}
-                className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
               />
             )}
 
@@ -121,7 +121,7 @@ function DynamicForm({
                   )
                 }
                 required={field.required}
-                className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
               />
             )}
 
@@ -145,7 +145,7 @@ function DynamicForm({
                   )
                 }
                 required={field.required}
-                className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
               />
             )}
 
@@ -166,7 +166,7 @@ function DynamicForm({
                 }
                 required={field.required}
                 rows={4}
-                className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
               />
             )}
 
@@ -186,7 +186,7 @@ function DynamicForm({
                   )
                 }
                 required={field.required}
-                className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
               >
                 <option value="">
                   Select an option
@@ -223,10 +223,10 @@ function DynamicForm({
                     )
                   }
                   required={field.required}
-                  className="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
+                  className="h-4 w-4 rounded border-gray-300 dark:border-[#15253f] text-black focus:ring-black"
                 />
 
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-gray-700 dark:text-slate-200">
                   {field.label}
 
                   {field.required && (
@@ -271,7 +271,7 @@ function DynamicForm({
                         className="h-4 w-4 text-black focus:ring-black"
                       />
 
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm text-gray-700 dark:text-slate-200">
                         {option}
                       </span>
                     </label>
@@ -297,7 +297,7 @@ function DynamicForm({
                   )
                 }
                 required={field.required}
-                className="w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
               />
             )}
           </div>
@@ -311,7 +311,7 @@ function DynamicForm({
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-lg bg-black py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-50"
+        className="w-full rounded-lg bg-black py-3 text-sm font-semibold text-white transition hover:bg-[#185848] disabled:opacity-50"
       >
         {submitting
           ? "Submitting Application..."

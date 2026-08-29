@@ -305,10 +305,10 @@ function Register() {
         <div className="text-center">
           <Loader2
             size={32}
-            className="mx-auto animate-spin text-gray-700"
+            className="mx-auto animate-spin text-gray-700 dark:text-slate-200"
           />
 
-          <p className="mt-4 text-sm text-gray-500">
+          <p className="mt-4 text-sm text-gray-500 dark:text-slate-400">
             Checking application status...
           </p>
         </div>
@@ -321,12 +321,12 @@ function Register() {
       <div className="py-8">
         <div className="mx-auto max-w-lg rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
 
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             Application is currently closed
           </h1>
 
 
-          <p className="mt-3 text-sm leading-6 text-gray-600">
+          <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-slate-300">
             Registration is not available at the moment.
             Please check back when the application period
             opens.
@@ -335,7 +335,7 @@ function Register() {
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="mt-6 rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="mt-6 rounded-lg bg-[#1f6f5b] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#185848]"
           >
             Back to Home
           </button>
@@ -361,7 +361,7 @@ function Register() {
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="mt-5 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="mt-5 rounded-lg bg-[#1f6f5b] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#185848]"
           >
             Back to Home
           </button>
@@ -383,15 +383,15 @@ function Register() {
             />
           </div>
 
-          <h1 className="mt-5 text-2xl font-bold text-gray-900">
+          <h1 className="mt-5 text-2xl font-bold text-slate-900 dark:text-white">
             Application Submitted
           </h1>
 
-          <p className="mt-3 text-sm leading-6 text-gray-600">
+          <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-slate-300">
             {success}
           </p>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-slate-400">
             Please wait for the bootcamp team to review
             your application.
           </p>
@@ -407,11 +407,11 @@ function Register() {
     <div className="w-full">
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
           Bootcamp Application
         </h1>
 
-        <p className="mt-2 text-sm leading-6 text-gray-600">
+        <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-slate-300">
           Please complete the application form below with
           your correct details.
         </p>
@@ -423,7 +423,7 @@ function Register() {
         </div>
       )}
 
-      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
+      <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm sm:p-7">
         <DynamicForm
           schema={schema}
           onSubmit={handleSubmit}
@@ -431,20 +431,20 @@ function Register() {
         />
       </div>
 
-      <div className="mt-8 border-t border-gray-200 pt-6 text-center">
+      <div className="mt-8 border-t border-gray-200 dark:border-[#15253f] pt-6 text-center">
 
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-slate-400">
           Already accepted?
         </p>
 
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
           Have your User ID and OTP?
         </p>
 
         <button
           type="button"
           onClick={() => navigate("/first-login")}
-          className="mt-3 text-sm font-semibold text-gray-800 transition hover:text-gray-600"
+          className="mt-3 text-sm font-semibold text-gray-800 dark:text-slate-100 transition hover:text-gray-600 dark:text-slate-300"
         >
           First-time login
         </button>

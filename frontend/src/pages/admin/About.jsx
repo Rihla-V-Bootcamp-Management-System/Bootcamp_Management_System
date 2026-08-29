@@ -107,10 +107,10 @@ function About() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f7f8fc] p-6 lg:p-8">
+      <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] p-6 lg:p-8">
         <div className="mx-auto max-w-5xl">
-          <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center shadow-sm">
-            <p className="text-sm text-gray-500">
+          <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-10 text-center shadow-sm">
+            <p className="text-sm text-gray-500 dark:text-slate-400">
               Loading About information...
             </p>
           </div>
@@ -120,20 +120,20 @@ function About() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc] p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] p-6 lg:p-8">
       <div className="mx-auto max-w-5xl">
 
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <p className="text-xs font-semibold tracking-wider text-slate-500">
+            <p className="text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400">
               WEBSITE CONTENT
             </p>
 
-            <h1 className="mt-1 text-2xl font-bold text-[#071629]">
+            <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
               About
             </h1>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
               Manage the About section displayed on the public landing page.
             </p>
           </div>
@@ -142,7 +142,7 @@ function About() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1769e0] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#2878ed] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Save size={18} />
             {saving ? "Saving..." : "Save Changes"}
@@ -161,14 +161,14 @@ function About() {
           </div>
         )}
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <section className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
           <div className="mb-6">
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-[#071629]">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
               <Info size={20} />
               About Section
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
               This content will be shown to visitors on the landing page.
             </p>
           </div>
@@ -176,7 +176,7 @@ function About() {
           <div className="space-y-6">
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700">
+              <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200">
                 Title
               </label>
 
@@ -185,12 +185,12 @@ function About() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Enter About title"
-                className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-[#1769e0] focus:ring-2 focus:ring-[#1769e0]/10"
+                className="w-full rounded-lg border border-gray-200 dark:border-[#15253f] px-4 py-3 text-sm outline-none transition focus:border-[#1769e0] focus:ring-2 focus:ring-[#1769e0]/10"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700">
+              <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200">
                 Description
               </label>
 
@@ -199,7 +199,7 @@ function About() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Enter information about the bootcamp"
                 rows={8}
-                className="w-full resize-none rounded-lg border border-gray-200 px-4 py-3 text-sm leading-6 outline-none transition focus:border-[#1769e0] focus:ring-2 focus:ring-[#1769e0]/10"
+                className="w-full resize-none rounded-lg border border-gray-200 dark:border-[#15253f] px-4 py-3 text-sm leading-6 outline-none transition focus:border-[#1769e0] focus:ring-2 focus:ring-[#1769e0]/10"
               />
             </div>
 
@@ -211,7 +211,7 @@ function About() {
                 className="h-4 w-4"
               />
 
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-gray-700 dark:text-slate-200">
                 Publish this About section
               </span>
             </label>

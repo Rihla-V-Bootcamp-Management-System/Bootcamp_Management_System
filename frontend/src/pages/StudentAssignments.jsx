@@ -113,7 +113,7 @@ function StudentAssignments() {
 
   if (loading) {
     return (
-      <div className="min-h-full bg-slate-50 p-5 sm:p-6 md:p-8">
+      <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-5 sm:p-6 md:p-8">
         <main className="mx-auto w-full max-w-6xl">
 
           <div className="mb-8">
@@ -125,13 +125,13 @@ function StudentAssignments() {
             {[1, 2, 3, 4, 5, 6].map((item) => (
               <div
                 key={item}
-                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+                className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm"
               >
                 <div className="h-10 w-10 animate-pulse rounded-lg bg-slate-200" />
                 <div className="mt-5 h-5 w-3/4 animate-pulse rounded bg-slate-200" />
-                <div className="mt-3 h-4 w-full animate-pulse rounded bg-slate-100" />
-                <div className="mt-2 h-4 w-2/3 animate-pulse rounded bg-slate-100" />
-                <div className="mt-6 h-10 w-full animate-pulse rounded-lg bg-slate-100" />
+                <div className="mt-3 h-4 w-full animate-pulse rounded bg-slate-100 dark:bg-[#070e1b]" />
+                <div className="mt-2 h-4 w-2/3 animate-pulse rounded bg-slate-100 dark:bg-[#070e1b]" />
+                <div className="mt-6 h-10 w-full animate-pulse rounded-lg bg-slate-100 dark:bg-[#070e1b]" />
               </div>
             ))}
           </div>
@@ -146,7 +146,7 @@ function StudentAssignments() {
   // =====================================================
 
   return (
-    <div className="min-h-full bg-slate-50 p-5 sm:p-6 md:p-8">
+    <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-5 sm:p-6 md:p-8">
       <main className="mx-auto w-full max-w-6xl">
 
         {/* =================================================
@@ -158,21 +158,21 @@ function StudentAssignments() {
           <div>
             <div className="mb-2 flex items-center gap-3">
 
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#111827] text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1f6f5b] hover:bg-[#185848] text-white">
                 <ClipboardList size={20} />
               </div>
 
-              <span className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              <span className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Student
               </span>
 
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
               Assignments
             </h1>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               View your assignments and open an assignment to see its details.
             </p>
           </div>
@@ -183,7 +183,7 @@ function StudentAssignments() {
             type="button"
             onClick={loadAssignments}
             disabled={loading}
-            className="inline-flex items-center justify-center gap-2 self-start rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
+            className="inline-flex items-center justify-center gap-2 self-start rounded-lg border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
           >
             <RefreshCw size={16} />
             Refresh
@@ -225,17 +225,17 @@ function StudentAssignments() {
         ================================================= */}
 
         {!error && assignments.length === 0 && (
-          <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-10 text-center shadow-sm">
 
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#070e1b] text-slate-500 dark:text-slate-400">
               <ClipboardList size={26} />
             </div>
 
-            <h2 className="mt-5 text-lg font-bold text-slate-900">
+            <h2 className="mt-5 text-lg font-bold text-slate-900 dark:text-white">
               No Assignments
             </h2>
 
-            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
               You don't have any assignments available right now.
             </p>
 
@@ -260,14 +260,14 @@ function StudentAssignments() {
               return (
                 <div
                   key={assignmentId}
-                  className="flex flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+                  className="flex flex-col rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 dark:border-[#15253f] hover:shadow-md"
                 >
 
                   {/* CARD ICON */}
 
                   <div className="flex items-start justify-between">
 
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-[#070e1b] text-slate-700 dark:text-slate-200">
                       <ClipboardList size={20} />
                     </div>
 
@@ -281,20 +281,20 @@ function StudentAssignments() {
 
                   {/* TITLE */}
 
-                  <h2 className="mt-5 line-clamp-2 text-lg font-bold text-slate-900">
+                  <h2 className="mt-5 line-clamp-2 text-lg font-bold text-slate-900 dark:text-white">
                     {assignment.title || "Untitled Assignment"}
                   </h2>
 
                   {/* DESCRIPTION */}
 
-                  <p className="mt-2 line-clamp-3 min-h-[60px] text-sm leading-5 text-slate-500">
+                  <p className="mt-2 line-clamp-3 min-h-[60px] text-sm leading-5 text-slate-500 dark:text-slate-400">
                     {assignment.description ||
                       "No description provided for this assignment."}
                   </p>
 
                   {/* COURSE */}
 
-                  <div className="mt-5 flex items-center gap-2 text-sm text-slate-600">
+                  <div className="mt-5 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
 
                     <BookOpen
                       size={16}
@@ -309,7 +309,7 @@ function StudentAssignments() {
 
                   {/* DEADLINE */}
 
-                  <div className="mt-3 flex items-center gap-2 text-sm text-slate-600">
+                  <div className="mt-3 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
 
                     <CalendarDays
                       size={16}
@@ -332,7 +332,7 @@ function StudentAssignments() {
                     type="button"
                     onClick={() => openAssignment(assignmentId)}
                     disabled={!assignmentId}
-                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#111827] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f2937] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     View Assignment
                     <ArrowRight size={16} />

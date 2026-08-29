@@ -1,6 +1,7 @@
 const Assignment = require("../models/Assignment");
 const Course = require("../models/Course");
 const Batch = require("../models/Batch");
+const User = require("../models/User");
 
 // ==========================================
 // CREATE ASSIGNMENT
@@ -116,7 +117,15 @@ const createAssignment = async (req, res) => {
 // ==========================================
 const getAssignments = async (req, res) => {
   try {
-    const assignments = await Assignment.find()
+    const filter = {};
+    if (req.query.batchId) {
+      filter.batchId = req.query.batchId;
+    }
+    if (req.query.course) {
+      filter.course = req.query.course;
+    }
+
+    const assignments = await Assignment.find(filter)
       .populate("course", "name description")
       .populate("batchId", "name")
       .populate("createdBy", "name email")
@@ -129,6 +138,7 @@ const getAssignments = async (req, res) => {
     return res.status(200).json({
       success: true,
       assignments,
+      data: assignments,
     });
   } catch (error) {
     console.error("Get assignments error:", error);

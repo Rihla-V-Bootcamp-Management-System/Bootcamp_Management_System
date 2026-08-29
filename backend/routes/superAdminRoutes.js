@@ -11,6 +11,7 @@ const roleMiddleware = require("../middleware/roleMiddleware");
 
 const {
   sendStaffInvitationEmail,
+  sendAccountDeletionEmail,
 } = require("../services/emailService");
 
 const {
@@ -423,6 +424,15 @@ router.delete(
         });
       }
 
+      const reason = req.body?.reason || req.query?.reason;
+
+      if (!reason || !reason.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "A mandatory reason is required before deleting staff accounts.",
+        });
+      }
+
       const deletedUser = {
         id: user._id.toString(),
         userID: user.userID,
@@ -430,6 +440,17 @@ router.delete(
         email: user.email,
         role: user.role,
       };
+
+      // Send deletion notice email
+      try {
+        await sendAccountDeletionEmail({
+          to: user.email,
+          name: user.name,
+          reason: reason.trim(),
+        });
+      } catch (mailErr) {
+        console.error("STAFF DELETION EMAIL ERROR:", mailErr.message);
+      }
 
       await User.findByIdAndDelete(
         user._id
@@ -445,17 +466,18 @@ router.delete(
         action: "DELETE_STAFF",
         targetType: "User",
         targetId: deletedUser.id,
-        description: `Super Admin deleted ${deletedUser.role} ${deletedUser.name}`,
+        description: `Super Admin deleted ${deletedUser.role} ${deletedUser.name}. Reason: ${reason.trim()}`,
         metadata: {
           userID: deletedUser.userID,
           email: deletedUser.email,
           role: deletedUser.role,
+          reason: reason.trim(),
         },
       });
 
       return res.json({
         success: true,
-        message: `${deletedUser.role} deleted successfully`,
+        message: `${deletedUser.role} deleted successfully and notification email sent.`,
         deletedUser,
       });
     } catch (error) {

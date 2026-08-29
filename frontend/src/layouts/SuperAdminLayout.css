@@ -2609,3 +2609,382 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================
+   DARK MODE OVERRIDES
+   ========================= */
+.dark .superadmin-layout {
+  background: #050b14 !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .superadmin-sidebar {
+  background: #070d18 !important;
+  border-right-color: #15253f !important;
+}
+
+.dark .superadmin-header {
+  background: rgba(7, 15, 30, 0.95) !important;
+  border-bottom-color: #15253f !important;
+}
+
+.dark .superadmin-header h1 {
+  color: #ffffff !important;
+}
+
+.dark .superadmin-header-label {
+  color: #64748b !important;
+}
+
+.dark .superadmin-profile-name {
+  color: #f1f5f9 !important;
+}
+
+.dark .superadmin-profile-role {
+  color: #94a3b8 !important;
+}
+
+.dark .superadmin-content {
+  background: #050b14 !important;
+}
+
+/* Cards & Containers */
+.dark .dashboard-summary-card,
+.dark .dashboard-overview-card,
+.dark .dashboard-quick-action-card,
+.dark .dashboard-activity-card,
+.dark .users-form-card,
+.dark .users-stats-card,
+.dark .users-table-card,
+.dark .batches-stat-card,
+.dark .batches-table-card,
+.dark .registrations-stat-card,
+.dark .registrations-table-card,
+.dark .audit-card,
+.dark .audit-table-card,
+.dark .superadmin-card {
+  background: #0b1528 !important;
+  border-color: #15253f !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .dashboard-card-title,
+.dark .users-stat-title,
+.dark .batches-stat-title,
+.dark .registrations-stat-title,
+.dark .dashboard-heading h2,
+.dark .users-form-card h2,
+.dark .batches-form-card h2,
+.dark .audit-heading h2 {
+  color: #ffffff !important;
+}
+
+.dark .dashboard-card-icon,
+.dark .users-stat-icon,
+.dark .batches-stat-icon,
+.dark .registrations-stat-icon {
+  background: #10261f !important;
+  color: #34d399 !important;
+}
+
+/* Form Inputs & Selects */
+.dark .users-input,
+.dark .users-select,
+.dark .batches-input,
+.dark .batches-select,
+.dark .registrations-input,
+.dark .registrations-select,
+.dark .audit-filter-input,
+.dark .audit-filter-select,
+.dark .audit-search-input {
+  background: #070e1b !important;
+  border-color: #15253f !important;
+  color: #ffffff !important;
+}
+
+.dark .users-input::placeholder,
+.dark .batches-input::placeholder,
+.dark .audit-search-input::placeholder {
+  color: #64748b !important;
+}
+
+.dark .users-input:focus,
+.dark .users-select:focus,
+.dark .batches-input:focus,
+.dark .batches-select:focus,
+.dark .audit-filter-input:focus,
+.dark .audit-filter-select:focus {
+  border-color: #1f6f5b !important;
+  outline: none !important;
+}
+
+/* Tables */
+.dark .users-table,
+.dark .batches-table,
+.dark .registrations-table,
+.dark .audit-table {
+  background: #0b1528 !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .users-table th,
+.dark .batches-table th,
+.dark .registrations-table th,
+.dark .audit-table th {
+  background: #070f1e !important;
+  border-bottom-color: #15253f !important;
+  color: #94a3b8 !important;
+}
+
+.dark .users-table td,
+.dark .batches-table td,
+.dark .registrations-table td,
+.dark .audit-table td {
+  border-bottom-color: #15253f !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .users-table tr:hover td,
+.dark .batches-table tr:hover td,
+.dark .registrations-table tr:hover td,
+.dark .audit-table tr:hover td {
+  background: #0d1b32 !important;
+}
+
+/* Modals & Details View */
+.dark .audit-modal-overlay,
+.dark .registrations-modal-overlay {
+  background: rgba(3, 7, 18, 0.8) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.dark .audit-modal-content,
+.dark .registrations-modal-content,
+.dark .modal-content {
+  background: #0b1528 !important;
+  border-color: #15253f !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .audit-details-grid > div,
+.dark .audit-details-description {
+  background: #070e1b !important;
+  border: 1px solid #15253f !important;
+}
+
+.dark .audit-details-grid span,
+.dark .audit-details-description > span {
+  color: #64748b !important;
+}
+
+.dark .audit-details-grid strong {
+  color: #ffffff !important;
+}
+
+.dark .audit-details-description p {
+  color: #cbd5e1 !important;
+}
+
+.dark .audit-details-description pre {
+  background: #050b14 !important;
+  border: 1px solid #15253f !important;
+  color: #34d399 !important;
+}
+
+/* Badges */
+.dark .badge-active,
+.dark .status-active {
+  background: #0d2e24 !important;
+  border-color: #134e3c !important;
+  color: #34d399 !important;
+}
+
+.dark .badge-inactive,
+.dark .status-inactive {
+  background: #24141c !important;
+  border-color: #4a1928 !important;
+  color: #f87171 !important;
+}
+
+/* Settings Specific Overrides */
+.dark .settings-sidebar,
+.dark .settings-card {
+  background: #0b1528 !important;
+  border-color: #15253f !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .settings-heading h2,
+.dark .settings-card-header h3 {
+  color: #ffffff !important;
+}
+
+.dark .settings-heading > div > p:last-child,
+.dark .settings-card-header p {
+  color: #94a3b8 !important;
+}
+
+.dark .settings-menu {
+  color: #aeb6c2 !important;
+}
+
+.dark .settings-menu:hover {
+  background: #1b2635 !important;
+  color: #ffffff !important;
+}
+
+.dark .settings-menu.active {
+  background: #10261f !important;
+  color: #34d399 !important;
+}
+
+.dark .settings-menu.active svg {
+  color: #34d399 !important;
+}
+
+.dark .settings-card-header {
+  border-bottom-color: #15253f !important;
+}
+
+.dark .settings-field label {
+  color: #94a3b8 !important;
+}
+
+.dark .settings-field input {
+  background: #070e1b !important;
+  border-color: #15253f !important;
+  color: #ffffff !important;
+}
+
+.dark .settings-field input:focus {
+  border-color: #1f6f5b !important;
+  outline: none !important;
+}
+
+.dark .settings-toggle {
+  border-bottom-color: #15253f !important;
+}
+
+.dark .settings-toggle-info h4 {
+  color: #ffffff !important;
+}
+
+.dark .settings-toggle-info p {
+  color: #94a3b8 !important;
+}
+
+.dark .settings-switch {
+  background: #1e293b !important;
+}
+
+.dark .settings-switch.active {
+  background: #1f6f5b !important;
+}
+
+/* Users Page Specific Overrides */
+.dark .users-assign-panel,
+.dark .users-summary-card,
+.dark .users-filter-bar,
+.dark .users-table-container {
+  background: #0b1528 !important;
+  border-color: #15253f !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .users-assign-header h3,
+.dark .users-summary-card strong,
+.dark .users-heading h2 {
+  color: #ffffff !important;
+}
+
+.dark .users-assign-header p,
+.dark .users-assign-field label,
+.dark .users-summary-card span,
+.dark .users-heading p {
+  color: #94a3b8 !important;
+}
+
+.dark .users-assign-icon,
+.dark .users-summary-icon {
+  background: #070e1b !important;
+  border: 1px solid #15253f !important;
+  color: #34d399 !important;
+}
+
+.dark .users-assign-field input,
+.dark .users-assign-field select,
+.dark .users-search-box input,
+.dark .users-filter-bar select {
+  background: #070e1b !important;
+  border-color: #15253f !important;
+  color: #ffffff !important;
+}
+
+/* Batches Page Specific Overrides */
+.dark .batches-stat-card,
+.dark .batches-filter-bar,
+.dark .batches-card,
+.dark .batches-batch-card,
+.dark .batch-card {
+  background: #0b1528 !important;
+  border-color: #15253f !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .batches-stat-card strong,
+.dark .batches-card h3,
+.dark .batches-heading h2 {
+  color: #ffffff !important;
+}
+
+.dark .batches-stat-card span,
+.dark .batches-card p,
+.dark .batches-heading p {
+  color: #94a3b8 !important;
+}
+
+.dark .batches-stat-icon,
+.dark .batches-card-inner,
+.dark .batch-stat-box {
+  background: #070e1b !important;
+  border: 1px solid #15253f !important;
+  color: #34d399 !important;
+}
+
+.dark .batches-search-box input,
+.dark .batches-filter-bar select,
+.dark .batches-filter-bar button {
+  background: #070e1b !important;
+  border-color: #15253f !important;
+  color: #ffffff !important;
+}
+
+/* Registrations & Audit Logs Specific Overrides */
+.dark .registrations-stat-card,
+.dark .registrations-filter-bar,
+.dark .registrations-table-container,
+.dark .audit-stat-card,
+.dark .audit-filter-bar,
+.dark .audit-table-container {
+  background: #0b1528 !important;
+  border-color: #15253f !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .registrations-stat-icon,
+.dark .audit-stat-icon {
+  background: #070e1b !important;
+  border: 1px solid #15253f !important;
+  color: #34d399 !important;
+}
+
+.dark .registrations-search-box input,
+.dark .registrations-filter-bar select,
+.dark .audit-search-box input,
+.dark .audit-filter-bar select {
+  background: #070e1b !important;
+  border-color: #15253f !important;
+  color: #ffffff !important;
+}

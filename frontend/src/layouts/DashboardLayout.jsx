@@ -5,14 +5,13 @@ import { Outlet, useLocation } from "react-router-dom";
 import AdminSidebar from "../components/admin/AdminSidebar";
 import MentorSidebar from "../components/MentorSidebar";
 import StudentSidebar from "../components/StudentSidebar";
-import Header from "../components/Header";
-
+import useAuth from "../context/useAuth";
 import { useTheme } from "../context/ThemeContext";
 
 function DashboardLayout({ role }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-
+  const { user } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
 
   // =========================================================
@@ -42,440 +41,274 @@ function DashboardLayout({ role }) {
   const getPageInfo = () => {
     const path = location.pathname;
 
-    // =======================================================
-    // ADMIN
-    // =======================================================
-
     if (role === "admin") {
       if (path === "/admin" || path === "/admin/dashboard") {
         return {
+          category: "OVERVIEW",
           title: "Admin Dashboard",
-          description: "Manage the bootcamp system.",
+          description: "Monitor and manage the bootcamp system from one place.",
         };
       }
-
       if (path.includes("/admin/users")) {
         return {
+          category: "USER MANAGEMENT",
           title: "Users",
-          description: "Manage system users.",
+          description: "Manage administrators, mentors, super administrators, and students.",
         };
       }
-
-      if (path.includes("/admin/register-mentor")) {
-        return {
-          title: "Register Mentor",
-          description: "Register a new mentor.",
-        };
-      }
-
-      if (path.includes("/admin/applications")) {
-        return {
-          title: "Applications",
-          description: "Review student applications.",
-        };
-      }
-
-      if (path.includes("/admin/attendance")) {
-        return {
-          title: "Attendance",
-          description: "Manage student attendance.",
-        };
-      }
-
-      if (path.includes("/admin/sessions")) {
-        return {
-          title: "Session Management",
-          description: "Manage bootcamp sessions.",
-        };
-      }
-
       if (path.includes("/admin/batches")) {
         return {
+          category: "COHORT MANAGEMENT",
           title: "Batches",
-          description: "Manage bootcamp batches.",
+          description: "Organize cohort timelines, curricula, and enrollments.",
         };
       }
-
-      if (path.includes("/admin/regisrations")) {
-        return {
-          title: "Registrations",
-          description: "Manage student registrations.",
-        };
-      }
-
-      if (path.includes("/admin/mentor-assignment")) {
-        return {
-          title: "Mentor Assignment",
-          description: "Assign mentors to students.",
-        };
-      }
-
-      if (path.includes("/admin/assignments")) {
-        return {
-          title: "Assignments",
-          description: "Manage assignments.",
-        };
-      }
-
-      if (path.includes("/admin/form-builder")) {
-        return {
-          title: "Application Form Builder",
-          description: "Configure the student application form.",
-        };
-      }
-
-      if (path.includes("/admin/announcements")) {
-        return {
-          title: "Announcements",
-          description: "Manage bootcamp announcements.",
-        };
-      }
-
-      if (path.includes("/admin/analytics")) {
-        return {
-          title: "Analytics",
-          description: "View bootcamp analytics.",
-        };
-      }
-
-      if (path.includes("/admin/modules")) {
-        return {
-          title: "Modules",
-          description: "Manage bootcamp modules.",
-        };
-      }
-
-      if (path.includes("/admin/module-resources")) {
-        return {
-          title: "Module Resources",
-          description: "Manage module resources.",
-        };
-      }
-
-      if (path.includes("/admin/levels")) {
-        return {
-          title: "Levels",
-          description: "Manage bootcamp levels.",
-        };
-      }
-
       if (path.includes("/admin/daily-tasks")) {
         return {
+          category: "CURRICULUM",
           title: "Daily Tasks",
-          description: "Manage student daily tasks.",
+          description: "Schedule daily tasks, milestones, and point allocations.",
         };
       }
-
-      if (path.includes("/admin/settings")) {
+      if (path.includes("/admin/announcements")) {
         return {
-          title: "Settings",
-          description: "Manage system settings.",
+          category: "COMMUNICATION",
+          title: "Announcements",
+          description: "Publish announcements and important broadcast updates.",
         };
       }
-
-      if (path.includes("/admin/faqs")) {
+      if (path.includes("/admin/attendance")) {
         return {
-          title: "FAQs",
-          description: "Manage frequently asked questions.",
+          category: "OPERATIONS",
+          title: "Attendance Tracker",
+          description: "Track live session check-ins, excuses, and statistics.",
         };
       }
-
-      if (path.includes("/admin/about")) {
+      if (path.includes("/admin/assignments")) {
         return {
-          title: "About",
-          description: "Manage system information.",
+          category: "ACADEMICS",
+          title: "Assignments",
+          description: "Create and publish learning assignments and tasks.",
+        };
+      }
+      if (path.includes("/admin/applications")) {
+        return {
+          category: "ADMISSIONS",
+          title: "Applications",
+          description: "Review and evaluate student admission applications.",
+        };
+      }
+      if (path.includes("/admin/profile")) {
+        return {
+          category: "ACCOUNT",
+          title: "My Profile",
+          description: "Manage your personal account credentials and preferences.",
         };
       }
 
       return {
-        title: "Admin Dashboard",
-        description: "Manage the bootcamp system.",
+        category: "ADMINISTRATION",
+        title: "Admin Panel",
+        description: "Manage the bootcamp operations and platform settings.",
       };
     }
-
-    // =======================================================
-    // MENTOR
-    // =======================================================
 
     if (role === "mentor") {
-      if (path === "/mentor") {
+      if (path.includes("/mentor/students")) {
         return {
-          title: "Mentor Dashboard",
-          description: "Manage your students and their progress.",
+          category: "STUDENT SUPPORT",
+          title: "My Students",
+          description: "Track student performance, questions, and assigned tasks.",
         };
       }
-
-      if (
-        path.includes("/mentor/students") ||
-        path.includes("/mentor/my-students")
-      ) {
-        return {
-          title: "Students",
-          description: "View and manage your assigned students.",
-        };
-      }
-
       if (path.includes("/mentor/attendance")) {
         return {
+          category: "SESSION LOGS",
           title: "Attendance",
-          description: "Track student attendance.",
+          description: "Verify daily student check-ins and session attendance.",
         };
       }
-
       if (path.includes("/mentor/progress")) {
         return {
-          title: "Progress",
-          description: "Monitor student learning progress.",
+          category: "ANALYTICS",
+          title: "Progress Tracker",
+          description: "Monitor cohort metrics and learning advancement.",
         };
       }
-
-      if (path.includes("/mentor/assignments")) {
-        return {
-          title: "Assignments",
-          description: "Manage student assignments.",
-        };
-      }
-
       if (path.includes("/mentor/submissions")) {
         return {
+          category: "GRADING",
           title: "Submissions",
-          description: "Review student submissions.",
+          description: "Review, evaluate, and provide feedback on submissions.",
         };
       }
-
-      if (path.includes("/mentor/announcements")) {
-        return {
-          title: "Announcements",
-          description: "View bootcamp announcements.",
-        };
-      }
-
       if (path.includes("/mentor/profile")) {
         return {
-          title: "Profile",
-          description: "Manage your profile.",
+          category: "ACCOUNT",
+          title: "My Profile",
+          description: "Manage your mentor profile and account credentials.",
         };
       }
 
       return {
-        title: "Mentor Dashboard",
-        description: "Manage your students and their progress.",
+        category: "MENTORSHIP",
+        title: "Mentor Workspace",
+        description: "Support your assigned bootcamp cohort and students.",
       };
     }
 
-    // =======================================================
-    // STUDENT
-    // =======================================================
-
     if (role === "student") {
-      if (path === "/student") {
-        return {
-          title: "Student Dashboard",
-          description: "Track your bootcamp activities and progress.",
-        };
-      }
-
       if (path.includes("/student/attendance")) {
         return {
-          title: "Attendance",
-          description: "View your attendance history.",
+          category: "SESSION LOGS",
+          title: "My Attendance",
+          description: "View your attendance records and check-in history.",
         };
       }
-
-      if (path.includes("/student/daily-tasks")) {
-        return {
-          title: "Daily Tasks",
-          description:
-            "Complete your daily tasks and keep your learning progress on track.",
-        };
-      }
-
       if (path.includes("/student/progress")) {
         return {
-          title: "Progress",
-          description: "Track your learning progress.",
+          category: "MILESTONES",
+          title: "My Progress",
+          description: "Track your learning points, streak, and level advancement.",
         };
       }
-
+      if (path.includes("/student/daily-tasks")) {
+        return {
+          category: "DAILY ACTIVITIES",
+          title: "Daily Tasks",
+          description: "Complete your scheduled daily tasks and activities.",
+        };
+      }
       if (path.includes("/student/assignments")) {
         return {
+          category: "COURSEWORK",
           title: "Assignments",
-          description: "View and complete your assignments.",
+          description: "View assignment specifications and submit solutions.",
         };
       }
-
-      if (path.includes("/student/grades")) {
-        return {
-          title: "Grades",
-          description: "View your grades and performance.",
-        };
-      }
-
-      if (path.includes("/student/submissions")) {
-        return {
-          title: "Submissions",
-          description: "View your submitted assignments.",
-        };
-      }
-
-      if (path.includes("/student/announcements")) {
-        return {
-          title: "Announcements",
-          description: "View bootcamp announcements.",
-        };
-      }
-
-      if (path.includes("/student/my-mentor")) {
-        return {
-          title: "My Mentor",
-          description: "View your assigned mentor.",
-        };
-      }
-
       if (path.includes("/student/profile")) {
         return {
-          title: "Profile",
-          description: "Manage your profile.",
+          category: "ACCOUNT",
+          title: "My Profile",
+          description: "Manage your personal profile and account credentials.",
         };
       }
 
       return {
+        category: "STUDENT SPACE",
         title: "Student Dashboard",
-        description: "Track your bootcamp activities and progress.",
+        description: "Your personalized learning environment and coursework.",
       };
     }
 
     return {
-      title: "Dashboard",
-      description: "Welcome to the Bootcamp Management System.",
+      category: "DASHBOARD",
+      title: "Bootcamp Management",
+      description: "Manage your bootcamp resources.",
     };
   };
 
   const pageInfo = getPageInfo();
 
-  // =========================================================
-  // RENDER
-  // =========================================================
+  // Get initials for avatar
+  const getInitials = (name) => {
+    if (!name) return role === "admin" ? "AD" : role === "mentor" ? "ME" : "ST";
+    return name
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  };
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa] text-slate-900 transition-colors duration-200 dark:bg-slate-950 dark:text-slate-100">
-
-      {/* =====================================================
-          MOBILE OVERLAY
-      ===================================================== */}
-
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
+    <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] dark:bg-slate-950 text-[#20202a] dark:text-slate-100 flex">
       {/* =====================================================
           DESKTOP SIDEBAR
       ===================================================== */}
-
-      <aside className="fixed left-0 top-0 z-30 hidden h-screen w-64 border-r border-slate-200 bg-white lg:block dark:border-slate-800 dark:bg-slate-900">
+      <div className="hidden lg:block">
         {getSidebar()}
-      </aside>
+      </div>
 
       {/* =====================================================
-          MOBILE SIDEBAR
+          MOBILE SIDEBAR MODAL
       ===================================================== */}
-
-      <aside
-        className={`fixed left-0 top-0 z-50 h-screen w-64 border-r border-slate-200 bg-white transition-transform duration-200 lg:hidden dark:border-slate-800 dark:bg-slate-900 ${
-          sidebarOpen
-            ? "translate-x-0"
-            : "-translate-x-full"
-        }`}
-      >
-        <div className="flex justify-end p-4">
-          <button
-            type="button"
-            onClick={() => setSidebarOpen(false)}
-            className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <div
+            className="fixed inset-y-0 left-0 w-64 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
           >
-            <X className="h-5 w-5" />
-          </button>
+            {getSidebar()}
+          </div>
         </div>
-
-        {getSidebar()}
-      </aside>
+      )}
 
       {/* =====================================================
-          MAIN CONTENT
+          MAIN VIEWPORT
       ===================================================== */}
-
-      <div className="lg:ml-64">
-
+      <div className="flex-1 lg:ml-64 min-w-0 flex flex-col min-h-screen">
         {/* ===================================================
-            TOP HEADER
+            TOP HEADER (SUPERADMIN STYLE)
         =================================================== */}
+        <header className="sticky top-0 z-30 flex min-h-[76px] items-center justify-between border-b border-[#e9e9ef] bg-white/95 px-6 py-4 backdrop-blur dark:border-[#15253f] dark:bg-[#070f1e]/95 sm:px-8">
+          <div className="flex items-center gap-3">
+            {/* Mobile menu trigger */}
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="rounded-xl p-2 text-slate-600 hover:bg-slate-100 dark:bg-[#070e1b] lg:hidden dark:text-slate-300 dark:hover:bg-[#0b1528]"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
 
-        <div className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
-
-          <div className="flex items-center justify-between px-4 py-3 lg:px-6">
-
-            <div className="flex items-center gap-3">
-
-              {/* Mobile menu */}
-              <button
-                type="button"
-                onClick={() => setSidebarOpen(true)}
-                className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden dark:text-slate-300 dark:hover:bg-slate-800"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-
-              <div>
-                <h1 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  {pageInfo.title}
-                </h1>
-
-                <p className="hidden text-xs text-slate-500 sm:block dark:text-slate-400">
-                  {pageInfo.description}
-                </p>
-              </div>
-
+            <div>
+              <p className="text-[10px] font-extrabold tracking-wider text-[#a0a0ad] uppercase">
+                {pageInfo.category}
+              </p>
+              <h1 className="text-lg font-extrabold text-[#20202a] dark:text-white leading-tight">
+                {pageInfo.title}
+              </h1>
             </div>
+          </div>
 
-            {/* =================================================
-                DARK MODE
-            ================================================= */}
-
+          {/* RIGHT SIDE (AVATAR & THEME TOGGLE) */}
+          <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={toggleDarkMode}
-              title={
-                darkMode
-                  ? "Switch to light mode"
-                  : "Switch to dark mode"
-              }
-              className="rounded-lg border border-slate-300 bg-white p-2.5 text-slate-700 transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+              title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 dark:border-[#15253f] dark:bg-[#070e1b] dark:text-white dark:hover:bg-[#0f1d33]"
             >
-              {darkMode ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
+              {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
 
+            <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200 dark:border-[#15253f]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#e5f1ed] text-[#1f6f5b] font-extrabold text-xs shadow-xs">
+                {getInitials(user?.name)}
+              </div>
+
+              <div className="hidden sm:block text-left">
+                <p className="text-xs font-bold text-[#30303a] dark:text-white leading-none">
+                  {user?.name || "Logged In User"}
+                </p>
+                <p className="text-[10px] text-[#a0a0ad] leading-none mt-1 capitalize">
+                  {user?.role || role}
+                </p>
+              </div>
+            </div>
           </div>
-
-          {/* Existing Header */}
-          <Header />
-
-        </div>
+        </header>
 
         {/* ===================================================
             PAGE CONTENT
         =================================================== */}
-
-        <main className="min-h-[calc(100vh-80px)] p-4 transition-colors duration-200 sm:p-6 dark:bg-slate-950">
+        <main className="flex-1 p-6 sm:p-8 transition-colors duration-200">
           <Outlet />
         </main>
-
       </div>
     </div>
   );

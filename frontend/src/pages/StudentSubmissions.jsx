@@ -100,7 +100,7 @@ function StudentSubmissions() {
   // =====================================================
 
   return (
-    <div className="min-h-full bg-slate-50 p-5 sm:p-6 md:p-8">
+    <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-5 sm:p-6 md:p-8">
       <main className="mx-auto w-full max-w-5xl">
 
         {/* =================================================
@@ -110,7 +110,7 @@ function StudentSubmissions() {
         <button
           type="button"
           onClick={() => navigate("/student/assignments")}
-          className="mb-6 inline-flex items-center gap-2 rounded-lg px-1 py-1 text-sm font-semibold text-[#111827] transition hover:text-slate-500"
+          className="mb-6 inline-flex items-center gap-2 rounded-lg px-1 py-1 text-sm font-semibold text-[#111827] transition hover:text-slate-500 dark:text-slate-400"
         >
           <ArrowLeft size={17} />
           Back to Assignments
@@ -123,12 +123,12 @@ function StudentSubmissions() {
         <div className="mb-7">
           <div className="mb-3 flex items-center gap-3">
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#111827] text-white shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1f6f5b] hover:bg-[#185848] text-white shadow-sm">
               <FileText size={18} />
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Student
               </p>
 
@@ -139,11 +139,11 @@ function StudentSubmissions() {
 
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
             My Submissions
           </h1>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
             View the assignments you have submitted and
             their grades.
           </p>
@@ -162,7 +162,7 @@ function StudentSubmissions() {
             <button
               type="button"
               onClick={fetchSubmissions}
-              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#111827] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#1f2937]"
+              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#185848]"
             >
               <RefreshCw size={14} />
               Try Again
@@ -175,13 +175,13 @@ function StudentSubmissions() {
         ================================================= */}
 
         {loading && (
-          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-8 text-center shadow-sm">
             <RefreshCw
               size={24}
               className="mx-auto animate-spin text-[#111827]"
             />
 
-            <p className="mt-3 text-sm font-medium text-slate-500">
+            <p className="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">
               Loading submissions...
             </p>
           </div>
@@ -194,17 +194,17 @@ function StudentSubmissions() {
         {!loading &&
           !error &&
           submissions.length === 0 && (
-            <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+            <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-10 text-center shadow-sm">
 
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-[#111827]">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 dark:bg-[#070e1b] text-[#111827]">
                 <FileText size={22} />
               </div>
 
-              <h2 className="mt-4 text-lg font-bold text-slate-900">
+              <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">
                 No submissions yet
               </h2>
 
-              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-slate-400">
                 You have not submitted any assignments yet.
               </p>
 
@@ -213,7 +213,7 @@ function StudentSubmissions() {
                 onClick={() =>
                   navigate("/student/assignments")
                 }
-                className="mt-5 inline-flex items-center justify-center rounded-lg bg-[#111827] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f2937]"
+                className="mt-5 inline-flex items-center justify-center rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#185848]"
               >
                 View Assignments
               </button>
@@ -244,24 +244,24 @@ function StudentSubmissions() {
                 return (
                   <div
                     key={submission._id}
-                    className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+                    className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm"
                   >
 
                     {/* CARD HEADER */}
 
-                    <div className="border-b border-slate-200 px-5 py-5 sm:px-6">
+                    <div className="border-b border-slate-200 dark:border-[#15253f] px-5 py-5 sm:px-6">
 
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 
                         <div className="min-w-0">
 
-                          <h2 className="text-lg font-bold text-slate-900">
+                          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                             {assignment?.title ||
                               "Assignment"}
                           </h2>
 
                           {assignment?.description && (
-                            <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-500">
+                            <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                               {assignment.description}
                             </p>
                           )}
@@ -293,7 +293,7 @@ function StudentSubmissions() {
                           Submitted
                         </p>
 
-                        <p className="mt-1 text-sm font-semibold text-slate-800">
+                        <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">
                           {formatDate(
                             submission.submittedAt
                           )}
@@ -307,7 +307,7 @@ function StudentSubmissions() {
                           Grade
                         </p>
 
-                        <p className="mt-1 text-sm font-semibold text-slate-800">
+                        <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">
                           {submission.grade !==
                             null &&
                           submission.grade !==
@@ -328,7 +328,7 @@ function StudentSubmissions() {
                           Deadline
                         </p>
 
-                        <p className="mt-1 text-sm font-semibold text-slate-800">
+                        <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">
                           {formatDate(
                             assignment?.deadline
                           )}
@@ -340,13 +340,13 @@ function StudentSubmissions() {
                     {/* FEEDBACK */}
 
                     {submission.feedback && (
-                      <div className="border-t border-slate-200 bg-slate-50 px-5 py-5 sm:px-6">
+                      <div className="border-t border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] px-5 py-5 sm:px-6">
 
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                           Mentor Feedback
                         </p>
 
-                        <p className="mt-2 text-sm leading-6 text-slate-700">
+                        <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
                           {submission.feedback}
                         </p>
 
@@ -355,7 +355,7 @@ function StudentSubmissions() {
 
                     {/* CARD FOOTER */}
 
-                    <div className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                    <div className="flex flex-col gap-3 border-t border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
 
                       <p className="text-xs text-slate-400">
                         Submission ID:{" "}
@@ -370,7 +370,7 @@ function StudentSubmissions() {
                             `/student/assignments/${assignment._id}`
                           )
                         }
-                        className="inline-flex items-center justify-center rounded-lg bg-[#111827] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1f2937]"
+                        className="inline-flex items-center justify-center rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#185848]"
                       >
                         View Assignment
                       </button>

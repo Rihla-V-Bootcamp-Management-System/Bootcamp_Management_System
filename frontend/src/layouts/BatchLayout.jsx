@@ -18,94 +18,66 @@ function BatchLayout() {
     return location.pathname === path;
   };
 
+  const navItemClass = (active) =>
+    `border-b-2 px-6 py-3.5 text-xs font-semibold transition-all duration-150 ${
+      active
+        ? "border-[#1f6f5b] text-[#1f6f5b] dark:border-blue-400 dark:text-blue-400"
+        : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-slate-200"
+    }`;
+
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
-
-      {/* =====================================================
-          FIXED BATCH NAVIGATION
-      ===================================================== */}
-
-      <div className="sticky top-20 z-20 border-b border-[#E5E0D5] bg-white/95 shadow-sm backdrop-blur">
-
+    <div className="space-y-6">
+      {/* FIXED BATCH SUB-NAVIGATION TABS */}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs backdrop-blur dark:border-slate-800 dark:bg-slate-900 overflow-hidden">
         <div className="overflow-x-auto">
-
-          <div className="flex min-w-max">
-
+          <div className="flex min-w-max border-b border-slate-100 dark:border-slate-800/80">
             {/* OVERVIEW */}
-
             <Link
               to={`/admin/batches/${batchId}`}
-              className={`border-b-2 px-6 py-4 text-sm transition ${
-                isActive(`/admin/batches/${batchId}`)
-                  ? "border-[#1D3866] font-semibold text-[#1D3866]"
-                  : "border-transparent font-medium text-[#52627A] hover:border-[#1D3866] hover:text-[#1D3866]"
-              }`}
+              className={navItemClass(isActive(`/admin/batches/${batchId}`))}
             >
               Overview
             </Link>
 
             {/* MODULES */}
-
             <Link
               to={`/admin/modules?batchId=${batchId}`}
-              className={`border-b-2 px-6 py-4 text-sm transition ${
-                location.pathname.startsWith("/admin/modules")
-                  ? "border-[#1D3866] font-semibold text-[#1D3866]"
-                  : "border-transparent font-medium text-[#52627A] hover:border-[#1D3866] hover:text-[#1D3866]"
-              }`}
+              className={navItemClass(location.pathname.startsWith("/admin/modules"))}
             >
               Modules
             </Link>
 
             {/* LEVELS */}
-
             <Link
               to={`/admin/levels?batchId=${batchId}`}
-              className={`border-b-2 px-6 py-4 text-sm transition ${
-                location.pathname.startsWith("/admin/levels")
-                  ? "border-[#1D3866] font-semibold text-[#1D3866]"
-                  : "border-transparent font-medium text-[#52627A] hover:border-[#1D3866] hover:text-[#1D3866]"
-              }`}
+              className={navItemClass(location.pathname.startsWith("/admin/levels"))}
             >
               Levels
             </Link>
 
             {/* DAILY TASKS */}
-
             <Link
               to={`/admin/daily-tasks?batchId=${batchId}`}
-              className={`border-b-2 px-6 py-4 text-sm transition ${
-                location.pathname.startsWith("/admin/daily-tasks")
-                  ? "border-[#1D3866] font-semibold text-[#1D3866]"
-                  : "border-transparent font-medium text-[#52627A] hover:border-[#1D3866] hover:text-[#1D3866]"
-              }`}
+              className={navItemClass(location.pathname.startsWith("/admin/daily-tasks"))}
             >
               Daily Tasks
             </Link>
 
             {/* CAPSTONE */}
-
-            <button
-              type="button"
-              className="border-b-2 border-transparent px-6 py-4 text-sm font-medium text-[#52627A] transition hover:border-[#1D3866] hover:text-[#1D3866]"
+            <Link
+              to={`/admin/capstone-projects?batchId=${batchId}`}
+              className={navItemClass(location.pathname.startsWith("/admin/capstone-projects"))}
             >
               Capstone Project
-            </button>
-
+            </Link>
           </div>
-
         </div>
-
       </div>
 
-      {/* =====================================================
-          PAGE CONTENT
-      ===================================================== */}
-
-      <main className="p-6">
+      {/* SUB-PAGE CONTENT */}
+      <div>
         <Outlet />
-      </main>
-
+      </div>
     </div>
   );
 }

@@ -418,15 +418,15 @@ function SuperAdminBatches() {
         <div className="h-8 w-64 animate-pulse rounded bg-gray-200" />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="h-28 animate-pulse rounded-2xl bg-gray-100" />
-          <div className="h-28 animate-pulse rounded-2xl bg-gray-100" />
-          <div className="h-28 animate-pulse rounded-2xl bg-gray-100" />
-          <div className="h-28 animate-pulse rounded-2xl bg-gray-100" />
+          <div className="h-28 animate-pulse rounded-2xl bg-gray-100 dark:bg-[#070e1b]" />
+          <div className="h-28 animate-pulse rounded-2xl bg-gray-100 dark:bg-[#070e1b]" />
+          <div className="h-28 animate-pulse rounded-2xl bg-gray-100 dark:bg-[#070e1b]" />
+          <div className="h-28 animate-pulse rounded-2xl bg-gray-100 dark:bg-[#070e1b]" />
         </div>
 
-        <div className="h-20 animate-pulse rounded-2xl bg-gray-100" />
+        <div className="h-20 animate-pulse rounded-2xl bg-gray-100 dark:bg-[#070e1b]" />
 
-        <div className="h-72 animate-pulse rounded-2xl bg-gray-100" />
+        <div className="h-72 animate-pulse rounded-2xl bg-gray-100 dark:bg-[#070e1b]" />
       </div>
     );
   }
@@ -444,11 +444,11 @@ function SuperAdminBatches() {
 
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             Batch Management
           </h1>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
             Create and manage bootcamp batches.
           </p>
         </div>
@@ -460,7 +460,7 @@ function SuperAdminBatches() {
             setSuccess("");
             setShowCreateModal(true);
           }}
-          className="flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+          className="flex items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#185848]"
         >
           <Plus size={18} />
           Create Batch
@@ -532,7 +532,7 @@ function SuperAdminBatches() {
           SEARCH + FILTER
       ================================================= */}
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-4 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row">
 
           {/* SEARCH */}
@@ -550,7 +550,7 @@ function SuperAdminBatches() {
                 setSearch(e.target.value)
               }
               placeholder="Search batches..."
-              className="h-11 w-full rounded-lg border border-gray-300 pl-10 pr-4 text-sm outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
+              className="h-11 w-full rounded-lg border border-gray-300 dark:border-[#15253f] pl-10 pr-4 text-sm outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
             />
           </div>
 
@@ -561,7 +561,7 @@ function SuperAdminBatches() {
             onChange={(e) =>
               setStatusFilter(e.target.value)
             }
-            className="h-11 rounded-lg border border-gray-300 px-4 text-sm font-medium text-gray-700 outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
+            className="h-11 rounded-lg border border-gray-300 dark:border-[#15253f] px-4 text-sm font-medium text-gray-700 dark:text-slate-200 outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
           >
             <option value="All">
               All Status
@@ -591,7 +591,7 @@ function SuperAdminBatches() {
               )
             }
             disabled={refreshing}
-            className="flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-300 px-5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
+            className="flex h-11 items-center justify-center gap-2 rounded-lg border border-gray-300 dark:border-[#15253f] px-5 text-sm font-medium text-gray-700 dark:text-slate-200 transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:opacity-50"
           >
             <RefreshCw
               size={17}
@@ -612,22 +612,22 @@ function SuperAdminBatches() {
       ================================================= */}
 
       {filteredBatches.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center">
+        <div className="rounded-2xl border dark:border-[#15253f] border-dashed border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] p-12 text-center">
 
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-[#070e1b]">
             <Users
               size={28}
-              className="text-gray-500"
+              className="text-gray-500 dark:text-slate-400"
             />
           </div>
 
-          <h2 className="mt-4 text-lg font-semibold text-gray-900">
+          <h2 className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">
             {batches.length === 0
               ? "No batches yet"
               : "No batches found"}
           </h2>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-slate-400">
             {batches.length === 0
               ? "Create your first bootcamp batch."
               : "Try another search or status filter."}
@@ -642,7 +642,7 @@ function SuperAdminBatches() {
                 setSuccess("");
                 setShowCreateModal(true);
               }}
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#1f6f5b] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#185848]"
             >
               <Plus size={17} />
               Create Batch
@@ -666,15 +666,15 @@ function SuperAdminBatches() {
       ================================================= */}
 
       {pagination.totalPages > 1 && (
-        <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-4 shadow-sm sm:flex-row">
 
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             Showing page{" "}
-            <span className="font-semibold text-gray-900">
+            <span className="font-semibold text-slate-900 dark:text-white">
               {currentPage}
             </span>{" "}
             of{" "}
-            <span className="font-semibold text-gray-900">
+            <span className="font-semibold text-slate-900 dark:text-white">
               {pagination.totalPages}
             </span>{" "}
             • {pagination.totalBatches} total batches
@@ -694,7 +694,7 @@ function SuperAdminBatches() {
               disabled={
                 !pagination.hasPreviousPage
               }
-              className="flex h-10 items-center gap-1 rounded-lg border border-gray-300 px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-10 items-center gap-1 rounded-lg border border-gray-300 dark:border-[#15253f] px-3 text-sm font-medium text-gray-700 dark:text-slate-200 transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft size={17} />
 
@@ -714,8 +714,8 @@ function SuperAdminBatches() {
                 }
                 className={`h-10 w-10 rounded-lg text-sm font-semibold transition ${
                   page === currentPage
-                    ? "bg-gray-900 text-white"
-                    : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    ? "bg-[#1f6f5b] text-white"
+                    : "border border-gray-300 text-gray-700 hover:bg-slate-50 dark:bg-[#070e1b]"
                 }`}
               >
                 {page}
@@ -734,7 +734,7 @@ function SuperAdminBatches() {
               disabled={
                 !pagination.hasNextPage
               }
-              className="flex h-10 items-center gap-1 rounded-lg border border-gray-300 px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-10 items-center gap-1 rounded-lg border border-gray-300 dark:border-[#15253f] px-3 text-sm font-medium text-gray-700 dark:text-slate-200 transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <span className="hidden sm:inline">
                 Next
@@ -763,17 +763,17 @@ function SuperAdminBatches() {
             }
           }}
         >
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white dark:bg-[#0b1528] shadow-2xl">
 
             {/* HEADER */}
 
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+            <div className="flex items-center justify-between border-b border-gray-200 dark:border-[#15253f] px-6 py-5">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                   Create New Batch
                 </h2>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
                   Enter the information for the new bootcamp batch.
                 </p>
               </div>
@@ -784,7 +784,7 @@ function SuperAdminBatches() {
                   setShowCreateModal(false)
                 }
                 disabled={creating}
-                className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+                className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 dark:bg-[#070e1b] hover:text-gray-700 dark:text-slate-200 disabled:opacity-50"
               >
                 <X size={20} />
               </button>
@@ -802,7 +802,7 @@ function SuperAdminBatches() {
               <div>
                 <label
                   htmlFor="batch-name"
-                  className="mb-2 block text-sm font-semibold text-gray-700"
+                  className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200"
                 >
                   Batch Name
                 </label>
@@ -815,7 +815,7 @@ function SuperAdminBatches() {
                   onChange={handleChange}
                   placeholder="Example: MSJ Batch 2026"
                   disabled={creating}
-                  className="h-12 w-full rounded-lg border border-gray-300 px-4 text-sm outline-none transition focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
+                  className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] h-12 w-full rounded-lg border border-gray-300 dark:border-[#15253f] px-4 text-sm outline-none transition focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
                 />
               </div>
 
@@ -824,7 +824,7 @@ function SuperAdminBatches() {
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200">
                     Year
                   </label>
 
@@ -836,12 +836,12 @@ function SuperAdminBatches() {
                     value={form.year}
                     onChange={handleChange}
                     disabled={creating}
-                    className="h-12 w-full rounded-lg border border-gray-300 px-4 text-sm outline-none transition focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] h-12 w-full rounded-lg border border-gray-300 dark:border-[#15253f] px-4 text-sm outline-none transition focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200">
                     Season
                   </label>
 
@@ -850,7 +850,7 @@ function SuperAdminBatches() {
                     value={form.season}
                     onChange={handleChange}
                     disabled={creating}
-                    className="h-12 w-full rounded-lg border border-gray-300 px-4 text-sm outline-none transition focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] h-12 w-full rounded-lg border border-gray-300 dark:border-[#15253f] px-4 text-sm outline-none transition focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
                   >
                     <option value="">
                       Select season
@@ -881,7 +881,7 @@ function SuperAdminBatches() {
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200">
                     Start Date
                   </label>
 
@@ -891,12 +891,12 @@ function SuperAdminBatches() {
                     value={form.startDate}
                     onChange={handleChange}
                     disabled={creating}
-                    className="h-12 w-full rounded-lg border border-gray-300 px-4 text-sm outline-none transition focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] h-12 w-full rounded-lg border border-gray-300 dark:border-[#15253f] px-4 text-sm outline-none transition focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200">
                     End Date
                   </label>
 
@@ -906,19 +906,19 @@ function SuperAdminBatches() {
                     value={form.endDate}
                     onChange={handleChange}
                     disabled={creating}
-                    className="h-12 w-full rounded-lg border border-gray-300 px-4 text-sm outline-none transition focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] h-12 w-full rounded-lg border border-gray-300 dark:border-[#15253f] px-4 text-sm outline-none transition focus:border-gray-900 focus:ring-4 focus:ring-gray-900/10"
                   />
                 </div>
               </div>
 
               {/* INFORMATION */}
 
-              <div className="rounded-xl bg-gray-50 p-4">
-                <p className="text-sm font-semibold text-gray-700">
+              <div className="rounded-xl bg-slate-50 dark:bg-[#070e1b] p-4">
+                <p className="text-sm font-semibold text-gray-700 dark:text-slate-200">
                   After creating the batch
                 </p>
 
-                <ul className="mt-2 space-y-1 text-sm text-gray-500">
+                <ul className="mt-2 space-y-1 text-sm text-gray-500 dark:text-slate-400">
                   <li>
                     • The initial status will be Upcoming.
                   </li>
@@ -947,7 +947,7 @@ function SuperAdminBatches() {
                     setShowCreateModal(false)
                   }
                   disabled={creating}
-                  className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
+                  className="rounded-lg border border-gray-300 dark:border-[#15253f] px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-slate-200 transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -955,7 +955,7 @@ function SuperAdminBatches() {
                 <button
                   type="submit"
                   disabled={creating}
-                  className="flex items-center gap-2 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-lg bg-[#1f6f5b] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {creating && (
                     <RefreshCw
@@ -987,23 +987,23 @@ function SummaryCard({
   icon: Icon,
 }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm">
       <div className="flex items-center justify-between">
 
         <div>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             {title}
           </p>
 
-          <p className="mt-2 text-2xl font-bold text-gray-900">
+          <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
             {value}
           </p>
         </div>
 
-        <div className="rounded-xl bg-gray-100 p-3">
+        <div className="rounded-xl bg-gray-100 dark:bg-[#070e1b] p-3">
           <Icon
             size={21}
-            className="text-gray-700"
+            className="text-gray-700 dark:text-slate-200"
           />
         </div>
       </div>
@@ -1041,7 +1041,7 @@ function BatchCard({
   };
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+    <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm transition hover:shadow-md">
 
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
 
@@ -1051,7 +1051,7 @@ function BatchCard({
 
           <div className="flex flex-wrap items-center gap-3">
 
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
               {batch.name}
             </h2>
 
@@ -1067,7 +1067,7 @@ function BatchCard({
             </span>
           </div>
 
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-slate-400">
 
             <span>
               {batch.season || "—"}{" "}
@@ -1095,22 +1095,22 @@ function BatchCard({
 
           <div className="mt-4 flex flex-wrap gap-3">
 
-            <div className="rounded-lg bg-gray-50 px-4 py-2">
-              <span className="text-xs text-gray-500">
+            <div className="rounded-lg bg-slate-50 dark:bg-[#070e1b] px-4 py-2">
+              <span className="text-xs text-gray-500 dark:text-slate-400">
                 Students
               </span>
 
-              <span className="ml-2 font-semibold text-gray-900">
+              <span className="ml-2 font-semibold text-slate-900 dark:text-white">
                 {studentCount}
               </span>
             </div>
 
-            <div className="rounded-lg bg-gray-50 px-4 py-2">
-              <span className="text-xs text-gray-500">
+            <div className="rounded-lg bg-slate-50 dark:bg-[#070e1b] px-4 py-2">
+              <span className="text-xs text-gray-500 dark:text-slate-400">
                 Mentors
               </span>
 
-              <span className="ml-2 font-semibold text-gray-900">
+              <span className="ml-2 font-semibold text-slate-900 dark:text-white">
                 {mentorCount}
               </span>
             </div>
@@ -1122,7 +1122,7 @@ function BatchCard({
         <button
           type="button"
           onClick={() => onView(batch)}
-          className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+          className="flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#185848]"
         >
           <Eye size={17} />
           View Dashboard

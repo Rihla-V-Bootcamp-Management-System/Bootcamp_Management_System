@@ -74,7 +74,7 @@ function MentorSubmission() {
   };
 
   return (
-    <div className="min-h-full bg-slate-50 p-6">
+    <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-6">
       <div className="mx-auto max-w-6xl">
 
         {/* ======================================================
@@ -82,11 +82,11 @@ function MentorSubmission() {
         ====================================================== */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
               Submissions
             </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Review and grade student submissions.
             </p>
           </div>
@@ -95,7 +95,7 @@ function MentorSubmission() {
             type="button"
             onClick={loadSubmissions}
             disabled={loading}
-            className="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex items-center gap-2 rounded-lg bg-[#1f6f5b] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <RefreshCw
               size={17}
@@ -121,13 +121,13 @@ function MentorSubmission() {
             LOADING
         ====================================================== */}
         {loading ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-10 text-center">
             <RefreshCw
-              className="mx-auto mb-3 animate-spin text-gray-700"
+              className="mx-auto mb-3 animate-spin text-gray-700 dark:text-slate-200"
               size={28}
             />
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Loading submissions...
             </p>
           </div>
@@ -136,17 +136,17 @@ function MentorSubmission() {
           /* ====================================================
               EMPTY STATE
           ==================================================== */
-          <div className="rounded-xl border border-slate-200 bg-white p-10 text-center">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-10 text-center">
             <Upload
               className="mx-auto mb-3 text-slate-400"
               size={36}
             />
 
-            <h2 className="font-semibold text-slate-800">
+            <h2 className="font-semibold text-slate-800 dark:text-slate-100">
               No submissions
             </h2>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               There are no submissions from your
               batches yet.
             </p>
@@ -157,51 +157,51 @@ function MentorSubmission() {
           /* ====================================================
               SUBMISSIONS TABLE
           ==================================================== */
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full">
 
                 {/* TABLE HEADER */}
-                <thead className="border-b border-slate-200 bg-slate-50">
+                <thead className="border-b border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b]">
                   <tr>
-                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                       Student
                     </th>
 
-                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                       Assignment
                     </th>
 
-                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                       Submitted
                     </th>
 
-                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                       Status
                     </th>
 
-                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                       Grade
                     </th>
 
-                    <th className="px-5 py-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    <th className="px-5 py-4 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                       Action
                     </th>
                   </tr>
                 </thead>
 
                 {/* TABLE BODY */}
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-[#15253f]">
                   {submissions.map(
                     (submission) => (
                       <tr
                         key={submission._id}
-                        className="transition hover:bg-slate-50"
+                        className="transition hover:bg-slate-50 dark:bg-[#070e1b]"
                       >
 
                         {/* STUDENT */}
                         <td className="px-5 py-4">
-                          <div className="font-medium text-slate-900">
+                          <div className="font-medium text-slate-900 dark:text-white">
                             {submission
                               .studentId
                               ?.fullName ||
@@ -211,7 +211,7 @@ function MentorSubmission() {
                               "Unknown Student"}
                           </div>
 
-                          <div className="text-xs text-slate-500">
+                          <div className="text-xs text-slate-500 dark:text-slate-400">
                             {submission
                               .studentId
                               ?.email || ""}
@@ -220,7 +220,7 @@ function MentorSubmission() {
 
                         {/* ASSIGNMENT */}
                         <td className="px-5 py-4">
-                          <div className="font-medium text-slate-800">
+                          <div className="font-medium text-slate-800 dark:text-slate-100">
                             {submission
                               .assignmentId
                               ?.title ||
@@ -229,7 +229,7 @@ function MentorSubmission() {
                         </td>
 
                         {/* SUBMITTED DATE */}
-                        <td className="px-5 py-4 text-sm text-slate-600">
+                        <td className="px-5 py-4 text-sm text-slate-600 dark:text-slate-300">
                           {submission.submittedAt
                             ? new Date(
                                 submission.submittedAt
@@ -255,7 +255,7 @@ function MentorSubmission() {
                             null &&
                           submission.grade !==
                             undefined ? (
-                            <span className="font-semibold text-slate-900">
+                            <span className="font-semibold text-slate-900 dark:text-white">
                               {submission.grade}
                             </span>
                           ) : (
@@ -274,7 +274,7 @@ function MentorSubmission() {
                                 submission._id
                               )
                             }
-                            className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+                            className="inline-flex items-center gap-2 rounded-lg bg-[#1f6f5b] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#185848]"
                           >
                             <Eye size={16} />
 

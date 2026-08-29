@@ -170,8 +170,8 @@ function SetPassword() {
 
   if (!userID || !otp) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-[#070e1b] px-4">
+        <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-8 shadow-sm">
 
           <div className="mb-5 flex justify-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
@@ -180,11 +180,11 @@ function SetPassword() {
           </div>
 
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
               Verification Required
             </h1>
 
-            <p className="mt-3 text-sm text-gray-500">
+            <p className="mt-3 text-sm text-gray-500 dark:text-slate-400">
               Your verification information is missing.
               Please return to the First Login page and
               verify your User ID and OTP again.
@@ -193,7 +193,7 @@ function SetPassword() {
             <button
               type="button"
               onClick={() => navigate("/first-login")}
-              className="mt-6 w-full rounded-lg bg-blue-600 py-3 font-medium text-white transition hover:bg-blue-700"
+              className="mt-6 w-full rounded-lg bg-[#1f6f5b] py-3 font-medium text-white transition hover:bg-[#185848]"
             >
               Verify OTP
             </button>
@@ -208,23 +208,23 @@ function SetPassword() {
   // =========================================================
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-[#070e1b] px-4">
+      <div className="w-full max-w-md rounded-2xl border border-slate-100 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-8 shadow-sm">
 
         {/* ICON */}
         <div className="mb-5 flex justify-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50">
-            <LockKeyhole className="h-7 w-7 text-blue-600" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#e5f1ed]">
+            <LockKeyhole className="h-7 w-7 text-[#1f6f5b]" />
           </div>
         </div>
 
         {/* HEADER */}
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             Set New Password
           </h1>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-slate-400">
             Create a new password for your account.
           </p>
         </div>
@@ -238,7 +238,7 @@ function SetPassword() {
           <div>
             <label
               htmlFor="userID"
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200"
             >
               User ID
             </label>
@@ -248,7 +248,7 @@ function SetPassword() {
               type="text"
               value={userID}
               readOnly
-              className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3 text-sm text-gray-600 outline-none"
+              className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] bg-gray-100 dark:bg-[#070e1b] px-4 py-3 text-sm text-gray-600 dark:text-slate-300 outline-none"
             />
           </div>
 
@@ -256,7 +256,7 @@ function SetPassword() {
           <div>
             <label
               htmlFor="otp"
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200"
             >
               OTP
             </label>
@@ -266,7 +266,7 @@ function SetPassword() {
               type="text"
               value={otp}
               readOnly
-              className="w-full rounded-lg border border-gray-300 bg-gray-100 px-4 py-3 text-sm text-gray-600 outline-none"
+              className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] bg-gray-100 dark:bg-[#070e1b] px-4 py-3 text-sm text-gray-600 dark:text-slate-300 outline-none"
             />
           </div>
 
@@ -274,7 +274,7 @@ function SetPassword() {
           <div>
             <label
               htmlFor="password"
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200"
             >
               New Password
             </label>
@@ -296,7 +296,7 @@ function SetPassword() {
                 disabled={loading}
                 autoComplete="new-password"
                 required
-                className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100"
+                className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] py-3 pl-10 pr-4 outline-none transition focus:border-[#1f6f5b] focus:ring-2 focus:ring-[#1f6f5b]/20 disabled:bg-gray-100 dark:bg-[#070e1b]"
               />
             </div>
           </div>
@@ -305,7 +305,7 @@ function SetPassword() {
           <div>
             <label
               htmlFor="confirmPassword"
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200"
             >
               Confirm Password
             </label>
@@ -327,7 +327,7 @@ function SetPassword() {
                 disabled={loading}
                 autoComplete="new-password"
                 required
-                className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 disabled:bg-gray-100"
+                className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] py-3 pl-10 pr-4 outline-none transition focus:border-[#1f6f5b] focus:ring-2 focus:ring-[#1f6f5b]/20 disabled:bg-gray-100 dark:bg-[#070e1b]"
               />
             </div>
           </div>
@@ -343,7 +343,7 @@ function SetPassword() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-blue-600 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-[#1f6f5b] py-3 font-medium text-white transition hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading
               ? "Setting Password..."

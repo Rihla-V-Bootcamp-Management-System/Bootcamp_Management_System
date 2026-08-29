@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
 import apiClient from "../../services/apiClient";
 import {
   Plus,
@@ -911,12 +912,6 @@ function AdminAssignments() {
   const handleDelete = async (
     assignment
   ) => {
-    const confirmed = window.confirm(
-      `Delete "${assignment.title}"? This action cannot be undone.`
-    );
-
-    if (!confirmed) return;
-
     try {
       setDeletingId(assignment._id);
       setError("");
@@ -932,12 +927,17 @@ function AdminAssignments() {
         )
       );
 
-      showSuccess(
-        "Assignment deleted successfully."
-      );
+      if (
+        selectedAssignment?._id ===
+        assignment._id
+      ) {
+        setSelectedAssignment(null);
+      }
+
+      toast.success("Assignment deleted successfully");
     } catch (err) {
       console.error(
-        "Delete assignment error:",
+        "DELETE ASSIGNMENT ERROR:",
         err
       );
 
@@ -945,6 +945,7 @@ function AdminAssignments() {
         err.response?.data?.message ||
           "Failed to delete assignment."
       );
+      toast.error(err.response?.data?.message || "Failed to delete assignment.");
     } finally {
       setDeletingId(null);
     }
@@ -1136,34 +1137,31 @@ function AdminAssignments() {
   // =========================================================
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl">
+    <div className="space-y-6">
+      {/* HEADER */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Assignment Management
+          </h1>
 
-        {/* HEADER */}
-
-        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">
-              Assignment Management
-            </h1>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Create, manage, preview and publish assignments.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              resetForm();
-              setActiveView("create");
-            }}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-          >
-            <Plus size={18} />
-            Create Assignment
-          </button>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+            Create, manage, preview and publish assignments.
+          </p>
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            resetForm();
+            setActiveView("create");
+          }}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1f6f5b] px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-[#185848] active:scale-[0.98]"
+        >
+          <Plus size={18} />
+          Create Assignment
+        </button>
+      </div>
 
         {/* ALERTS */}
 
@@ -1189,15 +1187,14 @@ function AdminAssignments() {
         )}
 
         {/* TABS */}
-
-        <div className="mb-6 flex gap-2 overflow-x-auto border-b border-slate-200">
+        <div className="mb-6 flex gap-2 overflow-x-auto border-b border-slate-200 dark:border-slate-800">
           <button
             type="button"
             onClick={() => setActiveView("list")}
-            className={`border-b-2 px-4 py-3 text-sm font-semibold transition ${
+            className={`border-b-2 px-4 py-3 text-xs font-semibold transition ${
               activeView === "list"
-                ? "border-slate-900 text-slate-900"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                ? "border-[#1f6f5b] text-[#1f6f5b] dark:border-blue-400 dark:text-blue-400 font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
             }`}
           >
             All Assignments
@@ -1206,10 +1203,10 @@ function AdminAssignments() {
           <button
             type="button"
             onClick={() => setActiveView("create")}
-            className={`border-b-2 px-4 py-3 text-sm font-semibold transition ${
+            className={`border-b-2 px-4 py-3 text-xs font-semibold transition ${
               activeView === "create"
-                ? "border-slate-900 text-slate-900"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                ? "border-[#1f6f5b] text-[#1f6f5b] dark:border-blue-400 dark:text-blue-400 font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
             }`}
           >
             {editingId
@@ -1223,17 +1220,17 @@ function AdminAssignments() {
         ================================================== */}
 
         {activeView === "list" && (
-          <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
-            <div className="border-b border-slate-200 p-5">
+            <div className="border-b border-slate-200 dark:border-[#15253f] p-5">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
                 <div>
-                  <h2 className="text-lg font-semibold text-slate-900">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                     Assignments
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     {assignments.length} assignment
                     {assignments.length !== 1
                       ? "s"
@@ -1253,7 +1250,7 @@ function AdminAssignments() {
                       setSearch(e.target.value)
                     }
                     placeholder="Search assignments..."
-                    className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                    className="w-full rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] py-2.5 pl-10 pr-4 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                   />
                 </div>
               </div>
@@ -1263,27 +1260,27 @@ function AdminAssignments() {
               <div className="flex items-center justify-center p-12">
                 <Loader2
                   size={25}
-                  className="animate-spin text-slate-500"
+                  className="animate-spin text-slate-500 dark:text-slate-400"
                 />
 
-                <span className="ml-3 text-sm text-slate-500">
+                <span className="ml-3 text-sm text-slate-500 dark:text-slate-400">
                   Loading assignments...
                 </span>
               </div>
             ) : filteredAssignments.length === 0 ? (
               <div className="p-12 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-[#070e1b]">
                   <Save
                     size={20}
-                    className="text-slate-500"
+                    className="text-slate-500 dark:text-slate-400"
                   />
                 </div>
 
-                <h3 className="mt-4 font-semibold text-slate-800">
+                <h3 className="mt-4 font-semibold text-slate-800 dark:text-slate-100">
                   No assignments found
                 </h3>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Create your first assignment to get started.
                 </p>
 
@@ -1293,25 +1290,25 @@ function AdminAssignments() {
                     resetForm();
                     setActiveView("create");
                   }}
-                  className="mt-5 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white"
+                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#1f6f5b] px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-[#185848] transition"
                 >
                   <Plus size={16} />
                   Create Assignment
                 </button>
               </div>
             ) : (
-              <div className="divide-y divide-slate-200">
+              <div className="divide-y divide-slate-200 dark:divide-[#15253f]">
                 {filteredAssignments.map(
                   (assignment) => (
                     <div
                       key={assignment._id}
-                      className="p-5 transition hover:bg-slate-50"
+                      className="p-5 transition hover:bg-slate-50 dark:bg-[#070e1b]"
                     >
                       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
 
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="truncate text-base font-semibold text-slate-900">
+                            <h3 className="truncate text-base font-semibold text-slate-900 dark:text-white">
                               {assignment.title}
                             </h3>
 
@@ -1328,15 +1325,15 @@ function AdminAssignments() {
                             </span>
                           </div>
 
-                          <p className="mt-1 line-clamp-2 text-sm text-slate-500">
+                          <p className="mt-1 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
                             {assignment.description ||
                               "No description"}
                           </p>
 
-                          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500">
+                          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500 dark:text-slate-400">
                             <span>
                               Course:{" "}
-                              <strong className="text-slate-700">
+                              <strong className="text-slate-700 dark:text-slate-200">
                                 {getCourseName(
                                   assignment
                                 )}
@@ -1345,7 +1342,7 @@ function AdminAssignments() {
 
                             <span>
                               Batch:{" "}
-                              <strong className="text-slate-700">
+                              <strong className="text-slate-700 dark:text-slate-200">
                                 {getBatchName(
                                   assignment
                                 )}
@@ -1354,7 +1351,7 @@ function AdminAssignments() {
 
                             <span>
                               Score:{" "}
-                              <strong className="text-slate-700">
+                              <strong className="text-slate-700 dark:text-slate-200">
                                 {assignment.maxScore ??
                                   0}
                               </strong>
@@ -1363,7 +1360,7 @@ function AdminAssignments() {
                             {assignment.deadline && (
                               <span>
                                 Deadline:{" "}
-                                <strong className="text-slate-700">
+                                <strong className="text-slate-700 dark:text-slate-200">
                                   {new Date(
                                     assignment.deadline
                                   ).toLocaleString()}
@@ -1383,7 +1380,7 @@ function AdminAssignments() {
                                 assignment
                               )
                             }
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                            className="inline-flex items-center gap-1.5 rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:bg-[#070e1b]"
                           >
                             <Eye size={15} />
                             View
@@ -1396,7 +1393,7 @@ function AdminAssignments() {
                                 assignment
                               )
                             }
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                            className="inline-flex items-center gap-1.5 rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:bg-[#070e1b]"
                           >
                             <Pencil size={15} />
                             Edit
@@ -1416,7 +1413,7 @@ function AdminAssignments() {
                             className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold ${
                               assignment.published
                                 ? "border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
-                                : "bg-slate-900 text-white hover:bg-slate-800"
+                                : "bg-[#1f6f5b] text-white hover:bg-[#185848]"
                             } disabled:opacity-50`}
                           >
                             {publishingId ===
@@ -1481,16 +1478,16 @@ function AdminAssignments() {
 
             {/* BASIC INFORMATION */}
 
-            <div className="mb-6 rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="mb-6 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
-              <div className="border-b border-slate-200 px-6 py-5">
-                <h2 className="text-lg font-semibold text-slate-900">
+              <div className="border-b border-slate-200 dark:border-[#15253f] px-6 py-5">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                   {editingId
                     ? "Edit Assignment"
                     : "Assignment Information"}
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Configure the assignment information and requirements.
                 </p>
               </div>
@@ -1500,7 +1497,7 @@ function AdminAssignments() {
                 {/* TITLE */}
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Title *
                   </label>
 
@@ -1510,7 +1507,7 @@ function AdminAssignments() {
                     value={form.title}
                     onChange={handleChange}
                     placeholder="e.g. Build a Portfolio Website"
-                    className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                    className="w-full rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-4 py-3 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                     required
                   />
                 </div>
@@ -1518,7 +1515,7 @@ function AdminAssignments() {
                 {/* DESCRIPTION */}
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Description *
                   </label>
 
@@ -1528,7 +1525,7 @@ function AdminAssignments() {
                     onChange={handleChange}
                     rows={4}
                     placeholder="Describe the assignment..."
-                    className="w-full resize-y rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full resize-y rounded-lg border border-slate-300 dark:border-[#15253f] px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                     required
                   />
                 </div>
@@ -1536,7 +1533,7 @@ function AdminAssignments() {
                 {/* INSTRUCTIONS */}
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Instructions *
                   </label>
 
@@ -1546,7 +1543,7 @@ function AdminAssignments() {
                     onChange={handleChange}
                     rows={5}
                     placeholder="Explain what students need to do..."
-                    className="w-full resize-y rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full resize-y rounded-lg border border-slate-300 dark:border-[#15253f] px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                     required
                   />
                 </div>
@@ -1559,7 +1556,7 @@ function AdminAssignments() {
 
                   <div>
                     <div className="mb-2 flex items-center justify-between">
-                      <label className="block text-sm font-medium text-slate-700">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                         Course *
                       </label>
 
@@ -1570,7 +1567,7 @@ function AdminAssignments() {
                             !showCourseCreator
                           )
                         }
-                        className="text-xs font-semibold text-slate-700 hover:text-slate-950"
+                        className="text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-950"
                       >
                         + New Course
                       </button>
@@ -1582,7 +1579,7 @@ function AdminAssignments() {
                       onChange={handleChange}
                       required
                       disabled={loadingCourses}
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                      className="w-full rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                     >
                       <option value="">
                         {loadingCourses
@@ -1603,7 +1600,7 @@ function AdminAssignments() {
                     </select>
 
                     {showCourseCreator && (
-                      <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                      <div className="mt-3 rounded-lg border border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-4">
 
                         <input
                           value={newCourseName}
@@ -1613,7 +1610,7 @@ function AdminAssignments() {
                             )
                           }
                           placeholder="Course name"
-                          className="mb-3 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none"
+                          className="mb-3 w-full rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm outline-none"
                         />
 
                         <textarea
@@ -1627,7 +1624,7 @@ function AdminAssignments() {
                           }
                           rows={2}
                           placeholder="Course description"
-                          className="mb-3 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none"
+                          className="mb-3 w-full rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm outline-none"
                         />
 
                         <button
@@ -1638,7 +1635,7 @@ function AdminAssignments() {
                           disabled={
                             creatingCourse
                           }
-                          className="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+                          className="rounded-lg bg-[#1f6f5b] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#185848] disabled:opacity-50"
                         >
                           {creatingCourse
                             ? "Creating..."
@@ -1651,7 +1648,7 @@ function AdminAssignments() {
                   {/* BATCH */}
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Batch *
                     </label>
 
@@ -1661,7 +1658,7 @@ function AdminAssignments() {
                       onChange={handleChange}
                       required
                       disabled={loadingBatches}
-                      className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                      className="w-full rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                     >
                       <option value="">
                         {loadingBatches
@@ -1690,7 +1687,7 @@ function AdminAssignments() {
                 <div className="grid gap-5 md:grid-cols-2">
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Deadline *
                     </label>
 
@@ -1700,12 +1697,12 @@ function AdminAssignments() {
                       value={form.deadline}
                       onChange={handleChange}
                       required
-                      className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                      className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-lg border border-slate-300 dark:border-[#15253f] px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                       Maximum Score *
                     </label>
 
@@ -1717,7 +1714,7 @@ function AdminAssignments() {
                       onChange={handleChange}
                       placeholder="100"
                       required
-                      className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                      className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-lg border border-slate-300 dark:border-[#15253f] px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                     />
                   </div>
                 </div>
@@ -1726,16 +1723,16 @@ function AdminAssignments() {
 
             {/* TOPICS */}
 
-            <div className="mb-6 rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="mb-6 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
-              <div className="flex flex-col gap-4 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-4 border-b border-slate-200 dark:border-[#15253f] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
-                  <h2 className="text-lg font-semibold text-slate-900">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                     Topics / Containers
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Add unlimited topics, questions, attachments and submission fields.
                   </p>
                 </div>
@@ -1743,7 +1740,7 @@ function AdminAssignments() {
                 <button
                   type="button"
                   onClick={addTopic}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#185848]"
                 >
                   <Plus size={17} />
                   Add Topic
@@ -1753,8 +1750,8 @@ function AdminAssignments() {
               <div className="p-6">
 
                 {form.topics.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-                    <p className="text-sm font-medium text-slate-600">
+                  <div className="rounded-lg border border-dashed border-slate-300 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-8 text-center">
+                    <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
                       No topics added
                     </p>
 
@@ -1778,12 +1775,12 @@ function AdminAssignments() {
                         return (
                           <div
                             key={topicIndex}
-                            className="overflow-hidden rounded-xl border border-slate-200"
+                            className="overflow-hidden rounded-xl border border-slate-200 dark:border-[#15253f]"
                           >
 
                             {/* TOPIC HEADER */}
 
-                            <div className="flex items-center justify-between bg-slate-50 px-5 py-4">
+                            <div className="flex items-center justify-between bg-slate-50 dark:bg-[#070e1b] px-5 py-4">
 
                               <button
                                 type="button"
@@ -1800,7 +1797,7 @@ function AdminAssignments() {
                                   <ChevronDown size={18} />
                                 )}
 
-                                <span className="font-semibold text-slate-800">
+                                <span className="font-semibold text-slate-800 dark:text-slate-100">
                                   {topic.title ||
                                     `Topic ${
                                       topicIndex + 1
@@ -1829,7 +1826,7 @@ function AdminAssignments() {
                                 <div className="grid gap-5">
 
                                   <div>
-                                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                                       Topic Title *
                                     </label>
 
@@ -1843,12 +1840,12 @@ function AdminAssignments() {
                                         )
                                       }
                                       placeholder="e.g. HTML Fundamentals"
-                                      className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                                      className="w-full rounded-lg border border-slate-300 dark:border-[#15253f] px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                                     />
                                   </div>
 
                                   <div>
-                                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                                       Topic Description
                                     </label>
 
@@ -1864,7 +1861,7 @@ function AdminAssignments() {
                                         )
                                       }
                                       rows={3}
-                                      className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                                      className="w-full rounded-lg border border-slate-300 dark:border-[#15253f] px-4 py-3 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                                     />
                                   </div>
                                 </div>
@@ -1876,11 +1873,11 @@ function AdminAssignments() {
                                   <div className="mb-4 flex items-center justify-between">
 
                                     <div>
-                                      <h3 className="font-semibold text-slate-800">
+                                      <h3 className="font-semibold text-slate-800 dark:text-slate-100">
                                         Questions
                                       </h3>
 
-                                      <p className="text-xs text-slate-500">
+                                      <p className="text-xs text-slate-500 dark:text-slate-400">
                                         Add as many questions as needed.
                                       </p>
                                     </div>
@@ -1892,7 +1889,7 @@ function AdminAssignments() {
                                           topicIndex
                                         )
                                       }
-                                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#15253f] px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:bg-[#070e1b]"
                                     >
                                       <Plus size={15} />
                                       Add Question
@@ -1908,12 +1905,12 @@ function AdminAssignments() {
                                       ) => (
                                         <div
                                           key={questionIndex}
-                                          className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                                          className="rounded-lg border border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-4"
                                         >
 
                                           <div className="mb-4 flex items-center justify-between">
 
-                                            <span className="text-sm font-semibold text-slate-700">
+                                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                                               Question{" "}
                                               {questionIndex +
                                                 1}
@@ -1936,7 +1933,7 @@ function AdminAssignments() {
                                           <div className="grid gap-4 md:grid-cols-3">
 
                                             <div className="md:col-span-3">
-                                              <label className="mb-1 block text-xs font-medium text-slate-600">
+                                              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-300">
                                                 Question *
                                               </label>
 
@@ -1953,12 +1950,12 @@ function AdminAssignments() {
                                                   )
                                                 }
                                                 placeholder="Enter question"
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
+                                                className="w-full rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm"
                                               />
                                             </div>
 
                                             <div className="md:col-span-3">
-                                              <label className="mb-1 block text-xs font-medium text-slate-600">
+                                              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-300">
                                                 Description
                                               </label>
 
@@ -1975,12 +1972,12 @@ function AdminAssignments() {
                                                   )
                                                 }
                                                 rows={2}
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
+                                                className="w-full rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm"
                                               />
                                             </div>
 
                                             <div>
-                                              <label className="mb-1 block text-xs font-medium text-slate-600">
+                                              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-300">
                                                 Type
                                               </label>
 
@@ -1996,7 +1993,7 @@ function AdminAssignments() {
                                                     e.target.value
                                                   )
                                                 }
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
+                                                className="w-full rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm"
                                               >
                                                 <option value="text">
                                                   Text
@@ -2017,7 +2014,7 @@ function AdminAssignments() {
                                             </div>
 
                                             <div>
-                                              <label className="mb-1 block text-xs font-medium text-slate-600">
+                                              <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-300">
                                                 Points
                                               </label>
 
@@ -2035,7 +2032,7 @@ function AdminAssignments() {
                                                     e.target.value
                                                   )
                                                 }
-                                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
+                                                className="w-full rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm"
                                               />
                                             </div>
 
@@ -2054,11 +2051,11 @@ function AdminAssignments() {
                                   <div className="mb-4 flex items-center justify-between">
 
                                     <div>
-                                      <h3 className="font-semibold text-slate-800">
+                                      <h3 className="font-semibold text-slate-800 dark:text-slate-100">
                                         Attachments
                                       </h3>
 
-                                      <p className="text-xs text-slate-500">
+                                      <p className="text-xs text-slate-500 dark:text-slate-400">
                                         Add links, files, images, documents or videos.
                                       </p>
                                     </div>
@@ -2070,7 +2067,7 @@ function AdminAssignments() {
                                           topicIndex
                                         )
                                       }
-                                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#15253f] px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:bg-[#070e1b]"
                                     >
                                       <Plus size={15} />
                                       Add Attachment
@@ -2088,7 +2085,7 @@ function AdminAssignments() {
                                           key={
                                             attachmentIndex
                                           }
-                                          className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                                          className="rounded-lg border border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-4"
                                         >
 
                                           <div className="grid gap-4 md:grid-cols-2">
@@ -2106,7 +2103,7 @@ function AdminAssignments() {
                                                 )
                                               }
                                               placeholder="Attachment title"
-                                              className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
+                                              className="rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm"
                                             />
 
                                             <select
@@ -2121,7 +2118,7 @@ function AdminAssignments() {
                                                   e.target.value
                                                 )
                                               }
-                                              className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
+                                              className="rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm"
                                             >
                                               <option value="link">
                                                 Link
@@ -2157,7 +2154,7 @@ function AdminAssignments() {
                                                 )
                                               }
                                               placeholder="URL / file location"
-                                              className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm md:col-span-2"
+                                              className="rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm md:col-span-2"
                                             />
 
                                             <input
@@ -2173,7 +2170,7 @@ function AdminAssignments() {
                                                 )
                                               }
                                               placeholder="Description"
-                                              className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
+                                              className="rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm"
                                             />
 
                                             <button
@@ -2204,11 +2201,11 @@ function AdminAssignments() {
                                   <div className="mb-4 flex items-center justify-between">
 
                                     <div>
-                                      <h3 className="font-semibold text-slate-800">
+                                      <h3 className="font-semibold text-slate-800 dark:text-slate-100">
                                         Submission Fields
                                       </h3>
 
-                                      <p className="text-xs text-slate-500">
+                                      <p className="text-xs text-slate-500 dark:text-slate-400">
                                         Define what students must submit.
                                       </p>
                                     </div>
@@ -2220,7 +2217,7 @@ function AdminAssignments() {
                                           topicIndex
                                         )
                                       }
-                                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-[#15253f] px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:bg-[#070e1b]"
                                     >
                                       <Plus size={15} />
                                       Add Field
@@ -2236,11 +2233,11 @@ function AdminAssignments() {
                                       ) => (
                                         <div
                                           key={fieldIndex}
-                                          className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 md:flex-row md:items-center"
+                                          className="flex flex-col gap-3 rounded-lg border border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-4 md:flex-row md:items-center"
                                         >
 
                                           <div className="flex-1">
-                                            <label className="mb-1 block text-xs font-medium text-slate-600">
+                                            <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-300">
                                               Field Label *
                                             </label>
 
@@ -2257,12 +2254,12 @@ function AdminAssignments() {
                                                 )
                                               }
                                               placeholder="e.g. GitHub Repository"
-                                              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
+                                              className="w-full rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm"
                                             />
                                           </div>
 
                                           <div>
-                                            <label className="mb-1 block text-xs font-medium text-slate-600">
+                                            <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-300">
                                               Type
                                             </label>
 
@@ -2278,7 +2275,7 @@ function AdminAssignments() {
                                                   e.target.value
                                                 )
                                               }
-                                              className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
+                                              className="rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm"
                                             >
                                               <option value="url">
                                                 URL
@@ -2302,7 +2299,7 @@ function AdminAssignments() {
                                             </select>
                                           </div>
 
-                                          <label className="flex items-center gap-2 text-sm text-slate-600">
+                                          <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                                             <input
                                               type="checkbox"
                                               checked={
@@ -2362,7 +2359,7 @@ function AdminAssignments() {
                   resetForm();
                   setActiveView("list");
                 }}
-                className="rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-6 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:bg-[#070e1b]"
               >
                 Cancel
               </button>
@@ -2370,7 +2367,7 @@ function AdminAssignments() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-7 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] px-7 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting ? (
                   <>
@@ -2398,8 +2395,6 @@ function AdminAssignments() {
           </form>
         )}
 
-      </div>
-
       {/* =====================================================
           ASSIGNMENT DETAILS / PREVIEW MODAL
       ====================================================== */}
@@ -2407,18 +2402,18 @@ function AdminAssignments() {
       {selectedAssignment && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 p-4 sm:p-6">
 
-          <div className="mx-auto max-w-5xl rounded-2xl bg-white shadow-2xl">
+          <div className="mx-auto max-w-5xl rounded-2xl bg-white dark:bg-[#0b1528] shadow-2xl">
 
             {/* MODAL HEADER */}
 
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4 sm:px-7">
+            <div className="sticky top-0 z-10 flex items-center justify-between border dark:border-[#15253f]-b border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-5 py-4 sm:px-7">
 
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                   Assignment Preview
                 </h2>
 
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Student-facing assignment details
                 </p>
               </div>
@@ -2428,7 +2423,7 @@ function AdminAssignments() {
                 onClick={() =>
                   setSelectedAssignment(null)
                 }
-                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:bg-[#070e1b]"
               >
                 <X size={20} />
               </button>
@@ -2441,7 +2436,7 @@ function AdminAssignments() {
               <div>
                 <div className="flex flex-wrap items-center gap-2">
 
-                  <h1 className="text-2xl font-bold text-slate-900">
+                  <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                     {selectedAssignment.title}
                   </h1>
 
@@ -2458,19 +2453,19 @@ function AdminAssignments() {
                   </span>
                 </div>
 
-                <p className="mt-3 text-sm leading-6 text-slate-600">
+                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
                   {selectedAssignment.description}
                 </p>
               </div>
 
-              <div className="grid gap-4 rounded-xl bg-slate-50 p-5 sm:grid-cols-3">
+              <div className="grid gap-4 rounded-xl bg-slate-50 dark:bg-[#070e1b] p-5 sm:grid-cols-3">
 
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     Course
                   </p>
 
-                  <p className="mt-1 font-semibold text-slate-800">
+                  <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">
                     {getCourseName(
                       selectedAssignment
                     )}
@@ -2482,7 +2477,7 @@ function AdminAssignments() {
                     Batch
                   </p>
 
-                  <p className="mt-1 font-semibold text-slate-800">
+                  <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">
                     {getBatchName(
                       selectedAssignment
                     )}
@@ -2494,7 +2489,7 @@ function AdminAssignments() {
                     Maximum Score
                   </p>
 
-                  <p className="mt-1 font-semibold text-slate-800">
+                  <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">
                     {selectedAssignment.maxScore}
                   </p>
                 </div>
@@ -2503,11 +2498,11 @@ function AdminAssignments() {
 
               {selectedAssignment.instructions && (
                 <div>
-                  <h3 className="text-base font-semibold text-slate-900">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                     Instructions
                   </h3>
 
-                  <div className="mt-2 whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-700">
+                  <div className="mt-2 whitespace-pre-wrap rounded-xl border border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-5 text-sm leading-7 text-slate-700 dark:text-slate-200">
                     {selectedAssignment.instructions}
                   </div>
                 </div>
@@ -2516,13 +2511,13 @@ function AdminAssignments() {
               {/* TOPICS */}
 
               <div>
-                <h3 className="mb-4 text-base font-semibold text-slate-900">
+                <h3 className="mb-4 text-base font-semibold text-slate-900 dark:text-white">
                   Topics
                 </h3>
 
                 {(selectedAssignment.topics || [])
                   .length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+                  <div className="rounded-xl border border-dashed border-slate-300 dark:border-[#15253f] p-6 text-center text-sm text-slate-500 dark:text-slate-400">
                     No topics configured.
                   </div>
                 ) : (
@@ -2538,15 +2533,15 @@ function AdminAssignments() {
                             topic._id ||
                             topicIndex
                           }
-                          className="rounded-xl border border-slate-200 p-5"
+                          className="rounded-xl border border-slate-200 dark:border-[#15253f] p-5"
                         >
 
-                          <h4 className="text-lg font-semibold text-slate-900">
+                          <h4 className="text-lg font-semibold text-slate-900 dark:text-white">
                             {topic.title}
                           </h4>
 
                           {topic.description && (
-                            <p className="mt-1 text-sm text-slate-500">
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                               {topic.description}
                             </p>
                           )}
@@ -2557,7 +2552,7 @@ function AdminAssignments() {
                             .length > 0 && (
                             <div className="mt-5">
 
-                              <h5 className="mb-3 text-sm font-semibold text-slate-800">
+                              <h5 className="mb-3 text-sm font-semibold text-slate-800 dark:text-slate-100">
                                 Questions
                               </h5>
 
@@ -2573,13 +2568,13 @@ function AdminAssignments() {
                                         question._id ||
                                         questionIndex
                                       }
-                                      className="rounded-lg bg-slate-50 p-4"
+                                      className="rounded-lg bg-slate-50 dark:bg-[#070e1b] p-4"
                                     >
 
                                       <div className="flex items-start justify-between gap-4">
 
                                         <div>
-                                          <p className="text-sm font-medium text-slate-800">
+                                          <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
                                             {questionIndex +
                                               1}
                                             .{" "}
@@ -2589,7 +2584,7 @@ function AdminAssignments() {
                                           </p>
 
                                           {question.description && (
-                                            <p className="mt-1 text-xs text-slate-500">
+                                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                                               {
                                                 question.description
                                               }
@@ -2597,7 +2592,7 @@ function AdminAssignments() {
                                           )}
                                         </div>
 
-                                        <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                        <span className="shrink-0 rounded-full bg-white dark:bg-[#0b1528] px-2.5 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
                                           {
                                             question.points
                                           }{" "}
@@ -2620,7 +2615,7 @@ function AdminAssignments() {
                             .length > 0 && (
                             <div className="mt-5">
 
-                              <h5 className="mb-3 text-sm font-semibold text-slate-800">
+                              <h5 className="mb-3 text-sm font-semibold text-slate-800 dark:text-slate-100">
                                 Attachments
                               </h5>
 
@@ -2642,17 +2637,17 @@ function AdminAssignments() {
                                       }
                                       target="_blank"
                                       rel="noreferrer"
-                                      className="flex items-center justify-between rounded-lg border border-slate-200 p-3 hover:bg-slate-50"
+                                      className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-[#15253f] p-3 hover:bg-slate-50 dark:bg-[#070e1b]"
                                     >
 
                                       <div>
-                                        <p className="text-sm font-medium text-slate-800">
+                                        <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
                                           {
                                             attachment.title
                                           }
                                         </p>
 
-                                        <p className="text-xs text-slate-500">
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
                                           {
                                             attachment.type
                                           }
@@ -2677,7 +2672,7 @@ function AdminAssignments() {
                             .length > 0 && (
                             <div className="mt-5">
 
-                              <h5 className="mb-3 text-sm font-semibold text-slate-800">
+                              <h5 className="mb-3 text-sm font-semibold text-slate-800 dark:text-slate-100">
                                 Required Submissions
                               </h5>
 
@@ -2693,14 +2688,14 @@ function AdminAssignments() {
                                         field._id ||
                                         fieldIndex
                                       }
-                                      className="flex items-center justify-between rounded-lg bg-slate-50 p-3"
+                                      className="flex items-center justify-between rounded-lg bg-slate-50 dark:bg-[#070e1b] p-3"
                                     >
 
-                                      <span className="text-sm text-slate-700">
+                                      <span className="text-sm text-slate-700 dark:text-slate-200">
                                         {field.label}
                                       </span>
 
-                                      <span className="text-xs font-medium text-slate-500">
+                                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                                         {field.type}
 
                                         {field.required &&

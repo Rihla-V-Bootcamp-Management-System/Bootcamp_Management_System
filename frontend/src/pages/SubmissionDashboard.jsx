@@ -79,7 +79,7 @@ function SubmissionDashboard() {
 
       case "Submitted":
       default:
-        return "bg-blue-50 text-blue-700 border border-blue-200";
+        return "bg-[#e5f1ed] text-[#185848] border border-blue-200";
     }
   };
 
@@ -92,7 +92,7 @@ function SubmissionDashboard() {
         <div className="text-center">
           <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600" />
 
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Loading submissions...
           </p>
         </div>
@@ -105,7 +105,7 @@ function SubmissionDashboard() {
   // ==========================================
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-white p-10 text-center shadow-sm">
+      <div className="rounded-2xl border dark:border-[#15253f] border-red-200 bg-white dark:bg-[#0b1528] p-10 text-center shadow-sm">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-2xl">
           ⚠️
         </div>
@@ -114,14 +114,14 @@ function SubmissionDashboard() {
           Failed to load submissions
         </h2>
 
-        <p className="mt-3 text-sm text-slate-500">
+        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
           {error}
         </p>
 
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="mt-6 rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+          className="mt-6 rounded-lg bg-[#1f6f5b] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#185848]"
         >
           Try Again
         </button>
@@ -138,11 +138,11 @@ function SubmissionDashboard() {
           PAGE HEADER
       ====================================== */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-800">
+        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
           Submissions
         </h1>
 
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
           Track your submitted assignments and
           feedback.
         </p>
@@ -159,7 +159,7 @@ function SubmissionDashboard() {
             setSearch(e.target.value)
           }
           placeholder="Search submissions..."
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          className="w-full rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3 text-sm text-slate-800 dark:text-slate-100 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#1f6f5b] focus:ring-2 focus:ring-[#e5f1ed]"
         />
       </div>
 
@@ -167,29 +167,29 @@ function SubmissionDashboard() {
           SUBMISSIONS TABLE
       ====================================== */}
       {filteredSubmissions.length > 0 ? (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[800px]">
               {/* TABLE HEADER */}
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-left">
-                  <th className="px-6 py-4 text-xs font-bold tracking-wide text-slate-500">
+                <tr className="border-b border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] text-left">
+                  <th className="px-6 py-4 text-xs font-bold tracking-wide text-slate-500 dark:text-slate-400">
                     ASSIGNMENT
                   </th>
 
-                  <th className="px-6 py-4 text-xs font-bold tracking-wide text-slate-500">
+                  <th className="px-6 py-4 text-xs font-bold tracking-wide text-slate-500 dark:text-slate-400">
                     SUBMITTED
                   </th>
 
-                  <th className="px-6 py-4 text-xs font-bold tracking-wide text-slate-500">
+                  <th className="px-6 py-4 text-xs font-bold tracking-wide text-slate-500 dark:text-slate-400">
                     STATUS
                   </th>
 
-                  <th className="px-6 py-4 text-xs font-bold tracking-wide text-slate-500">
+                  <th className="px-6 py-4 text-xs font-bold tracking-wide text-slate-500 dark:text-slate-400">
                     GRADE
                   </th>
 
-                  <th className="px-6 py-4 text-xs font-bold tracking-wide text-slate-500">
+                  <th className="px-6 py-4 text-xs font-bold tracking-wide text-slate-500 dark:text-slate-400">
                     FEEDBACK
                   </th>
                 </tr>
@@ -206,11 +206,11 @@ function SubmissionDashboard() {
                     return (
                       <tr
                         key={submission._id}
-                        className="border-b border-slate-100 transition hover:bg-slate-50 last:border-0"
+                        className="border-b border-slate-100 dark:border-[#15253f] transition hover:bg-slate-50 dark:bg-[#070e1b] last:border-0"
                       >
                         {/* ASSIGNMENT */}
                         <td className="px-6 py-5">
-                          <div className="font-semibold text-slate-800">
+                          <div className="font-semibold text-slate-800 dark:text-slate-100">
                             {submission
                               .assignmentId
                               ?.title ||
@@ -220,7 +220,7 @@ function SubmissionDashboard() {
                           {submission
                             .assignmentId
                             ?.course && (
-                            <div className="mt-1 text-xs text-slate-500">
+                            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                               {
                                 submission
                                   .assignmentId
@@ -231,7 +231,7 @@ function SubmissionDashboard() {
                         </td>
 
                         {/* SUBMITTED DATE */}
-                        <td className="px-6 py-5 text-sm text-slate-500">
+                        <td className="px-6 py-5 text-sm text-slate-500 dark:text-slate-400">
                           {submission.submittedAt
                             ? new Date(
                                 submission.submittedAt
@@ -260,7 +260,7 @@ function SubmissionDashboard() {
                             null &&
                           submission.grade !==
                             undefined ? (
-                            <span className="font-bold text-blue-700">
+                            <span className="font-bold text-[#185848]">
                               {submission.grade}
                             </span>
                           ) : (
@@ -271,7 +271,7 @@ function SubmissionDashboard() {
                         </td>
 
                         {/* FEEDBACK */}
-                        <td className="max-w-xs px-6 py-5 text-sm text-slate-500">
+                        <td className="max-w-xs px-6 py-5 text-sm text-slate-500 dark:text-slate-400">
                           {submission.feedback ||
                             "Waiting for review"}
                         </td>
@@ -287,18 +287,18 @@ function SubmissionDashboard() {
         /* ======================================
            EMPTY STATE
         ====================================== */
-        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-2xl">
+        <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-12 text-center shadow-sm">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#e5f1ed] text-2xl">
             📋
           </div>
 
-          <h2 className="text-xl font-semibold text-slate-800">
+          <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
             {search
               ? "No matching submissions"
               : "No submissions yet"}
           </h2>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             {search
               ? "Try a different assignment name."
               : "Your submitted assignments will appear here."}
@@ -307,7 +307,7 @@ function SubmissionDashboard() {
           {!search && (
             <Link
               to="/student/assignments"
-              className="mt-6 inline-flex rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              className="mt-6 inline-flex rounded-lg bg-[#1f6f5b] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#185848]"
             >
               View Assignments
             </Link>

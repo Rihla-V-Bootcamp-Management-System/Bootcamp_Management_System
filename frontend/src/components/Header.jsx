@@ -292,7 +292,7 @@ function Header({
           <button
             type="button"
             onClick={onMenuClick}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white md:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#1f6f5b] text-white md:hidden"
             aria-label="Open menu"
           >
             {sidebarOpen ? (
@@ -303,12 +303,12 @@ function Header({
           </button>
 
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold text-slate-900 sm:text-2xl">
+            <h1 className="truncate text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
               {title}
             </h1>
 
             {description && (
-              <p className="mt-1 hidden truncate text-sm text-slate-500 sm:block">
+              <p className="mt-1 hidden truncate text-sm text-slate-500 dark:text-slate-400 sm:block">
                 {description}
               </p>
             )}
@@ -328,7 +328,7 @@ function Header({
 
           <div className="relative flex items-center">
             {searchOpen ? (
-              <div className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-1.5 shadow-md transition-all">
+              <div className="flex items-center gap-1.5 rounded-xl border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-1.5 shadow-md transition-all">
                 <Search size={16} className="text-slate-400" />
                 <input
                   type="text"
@@ -336,7 +336,7 @@ function Header({
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search dashboard..."
                   autoFocus
-                  className="w-36 bg-transparent text-xs text-slate-800 outline-none sm:w-48"
+                  className="w-36 bg-transparent text-xs text-slate-800 dark:text-slate-100 outline-none sm:w-48"
                 />
                 <button
                   type="button"
@@ -344,7 +344,7 @@ function Header({
                     setSearchQuery("");
                     setSearchOpen(false);
                   }}
-                  className="rounded p-0.5 text-slate-400 hover:text-slate-700"
+                  className="rounded p-0.5 text-slate-400 hover:text-slate-700 dark:text-slate-200"
                 >
                   <X size={14} />
                 </button>
@@ -353,7 +353,7 @@ function Header({
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-white"
+                className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 dark:text-slate-300 transition hover:bg-white dark:bg-[#0b1528]"
                 aria-label="Search"
               >
                 <Search size={19} />
@@ -433,18 +433,18 @@ function Header({
             ================================================= */}
 
             {notificationsOpen && (
-              <div className="absolute right-0 top-12 z-50 w-[350px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+              <div className="absolute right-0 top-12 z-50 w-[350px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] shadow-xl">
 
 
                 {/* HEADER */}
 
-                <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#15253f] px-4 py-3">
                   <div>
-                    <h2 className="text-sm font-bold text-slate-900">
+                    <h2 className="text-sm font-bold text-slate-900 dark:text-white">
                       Notifications
                     </h2>
 
-                    <p className="mt-0.5 text-[11px] text-slate-500">
+                    <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
                       {unreadCount > 0
                         ? `${unreadCount} unread`
                         : "You're all caught up"}
@@ -456,7 +456,7 @@ function Header({
                       type="button"
                       onClick={markAllAsRead}
                       disabled={markingAll}
-                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 dark:text-slate-300 transition hover:bg-slate-100 dark:bg-[#070e1b] disabled:opacity-50"
                     >
                       {markingAll ? (
                         <Loader2
@@ -480,7 +480,7 @@ function Header({
 
                   {loadingNotifications &&
                   notifications.length === 0 ? (
-                    <div className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-slate-500">
+                    <div className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-slate-500 dark:text-slate-400">
                       <Loader2
                         size={17}
                         className="animate-spin"
@@ -492,14 +492,14 @@ function Header({
                     0 ? (
                     <div className="px-4 py-10 text-center">
 
-                      <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-slate-100">
+                      <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 dark:bg-[#070e1b]">
                         <Bell
                           size={19}
                           className="text-slate-400"
                         />
                       </div>
 
-                      <p className="mt-3 text-sm font-semibold text-slate-700">
+                      <p className="mt-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
                         No notifications
                       </p>
 
@@ -533,7 +533,7 @@ function Header({
                             className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
                               notification.isRead
                                 ? "bg-slate-100 text-slate-500"
-                                : "bg-[#071629] text-white"
+                                : "bg-[#1f6f5b] hover:bg-[#185848] text-white"
                             }`}
                           >
                             {notification.isRead ? (
@@ -564,7 +564,7 @@ function Header({
                               )}
                             </div>
 
-                            <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-slate-500">
+                            <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-slate-500 dark:text-slate-400">
                               {notification.message}
                             </p>
 
@@ -583,14 +583,14 @@ function Header({
 
                 {/* FOOTER */}
 
-                <div className="border-t border-slate-200 bg-slate-50 p-3">
+                <div className="border-t border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-3">
 
                   <button
                     type="button"
                     onClick={
                       handleViewAnnouncements
                     }
-                    className="w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    className="w-full rounded-lg bg-[#1f6f5b] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#185848]"
                   >
                     View All Announcements
                   </button>
@@ -606,7 +606,7 @@ function Header({
 
           <button
             type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition hover:bg-white"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 dark:text-slate-300 transition hover:bg-white dark:bg-[#0b1528]"
             aria-label="Profile"
           >
             <UserCircle size={22} />

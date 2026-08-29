@@ -108,7 +108,7 @@ function StudentSubmission() {
   // =====================================================
 
   return (
-    <div className="min-h-full bg-slate-50 p-5 sm:p-6 md:p-8">
+    <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-5 sm:p-6 md:p-8">
       <main className="mx-auto w-full max-w-4xl">
 
         {/* =================================================
@@ -119,7 +119,7 @@ function StudentSubmission() {
           type="button"
           onClick={handleBack}
           disabled={loading}
-          className="mb-6 inline-flex items-center gap-2 rounded-lg px-1 py-1 text-sm font-semibold text-[#111827] transition hover:text-slate-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mb-6 inline-flex items-center gap-2 rounded-lg px-1 py-1 text-sm font-semibold text-[#111827] transition hover:text-slate-500 dark:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <ArrowLeft size={17} />
           Back to Assignment
@@ -132,12 +132,12 @@ function StudentSubmission() {
         <div className="mb-7">
           <div className="mb-3 flex items-center gap-3">
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#111827] text-white shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1f6f5b] hover:bg-[#185848] text-white shadow-sm">
               <Send size={18} />
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Assignment
               </p>
 
@@ -148,11 +148,11 @@ function StudentSubmission() {
 
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
             Submit Assignment
           </h1>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400">
             Submit your assignment by providing your project
             links, documentation, and any additional notes for
             your mentor.
@@ -189,17 +189,17 @@ function StudentSubmission() {
 
         <form
           onSubmit={handleSubmit}
-          className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+          className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm"
         >
 
           {/* FORM HEADER */}
 
-          <div className="border-b border-slate-200 px-5 py-5 sm:px-6">
-            <h2 className="text-lg font-bold text-slate-900">
+          <div className="border-b border-slate-200 dark:border-[#15253f] px-5 py-5 sm:px-6">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
               Your Submission
             </h2>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Add the resources related to your assignment.
             </p>
           </div>
@@ -215,7 +215,7 @@ function StudentSubmission() {
             <div>
               <label
                 htmlFor="github"
-                className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700"
+                className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200"
               >
                 <ExternalLink
                   size={17}
@@ -231,7 +231,7 @@ function StudentSubmission() {
                 value={github}
                 onChange={(e) => setGithub(e.target.value)}
                 placeholder="https://github.com/username/project"
-                className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#111827] focus:ring-2 focus:ring-slate-200"
+                className="w-full rounded-lg border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3 text-sm text-slate-800 dark:text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-[#111827] focus:ring-2 focus:ring-slate-200"
               />
 
               <p className="mt-1.5 text-xs text-slate-400">
@@ -246,7 +246,7 @@ function StudentSubmission() {
             <div>
               <label
                 htmlFor="liveDemo"
-                className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700"
+                className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200"
               >
                 <ExternalLink
                   size={17}
@@ -262,7 +262,7 @@ function StudentSubmission() {
                 value={liveDemo}
                 onChange={(e) => setLiveDemo(e.target.value)}
                 placeholder="https://your-project.vercel.app"
-                className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#111827] focus:ring-2 focus:ring-slate-200"
+                className="w-full rounded-lg border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3 text-sm text-slate-800 dark:text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-[#111827] focus:ring-2 focus:ring-slate-200"
               />
 
               <p className="mt-1.5 text-xs text-slate-400">
@@ -277,7 +277,7 @@ function StudentSubmission() {
             <div>
               <label
                 htmlFor="document"
-                className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700"
+                className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200"
               >
                 <FileText
                   size={17}
@@ -293,7 +293,7 @@ function StudentSubmission() {
                 value={document}
                 onChange={(e) => setDocument(e.target.value)}
                 placeholder="https://docs.google.com/..."
-                className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#111827] focus:ring-2 focus:ring-slate-200"
+                className="w-full rounded-lg border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3 text-sm text-slate-800 dark:text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-[#111827] focus:ring-2 focus:ring-slate-200"
               />
 
               <p className="mt-1.5 text-xs text-slate-400">
@@ -308,7 +308,7 @@ function StudentSubmission() {
             <div>
               <label
                 htmlFor="notes"
-                className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700"
+                className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200"
               >
                 <StickyNote
                   size={17}
@@ -324,7 +324,7 @@ function StudentSubmission() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add any notes about your submission..."
-                className="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#111827] focus:ring-2 focus:ring-slate-200"
+                className="w-full resize-none rounded-lg border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3 text-sm text-slate-800 dark:text-slate-100 outline-none transition placeholder:text-slate-400 focus:border-[#111827] focus:ring-2 focus:ring-slate-200"
               />
 
               <p className="mt-1.5 text-xs text-slate-400">
@@ -338,13 +338,13 @@ function StudentSubmission() {
               FOOTER
           ================================================= */}
 
-          <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-5 py-5 sm:flex-row sm:justify-end sm:px-6">
+          <div className="flex flex-col-reverse gap-3 border-t border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] px-5 py-5 sm:flex-row sm:justify-end sm:px-6">
 
             <button
               type="button"
               onClick={handleBack}
               disabled={loading}
-              className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-[#111827] hover:bg-slate-100 hover:text-[#111827] disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 transition hover:border-[#111827] hover:bg-slate-100 dark:bg-[#070e1b] hover:text-[#111827] disabled:cursor-not-allowed disabled:opacity-60"
             >
               Back
             </button>
@@ -352,7 +352,7 @@ function StudentSubmission() {
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#111827] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1f2937] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Send size={16} />
 

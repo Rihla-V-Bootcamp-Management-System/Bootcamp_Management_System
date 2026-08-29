@@ -120,14 +120,27 @@ const userSchema = new mongoose.Schema(
     },
 
     // =========================================================
-    // ACCOUNT STATUS
+    // ACCOUNT STATUS & WARNINGS
     // =========================================================
 
     accountStatus: {
       type: String,
-      enum: ["pending", "active"],
+      enum: ["pending", "active", "suspended"],
       default: "active",
     },
+
+    suspensionReason: {
+      type: String,
+      default: "",
+    },
+
+    warnings: [
+      {
+        reason: { type: String, required: true },
+        warnedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        warnedAt: { type: Date, default: Date.now },
+      },
+    ],
 
     // =========================================================
     // INVITATION TOKEN

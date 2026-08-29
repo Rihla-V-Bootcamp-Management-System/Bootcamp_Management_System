@@ -1,70 +1,23 @@
 const express = require("express");
-
 const router = express.Router();
-
 const authMiddleware = require("../middleware/authMiddleware");
-
 const {
-  getStudents,
-  getMentors,
-  assignMentor,
-  removeMentor,
-  getMyMentor,
-  getMyStudents,
-} = require("../controllers/mentorController");
+  createProgress,
+  getProgress,
+  getProgressById,
+  updateProgress,
+} = require("../controllers/progressControllers");
 
-// =========================================================
-// ADMIN
-// =========================================================
+// GET /api/progress (supports ?studentId=... and ?topic=...)
+router.get("/", authMiddleware, getProgress);
 
-// Get all students
-router.get(
-  "/students",
-  authMiddleware,
-  getStudents
-);
+// GET /api/progress/:id
+router.get("/:id", authMiddleware, getProgressById);
 
-// Get all mentors
-router.get(
-  "/mentors",
-  authMiddleware,
-  getMentors
-);
+// POST /api/progress
+router.post("/", authMiddleware, createProgress);
 
-// Assign mentor to student
-router.post(
-  "/assign",
-  authMiddleware,
-  assignMentor
-);
-
-// Remove mentor from student
-router.delete(
-  "/remove/:studentId",
-  authMiddleware,
-  removeMentor
-);
-
-// =========================================================
-// STUDENT
-// =========================================================
-
-// Get currently logged-in student's mentor
-router.get(
-  "/my-mentor",
-  authMiddleware,
-  getMyMentor
-);
-
-// =========================================================
-// MENTOR
-// =========================================================
-
-// Get students assigned to currently logged-in mentor
-router.get(
-  "/my-students",
-  authMiddleware,
-  getMyStudents
-);
+// PUT /api/progress/:id
+router.put("/:id", authMiddleware, updateProgress);
 
 module.exports = router;

@@ -61,6 +61,7 @@ const registerMentor = async (req, res) => {
       email,
       phone,
       telegramUsername,
+      batchId,
     } = req.body;
 
     // -----------------------------------------------------
@@ -112,6 +113,15 @@ const registerMentor = async (req, res) => {
     }
 
     // -----------------------------------------------------
+    // VALIDATE BATCH IF SUPPLIED
+    // -----------------------------------------------------
+    let targetBatch = null;
+    if (batchId && mongoose.Types.ObjectId.isValid(batchId)) {
+      const Batch = require("../models/Batch");
+      targetBatch = await Batch.findById(batchId);
+    }
+
+    // -----------------------------------------------------
     // CREATE MENTOR
     // -----------------------------------------------------
 
@@ -130,7 +140,7 @@ const registerMentor = async (req, res) => {
         cleanTelegramUsername,
 
       assignedMentor: null,
-      batchId: null,
+      batchId: targetBatch ? targetBatch._id : null,
 
       mustResetPassword: true,
       otp: null,
@@ -138,28 +148,27 @@ const registerMentor = async (req, res) => {
       otpVerified: false,
     });
 
+    if (targetBatch) {
+      const Batch = require("../models/Batch");
+      await Batch.findByIdAndUpdate(targetBatch._id, {
+        $addToSet: { mentorIds: mentor._id },
+      });
+    }
+
     // -----------------------------------------------------
     // REMOVE SENSITIVE DATA
     // -----------------------------------------------------
 
     const mentorResponse =
       await User.findById(mentor._id)
-        .select("-password -otp");
+        .select("-password -otp")
+        .populate("batchId", "name");
 
     // -----------------------------------------------------
     // SUCCESS
     // -----------------------------------------------------
 
-    console.log("✅ MENTOR REGISTERED");
-
-    console.log({
-      id: mentor._id,
-      name: mentor.name,
-      email: mentor.email,
-      phone: mentor.phone,
-      telegramUsername:
-        mentor.telegramUsername,
-    });
+    console.log("✅ MENTOR REGISTERED WITH BATCH LINK");
 
     return res.status(201).json({
       success: true,
@@ -798,28 +807,18 @@ const getMyMentor = async (req, res) => {
 
 const getMyStudents = async (req, res) => {
   try {
-    if (
-      getRole(req.user) !==
-      "mentor"
-    ) {
-      return res.status(403).json({
-        success: false,
-        message:
-          "Only mentors can view their students",
-      });
+    const role = getRole(req.user);
+    const mentorId = req.user?._id || req.user?.id;
+
+    let query = { role: "student" };
+    if (role === "mentor") {
+      query.assignedMentor = mentorId;
     }
 
-    const students =
-      await User.find({
-        role: "student",
-        assignedMentor:
-          req.user._id,
-      })
-        .select("-password -otp")
-        .populate(
-          "batchId",
-          "name"
-        );
+    const students = await User.find(query)
+      .select("-password -otp")
+      .populate("batchId", "name")
+      .populate("assignedMentor", "name email");
 
     return res.status(200).json({
       success: true,

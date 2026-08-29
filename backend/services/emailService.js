@@ -300,6 +300,114 @@ Bootcamp Management System`,
 };
 
 // =========================================================
+// SEND SUSPENSION EMAIL
+// =========================================================
+
+const sendSuspensionEmail = async ({ to, name, reason }) => {
+  return sendEmail({
+    to,
+    subject: "Important Notice: Account Suspension - Bootcamp Management System",
+    text: `Hello ${name},\n\nYour account on the Bootcamp Management System has been suspended.\n\nReason for Suspension:\n${reason}\n\nIf you believe this is a mistake, please contact the administration.\n\nBest regards,\nBootcamp Administration`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded-lg: 8px;">
+        <h2 style="color: #dc2626;">Account Suspension Notice</h2>
+        <p>Dear <strong>${name}</strong>,</p>
+        <p>We are writing to inform you that your account on the Bootcamp Management System has been <strong>suspended</strong>.</p>
+        <div style="background: #fef2f2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <h4 style="margin: 0 0 8px 0; color: #991b1b;">Reason for Suspension:</h4>
+          <p style="margin: 0; color: #7f1d1d; font-size: 14px;">${reason}</p>
+        </div>
+        <p>While suspended, you will not be able to access bootcamp materials, sessions, or assignments.</p>
+        <p>If you have any questions or wish to appeal, please contact the bootcamp administration.</p>
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #64748b;">Bootcamp Management System • ASTU MSJ</p>
+      </div>
+    `,
+  });
+};
+
+// =========================================================
+// SEND WARNING EMAIL
+// =========================================================
+
+const sendWarningEmail = async ({ to, name, reason, warningNumber }) => {
+  return sendEmail({
+    to,
+    subject: `Official Warning Notice (#${warningNumber || 1}) - Bootcamp Management System`,
+    text: `Hello ${name},\n\nYou have received an official warning from the Bootcamp Administration.\n\nWarning #${warningNumber || 1}\nReason:\n${reason}\n\nPlease take this matter seriously. Continued infractions may result in account suspension.\n\nBest regards,\nBootcamp Administration`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #d97706;">Official Warning Notice</h2>
+        <p>Dear <strong>${name}</strong>,</p>
+        <p>You have received an official warning (#${warningNumber || 1}) from the Bootcamp Administration regarding your recent activity or participation.</p>
+        <div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <h4 style="margin: 0 0 8px 0; color: #92400e;">Reason for Warning:</h4>
+          <p style="margin: 0; color: #78350f; font-size: 14px;">${reason}</p>
+        </div>
+        <p>Please adhere to the bootcamp guidelines and code of conduct. Repeated warnings may lead to dismissal or account suspension.</p>
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #64748b;">Bootcamp Management System • ASTU MSJ</p>
+      </div>
+    `,
+  });
+};
+
+// =========================================================
+// SEND PASSWORD RESET EMAIL WITH REASON
+// =========================================================
+
+const sendAdminPasswordResetEmail = async ({ to, name, temporaryPassword, reason }) => {
+  return sendEmail({
+    to,
+    subject: "Your Account Password Has Been Reset - Bootcamp Management System",
+    text: `Hello ${name},\n\nYour account password has been reset by an administrator.\n\nReason:\n${reason || "Administrative password reset"}\n\nYour Temporary Password: ${temporaryPassword}\n\nPlease log in and change your password immediately.\n\nBest regards,\nBootcamp Administration`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #1f6f5b;">Password Reset Notification</h2>
+        <p>Dear <strong>${name}</strong>,</p>
+        <p>Your password for the Bootcamp Management System has been reset by an administrator.</p>
+        ${reason ? `
+        <div style="background: #f8fafc; border-left: 4px solid #64748b; padding: 12px; margin: 16px 0; border-radius: 4px;">
+          <p style="margin: 0; font-size: 13px; color: #334155;"><strong>Reason:</strong> ${reason}</p>
+        </div>` : ""}
+        <div style="background: #e5f1ed; padding: 15px; margin: 20px 0; border-radius: 8px; text-align: center;">
+          <p style="margin: 0 0 5px 0; font-size: 12px; color: #165a4a; text-transform: uppercase; font-weight: bold;">Temporary Password</p>
+          <p style="margin: 0; font-size: 20px; font-weight: bold; color: #1f6f5b; font-family: monospace;">${temporaryPassword}</p>
+        </div>
+        <p>Please log in using this temporary password and change it immediately in your profile settings.</p>
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #64748b;">Bootcamp Management System • ASTU MSJ</p>
+      </div>
+    `,
+  });
+};
+
+// =========================================================
+// SEND ACCOUNT DELETION EMAIL
+// =========================================================
+
+const sendAccountDeletionEmail = async ({ to, name, reason }) => {
+  return sendEmail({
+    to,
+    subject: "Account Notice: Deletion - Bootcamp Management System",
+    text: `Hello ${name},\n\nYour account on the Bootcamp Management System has been removed.\n\nReason:\n${reason}\n\nBest regards,\nBootcamp Administration`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #64748b;">Account Removal Notice</h2>
+        <p>Dear <strong>${name}</strong>,</p>
+        <p>This email is to notify you that your account on the Bootcamp Management System has been removed.</p>
+        <div style="background: #f1f5f9; border-left: 4px solid #94a3b8; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <h4 style="margin: 0 0 8px 0; color: #334155;">Reason:</h4>
+          <p style="margin: 0; color: #475569; font-size: 14px;">${reason}</p>
+        </div>
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #64748b;">Bootcamp Management System • ASTU MSJ</p>
+      </div>
+    `,
+  });
+};
+
+// =========================================================
 // EXPORTS
 // =========================================================
 
@@ -308,4 +416,8 @@ module.exports = {
   sendAcceptedEmail,
   sendRejectedEmail,
   sendStaffInvitationEmail,
+  sendSuspensionEmail,
+  sendWarningEmail,
+  sendAdminPasswordResetEmail,
+  sendAccountDeletionEmail,
 };

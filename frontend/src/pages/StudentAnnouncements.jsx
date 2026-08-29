@@ -110,7 +110,7 @@ function StudentAnnouncements() {
       case "assignment":
         return {
           badge:
-            "bg-blue-100 text-blue-700",
+            "bg-blue-100 text-[#185848]",
           border:
             "border-l-blue-500",
         };
@@ -182,7 +182,7 @@ function StudentAnnouncements() {
   });
 
   return (
-    <div className="min-h-full bg-slate-50 p-6">
+    <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-6">
       <div className="mx-auto max-w-5xl">
 
         {/* HEADER */}
@@ -190,7 +190,7 @@ function StudentAnnouncements() {
 
         <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3">
-            <div className="relative rounded-xl bg-gray-900 p-3 text-white">
+            <div className="relative rounded-xl bg-[#1f6f5b] p-3 text-white">
               <Megaphone size={22} />
 
               {unreadCount > 0 && (
@@ -199,11 +199,11 @@ function StudentAnnouncements() {
             </div>
 
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                 Announcements
               </h1>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Stay updated with announcements from your admins and mentors.
               </p>
             </div>
@@ -212,7 +212,7 @@ function StudentAnnouncements() {
           <button
             type="button"
             onClick={loadAnnouncements}
-            className="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
+            className="flex items-center gap-2 rounded-lg bg-[#1f6f5b] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#185848]"
           >
             <RefreshCw size={17} />
             Refresh
@@ -221,13 +221,13 @@ function StudentAnnouncements() {
 
         {/* TAB FILTERS (All vs Admin vs Mentor) */}
 
-        <div className="mb-6 flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+        <div className="mb-6 flex flex-wrap gap-2 border-b border-slate-200 dark:border-[#15253f] pb-3">
           <button
             type="button"
             onClick={() => setActiveTab("All")}
             className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${
               activeTab === "All"
-                ? "bg-gray-900 text-white shadow-sm"
+                ? "bg-[#1f6f5b] text-white shadow-sm"
                 : "bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >
@@ -239,7 +239,7 @@ function StudentAnnouncements() {
             onClick={() => setActiveTab("Admin")}
             className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${
               activeTab === "Admin"
-                ? "bg-blue-600 text-white shadow-sm"
+                ? "bg-[#1f6f5b] text-white shadow-sm"
                 : "bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >
@@ -251,7 +251,7 @@ function StudentAnnouncements() {
             onClick={() => setActiveTab("Mentor")}
             className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${
               activeTab === "Mentor"
-                ? "bg-emerald-600 text-white shadow-sm"
+                ? "bg-[#1f6f5b] text-white shadow-sm"
                 : "bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >
@@ -262,8 +262,8 @@ function StudentAnnouncements() {
         {/* UNREAD */}
 
         {unreadCount > 0 && (
-          <div className="mb-5 flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
-            <div className="rounded-lg bg-blue-100 p-2 text-blue-700">
+          <div className="mb-5 flex items-center gap-3 rounded-xl border border-blue-200 bg-[#e5f1ed] p-4">
+            <div className="rounded-lg bg-blue-100 p-2 text-[#185848]">
               <Megaphone size={18} />
             </div>
 
@@ -275,7 +275,7 @@ function StudentAnnouncements() {
                   : ""}
               </p>
 
-              <p className="text-xs text-blue-700">
+              <p className="text-xs text-[#185848]">
                 Review the latest updates from
                 your mentor.
               </p>
@@ -295,29 +295,29 @@ function StudentAnnouncements() {
         {/* LOADING */}
 
         {loading ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-12 text-center">
             <RefreshCw
               size={30}
-              className="mx-auto mb-3 animate-spin text-gray-700"
+              className="mx-auto mb-3 animate-spin text-gray-700 dark:text-slate-200"
             />
 
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Loading announcements...
             </p>
           </div>
         ) : filteredAnnouncements.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-12 text-center">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-12 text-center">
             <Megaphone
               size={40}
               className="mx-auto mb-4 text-slate-300"
             />
 
-            <h2 className="font-semibold text-slate-800">
+            <h2 className="font-semibold text-slate-800 dark:text-slate-100">
               No {activeTab !== "All" ? activeTab : ""} announcements found
             </h2>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               {activeTab === "All"
                 ? "You don't have any announcements yet."
                 : `No ${activeTab.toLowerCase()} announcements match your filter.`}
@@ -353,7 +353,7 @@ function StudentAnnouncements() {
                     {/* UNREAD DOT */}
 
                     {!announcement.isRead && (
-                      <span className="absolute right-5 top-5 h-3 w-3 rounded-full bg-blue-600" />
+                      <span className="absolute right-5 top-5 h-3 w-3 rounded-full bg-[#1f6f5b]" />
                     )}
 
                     {/* TOP */}
@@ -369,20 +369,20 @@ function StudentAnnouncements() {
                           </span>
 
                           {!announcement.isRead && (
-                            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-[#185848]">
                               New
                             </span>
                           )}
 
                           {announcement.batch && (
-                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">
+                            <span className="rounded-full bg-slate-100 dark:bg-[#070e1b] px-3 py-1 text-xs text-slate-600 dark:text-slate-300">
                               {announcement.batch.name ||
                                 announcement.batch.title}
                             </span>
                           )}
                         </div>
 
-                        <h2 className="text-lg font-bold text-slate-900">
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                           {announcement.title}
                         </h2>
                       </div>
@@ -398,17 +398,17 @@ function StudentAnnouncements() {
 
                     {/* MESSAGE */}
 
-                    <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-slate-600">
+                    <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-slate-600 dark:text-slate-300">
                       {announcement.message}
                     </p>
 
                     {/* FOOTER */}
 
 
-                    <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+                    <div className="mt-5 flex items-center justify-between border-t border-slate-100 dark:border-[#15253f] pt-4">
                       <div className="text-xs text-slate-400">
                         From{" "}
-                        <span className="font-medium text-slate-600">
+                        <span className="font-medium text-slate-600 dark:text-slate-300">
                           {announcement.sender
                             ?.name ||
                             "Mentor"}

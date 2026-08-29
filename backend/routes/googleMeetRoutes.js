@@ -4,6 +4,8 @@ const router = express.Router();
 
 const {
   scheduleSession,
+  syncSessionNow,
+  previewSessionParticipants,
 } = require("../controllers/googleMeetAttendanceController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -16,8 +18,28 @@ const roleMiddleware = require("../middleware/roleMiddleware");
 router.post(
   "/sessions",
   authMiddleware,
-  roleMiddleware("mentor", "admin"),
+  roleMiddleware("mentor", "admin", "superadmin"),
   scheduleSession
 );
 
-module.exports = router;
+// =====================================================
+// PREVIEW GOOGLE MEET PARTICIPANTS
+// =====================================================
+
+router.get(
+  "/:id/participants",
+  authMiddleware,
+  previewSessionParticipants
+);
+
+// =====================================================
+// SYNC GOOGLE MEET ATTENDANCE
+// =====================================================
+
+router.post(
+  "/:id/sync",
+  authMiddleware,
+  syncSessionNow
+);
+
+module.exports = router;

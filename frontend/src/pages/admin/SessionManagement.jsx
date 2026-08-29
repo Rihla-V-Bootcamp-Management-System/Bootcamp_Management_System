@@ -407,12 +407,8 @@ function FormBuilder() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="rounded-xl bg-white p-8 shadow-sm">
-            <p className="text-gray-500">Loading application form...</p>
-          </div>
-        </div>
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#1f6f5b] border-t-transparent" />
       </div>
     );
   }
@@ -423,21 +419,19 @@ function FormBuilder() {
 
   if (!season) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 md:p-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="rounded-xl border border-red-200 bg-red-50 p-8">
-            <h1 className="text-xl font-semibold text-red-800">
-              Application Form Builder
-            </h1>
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 dark:border-amber-900/50 dark:bg-amber-950/30">
+          <h1 className="text-base font-bold text-amber-800 dark:text-amber-300">
+            Application Form Builder
+          </h1>
 
-            <p className="mt-2 text-sm text-red-700">
-              {error || "No registration season has been created yet."}
-            </p>
+          <p className="mt-1.5 text-xs text-amber-700 dark:text-amber-400">
+            {error || "No registration season has been created yet."}
+          </p>
 
-            <p className="mt-3 text-sm text-red-600">
-              The Super Admin must create a registration season before the Admin can build the application form.
-            </p>
-          </div>
+          <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+            The Super Admin must create an active registration season before you can configure the application form fields.
+          </p>
         </div>
       </div>
     );
@@ -448,63 +442,63 @@ function FormBuilder() {
   // =========================================================
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-8">
-      <div className="mx-auto max-w-6xl space-y-6">
-        
-        {/* TOP MESSAGES */}
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+    <div className="space-y-6">
+      {/* TOP MESSAGES */}
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-medium text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+          {error}
+        </div>
+      )}
 
-        {success && (
-          <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
-            {success}
-          </div>
-        )}
+      {success && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-medium text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300">
+          {success}
+        </div>
+      )}
 
-        {/* HEADER BLOCK */}
-        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Form Builder</h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Configure global form properties and season settings.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={saveForm}
-              disabled={saving}
-              className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-              {saving ? "Saving..." : "Save Form"}
-            </button>
+      {/* HEADER BLOCK */}
+      <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-xs dark:border-slate-800 dark:bg-[#1f6f5b]">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Application Form Builder
+            </h1>
+            <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              Configure global form properties and season applicant questions.
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={saveForm}
+            disabled={saving}
+            className="rounded-xl bg-[#1f6f5b] px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-[#185848] active:scale-[0.98] disabled:opacity-60"
+          >
+            {saving ? "Saving..." : "Save Form"}
+          </button>
+        </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                 Form Title
               </label>
               <input
                 type="text"
                 value={form.title}
                 onChange={(e) => updateFormDetails("title", e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                className="w-full rounded-lg border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 outline-none focus:border-[#1f6f5b]"
                 placeholder="e.g. Summer Bootcamp Application"
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                 Form Description
               </label>
               <input
                 type="text"
                 value={form.description}
                 onChange={(e) => updateFormDetails("description", e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                className="w-full rounded-lg border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 outline-none focus:border-[#1f6f5b]"
                 placeholder="Brief guidelines for applicants"
               />
             </div>
@@ -512,11 +506,11 @@ function FormBuilder() {
         </div>
 
         {/* FIELD BUILDER CONTAINER */}
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-200 p-6">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
+          <div className="flex items-center justify-between border-b border-gray-200 dark:border-[#15253f] p-6">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Form Fields</h2>
-              <p className="mt-1 text-sm text-gray-500">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Form Fields</h2>
+              <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
                 Add and arrange the fields applicants will complete.
               </p>
             </div>
@@ -524,7 +518,7 @@ function FormBuilder() {
             <button
               type="button"
               onClick={addField}
-              className="rounded-lg border border-blue-600 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50"
+              className="rounded-lg border border-[#1f6f5b] px-4 py-2 text-sm font-medium text-[#1f6f5b] hover:bg-[#e5f1ed]"
             >
               + Add Field
             </button>
@@ -532,8 +526,8 @@ function FormBuilder() {
 
           <div className="p-6">
             {form.fields.length === 0 ? (
-              <div className="rounded-lg border-2 border-dashed border-gray-200 p-10 text-center">
-                <p className="font-medium text-gray-600">No fields added yet</p>
+              <div className="rounded-lg border-2 border-dashed border-gray-200 dark:border-[#15253f] p-10 text-center">
+                <p className="font-medium text-gray-600 dark:text-slate-300">No fields added yet</p>
                 <p className="mt-1 text-sm text-gray-400">
                   Click "Add Field" to start building the application form.
                 </p>
@@ -543,15 +537,15 @@ function FormBuilder() {
                 {form.fields.map((field, index) => (
                   <div
                     key={field.id || field._id || index}
-                    className="rounded-xl border border-gray-200 bg-gray-50 p-5"
+                    className="rounded-xl border border-gray-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-5"
                   >
                     {/* FIELD HEADER */}
                     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-[#185848]">
                           {index + 1}
                         </span>
-                        <span className="font-medium text-gray-800">
+                        <span className="font-medium text-gray-800 dark:text-slate-100">
                           {field.label || `Field ${index + 1}`}
                         </span>
                       </div>
@@ -561,7 +555,7 @@ function FormBuilder() {
                           type="button"
                           onClick={() => moveField(index, -1)}
                           disabled={index === 0}
-                          className="rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm disabled:opacity-30"
+                          className="rounded border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-2.5 py-1.5 text-sm disabled:opacity-30"
                         >
                           ↑
                         </button>
@@ -570,7 +564,7 @@ function FormBuilder() {
                           type="button"
                           onClick={() => moveField(index, 1)}
                           disabled={index === form.fields.length - 1}
-                          className="rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm disabled:opacity-30"
+                          className="rounded border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-2.5 py-1.5 text-sm disabled:opacity-30"
                         >
                           ↓
                         </button>
@@ -578,7 +572,7 @@ function FormBuilder() {
                         <button
                           type="button"
                           onClick={() => deleteField(index)}
-                          className="rounded border border-red-200 bg-white px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
+                          className="rounded border dark:border-[#15253f] border-red-200 bg-white dark:bg-[#0b1528] px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
                         >
                           Delete
                         </button>
@@ -589,27 +583,27 @@ function FormBuilder() {
                     <div className="grid gap-4 md:grid-cols-2">
                       {/* LABEL */}
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                           Label
                         </label>
                         <input
                           type="text"
                           value={field.label || ""}
                           onChange={(e) => updateField(index, "label", e.target.value)}
-                          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                          className="w-full rounded-lg border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 outline-none focus:border-[#1f6f5b]"
                           placeholder="Full Name"
                         />
                       </div>
 
                       {/* TYPE */}
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                           Field Type
                         </label>
                         <select
                           value={field.type || "text"}
                           onChange={(e) => updateField(index, "type", e.target.value)}
-                          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                          className="w-full rounded-lg border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 outline-none focus:border-[#1f6f5b]"
                         >
                           {fieldTypes.map((type) => (
                             <option key={type.value} value={type.value}>
@@ -621,28 +615,28 @@ function FormBuilder() {
 
                       {/* FIELD NAME */}
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                           Field Name (Key)
                         </label>
                         <input
                           type="text"
                           value={field.name || field.id || ""}
                           onChange={(e) => updateField(index, "name", e.target.value)}
-                          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                          className="w-full rounded-lg border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 outline-none focus:border-[#1f6f5b]"
                           placeholder="fullName"
                         />
                       </div>
 
                       {/* PLACEHOLDER */}
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                           Placeholder
                         </label>
                         <input
                           type="text"
                           value={field.placeholder || ""}
                           onChange={(e) => updateField(index, "placeholder", e.target.value)}
-                          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                          className="w-full rounded-lg border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 outline-none focus:border-[#1f6f5b]"
                           placeholder="Enter your full name"
                         />
                       </div>
@@ -654,9 +648,9 @@ function FormBuilder() {
                         type="checkbox"
                         checked={Boolean(field.required)}
                         onChange={(e) => updateField(index, "required", e.target.checked)}
-                        className="h-4 w-4 rounded border-gray-300"
+                        className="h-4 w-4 rounded border-gray-300 dark:border-[#15253f]"
                       />
-                      <label className="ml-2 text-sm text-gray-700">
+                      <label className="ml-2 text-sm text-gray-700 dark:text-slate-200">
                         Required field
                       </label>
                     </div>
@@ -664,7 +658,7 @@ function FormBuilder() {
                     {/* OPTIONS */}
                     {["select", "radio", "checkbox"].includes(field.type) && (
                       <div className="mt-5">
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                           Options
                         </label>
                         <input
@@ -691,7 +685,7 @@ function FormBuilder() {
                                 .filter(Boolean)
                             )
                           }
-                          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 outline-none focus:border-blue-500"
+                          className="w-full rounded-lg border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 outline-none focus:border-[#1f6f5b]"
                           placeholder="Option 1, Option 2, Option 3"
                         />
                         <p className="mt-1 text-xs text-gray-400">
@@ -705,7 +699,6 @@ function FormBuilder() {
             )}
           </div>
         </div>
-      </div>
     </div>
   );
 }

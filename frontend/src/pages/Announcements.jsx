@@ -109,7 +109,7 @@ function Announcements() {
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <div className="flex items-center gap-2 text-slate-500">
+        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
           <Loader2
             size={20}
             className="animate-spin"
@@ -163,16 +163,16 @@ function Announcements() {
       <div>
         <div className="flex items-center gap-3">
 
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#071629] text-white">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#1f6f5b] hover:bg-[#185848] text-white">
             <Megaphone size={20} />
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               Announcements
             </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Stay updated with the latest bootcamp announcements.
             </p>
           </div>
@@ -185,20 +185,20 @@ function Announcements() {
       ================================================= */}
 
       {announcements.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-6 py-14 text-center shadow-sm">
 
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-[#070e1b]">
             <Megaphone
               size={24}
-              className="text-slate-500"
+              className="text-slate-500 dark:text-slate-400"
             />
           </div>
 
-          <h2 className="mt-4 text-base font-bold text-slate-800">
+          <h2 className="mt-4 text-base font-bold text-slate-800 dark:text-slate-100">
             No announcements
           </h2>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             New announcements will appear here.
           </p>
 
@@ -215,7 +215,7 @@ function Announcements() {
 
             <article
               key={announcement._id}
-              className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md"
+              className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm transition hover:shadow-md"
             >
 
               {/* =========================================
@@ -228,7 +228,7 @@ function Announcements() {
 
                   {/* ICON */}
 
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#071629] text-white">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1f6f5b] hover:bg-[#185848] text-white">
                     <Megaphone size={19} />
                   </div>
 
@@ -238,12 +238,12 @@ function Announcements() {
 
                     <div className="flex flex-wrap items-center gap-2">
 
-                      <h2 className="text-lg font-bold text-slate-900">
+                      <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                         {announcement.title}
                       </h2>
 
                       {announcement.type && (
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+                        <span className="rounded-full bg-slate-100 dark:bg-[#070e1b] px-2.5 py-1 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
                           {announcement.type}
                         </span>
                       )}
@@ -265,9 +265,9 @@ function Announcements() {
                     CONTENT PREVIEW
                 ======================================= */}
 
-                <div className="mt-5 rounded-xl bg-slate-50 p-4">
+                <div className="mt-5 rounded-xl bg-slate-50 dark:bg-[#070e1b] p-4">
 
-                  <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                  <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700 dark:text-slate-200">
                     {announcement.content}
                   </p>
 
@@ -284,7 +284,7 @@ function Announcements() {
                   <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
 
                     {announcement.eventDate && (
-                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
 
                         <CalendarDays
                           size={16}
@@ -302,7 +302,7 @@ function Announcements() {
                     {(announcement.startTime ||
                       announcement.endTime) && (
 
-                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
 
                         <Clock size={16} />
 
@@ -333,7 +333,7 @@ function Announcements() {
                     <p className="text-xs text-slate-400">
                       Posted by{" "}
 
-                      <span className="font-semibold text-slate-600">
+                      <span className="font-semibold text-slate-600 dark:text-slate-300">
                         {announcement.authorId.name ||
                           "Bootcamp Administration"}
                       </span>
@@ -348,7 +348,7 @@ function Announcements() {
                   FOOTER / VIEW DETAILS
               ========================================= */}
 
-              <div className="flex flex-col justify-between gap-3 border-t border-slate-100 bg-slate-50/50 px-5 py-4 sm:flex-row sm:items-center">
+              <div className="flex flex-col justify-between gap-3 border-t border-slate-100 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b]/50 px-5 py-4 sm:flex-row sm:items-center">
 
                 <p className="text-xs text-slate-400">
                   View the complete announcement for
@@ -362,7 +362,7 @@ function Announcements() {
                       announcement._id
                     )
                   }
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#071629] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#10243d]"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#10243d]"
                 >
                   View Details
 

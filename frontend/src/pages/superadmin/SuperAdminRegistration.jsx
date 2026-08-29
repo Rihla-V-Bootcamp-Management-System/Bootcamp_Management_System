@@ -174,25 +174,25 @@ function SuperAdminRegistration() {
 
   if (loading) {
     return (
-      <div className="min-h-full bg-gray-50 p-6">
+      <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-6">
         <div className="mx-auto max-w-5xl">
           <div className="mb-8">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1f6f5b]">
               SYSTEM MANAGEMENT
             </p>
 
-            <h1 className="mt-2 text-3xl font-bold text-gray-900">
+            <h1 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
               Registration
             </h1>
 
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500 dark:text-slate-400">
               Control when students can submit new bootcamp
               applications.
             </p>
           </div>
 
-          <div className="flex min-h-[300px] items-center justify-center rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <p className="text-sm text-gray-500">
+          <div className="flex min-h-[300px] items-center justify-center rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
+            <p className="text-sm text-gray-500 dark:text-slate-400">
               Loading registration settings...
             </p>
           </div>
@@ -206,20 +206,20 @@ function SuperAdminRegistration() {
   // =====================================================
 
   return (
-    <div className="min-h-full bg-gray-50 p-6">
+    <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-6">
       <div className="mx-auto max-w-5xl space-y-6">
 
         {/* PAGE HEADER */}
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1f6f5b]">
             SYSTEM MANAGEMENT
           </p>
 
-          <h1 className="mt-2 text-3xl font-bold text-gray-900">
+          <h1 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
             Registration
           </h1>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500 dark:text-slate-400">
             Manage student registration and control when new
             bootcamp applications can be submitted.
           </p>
@@ -267,16 +267,16 @@ function SuperAdminRegistration() {
             REGISTRATION STATUS
         ================================================= */}
 
-        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="border-b border-gray-100 px-6 py-5">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
+          <div className="border-b border-gray-100 dark:border-[#15253f] px-6 py-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
               <div>
-                <h2 className="text-lg font-bold text-gray-900">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                   Registration Status
                 </h2>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
                   Control whether students can currently submit
                   applications.
                 </p>
@@ -303,15 +303,15 @@ function SuperAdminRegistration() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 bg-gray-50 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 bg-slate-50 dark:bg-[#070e1b] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-sm font-semibold text-gray-800 dark:text-slate-100">
                 {registrationOpen
                   ? "Students can register"
                   : "Student registration is closed"}
               </p>
 
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
                 {registrationOpen
                   ? "New applications are currently being accepted."
                   : "Students cannot submit new applications right now."}
@@ -325,7 +325,7 @@ function SuperAdminRegistration() {
               className={`rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-50 ${
                 registrationOpen
                   ? "bg-red-600 hover:bg-red-700"
-                  : "bg-green-600 hover:bg-green-700"
+                  : "bg-[#1f6f5b] hover:bg-[#185848]"
               }`}
             >
               {updating
@@ -341,13 +341,13 @@ function SuperAdminRegistration() {
             REGISTRATION PERIOD
         ================================================= */}
 
-        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="border-b border-gray-100 px-6 py-5">
-            <h2 className="text-lg font-bold text-gray-900">
+        <section className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
+          <div className="border-b border-gray-100 dark:border-[#15253f] px-6 py-5">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
               Registration Period
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
               Set when student registration opens and closes.
             </p>
           </div>
@@ -360,7 +360,7 @@ function SuperAdminRegistration() {
               <div>
                 <label
                   htmlFor="registration-opens"
-                  className="mb-2 block text-sm font-semibold text-gray-700"
+                  className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200"
                 >
                   Registration Opens
                 </label>
@@ -372,10 +372,10 @@ function SuperAdminRegistration() {
                   onChange={(event) =>
                     setOpensAt(event.target.value)
                   }
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+                  className="w-full rounded-xl border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition focus:border-[#1f6f5b] focus:ring-4 focus:ring-blue-50"
                 />
 
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-500 dark:text-slate-400">
                   Students can begin submitting applications
                   from this time.
                 </p>
@@ -385,7 +385,7 @@ function SuperAdminRegistration() {
               <div>
                 <label
                   htmlFor="registration-closes"
-                  className="mb-2 block text-sm font-semibold text-gray-700"
+                  className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200"
                 >
                   Registration Closes
                 </label>
@@ -397,10 +397,10 @@ function SuperAdminRegistration() {
                   onChange={(event) =>
                     setClosesAt(event.target.value)
                   }
-                  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50"
+                  className="w-full rounded-xl border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition focus:border-[#1f6f5b] focus:ring-4 focus:ring-blue-50"
                 />
 
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-500 dark:text-slate-400">
                   Applications will stop being accepted after
                   this time.
                 </p>
@@ -408,15 +408,15 @@ function SuperAdminRegistration() {
             </div>
 
             {/* SAVE BUTTON */}
-            <div className="mt-8 flex flex-col gap-4 border-t border-gray-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs text-gray-500">
+            <div className="mt-8 flex flex-col gap-4 border-t border-gray-100 dark:border-[#15253f] pt-6 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs text-gray-500 dark:text-slate-400">
                 The opening time must be before the closing time.
               </p>
 
               <button
                 type="submit"
                 disabled={savingPeriod}
-                className="rounded-xl bg-[#071629] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#10263f] disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-xl bg-[#1f6f5b] hover:bg-[#185848] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {savingPeriod
                   ? "Saving..."
@@ -427,18 +427,18 @@ function SuperAdminRegistration() {
         </section>
 
         {/* INFORMATION */}
-        <section className="rounded-2xl border border-blue-100 bg-blue-50 px-6 py-5">
+        <section className="rounded-2xl border border-blue-100 bg-[#e5f1ed] px-6 py-5">
           <div className="flex gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-sm font-bold text-blue-700">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-sm font-bold text-[#185848]">
               i
             </div>
 
             <div>
-              <h3 className="text-sm font-bold text-gray-900">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                 Registration Control
               </h3>
 
-              <p className="mt-1 text-sm leading-6 text-gray-600">
+              <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-slate-300">
                 Use the status button to immediately open or
                 close registration. The registration period
                 controls the scheduled opening and closing times.

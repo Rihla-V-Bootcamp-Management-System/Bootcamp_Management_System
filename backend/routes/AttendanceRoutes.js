@@ -11,6 +11,8 @@ const {
   getAttendance,
   updateAttendance,
   deleteAttendance,
+  getStudentAttendanceSummary,
+  getBatchAttendanceSummary,
 } = require("../controllers/attendanceControllers");
 
 // =========================================================
@@ -61,6 +63,41 @@ router.get(
   getAttendance
 );
 
+router.get(
+  "/student",
+  authMiddleware,
+  getAttendance
+);
+
+// =========================================================
+// GET LOGGED-IN STUDENT ATTENDANCE SUMMARY
+// GET /api/attendance/my
+// =========================================================
+
+router.get(
+  "/my",
+  authMiddleware,
+  getStudentAttendanceSummary
+);
+
+// =========================================================
+// GET BATCH ATTENDANCE SUMMARY (FOR MENTORS & ADMINS)
+// GET /api/attendance/batch-summary/:batchId
+// GET /api/attendance/batch/:batchId
+// =========================================================
+
+router.get(
+  "/batch-summary/:batchId",
+  authMiddleware,
+  getBatchAttendanceSummary
+);
+
+router.get(
+  "/batch/:batchId",
+  authMiddleware,
+  getBatchAttendanceSummary
+);
+
 // =========================================================
 // UPDATE ATTENDANCE
 // PUT /api/attendance/:id
@@ -83,4 +120,4 @@ router.delete(
   deleteAttendance
 );
 
-module.exports = router;
+module.exports = router;

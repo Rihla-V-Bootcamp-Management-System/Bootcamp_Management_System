@@ -78,11 +78,11 @@ function EmailTemplates() {
     <div className="space-y-6">
 
       <div>
-        <h1 className="text-2xl font-bold text-[#071629]">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           Email Templates
         </h1>
 
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
           Manage the emails sent to applicants during the
           registration process.
         </p>
@@ -90,8 +90,8 @@ function EmailTemplates() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
-        <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold text-[#071629]">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-4 shadow-sm">
+          <h2 className="mb-4 text-sm font-semibold text-slate-900 dark:text-white">
             Email Types
           </h2>
 
@@ -103,8 +103,8 @@ function EmailTemplates() {
                 onClick={() => setSelectedType(template.type)}
                 className={`w-full rounded-lg border px-4 py-3 text-left transition ${
                   selectedType === template.type
-                    ? "border-[#071629] bg-[#071629] text-white"
-                    : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                    ? "border-[#071629] bg-[#1f6f5b] hover:bg-[#185848] text-white"
+                    : "border-gray-200 bg-white text-gray-700 hover:bg-slate-50 dark:bg-[#070e1b]"
                 }`}
               >
                 <div className="font-medium">
@@ -125,34 +125,34 @@ function EmailTemplates() {
           </div>
         </div>
 
-        <div className="lg:col-span-2 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
 
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-[#071629]">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                 {selectedType} Email
               </h2>
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-slate-400">
                 Edit the message that applicants will receive.
               </p>
             </div>
 
 
-            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+            <span className="rounded-full bg-gray-100 dark:bg-[#070e1b] px-3 py-1 text-xs font-semibold text-gray-600 dark:text-slate-300">
               {selectedType}
             </span>
           </div>
 
           {loading ? (
-            <div className="py-12 text-center text-sm text-gray-500">
+            <div className="py-12 text-center text-sm text-gray-500 dark:text-slate-400">
               Loading template...
             </div>
           ) : (
             <div className="space-y-5">
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                   Subject
                 </label>
 
@@ -162,13 +162,13 @@ function EmailTemplates() {
                   onChange={(e) =>
                     setSubject(e.target.value)
                   }
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#071629]"
+                  className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] px-4 py-3 text-sm outline-none focus:border-[#071629]"
                   placeholder="Email subject"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                   Plain Text
                 </label>
 
@@ -178,13 +178,13 @@ function EmailTemplates() {
                     setText(e.target.value)
                   }
                   rows={10}
-                  className="w-full resize-y rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#071629]"
+                  className="w-full resize-y rounded-lg border border-gray-300 dark:border-[#15253f] px-4 py-3 text-sm outline-none focus:border-[#071629]"
                   placeholder="Plain text email"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                   HTML
                 </label>
 
@@ -194,17 +194,17 @@ function EmailTemplates() {
                     setHtml(e.target.value)
                   }
                   rows={10}
-                  className="w-full resize-y rounded-lg border border-gray-300 px-4 py-3 font-mono text-sm outline-none focus:border-[#071629]"
+                  className="w-full resize-y rounded-lg border border-gray-300 dark:border-[#15253f] px-4 py-3 font-mono text-sm outline-none focus:border-[#071629]"
                   placeholder="HTML email"
                 />
               </div>
 
-              <div className="rounded-lg bg-gray-50 p-4">
-                <p className="text-xs font-medium text-gray-600">
+              <div className="rounded-lg bg-slate-50 dark:bg-[#070e1b] p-4">
+                <p className="text-xs font-medium text-gray-600 dark:text-slate-300">
                   Available variables
                 </p>
 
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-500 dark:text-slate-400">
                   {"{{fullName}}"}{" "}
                   {"{{studentId}}"}{" "}
                   {"{{otp}}"}{" "}
@@ -229,7 +229,7 @@ function EmailTemplates() {
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="rounded-lg bg-[#071629] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#10243b] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1f6f5b] hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {saving ? "Saving..." : "Save Changes"}
                 </button>

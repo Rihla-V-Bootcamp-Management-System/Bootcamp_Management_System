@@ -412,7 +412,7 @@ function CreateAnnouncement() {
   // =========================================================
 
   return (
-    <div className="min-h-full bg-[#F8FAFC] pb-10">
+    <div className="space-y-6">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
         {/* =================================================
@@ -425,7 +425,7 @@ function CreateAnnouncement() {
             onClick={() =>
               navigate("/admin/announcements")
             }
-            className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-[#071629]"
+            className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-900 dark:text-white"
           >
             <ArrowLeft size={17} />
 
@@ -436,7 +436,7 @@ function CreateAnnouncement() {
 
             <div className="flex items-start gap-4">
 
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#071629] text-white shadow-lg shadow-slate-200">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#1f6f5b] hover:bg-[#185848] text-white shadow-lg shadow-slate-200">
                 <Megaphone size={25} />
               </div>
 
@@ -448,13 +448,13 @@ function CreateAnnouncement() {
                     Create Announcement
                   </h1>
 
-                  <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
+                  <span className="rounded-full border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-3 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
                     {formData.status}
                   </span>
 
                 </div>
 
-                <p className="mt-1.5 max-w-2xl text-sm text-slate-500">
+                <p className="mt-1.5 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
                   Create and publish an announcement to
                   your bootcamp community.
                 </p>
@@ -515,13 +515,13 @@ function CreateAnnouncement() {
                 LEFT — CONTENT
             ================================================= */}
 
-            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <section className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
-              <div className="border-b border-slate-100 px-6 py-5">
+              <div className="border-b border-slate-100 dark:border-[#15253f] px-6 py-5">
 
                 <div className="flex items-center gap-3">
 
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#071629]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#070e1b] text-slate-900 dark:text-white">
                     <FileText size={19} />
                   </div>
 
@@ -530,7 +530,7 @@ function CreateAnnouncement() {
                       Announcement Content
                     </h2>
 
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                       Write the information you want to
                       share.
                     </p>
@@ -547,7 +547,7 @@ function CreateAnnouncement() {
 
                   <div className="mb-2 flex items-center justify-between">
 
-                    <label className="text-sm font-semibold text-slate-700">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                       Title
                       <span className="ml-1 text-red-500">
                         *
@@ -567,7 +567,7 @@ function CreateAnnouncement() {
                     onChange={handleChange}
                     maxLength={200}
                     placeholder="e.g. JavaScript Session Tomorrow"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="w-full rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3.5 text-sm text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 hover:border-slate-300 dark:border-[#15253f] focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
 
                 </div>
@@ -578,14 +578,14 @@ function CreateAnnouncement() {
 
                   <div className="mb-3">
 
-                    <label className="text-sm font-semibold text-slate-700">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                       Category
                       <span className="ml-1 text-red-500">
                         *
                       </span>
                     </label>
 
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                       Choose the type that best describes
                       this announcement.
                     </p>
@@ -626,7 +626,7 @@ function CreateAnnouncement() {
                               <div
                                 className={`flex h-9 w-9 items-center justify-center rounded-lg transition ${
                                   selected
-                                    ? "bg-[#071629] text-white"
+                                    ? "bg-[#1f6f5b] hover:bg-[#185848] text-white"
                                     : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
                                 }`}
                               >
@@ -636,22 +636,22 @@ function CreateAnnouncement() {
                               <div
                                 className={`mt-1 flex h-4 w-4 items-center justify-center rounded-full border ${
                                   selected
-                                    ? "border-[#071629] bg-[#071629]"
+                                    ? "border-[#071629] bg-[#1f6f5b] hover:bg-[#185848]"
                                     : "border-slate-300"
                                 }`}
                               >
                                 {selected && (
-                                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                                  <span className="h-1.5 w-1.5 rounded-full bg-white dark:bg-[#0b1528]" />
                                 )}
                               </div>
 
                             </div>
 
-                            <p className="mt-3 text-xs font-semibold text-slate-900">
+                            <p className="mt-3 text-xs font-semibold text-slate-900 dark:text-white">
                               {category.label}
                             </p>
 
-                            <p className="mt-1 hidden text-[10px] leading-4 text-slate-500 xl:block">
+                            <p className="mt-1 hidden text-[10px] leading-4 text-slate-500 dark:text-slate-400 xl:block">
                               {
                                 category.description
                               }
@@ -671,7 +671,7 @@ function CreateAnnouncement() {
 
                   <div className="mb-2 flex items-center justify-between">
 
-                    <label className="text-sm font-semibold text-slate-700">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                       Message
                       <span className="ml-1 text-red-500">
                         *
@@ -690,7 +690,7 @@ function CreateAnnouncement() {
                     onChange={handleChange}
                     rows={10}
                     placeholder="Write the full announcement here..."
-                    className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3.5 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full resize-none rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm leading-6 text-slate-900 dark:text-white outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
 
                   <p className="mt-2 text-xs text-slate-400">
@@ -710,15 +710,15 @@ function CreateAnnouncement() {
 
             <div className="space-y-6">
 
-              <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <section className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
-                <div className="border-b border-slate-100 px-5 py-5">
+                <div className="border-b border-slate-100 dark:border-[#15253f] px-5 py-5">
 
                   <h2 className="font-semibold text-[#0F172A]">
                     Publishing
                   </h2>
 
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     Decide when this announcement becomes
                     visible.
                   </p>
@@ -731,7 +731,7 @@ function CreateAnnouncement() {
 
                   <div>
 
-                    <label className="mb-3 block text-sm font-semibold text-slate-700">
+                    <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-200">
                       Status
                     </label>
 
@@ -790,22 +790,22 @@ function CreateAnnouncement() {
                             <div
                               className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
                                 selected
-                                  ? "border-[#071629] bg-[#071629]"
+                                  ? "border-[#071629] bg-[#1f6f5b] hover:bg-[#185848]"
                                   : "border-slate-300"
                               }`}
                             >
                               {selected && (
-                                <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                                <span className="h-1.5 w-1.5 rounded-full bg-white dark:bg-[#0b1528]" />
                               )}
                             </div>
 
                             <div>
 
-                              <p className="text-xs font-semibold text-slate-900">
+                              <p className="text-xs font-semibold text-slate-900 dark:text-white">
                                 {option.label}
                               </p>
 
-                              <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
+                              <p className="mt-0.5 text-[11px] leading-4 text-slate-500 dark:text-slate-400">
                                 {
                                   option.description
                                 }
@@ -826,7 +826,7 @@ function CreateAnnouncement() {
                     "Scheduled" && (
                     <div>
 
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
+                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
                         Publish date
                       </label>
 
@@ -837,7 +837,7 @@ function CreateAnnouncement() {
                           formData.publishDate
                         }
                         onChange={handleChange}
-                        className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                        className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-3 py-3 text-sm outline-none focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                       />
 
                     </div>
@@ -845,7 +845,7 @@ function CreateAnnouncement() {
 
                   {/* SUMMARY */}
 
-                  <div className="border-t border-slate-100 pt-5">
+                  <div className="border-t border-slate-100 dark:border-[#15253f] pt-5">
 
                     <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-slate-400">
                       Summary
@@ -855,11 +855,11 @@ function CreateAnnouncement() {
 
                       <div className="flex items-center justify-between gap-4">
 
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           Category
                         </span>
 
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                        <span className="rounded-full bg-slate-100 dark:bg-[#070e1b] px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
                           {selectedCategory?.label ||
                             "Not selected"}
                         </span>
@@ -868,11 +868,11 @@ function CreateAnnouncement() {
 
                       <div className="flex items-center justify-between gap-4">
 
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           Batch
                         </span>
 
-                        <span className="text-right text-xs font-semibold text-slate-700">
+                        <span className="text-right text-xs font-semibold text-slate-700 dark:text-slate-200">
                           {selectedBatch?.name ||
                             "Not selected"}
                         </span>
@@ -881,11 +881,11 @@ function CreateAnnouncement() {
 
                       <div className="flex items-center justify-between gap-4">
 
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           Recipients
                         </span>
 
-                        <span className="text-xs font-semibold text-slate-700">
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                           {formData.recipients
                             .length === 0
                             ? "None"
@@ -901,11 +901,11 @@ function CreateAnnouncement() {
 
                       <div className="flex items-center justify-between gap-4">
 
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           Event
                         </span>
 
-                        <span className="text-right text-xs font-semibold text-slate-700">
+                        <span className="text-right text-xs font-semibold text-slate-700 dark:text-slate-200">
                           {formData.eventDate
                             ? new Date(
                                 `${formData.eventDate}T00:00:00`
@@ -923,11 +923,11 @@ function CreateAnnouncement() {
 
               {/* QUICK INFO */}
 
-              <div className="rounded-2xl border border-slate-200 bg-[#071629] p-5 text-white shadow-sm">
+              <div className="rounded-2xl border border-slate-200 dark:border-[#15253f] bg-[#1f6f5b] hover:bg-[#185848] p-5 text-white shadow-sm">
 
                 <div className="flex items-start gap-3">
 
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-[#0b1528]/10">
                     <Megaphone size={17} />
                   </div>
 
@@ -955,13 +955,13 @@ function CreateAnnouncement() {
               AUDIENCE
           ================================================= */}
 
-          <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
-            <div className="border-b border-slate-100 px-6 py-5">
+            <div className="border-b border-slate-100 dark:border-[#15253f] px-6 py-5">
 
               <div className="flex items-center gap-3">
 
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#071629]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#070e1b] text-slate-900 dark:text-white">
                   <Users size={19} />
                 </div>
 
@@ -971,7 +971,7 @@ function CreateAnnouncement() {
                     Audience
                   </h2>
 
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                     Who should receive this announcement?
                   </p>
 
@@ -1014,7 +1014,7 @@ function CreateAnnouncement() {
                       >
 
                         {selected && (
-                          <div className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-[#071629] text-white">
+                          <div className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-[#1f6f5b] hover:bg-[#185848] text-white">
                             <CheckCircle2
                               size={15}
                             />
@@ -1024,18 +1024,18 @@ function CreateAnnouncement() {
                         <div
                           className={`flex h-12 w-12 items-center justify-center rounded-xl ${
                             selected
-                              ? "bg-[#071629] text-white"
+                              ? "bg-[#1f6f5b] hover:bg-[#185848] text-white"
                               : "bg-slate-100 text-slate-600"
                           }`}
                         >
                           <Icon size={21} />
                         </div>
 
-                        <h3 className="mt-4 font-semibold text-slate-900">
+                        <h3 className="mt-4 font-semibold text-slate-900 dark:text-white">
                           {recipient.label}
                         </h3>
 
-                        <p className="mt-1 text-xs leading-5 text-slate-500">
+                        <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
                           {
                             recipient.description
                           }
@@ -1044,7 +1044,7 @@ function CreateAnnouncement() {
                         <div className="mt-4 text-xs font-semibold">
 
                           {selected ? (
-                            <span className="text-[#071629]">
+                            <span className="text-slate-900 dark:text-white">
                               Selected
                             </span>
                           ) : (
@@ -1064,11 +1064,11 @@ function CreateAnnouncement() {
 
               {formData.recipients.length >
                 0 && (
-                <div className="mt-5 rounded-xl bg-slate-50 px-4 py-3">
+                <div className="mt-5 rounded-xl bg-slate-50 dark:bg-[#070e1b] px-4 py-3">
 
                   <div className="flex flex-wrap items-center gap-2">
 
-                    <span className="text-xs font-semibold text-slate-500">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                       Selected:
                     </span>
 
@@ -1076,7 +1076,7 @@ function CreateAnnouncement() {
                       (recipient) => (
                         <span
                           key={recipient}
-                          className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200"
+                          className="rounded-full bg-white dark:bg-[#0b1528] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm ring-1 ring-slate-200"
                         >
                           {getRecipientLabel(
                             recipient
@@ -1096,13 +1096,13 @@ function CreateAnnouncement() {
               EVENT & RESOURCE
           ================================================= */}
 
-          <section className="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
-            <div className="border-b border-slate-100 px-6 py-5">
+            <div className="border-b border-slate-100 dark:border-[#15253f] px-6 py-5">
 
               <div className="flex items-center gap-3">
 
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-[#071629]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-[#070e1b] text-slate-900 dark:text-white">
                   <Calendar size={19} />
                 </div>
 
@@ -1112,7 +1112,7 @@ function CreateAnnouncement() {
                     Event & Resource
                   </h2>
 
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                     Add the batch, date, time, and optional
                     resource for this announcement.
                   </p>
@@ -1128,7 +1128,7 @@ function CreateAnnouncement() {
 
               <div className="mb-5">
 
-                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
 
                   <Layers size={15} />
 
@@ -1145,7 +1145,7 @@ function CreateAnnouncement() {
                   value={formData.batchId}
                   onChange={handleChange}
                   disabled={loadingBatches}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100 disabled:bg-slate-50"
+                  className="w-full rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 dark:border-[#15253f] focus:border-[#071629] focus:ring-4 focus:ring-slate-100 disabled:bg-slate-50 dark:bg-[#070e1b]"
                 >
 
                   <option value="">
@@ -1188,7 +1188,7 @@ function CreateAnnouncement() {
 
                 <div>
 
-                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
 
                     <Calendar size={15} />
 
@@ -1205,7 +1205,7 @@ function CreateAnnouncement() {
                     name="eventDate"
                     value={formData.eventDate}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
 
                 </div>
@@ -1214,7 +1214,7 @@ function CreateAnnouncement() {
 
                 <div>
 
-                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
 
                     <Clock3 size={15} />
 
@@ -1231,7 +1231,7 @@ function CreateAnnouncement() {
                     name="startTime"
                     value={formData.startTime}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
 
                 </div>
@@ -1240,7 +1240,7 @@ function CreateAnnouncement() {
 
                 <div>
 
-                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
 
                     <Clock3 size={15} />
 
@@ -1257,7 +1257,7 @@ function CreateAnnouncement() {
                     name="endTime"
                     value={formData.endTime}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                    className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                   />
 
                 </div>
@@ -1268,7 +1268,7 @@ function CreateAnnouncement() {
 
               <div className="mt-5">
 
-                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
 
                   <LinkIcon size={15} />
 
@@ -1286,14 +1286,14 @@ function CreateAnnouncement() {
                   value={formData.activeLink}
                   onChange={handleChange}
                   placeholder="https://meet.google.com/..."
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
+                  className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] w-full rounded-xl border border-slate-200 dark:border-[#15253f] px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#071629] focus:ring-4 focus:ring-slate-100"
                 />
 
               </div>
 
-              <div className="mt-4 rounded-xl bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-500">
+              <div className="mt-4 rounded-xl bg-slate-50 dark:bg-[#070e1b] px-4 py-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
 
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
                   Event information:
                 </span>{" "}
                 The date is selected separately from the
@@ -1310,7 +1310,7 @@ function CreateAnnouncement() {
               BOTTOM ACTION BAR
           ================================================= */}
 
-          <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-end">
+          <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-4 shadow-sm sm:flex-row sm:items-center sm:justify-end">
 
             <button
               type="button"
@@ -1318,7 +1318,7 @@ function CreateAnnouncement() {
               onClick={() =>
                 navigate("/admin/announcements")
               }
-              className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
+              className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-5 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300 transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:opacity-50"
             >
               Cancel
             </button>
@@ -1331,7 +1331,7 @@ function CreateAnnouncement() {
               onClick={(event) =>
                 handleSubmit(event, "Draft")
               }
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-[#071629] transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-5 py-3 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-slate-50 dark:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-60"
             >
 
               {creating &&
@@ -1358,7 +1358,7 @@ function CreateAnnouncement() {
                   "Published"
                 )
               }
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#071629] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#10243D] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1f6f5b] hover:bg-[#185848] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1f6f5b] hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-60"
             >
 
               {creating &&

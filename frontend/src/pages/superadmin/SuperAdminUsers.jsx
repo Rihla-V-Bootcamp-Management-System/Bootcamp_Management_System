@@ -30,8 +30,6 @@ function SuperAdminUsers() {
   const [role, setRole] = useState("mentor");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  const [deletingId, setDeletingId] = useState(null);
-  const [userToDelete, setUserToDelete] = useState(null);
 
   const loadUsers = useCallback(async () => {
     try {
@@ -92,40 +90,6 @@ function SuperAdminUsers() {
       );
     } finally {
       setSaving(false);
-    }
-  };
-
-  const confirmDeleteUser = async () => {
-    if (!userToDelete) return;
-    const { id: userId, name: userName } = userToDelete;
-
-    try {
-      setDeletingId(userId);
-      setMessage("");
-      setError("");
-
-      const response = await apiClient.delete(`/superadmin/users/${userId}`);
-      const data = response.data;
-
-      setMessage(data.message || `${userName} has been removed successfully.`);
-
-      // Remove deleted user immediately from the frontend.
-      setUsers((currentUsers) =>
-        currentUsers.filter(
-          (user) => user._id !== userId
-        )
-      );
-
-      setUserToDelete(null);
-
-      // Refresh from backend to keep frontend and database in sync.
-      await loadUsers();
-    } catch (err) {
-      setError(
-        err.response?.data?.message || err.message || "Failed to delete user"
-      );
-    } finally {
-      setDeletingId(null);
     }
   };
 
@@ -432,7 +396,7 @@ function SuperAdminUsers() {
             </div>
 
             <select
-              className="users-status-filter"
+              className="dark:bg-[#070e1b] dark:text-white dark:border-[#15253f] users-status-filter"
               value={statusFilter}
               onChange={(e) => {
                 setStatusFilter(e.target.value);
@@ -462,14 +426,13 @@ function SuperAdminUsers() {
                 <th>Role</th>
                 <th>Status</th>
                 <th>User ID</th>
-                <th></th>
               </tr>
             </thead>
 
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="5">
+                  <td colSpan="4">
                     <div className="users-empty">
                       Loading users...
                     </div>
@@ -487,22 +450,17 @@ function SuperAdminUsers() {
                         ? "Pending"
                         : "Active";
 
-                    const canDelete =
-                      user.role === "admin" ||
-                      user.role === "mentor" ||
-                      user.role === "superadmin";
-
                     return (
                       <tr key={user._id}>
                         <td>
                           <div className="user-info">
                             <div className="user-avatar">
-                              {(user.name || "?")
-                                .charAt(0)
-                                .toUpperCase()}
+                              {getInitials(
+                                user.name
+                              )}
                             </div>
 
-                            <div>
+                            <div className="user-details">
                               <strong>
                                 {user.name}
                               </strong>
@@ -538,49 +496,13 @@ function SuperAdminUsers() {
                         <td>
                           {user.userID || "—"}
                         </td>
-
-                        <td>
-                          {canDelete ? (
-                            <button
-                              type="button"
-                              className="user-action-button text-red-500 hover:text-red-700"
-                              title="Delete user"
-                              disabled={
-                                deletingId ===
-                                user._id
-                              }
-                              onClick={() =>
-                                setUserToDelete({
-                                  id: user._id,
-                                  name: user.name,
-                                  role: displayRole,
-                                })
-                              }
-                            >
-                              <Trash2
-                                size={17}
-                              />
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              className="user-action-button"
-                              disabled
-                              title="No actions available"
-                            >
-                              <MoreHorizontal
-                                size={18}
-                              />
-                            </button>
-                          )}
-                        </td>
                       </tr>
                     );
                   })}
 
                   {filteredUsers.length === 0 && (
                     <tr>
-                      <td colSpan="5">
+                      <td colSpan="4">
                         <div className="users-empty">
                           No users found.
                         </div>
@@ -635,47 +557,6 @@ function SuperAdminUsers() {
           </div>
         </div>
       </div>
-
-      {/* DELETE CONFIRMATION MODAL */}
-      {userToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center gap-3 text-red-600">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                <AlertTriangle size={24} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Delete User</h3>
-                <p className="text-xs text-gray-500">This action cannot be undone</p>
-              </div>
-            </div>
-
-            <p className="mt-4 text-sm text-gray-600">
-              Are you sure you want to delete <strong className="text-gray-900">{userToDelete.name}</strong> ({userToDelete.role})? All associated permissions and access will be permanently removed.
-            </p>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setUserToDelete(null)}
-                disabled={Boolean(deletingId)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={confirmDeleteUser}
-                disabled={Boolean(deletingId)}
-                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 disabled:opacity-50"
-              >
-                <Trash2 size={16} />
-                {deletingId ? "Deleting..." : "Delete User"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

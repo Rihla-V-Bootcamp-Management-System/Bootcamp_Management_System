@@ -157,7 +157,7 @@ function Analytics() {
       ================================================= */}
 
       <div>
-        <h1 className="text-2xl font-bold text-[#071629]">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           Analytics
         </h1>
 
@@ -178,7 +178,7 @@ function Analytics() {
           return (
             <div
               key={card.title}
-              className="rounded-xl border border-[#E5E0D5] bg-white p-5 shadow-sm"
+              className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-sm"
             >
               <div className="flex items-start justify-between">
 
@@ -187,7 +187,7 @@ function Analytics() {
                     {card.title}
                   </p>
 
-                  <p className="mt-2 text-3xl font-bold text-[#071629]">
+                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
                     {card.value}
                   </p>
 
@@ -199,7 +199,7 @@ function Analytics() {
                 <div className="rounded-lg bg-[#F1F4F8] p-3">
                   <Icon
                     size={21}
-                    className="text-[#1D3866]"
+                    className="text-[#1f6f5b] dark:text-emerald-400"
                   />
                 </div>
 
@@ -216,19 +216,19 @@ function Analytics() {
 
       <div className="grid gap-6 lg:grid-cols-3">
 
-        <div className="rounded-xl border border-[#E5E0D5] bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
 
           <div className="flex items-center gap-3">
 
             <div className="rounded-lg bg-[#F1F4F8] p-3">
               <Users
                 size={20}
-                className="text-[#1D3866]"
+                className="text-[#1f6f5b] dark:text-emerald-400"
               />
             </div>
 
             <div>
-              <h2 className="font-semibold text-[#071629]">
+              <h2 className="font-semibold text-slate-900 dark:text-white">
                 Students
               </h2>
 
@@ -239,25 +239,25 @@ function Analytics() {
 
           </div>
 
-          <p className="mt-6 text-4xl font-bold text-[#071629]">
+          <p className="mt-6 text-4xl font-bold text-slate-900 dark:text-white">
             {overview.students || 0}
           </p>
 
         </div>
 
-        <div className="rounded-xl border border-[#E5E0D5] bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
 
           <div className="flex items-center gap-3">
 
             <div className="rounded-lg bg-[#F1F4F8] p-3">
               <GraduationCap
                 size={20}
-                className="text-[#1D3866]"
+                className="text-[#1f6f5b] dark:text-emerald-400"
               />
             </div>
 
             <div>
-              <h2 className="font-semibold text-[#071629]">
+              <h2 className="font-semibold text-slate-900 dark:text-white">
                 Mentors
               </h2>
 
@@ -268,25 +268,25 @@ function Analytics() {
 
           </div>
 
-          <p className="mt-6 text-4xl font-bold text-[#071629]">
+          <p className="mt-6 text-4xl font-bold text-slate-900 dark:text-white">
             {overview.mentors || 0}
           </p>
 
         </div>
 
-        <div className="rounded-xl border border-[#E5E0D5] bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
 
           <div className="flex items-center gap-3">
 
             <div className="rounded-lg bg-[#F1F4F8] p-3">
               <Layers
                 size={20}
-                className="text-[#1D3866]"
+                className="text-[#1f6f5b] dark:text-emerald-400"
               />
             </div>
 
             <div>
-              <h2 className="font-semibold text-[#071629]">
+              <h2 className="font-semibold text-slate-900 dark:text-white">
                 Batches
               </h2>
 
@@ -297,7 +297,7 @@ function Analytics() {
 
           </div>
 
-          <p className="mt-6 text-4xl font-bold text-[#071629]">
+          <p className="mt-6 text-4xl font-bold text-slate-900 dark:text-white">
             {overview.batches || 0}
           </p>
 
@@ -309,11 +309,11 @@ function Analytics() {
           BATCH PERFORMANCE
       ================================================= */}
 
-      <div className="rounded-xl border border-[#E5E0D5] bg-white shadow-sm">
+      <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
         <div className="border-b border-[#E5E0D5] p-6">
 
-          <h2 className="text-lg font-semibold text-[#071629]">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
             Batch Overview
           </h2>
 
@@ -385,12 +385,12 @@ function Analytics() {
                         <div className="rounded-lg bg-[#F1F4F8] p-2.5">
                           <Layers
                             size={18}
-                            className="text-[#1D3866]"
+                            className="text-[#1f6f5b] dark:text-emerald-400"
                           />
                         </div>
 
                         <div>
-                          <p className="text-sm font-semibold text-[#071629]">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
                             {batch.name}
                           </p>
 
@@ -414,7 +414,7 @@ function Analytics() {
                           className="text-[#8A96A8]"
                         />
 
-                        <span className="text-sm font-semibold text-[#071629]">
+                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
                           {batch.students}
                         </span>
 
@@ -433,7 +433,7 @@ function Analytics() {
                           className="text-[#8A96A8]"
                         />
 
-                        <span className="text-sm font-semibold text-[#071629]">
+                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
                           {batch.mentors}
                         </span>
 

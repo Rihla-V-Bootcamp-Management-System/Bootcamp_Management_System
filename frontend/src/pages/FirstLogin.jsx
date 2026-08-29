@@ -91,25 +91,25 @@ function FirstLogin() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+    <main className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] dark:bg-[#070e1b] flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-white dark:bg-[#0b1528] rounded-2xl shadow-sm border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] p-8">
 
         {/* ICON */}
 
         <div className="flex justify-center mb-5">
-          <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center">
-            <ShieldCheck className="w-7 h-7 text-blue-600" />
+          <div className="w-14 h-14 rounded-full bg-[#e5f1ed] flex items-center justify-center">
+            <ShieldCheck className="w-7 h-7 text-[#1f6f5b]" />
           </div>
         </div>
 
         {/* HEADER */}
 
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             First Login
           </h1>
 
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">
             Enter the User ID and OTP provided to you.
           </p>
         </div>
@@ -126,7 +126,7 @@ function FirstLogin() {
           <div>
             <label
               htmlFor="userId"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2"
             >
               User ID
             </label>
@@ -146,7 +146,7 @@ function FirstLogin() {
                 }
                 placeholder="Enter your User ID"
                 autoComplete="off"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-[#15253f] rounded-lg outline-none focus:ring-2 focus:ring-[#1f6f5b] focus:border-[#1f6f5b]"
               />
             </div>
           </div>
@@ -156,7 +156,7 @@ function FirstLogin() {
           <div>
             <label
               htmlFor="otp"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-2"
             >
               OTP
             </label>
@@ -177,7 +177,7 @@ function FirstLogin() {
               placeholder="Enter your OTP"
               maxLength={6}
               autoComplete="one-time-code"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-[#15253f] rounded-lg outline-none focus:ring-2 focus:ring-[#1f6f5b] focus:border-[#1f6f5b]"
             />
           </div>
 
@@ -196,7 +196,7 @@ function FirstLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="w-full py-3 bg-[#1f6f5b] text-white font-medium rounded-lg hover:bg-[#185848] disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             {loading
               ? "Verifying..."

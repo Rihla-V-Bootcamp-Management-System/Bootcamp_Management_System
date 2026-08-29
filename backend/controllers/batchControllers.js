@@ -536,13 +536,113 @@ const assignStudentsToMentor = async (req, res) => {
 };
 
 // =========================================================
+// DELETE / ARCHIVE BATCH
+// =========================================================
+
+const deleteBatch = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const batch = await Batch.findById(id);
+    if (!batch) {
+      return res.status(404).json({
+        success: false,
+        message: "Batch not found",
+      });
+    }
+
+    // Check if batch has active students or mentors before hard delete
+    const studentCount = batch.studentIds ? batch.studentIds.length : 0;
+    const mentorCount = batch.mentorIds ? batch.mentorIds.length : 0;
+
+    // Hard delete from database and unassign batchId from associated users
+    await User.updateMany(
+      { batchId: id },
+      { $unset: { batchId: "", assignedMentor: "" } }
+    );
+
+    await Batch.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+      message: `Batch "${batch.name}" deleted successfully (${studentCount} students and ${mentorCount} mentors unassigned).`,
+    });
+  } catch (error) {
+    console.error("Delete batch error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete batch",
+      error: error.message,
+    });
+  }
+};
+
+// =========================================================
+// GET MENTOR BATCHES
+// GET /api/batches/mentor
+// =========================================================
+
+const getMentorBatches = async (req, res) => {
+  try {
+    const userRole = String(req.user?.role || "").toLowerCase();
+    const userId = req.user?._id || req.user?.id;
+    const emailQuery = req.query.email;
+
+    let targetMentorId = userId;
+
+    if (emailQuery) {
+      const mentorUser = await User.findOne({
+        email: String(emailQuery).trim().toLowerCase(),
+      });
+      if (mentorUser) {
+        targetMentorId = mentorUser._id;
+      }
+    }
+
+    let filter = {};
+    if (userRole === "admin" || userRole === "superadmin") {
+      if (emailQuery && targetMentorId) {
+        filter = { mentorIds: targetMentorId };
+      } else {
+        filter = {}; // return all batches for admin
+      }
+    } else {
+      filter = { mentorIds: targetMentorId };
+    }
+
+    const batches = await Batch.find(filter)
+      .populate("mentorIds", "name email role gender")
+      .populate("studentIds", "name email role gender userID")
+      .sort({ startDate: -1, createdAt: -1 });
+
+    for (const batch of batches) {
+      await syncBatchStatus(batch);
+    }
+
+    return res.status(200).json({
+      success: true,
+      batches,
+    });
+  } catch (error) {
+    console.error("Get mentor batches error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load mentor batches",
+      error: error.message,
+    });
+  }
+};
+
+// =========================================================
 // EXPORT
 // =========================================================
 
 module.exports = {
   getBatches,
   getBatchById,
+  getMentorBatches,
   createBatch,
   updateBatch,
+  deleteBatch,
   assignStudentsToMentor,
-};
+};

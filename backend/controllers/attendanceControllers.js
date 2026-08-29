@@ -1424,6 +1424,268 @@ const deleteAttendance = async (
 };
 
 // =========================================================
+// GET STUDENT ATTENDANCE SUMMARY (MY ATTENDANCE)
+// GET /api/attendance/my
+// =========================================================
+
+const getStudentAttendanceSummary = async (req, res) => {
+  try {
+    let studentId = getUserId(req);
+
+    // If caller is admin or mentor and passed ?studentId=, allow look up
+    if ((isAdmin(req) || isMentor(req)) && req.query.studentId) {
+      studentId = req.query.studentId;
+    }
+
+    if (!studentId || !isValidObjectId(studentId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid student identifier",
+      });
+    }
+
+    const records = await Attendance.find({ studentId })
+      .populate(
+        "sessionId",
+        "title week sessionDate status startedAt endedAt totalMinutes"
+      )
+      .populate("batchId", "name batchName")
+      .populate("markedBy", "name email")
+      .sort({
+        sessionDate: -1,
+        createdAt: -1,
+      });
+
+    const totalSessions = records.length;
+    const totalAttendedMinutes = records.reduce(
+      (sum, r) => sum + (r.attendedMinutes || 0),
+      0
+    );
+
+    const statusBreakdown = {
+      Present: records.filter((r) => r.status === "Present").length,
+      Late: records.filter((r) => r.status === "Late").length,
+      Absent: records.filter((r) => r.status === "Absent").length,
+      Excused: records.filter((r) => r.status === "Excused").length,
+    };
+
+    const overallAttendancePercentage =
+      totalSessions > 0
+        ? Math.round(
+            records.reduce(
+              (sum, r) => sum + (r.attendancePercentage || 0),
+              0
+            ) / totalSessions
+          )
+        : 0;
+
+    const formattedSessions = records.map((record) => ({
+      _id: record._id,
+      sessionId: record.sessionId?._id || record.sessionId,
+      sessionTitle:
+        record.sessionId?.title || "Daily Session",
+      week: record.week || record.sessionId?.week || 1,
+      sessionDate:
+        record.sessionDate || record.sessionId?.sessionDate,
+      sessionStartTime:
+        record.sessionStartTime || record.sessionId?.startedAt,
+      sessionEndTime:
+        record.sessionEndTime || record.sessionId?.endedAt,
+      checkInTime: record.checkInTime,
+      checkOutTime: record.checkOutTime,
+      attendedMinutes: record.attendedMinutes || 0,
+      attendancePercentage: record.attendancePercentage || 0,
+      status: record.status || "Absent",
+      calculatedStatus: record.calculatedStatus || "Absent",
+      manuallyOverridden: record.manuallyOverridden || false,
+      source: record.source || "manual",
+      excuseReason: record.excuseReason || "",
+      notes: record.notes || "",
+      batchName:
+        record.batchId?.name || record.batchId?.batchName || "",
+    }));
+
+    return res.status(200).json({
+      success: true,
+      summary: {
+        totalSessions,
+        totalAttendedMinutes,
+        overallAttendancePercentage,
+        statusBreakdown,
+      },
+      attendance: formattedSessions,
+      records: formattedSessions, // backward compatibility
+    });
+  } catch (error) {
+    console.error("GET STUDENT ATTENDANCE SUMMARY ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to load student attendance summary",
+    });
+  }
+};
+
+// =========================================================
+// GET BATCH ATTENDANCE SUMMARY (MENTOR / ADMIN)
+// GET /api/attendance/batch-summary/:batchId
+// =========================================================
+
+const getBatchAttendanceSummary = async (req, res) => {
+  try {
+    const { batchId } = req.params;
+
+    if (!batchId || !isValidObjectId(batchId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid batchId",
+      });
+    }
+
+    const batch = await Batch.findById(batchId)
+      .populate("studentIds", "name email userID gender role firstName lastName")
+      .populate("mentorIds", "name email");
+
+    if (!batch) {
+      return res.status(404).json({
+        success: false,
+        message: "Batch not found",
+      });
+    }
+
+    // Role check: Admin / Superadmin or assigned mentor
+    const userId = getUserId(req);
+    if (!isAdmin(req) && !isMentorAssigned(batch, userId)) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to view attendance for this batch",
+      });
+    }
+
+    const filter = { batchId };
+    if (req.query.week) {
+      const weekNum = Number(req.query.week);
+      if (!Number.isNaN(weekNum) && weekNum > 0) {
+        filter.week = weekNum;
+      }
+    }
+
+    const allAttendance = await Attendance.find(filter)
+      .populate(
+        "sessionId",
+        "title week sessionDate status startedAt endedAt totalMinutes"
+      )
+      .populate(
+        "studentId",
+        "name email userID gender firstName lastName"
+      )
+      .sort({
+        sessionDate: -1,
+        createdAt: -1,
+      });
+
+    // Students list from batch
+    const studentsList = Array.isArray(batch.studentIds) ? batch.studentIds : [];
+
+    const studentSummaries = studentsList.map((student) => {
+      const studentIdStr = String(student._id || student);
+      const studentRecords = allAttendance.filter(
+        (r) =>
+          String(r.studentId?._id || r.studentId) === studentIdStr
+      );
+
+      const totalMinutes = studentRecords.reduce(
+        (sum, r) => sum + (r.attendedMinutes || 0),
+        0
+      );
+
+      const avgPercentage =
+        studentRecords.length > 0
+          ? Math.round(
+              studentRecords.reduce(
+                (sum, r) => sum + (r.attendancePercentage || 0),
+                0
+              ) / studentRecords.length
+            )
+          : 0;
+
+      const statusCounts = {
+        Present: studentRecords.filter((r) => r.status === "Present").length,
+        Late: studentRecords.filter((r) => r.status === "Late").length,
+        Absent: studentRecords.filter((r) => r.status === "Absent").length,
+        Excused: studentRecords.filter((r) => r.status === "Excused").length,
+      };
+
+      let suggestedStatus = "Absent";
+      if (avgPercentage >= 90) suggestedStatus = "Present";
+      else if (avgPercentage >= 50) suggestedStatus = "Late";
+
+      const studentName =
+        student.name ||
+        `${student.firstName || ""} ${student.lastName || ""}`.trim() ||
+        "Student";
+
+      return {
+        student: {
+          _id: student._id || student,
+          name: studentName,
+          email: student.email || "",
+          userID: student.userID || "",
+          gender: student.gender || "",
+        },
+        // Direct top-level fields for convenience
+        _id: student._id || student,
+        name: studentName,
+        email: student.email || "",
+        userID: student.userID || "",
+        totalSessions: studentRecords.length,
+        totalAttendedMinutes: totalMinutes,
+        overallAttendancePercentage: avgPercentage,
+        statusCounts,
+        suggestedStatus,
+        status: suggestedStatus, // fallback
+        sessions: studentRecords.map((r) => ({
+          _id: r._id,
+          sessionId: r.sessionId?._id || r.sessionId,
+          sessionTitle:
+            r.sessionId?.title || `Week ${r.week} Session`,
+          week: r.week,
+          sessionDate: r.sessionDate,
+          sessionStartTime: r.sessionStartTime,
+          sessionEndTime: r.sessionEndTime,
+          checkInTime: r.checkInTime,
+          checkOutTime: r.checkOutTime,
+          attendedMinutes: r.attendedMinutes || 0,
+          attendancePercentage: r.attendancePercentage || 0,
+          status: r.status,
+          calculatedStatus: r.calculatedStatus,
+          source: r.source || "manual",
+          notes: r.notes || r.excuseReason || "",
+        })),
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      batch: {
+        _id: batch._id,
+        name: batch.name || batch.batchName,
+        startDate: batch.startDate,
+        endDate: batch.endDate,
+      },
+      totalStudents: studentSummaries.length,
+      studentSummaries,
+      students: studentSummaries, // for backward compat
+    });
+  } catch (error) {
+    console.error("GET BATCH ATTENDANCE SUMMARY ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to load batch attendance summary",
+    });
+  }
+};
+
+// =========================================================
 // EXPORTS
 // =========================================================
 
@@ -1434,4 +1696,6 @@ module.exports = {
   getAttendance,
   updateAttendance,
   deleteAttendance,
-};
+  getStudentAttendanceSummary,
+  getBatchAttendanceSummary,
+};

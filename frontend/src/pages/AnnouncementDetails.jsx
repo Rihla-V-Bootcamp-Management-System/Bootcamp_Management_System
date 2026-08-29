@@ -136,7 +136,7 @@ function AnnouncementDetail() {
   if (loading) {
     return (
       <div className="flex min-h-[500px] items-center justify-center">
-        <div className="flex items-center gap-3 text-slate-500">
+        <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400">
           <Loader2
             size={24}
             className="animate-spin"
@@ -163,7 +163,7 @@ function AnnouncementDetail() {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900 dark:text-white"
         >
           <ArrowLeft size={17} />
           Back to Announcements
@@ -217,26 +217,26 @@ function AnnouncementDetail() {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900 dark:text-white"
         >
           <ArrowLeft size={17} />
           Back to Announcements
         </button>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-10 text-center shadow-sm">
 
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-[#070e1b]">
             <Megaphone
               size={24}
               className="text-slate-400"
             />
           </div>
 
-          <h2 className="mt-4 text-lg font-bold text-slate-900">
+          <h2 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">
             Announcement not found
           </h2>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
             This announcement may have been removed
             or is no longer available.
           </p>
@@ -261,7 +261,7 @@ function AnnouncementDetail() {
       <button
         type="button"
         onClick={() => navigate(-1)}
-        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900 dark:text-white"
       >
         <ArrowLeft size={17} />
         Back to Announcements
@@ -271,19 +271,19 @@ function AnnouncementDetail() {
           MAIN CARD
       ================================================= */}
 
-      <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
         {/* =================================================
             HEADER
         ================================================= */}
 
-        <div className="border-b border-slate-200 p-6 sm:p-8">
+        <div className="border-b border-slate-200 dark:border-[#15253f] p-6 sm:p-8">
 
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
 
             {/* ICON */}
 
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#071629] text-white shadow-sm">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#1f6f5b] hover:bg-[#185848] text-white shadow-sm">
               <Megaphone size={25} />
             </div>
 
@@ -296,7 +296,7 @@ function AnnouncementDetail() {
               <div className="flex flex-wrap items-center gap-2">
 
                 {announcement.type && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-[#070e1b] px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
                     <Tag size={13} />
                     {announcement.type}
                   </span>
@@ -310,7 +310,7 @@ function AnnouncementDetail() {
                         ? "bg-green-50 text-green-700"
                         : announcement.status ===
                           "Scheduled"
-                        ? "bg-blue-50 text-blue-700"
+                        ? "bg-[#e5f1ed] text-[#185848]"
                         : "bg-slate-100 text-slate-600"
                     }`}
                   >
@@ -322,13 +322,13 @@ function AnnouncementDetail() {
 
               {/* TITLE */}
 
-              <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                 {announcement.title}
               </h1>
 
               {/* PUBLISHED DATE */}
 
-              <p className="mt-3 text-sm text-slate-500">
+              <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
                 Published{" "}
                 {formatDateTime(
                   announcement.publishDate ||
@@ -348,9 +348,9 @@ function AnnouncementDetail() {
 
         <div className="p-6 sm:p-8">
 
-          <div className="rounded-2xl bg-slate-50 p-5 sm:p-6">
+          <div className="rounded-2xl bg-slate-50 dark:bg-[#070e1b] p-5 sm:p-6">
 
-            <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700 sm:text-base">
+            <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700 dark:text-slate-200 sm:text-base">
               {announcement.content}
             </p>
 
@@ -362,7 +362,7 @@ function AnnouncementDetail() {
 
           <div className="mt-8">
 
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
               Announcement Information
             </h2>
 
@@ -370,11 +370,11 @@ function AnnouncementDetail() {
 
               {/* EVENT DATE */}
 
-              <div className="rounded-xl border border-slate-200 p-4">
+              <div className="rounded-xl border border-slate-200 dark:border-[#15253f] p-4">
 
                 <div className="flex items-start gap-3">
 
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-[#070e1b] text-slate-600 dark:text-slate-300">
                     <CalendarDays size={17} />
                   </div>
 
@@ -384,7 +384,7 @@ function AnnouncementDetail() {
                       Event Date
                     </p>
 
-                    <p className="mt-1 text-sm font-semibold text-slate-800">
+                    <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">
                       {announcement.eventDate
                         ? formatDate(
                             announcement.eventDate
@@ -400,11 +400,11 @@ function AnnouncementDetail() {
 
               {/* EVENT TIME */}
 
-              <div className="rounded-xl border border-slate-200 p-4">
+              <div className="rounded-xl border border-slate-200 dark:border-[#15253f] p-4">
 
                 <div className="flex items-start gap-3">
 
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-[#070e1b] text-slate-600 dark:text-slate-300">
                     <Clock size={17} />
                   </div>
 
@@ -414,7 +414,7 @@ function AnnouncementDetail() {
                       Event Time
                     </p>
 
-                    <p className="mt-1 text-sm font-semibold text-slate-800">
+                    <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">
                       {announcement.startTime ||
                       announcement.endTime
                         ? `${announcement.startTime || ""}${
@@ -437,11 +437,11 @@ function AnnouncementDetail() {
 
               {/* RECIPIENTS */}
 
-              <div className="rounded-xl border border-slate-200 p-4">
+              <div className="rounded-xl border border-slate-200 dark:border-[#15253f] p-4">
 
                 <div className="flex items-start gap-3">
 
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-[#070e1b] text-slate-600 dark:text-slate-300">
                     <Users size={17} />
                   </div>
 
@@ -451,7 +451,7 @@ function AnnouncementDetail() {
                       Recipients
                     </p>
 
-                    <p className="mt-1 text-sm font-semibold text-slate-800">
+                    <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">
                       {formatRecipients(
                         announcement.recipients
                       )}
@@ -465,11 +465,11 @@ function AnnouncementDetail() {
 
               {/* AUTHOR */}
 
-              <div className="rounded-xl border border-slate-200 p-4">
+              <div className="rounded-xl border border-slate-200 dark:border-[#15253f] p-4">
 
                 <div className="flex items-start gap-3">
 
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-[#070e1b] text-slate-600 dark:text-slate-300">
                     <Megaphone size={17} />
                   </div>
 
@@ -479,7 +479,7 @@ function AnnouncementDetail() {
                       Posted By
                     </p>
 
-                    <p className="mt-1 text-sm font-semibold text-slate-800">
+                    <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">
                       {announcement.authorId?.name ||
                         "Bootcamp Administration"}
                     </p>
@@ -501,17 +501,17 @@ function AnnouncementDetail() {
           {announcement.activeLink && (
             <div className="mt-8">
 
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">
                 Related Link
               </h2>
 
-              <div className="mt-4 rounded-xl border border-slate-200 p-4">
+              <div className="mt-4 rounded-xl border border-slate-200 dark:border-[#15253f] p-4">
 
                 <a
                   href={announcement.activeLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg bg-[#071629] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#10243d]"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#10243d]"
                 >
                   <LinkIcon size={16} />
 
@@ -531,13 +531,13 @@ function AnnouncementDetail() {
             FOOTER
         ================================================= */}
 
-        <div className="border-t border-slate-200 bg-slate-50/70 px-6 py-4 sm:px-8">
+        <div className="border-t border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b]/70 px-6 py-4 sm:px-8">
 
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
 
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Announcement ID:{" "}
-              <span className="font-medium text-slate-600">
+              <span className="font-medium text-slate-600 dark:text-slate-300">
                 {announcement._id}
               </span>
             </p>
@@ -545,7 +545,7 @@ function AnnouncementDetail() {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-100 dark:bg-[#070e1b]"
             >
               <ArrowLeft size={16} />
               Back

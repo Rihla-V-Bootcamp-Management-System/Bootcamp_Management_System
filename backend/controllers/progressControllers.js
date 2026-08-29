@@ -30,22 +30,27 @@ const isStudentInBatch = (batch, studentId) => {
 const createProgress = async (req, res) => {
   try {
     const role = getRole(req.user);
+    let { studentId, topic, status, notes } = req.body;
 
-    if (role !== "student") {
+    if (role === "student") {
+      studentId = req.user._id;
+    } else if (role === "mentor" || role === "admin" || role === "superadmin") {
+      if (!studentId) {
+        return res.status(400).json({
+          message: "studentId is required when mentor or admin is updating progress",
+        });
+      }
+    } else {
       return res.status(403).json({
-        message: "Only students can update progress",
+        message: "Access denied",
       });
     }
-
-    const { topic, status, notes } = req.body;
 
     if (!topic || !status) {
       return res.status(400).json({
         message: "topic and status are required",
       });
     }
-
-    const studentId = req.user._id;
 
     const progress = await Progress.findOneAndUpdate(
       {
@@ -126,26 +131,14 @@ const getProgress = async (req, res) => {
         });
       }
 
-      const batches = await Batch.find({
-        mentorIds: req.user._id,
-        studentIds: studentId,
-      });
-
-      if (batches.length === 0) {
-        return res.status(403).json({
-          message:
-            "This student is not assigned to your batch",
-        });
-      }
-
       filter.studentId = studentId;
     }
 
     // =====================================================
-    // ADMIN
+    // ADMIN / SUPERADMIN
     // =====================================================
 
-    else if (role === "admin") {
+    else if (role === "admin" || role === "superadmin") {
       if (studentId) {
         filter.studentId = studentId;
       }

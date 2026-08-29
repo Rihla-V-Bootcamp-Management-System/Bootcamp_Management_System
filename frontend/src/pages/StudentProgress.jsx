@@ -126,11 +126,11 @@ function StudentProgress() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] dark:bg-[#070e1b] p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">My progress</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My progress</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
             Update your progress for each bootcamp topic.
           </p>
         </div>
@@ -152,10 +152,10 @@ function StudentProgress() {
         )}
 
         {loading ? (
-          <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-white shadow-sm">
+          <div className="flex min-h-[400px] items-center justify-center rounded-2xl bg-white dark:bg-[#0b1528] shadow-sm">
             <div className="text-center">
-              <RefreshCw size={32} className="mx-auto animate-spin text-gray-500" />
-              <p className="mt-3 text-sm text-gray-500">Loading your progress...</p>
+              <RefreshCw size={32} className="mx-auto animate-spin text-gray-500 dark:text-slate-400" />
+              <p className="mt-3 text-sm text-gray-500 dark:text-slate-400">Loading your progress...</p>
             </div>
           </div>
         ) : (
@@ -164,12 +164,12 @@ function StudentProgress() {
               <SummaryCard
                 label="Overall progress"
                 value={`${overallProgress}%`}
-                icon={<BookOpen size={22} className="text-gray-700" />}
+                icon={<BookOpen size={22} className="text-gray-700 dark:text-slate-200" />}
                 iconBg="bg-gray-100"
                 footer={
-                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-gray-100">
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-[#070e1b]">
                     <div
-                      className="h-full rounded-full bg-gray-900 transition-all"
+                      className="h-full rounded-full bg-[#1f6f5b] transition-all"
                       style={{ width: `${overallProgress}%` }}
                     />
                   </div>
@@ -180,28 +180,28 @@ function StudentProgress() {
                 value={completedCount}
                 icon={<CheckCircle2 size={22} className="text-green-600" />}
                 iconBg="bg-green-100"
-                footer={<p className="mt-3 text-xs text-gray-500">Out of {TOPICS.length} topics</p>}
+                footer={<p className="mt-3 text-xs text-gray-500 dark:text-slate-400">Out of {TOPICS.length} topics</p>}
               />
               <SummaryCard
                 label="In progress"
                 value={inProgressCount}
-                icon={<Clock3 size={22} className="text-blue-600" />}
+                icon={<Clock3 size={22} className="text-[#1f6f5b]" />}
                 iconBg="bg-blue-100"
-                footer={<p className="mt-3 text-xs text-gray-500">Topics currently being learned</p>}
+                footer={<p className="mt-3 text-xs text-gray-500 dark:text-slate-400">Topics currently being learned</p>}
               />
               <SummaryCard
                 label="Needs improvement"
                 value={needsImprovementCount}
                 icon={<AlertCircle size={22} className="text-orange-600" />}
                 iconBg="bg-orange-100"
-                footer={<p className="mt-3 text-xs text-gray-500">Topics requiring attention</p>}
+                footer={<p className="mt-3 text-xs text-gray-500 dark:text-slate-400">Topics requiring attention</p>}
               />
             </div>
 
-            <div className="mt-6 rounded-2xl bg-white shadow-sm">
-              <div className="border-b border-gray-100 p-5">
-                <h2 className="text-lg font-bold text-gray-900">Update your progress</h2>
-                <p className="mt-1 text-sm text-gray-500">
+            <div className="mt-6 rounded-2xl bg-white dark:bg-[#0b1528] shadow-sm">
+              <div className="border-b border-gray-100 dark:border-[#15253f] p-5">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Update your progress</h2>
+                <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
                   Select your current status for each topic, then save.
                 </p>
               </div>
@@ -213,23 +213,23 @@ function StudentProgress() {
                   const isSaving = savingTopic === topic;
 
                   return (
-                    <div key={topic} className="rounded-xl border border-gray-200 p-5">
+                    <div key={topic} className="rounded-xl border border-gray-200 dark:border-[#15253f] p-5">
                       <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-gray-100 p-2">
-                          <BookOpen size={18} className="text-gray-600" />
+                        <div className="rounded-lg bg-gray-100 dark:bg-[#070e1b] p-2">
+                          <BookOpen size={18} className="text-gray-600 dark:text-slate-300" />
                         </div>
-                        <h3 className="text-base font-semibold text-gray-900">{topic}</h3>
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-white">{topic}</h3>
                       </div>
 
                       <div className="mt-5">
-                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-200">
                           Progress status
                         </label>
                         <select
                           value={status}
                           disabled={isSaving}
                           onChange={(e) => handleStatusChange(topic, e.target.value)}
-                          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="w-full rounded-lg border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-slate-200 outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {STATUS_OPTIONS.map((option) => (
                             <option key={option} value={option}>{option}</option>
@@ -242,7 +242,7 @@ function StudentProgress() {
                         onClick={() => handleSaveTopic(topic)}
                         disabled={isSaving || !dirty}
                         className={`mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed ${
-                          dirty ? "bg-gray-900 hover:bg-gray-800" : "bg-gray-300"
+                          dirty ? "bg-[#1f6f5b] hover:bg-[#185848]" : "bg-gray-300"
                         }`}
                       >
                         {isSaving ? (
@@ -271,11 +271,11 @@ function StudentProgress() {
 
 function SummaryCard({ label, value, icon, iconBg, footer }) {
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm">
+    <div className="rounded-2xl bg-white dark:bg-[#0b1528] p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-500">{label}</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm text-gray-500 dark:text-slate-400">{label}</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{value}</p>
         </div>
         <div className={`rounded-xl p-3 ${iconBg}`}>{icon}</div>
       </div>

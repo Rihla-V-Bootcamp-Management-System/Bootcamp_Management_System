@@ -430,6 +430,226 @@ const syncSessionAttendance = async (session) => {
 };
 
 // =====================================================
+// PREVIEW SESSION PARTICIPANTS (WITHOUT SAVING)
+// =====================================================
+
+const previewSessionParticipants = async (req, res) => {
+  try {
+    const userRole = String(req.user?.role || "").toLowerCase();
+    if (
+      userRole !== "admin" &&
+      userRole !== "superadmin" &&
+      userRole !== "mentor"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Only admins and mentors can preview session participants",
+      });
+    }
+
+    const { id } = req.params;
+    const Session = require("../models/Session");
+    let session = await MeetingSession.findById(id);
+    let regularSession = null;
+
+    if (!session) {
+      regularSession = await Session.findById(id);
+    }
+
+    const meetingCode =
+      session?.meetingCode || req.query.meetingCode;
+    const batchId =
+      session?.batchId ||
+      regularSession?.batchId ||
+      req.query.batchId;
+
+    if (!meetingCode && !session && !regularSession) {
+      return res.status(404).json({
+        success: false,
+        message: "Session or MeetingSession not found",
+      });
+    }
+
+    const targetBatch = batchId
+      ? await Batch.findById(batchId)
+      : null;
+    const students = targetBatch?.studentIds?.length
+      ? await User.find({
+          _id: { $in: targetBatch.studentIds },
+          role: "student",
+        }).select(
+          "name email userID googleUserId firstName lastName"
+        )
+      : await User.find({ role: "student" }).select(
+          "name email userID googleUserId firstName lastName"
+        );
+
+    // If meeting code is available, look up Google Meet conference records
+    const codeToSearch = meetingCode || "";
+    let conferenceRecord = null;
+    let participants = [];
+
+    if (codeToSearch) {
+      try {
+        conferenceRecord =
+          await getConferenceRecord(codeToSearch);
+        if (conferenceRecord) {
+          participants =
+            await getParticipantsWithDuration(
+              conferenceRecord.name
+            );
+        }
+      } catch (err) {
+        console.warn(
+          "Google Meet API preview warning:",
+          err.message
+        );
+      }
+    }
+
+    const participantPreviews = participants.map(
+      (participant) => {
+        let matchedStudent = null;
+
+        // 1. Google User ID match
+        if (participant.googleUserId) {
+          matchedStudent = students.find(
+            (s) =>
+              s.googleUserId &&
+              s.googleUserId ===
+                participant.googleUserId
+          );
+        }
+
+        // 2. Email match
+        if (!matchedStudent && participant.email) {
+          const participantEmail = String(
+            participant.email
+          )
+            .toLowerCase()
+            .trim();
+          matchedStudent = students.find(
+            (s) =>
+              s.email &&
+              s.email.toLowerCase().trim() ===
+                participantEmail
+          );
+        }
+
+        // 3. Name fallback match
+        if (
+          !matchedStudent &&
+          participant.displayName &&
+          participant.displayName !== "Unknown"
+        ) {
+          const pName = participant.displayName
+            .toLowerCase()
+            .trim();
+          matchedStudent = students.find((s) => {
+            const sName = (
+              s.name ||
+              `${s.firstName || ""} ${
+                s.lastName || ""
+              }`
+            )
+              .toLowerCase()
+              .trim();
+            return (
+              sName &&
+              (pName.includes(sName) ||
+                sName.includes(pName))
+            );
+          });
+        }
+
+        return {
+          displayName: participant.displayName,
+          email:
+            participant.email ||
+            (matchedStudent
+              ? matchedStudent.email
+              : null),
+          googleUserId:
+            participant.googleUserId || null,
+          checkInTime: participant.checkInTime,
+          checkOutTime: participant.checkOutTime,
+          totalMinutes:
+            participant.totalMinutes || 0,
+          sessions: participant.sessions || [],
+          isMatched: !!matchedStudent,
+          matchedStudent: matchedStudent
+            ? {
+                _id: matchedStudent._id,
+                name:
+                  matchedStudent.name ||
+                  `${matchedStudent.firstName || ""} ${
+                    matchedStudent.lastName || ""
+                  }`,
+                email: matchedStudent.email,
+                userID: matchedStudent.userID,
+              }
+            : null,
+        };
+      }
+    );
+
+    const matchedCount =
+      participantPreviews.filter(
+        (p) => p.isMatched
+      ).length;
+    const unmatchedCount =
+      participantPreviews.filter(
+        (p) => !p.isMatched
+      ).length;
+    const unmatchedParticipants =
+      participantPreviews.filter(
+        (p) => !p.isMatched
+      );
+
+    return res.status(200).json({
+      success: true,
+      conferenceRecordAvailable:
+        !!conferenceRecord,
+      session: {
+        _id:
+          session?._id ||
+          regularSession?._id ||
+          id,
+        meetingCode: codeToSearch,
+        scheduledStart:
+          session?.scheduledStart ||
+          regularSession?.startedAt ||
+          null,
+        scheduledEnd:
+          session?.scheduledEnd ||
+          regularSession?.endedAt ||
+          null,
+        syncStatus:
+          session?.syncStatus || "pending",
+      },
+      totalParticipants:
+        participantPreviews.length,
+      matchedCount,
+      unmatchedCount,
+      participants: participantPreviews,
+      unmatchedParticipants,
+    });
+  } catch (error) {
+    console.error(
+      "PREVIEW SESSION PARTICIPANTS ERROR:",
+      error
+    );
+    return res.status(500).json({
+      success: false,
+      message:
+        error.message ||
+        "Failed to preview session participants",
+    });
+  }
+};
+
+// =====================================================
 // MANUAL SYNC
 // =====================================================
 
@@ -453,10 +673,35 @@ const syncSessionNow = async (req, res) => {
     // FIND SESSION
     // =============================================
 
-    const session =
+    const Session = require("../models/Session");
+    let session =
       await MeetingSession.findById(
         req.params.id
       );
+
+    if (!session) {
+      const regSession =
+        await Session.findById(req.params.id);
+      if (regSession) {
+        session = {
+          _id: regSession._id,
+          batchId: regSession.batchId,
+          createdBy: req.user._id,
+          meetingCode:
+            req.body.meetingCode ||
+            req.query.meetingCode,
+          scheduledStart:
+            regSession.startedAt ||
+            regSession.scheduledStartTime ||
+            regSession.sessionDate,
+          scheduledEnd:
+            regSession.endedAt ||
+            regSession.scheduledEndTime ||
+            new Date(),
+          save: async () => {},
+        };
+      }
+    }
 
     if (!session) {
       return res.status(404).json({
@@ -494,4 +739,5 @@ module.exports = {
   scheduleSession,
   syncSessionAttendance,
   syncSessionNow,
-};
+  previewSessionParticipants,
+};

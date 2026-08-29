@@ -72,10 +72,10 @@ function MentorTopicDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-100 p-8">
+      <div className="min-h-screen bg-slate-100 dark:bg-[#070e1b] p-8">
         <div className="mx-auto max-w-7xl">
-          <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
-            <p className="text-slate-500">
+          <div className="rounded-2xl bg-white dark:bg-[#0b1528] p-10 text-center shadow-sm">
+            <p className="text-slate-500 dark:text-slate-400">
               Loading topic...
             </p>
           </div>
@@ -86,9 +86,9 @@ function MentorTopicDetails() {
 
   if (error || !assignment || !topic) {
     return (
-      <div className="min-h-screen bg-slate-100 p-8">
+      <div className="min-h-screen bg-slate-100 dark:bg-[#070e1b] p-8">
         <div className="mx-auto max-w-3xl">
-          <div className="rounded-2xl bg-white p-8 shadow-sm">
+          <div className="rounded-2xl bg-white dark:bg-[#0b1528] p-8 shadow-sm">
             <p className="text-red-600">
               {error || "Topic not found."}
             </p>
@@ -98,7 +98,7 @@ function MentorTopicDetails() {
               onClick={() =>
                 navigate("/mentor/assignments")
               }
-              className="mt-5 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white"
+              className="mt-5 rounded-xl bg-[#1f6f5b] px-5 py-3 text-sm font-semibold text-white"
             >
               Back to Assignments
             </button>
@@ -109,7 +109,7 @@ function MentorTopicDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-slate-100 dark:bg-[#070e1b]">
       <main className="mx-auto max-w-7xl px-6 py-8 md:px-8">
 
         {/* BACK */}
@@ -120,35 +120,35 @@ function MentorTopicDetails() {
               `/mentor/assignments/${assignmentId}`
             )
           }
-          className="mb-6 flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="mb-6 flex items-center gap-2 text-sm font-medium text-[#1f6f5b] hover:text-[#185848]"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Assignment
         </button>
 
         {/* ASSIGNMENT HEADER */}
-        <section className="rounded-2xl bg-white p-6 shadow-sm">
-          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+        <section className="rounded-2xl bg-white dark:bg-[#0b1528] p-6 shadow-sm">
+          <span className="rounded-full bg-[#e5f1ed] px-3 py-1 text-xs font-semibold text-[#1f6f5b]">
             {assignment.course || "Course"}
           </span>
 
-          <h1 className="mt-4 text-2xl font-bold text-slate-900 md:text-3xl">
+          <h1 className="mt-4 text-2xl font-bold text-slate-900 dark:text-white md:text-3xl">
             {assignment.title}
           </h1>
 
           {assignment.description && (
-            <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-500">
+            <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-500 dark:text-slate-400">
               {assignment.description}
             </p>
           )}
         </section>
 
         {/* CONTENT */}
-        <div className="mt-6 overflow-hidden rounded-2xl bg-white shadow-sm">
+        <div className="mt-6 overflow-hidden rounded-2xl bg-white dark:bg-[#0b1528] shadow-sm">
           <div className="flex min-h-[650px]">
 
             {/* SIDEBAR */}
-            <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-slate-50 p-4 md:block">
+            <aside className="hidden w-64 shrink-0 border-r border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-4 md:block">
               <p className="mb-4 px-3 text-xs font-bold uppercase tracking-wide text-slate-400">
                 Assignment Topics
               </p>
@@ -167,7 +167,7 @@ function MentorTopicDetails() {
                       }
                       className={`w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition ${
                         active
-                          ? "bg-blue-600 text-white shadow-sm"
+                          ? "bg-[#1f6f5b] text-white shadow-sm"
                           : "text-slate-700 hover:bg-slate-200"
                       }`}
                     >
@@ -186,10 +186,10 @@ function MentorTopicDetails() {
             <div className="min-w-0 flex-1 p-6 md:p-8">
 
               {/* TOPIC */}
-              <section className="border-b border-slate-200 pb-7">
+              <section className="border-b border-slate-200 dark:border-[#15253f] pb-7">
                 <div className="flex items-start gap-4">
                   <div className="rounded-xl bg-blue-100 p-3">
-                    <FileText className="h-6 w-6 text-blue-600" />
+                    <FileText className="h-6 w-6 text-[#1f6f5b]" />
                   </div>
 
                   <div>
@@ -197,14 +197,14 @@ function MentorTopicDetails() {
                       Current Topic
                     </p>
 
-                    <h2 className="mt-1 text-2xl font-bold text-slate-900">
+                    <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
                       {topic.title}
                     </h2>
                   </div>
                 </div>
 
                 {topic.description && (
-                  <p className="mt-5 whitespace-pre-line text-sm leading-7 text-slate-600">
+                  <p className="mt-5 whitespace-pre-line text-sm leading-7 text-slate-600 dark:text-slate-300">
                     {topic.description}
                   </p>
                 )}
@@ -213,9 +213,9 @@ function MentorTopicDetails() {
               {/* QUESTIONS */}
               <section className="mt-8">
                 <div className="flex items-center gap-3">
-                  <ClipboardList className="h-5 w-5 text-blue-600" />
+                  <ClipboardList className="h-5 w-5 text-[#1f6f5b]" />
 
-                  <h3 className="text-lg font-bold text-slate-900">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                     Questions
                   </h3>
                 </div>
@@ -226,7 +226,7 @@ function MentorTopicDetails() {
                       (question, index) => (
                         <div
                           key={question._id}
-                          className="rounded-xl border border-slate-200 p-5"
+                          className="rounded-xl border border-slate-200 dark:border-[#15253f] p-5"
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div>
@@ -234,18 +234,18 @@ function MentorTopicDetails() {
                                 Question {index + 1}
                               </p>
 
-                              <h4 className="mt-2 font-semibold text-slate-900">
+                              <h4 className="mt-2 font-semibold text-slate-900 dark:text-white">
                                 {question.title}
                               </h4>
                             </div>
 
-                            <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                            <span className="shrink-0 rounded-full bg-slate-100 dark:bg-[#070e1b] px-3 py-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
                               {question.points ?? 0} pts
                             </span>
                           </div>
 
                           {question.description && (
-                            <p className="mt-4 whitespace-pre-line text-sm leading-6 text-slate-600">
+                            <p className="mt-4 whitespace-pre-line text-sm leading-6 text-slate-600 dark:text-slate-300">
                               {question.description}
                             </p>
                           )}
@@ -260,7 +260,7 @@ function MentorTopicDetails() {
                     )}
                   </div>
                 ) : (
-                  <div className="mt-5 rounded-xl border border-dashed border-slate-200 p-8 text-center">
+                  <div className="mt-5 rounded-xl border border-dashed border-slate-200 dark:border-[#15253f] p-8 text-center">
                     <p className="text-sm text-slate-400">
                       No questions have been added.
                     </p>
@@ -271,9 +271,9 @@ function MentorTopicDetails() {
               {/* ATTACHMENTS */}
               <section className="mt-10">
                 <div className="flex items-center gap-3">
-                  <Paperclip className="h-5 w-5 text-blue-600" />
+                  <Paperclip className="h-5 w-5 text-[#1f6f5b]" />
 
-                  <h3 className="text-lg font-bold text-slate-900">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                     Attachments
                   </h3>
                 </div>
@@ -284,9 +284,9 @@ function MentorTopicDetails() {
                       (attachment) => (
                         <div
                           key={attachment._id}
-                          className="rounded-xl border border-slate-200 p-5"
+                          className="rounded-xl border border-slate-200 dark:border-[#15253f] p-5"
                         >
-                          <h4 className="font-semibold text-slate-900">
+                          <h4 className="font-semibold text-slate-900 dark:text-white">
                             {attachment.title}
                           </h4>
 
@@ -297,7 +297,7 @@ function MentorTopicDetails() {
                           )}
 
                           {attachment.description && (
-                            <p className="mt-3 text-sm leading-6 text-slate-600">
+                            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
                               {attachment.description}
                             </p>
                           )}
@@ -307,7 +307,7 @@ function MentorTopicDetails() {
                               href={attachment.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:underline"
+                              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#1f6f5b] hover:underline"
                             >
                               Open Attachment
                               <ExternalLink className="h-4 w-4" />
@@ -318,7 +318,7 @@ function MentorTopicDetails() {
                     )}
                   </div>
                 ) : (
-                  <div className="mt-5 rounded-xl border border-dashed border-slate-200 p-8 text-center">
+                  <div className="mt-5 rounded-xl border border-dashed border-slate-200 dark:border-[#15253f] p-8 text-center">
                     <p className="text-sm text-slate-400">
                       No attachments available.
                     </p>
@@ -328,7 +328,7 @@ function MentorTopicDetails() {
 
               {/* SUBMISSION REQUIREMENTS */}
               <section className="mt-10">
-                <h3 className="text-lg font-bold text-slate-900">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                   Submission Requirements
                 </h3>
 
@@ -338,13 +338,13 @@ function MentorTopicDetails() {
                       (field) => (
                         <div
                           key={field._id}
-                          className="rounded-xl border border-slate-200 p-5"
+                          className="rounded-xl border border-slate-200 dark:border-[#15253f] p-5"
                         >
-                          <p className="font-semibold text-slate-900">
+                          <p className="font-semibold text-slate-900 dark:text-white">
                             {field.label}
                           </p>
 
-                          <p className="mt-2 text-sm text-slate-500">
+                          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                             Type: {field.type}
                           </p>
 
@@ -364,7 +364,7 @@ function MentorTopicDetails() {
                     )}
                   </div>
                 ) : (
-                  <div className="mt-5 rounded-xl border border-dashed border-slate-200 p-8 text-center">
+                  <div className="mt-5 rounded-xl border border-dashed border-slate-200 dark:border-[#15253f] p-8 text-center">
                     <p className="text-sm text-slate-400">
                       No submission requirements.
                     </p>
@@ -373,14 +373,14 @@ function MentorTopicDetails() {
               </section>
 
               {/* SUBMISSIONS */}
-              <section className="mt-10 border-t border-slate-200 pt-8">
+              <section className="mt-10 border-t border-slate-200 dark:border-[#15253f] pt-8">
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                       Student Submissions
                     </h3>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                       Review and grade submissions for this assignment.
                     </p>
                   </div>
@@ -392,7 +392,7 @@ function MentorTopicDetails() {
                         `/mentor/assignments/${assignmentId}/submissions`
                       )
                     }
-                    className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    className="rounded-xl bg-[#1f6f5b] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#185848]"
                   >
                     View Submissions
                   </button>

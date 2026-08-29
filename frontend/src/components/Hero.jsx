@@ -46,7 +46,7 @@ function Hero({ onRegistered}) {
 
             <button
               onClick={onRegistered}
-              className="rounded-md bg-[#1769e0] px-7 py-3.5 font-semibold text-white shadow-lg transition hover:bg-[#2878ed]"
+              className="rounded-md bg-[#1f6f5b] hover:bg-[#185848] px-7 py-3.5 font-semibold text-white shadow-lg transition hover:bg-[#185848]"
             >
               Join the Bootcamp
               <span className="ml-3">→</span>
@@ -61,7 +61,7 @@ function Hero({ onRegistered}) {
                   aboutEl.scrollIntoView({ behavior: "smooth" });
                 }
               }}
-              className="rounded-md border border-white/60 px-7 py-3.5 font-semibold text-white transition hover:bg-white/10"
+              className="rounded-md border dark:border-[#15253f] border-white/60 px-7 py-3.5 font-semibold text-white transition hover:bg-white dark:bg-[#0b1528]/10"
             >
               Learn More
               <span className="ml-3">⌄</span>

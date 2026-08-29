@@ -282,14 +282,14 @@ function MentorSubmissionReview() {
   // ============================================================
   if (loading) {
     return (
-      <div className="min-h-full bg-slate-50 p-6">
-        <div className="mx-auto max-w-5xl rounded-xl border border-slate-200 bg-white p-10 text-center">
+      <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-6">
+        <div className="mx-auto max-w-5xl rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-10 text-center">
           <RefreshCw
-            className="mx-auto mb-3 animate-spin text-gray-700"
+            className="mx-auto mb-3 animate-spin text-gray-700 dark:text-slate-200"
             size={30}
           />
 
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Loading submission...
           </p>
         </div>
@@ -302,14 +302,14 @@ function MentorSubmissionReview() {
   // ============================================================
   if (!submission) {
     return (
-      <div className="min-h-full bg-slate-50 p-6">
+      <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-6">
         <div className="mx-auto max-w-5xl">
           <button
             type="button"
             onClick={() =>
               navigate("/mentor/submissions")
             }
-            className="mb-5 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"
+            className="mb-5 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-200"
           >
             <ArrowLeft size={17} />
             Back to Submissions
@@ -336,7 +336,7 @@ function MentorSubmissionReview() {
   // MAIN UI
   // ============================================================
   return (
-    <div className="min-h-full bg-slate-50 p-6">
+    <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-6">
       <div className="mx-auto max-w-5xl">
 
         {/* =====================================================
@@ -347,7 +347,7 @@ function MentorSubmissionReview() {
           onClick={() =>
             navigate("/mentor/submissions")
           }
-          className="mb-5 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"
+          className="mb-5 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-200"
         >
           <ArrowLeft size={17} />
           Back to Submissions
@@ -382,28 +382,28 @@ function MentorSubmissionReview() {
         {/* =====================================================
             HEADER
         ====================================================== */}
-        <div className="mb-6 rounded-xl border border-slate-200 bg-white p-6">
+        <div className="mb-6 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
 
             <div>
-              <p className="mb-1 text-sm text-slate-500">
+              <p className="mb-1 text-sm text-slate-500 dark:text-slate-400">
                 Assignment Submission
               </p>
 
-              <h1 className="text-2xl font-bold text-slate-900">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                 {assignment?.title || "Assignment"}
               </h1>
 
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                 Student:{" "}
-                <span className="font-medium text-slate-800">
+                <span className="font-medium text-slate-800 dark:text-slate-100">
                   {student?.fullName ||
                     student?.name ||
                     "Unknown Student"}
                 </span>
               </p>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 {student?.email || ""}
               </p>
             </div>
@@ -426,15 +426,15 @@ function MentorSubmissionReview() {
         {/* =====================================================
             STUDENT SUBMISSION
         ====================================================== */}
-        <div className="mb-6 rounded-xl border border-slate-200 bg-white p-6">
-          <h2 className="mb-4 text-lg font-bold text-slate-900">
+        <div className="mb-6 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6">
+          <h2 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
             Student Submission
           </h2>
 
           <div className="space-y-4">
             {Object.keys(submissionData).length ===
             0 ? (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 No submission data available.
               </p>
             ) : (
@@ -442,13 +442,13 @@ function MentorSubmissionReview() {
                 ([key, value]) => (
                   <div
                     key={key}
-                    className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                    className="rounded-lg border border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-4"
                   >
-                    <p className="mb-1 text-xs font-semibold uppercase text-slate-500">
+                    <p className="mb-1 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
                       {key}
                     </p>
 
-                    <p className="break-words text-sm text-slate-800">
+                    <p className="break-words text-sm text-slate-800 dark:text-slate-100">
                       {String(value)}
                     </p>
                   </div>
@@ -461,9 +461,9 @@ function MentorSubmissionReview() {
         {/* =====================================================
             GRADING
         ====================================================== */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6">
+        <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6">
 
-          <h2 className="mb-5 text-lg font-bold text-slate-900">
+          <h2 className="mb-5 text-lg font-bold text-slate-900 dark:text-white">
             Grade Submission
           </h2>
 
@@ -473,7 +473,7 @@ function MentorSubmissionReview() {
             <div>
               <label
                 htmlFor="grade"
-                className="mb-2 block text-sm font-medium text-slate-700"
+                className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
               >
                 Grade
               </label>
@@ -496,17 +496,17 @@ function MentorSubmissionReview() {
                     ? `Maximum ${assignment.maxScore}`
                     : "Enter grade"
                 }
-                className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+                className="w-full rounded-lg border border-slate-300 dark:border-[#15253f] px-4 py-3 outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
               />
             </div>
 
             {/* MAX SCORE */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Maximum Score
               </label>
 
-              <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">
+              <div className="rounded-lg border border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] px-4 py-3 text-slate-700 dark:text-slate-200">
                 {assignment?.maxScore ??
                   "Not specified"}
               </div>
@@ -517,7 +517,7 @@ function MentorSubmissionReview() {
           <div className="mt-5">
             <label
               htmlFor="feedback"
-              className="mb-2 block text-sm font-medium text-slate-700"
+              className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
             >
               Feedback
             </label>
@@ -530,7 +530,7 @@ function MentorSubmissionReview() {
                 setFeedback(e.target.value)
               }
               placeholder="Write feedback for the student..."
-              className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+              className="w-full resize-none rounded-lg border border-slate-300 dark:border-[#15253f] px-4 py-3 outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
             />
           </div>
 
@@ -542,7 +542,7 @@ function MentorSubmissionReview() {
               type="button"
               disabled={saving}
               onClick={handleGrade}
-              className="flex items-center gap-2 rounded-lg bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-[#1f6f5b] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? (
                 <RefreshCw
@@ -565,7 +565,7 @@ function MentorSubmissionReview() {
               type="button"
               disabled={saving}
               onClick={handleResubmission}
-              className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-800 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-5 py-3 text-sm font-semibold text-gray-800 dark:text-slate-100 transition hover:bg-gray-100 dark:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? (
                 <RefreshCw

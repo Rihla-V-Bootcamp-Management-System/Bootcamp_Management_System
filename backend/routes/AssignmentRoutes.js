@@ -1,89 +1,27 @@
 const express = require("express");
-
-const {
-  createApplicationForm,
-  getApplicationForm,
-  updateApplicationForm,
-  getCurrentApplicationForm,
-} = require("../controllers/ApplicationFormControllers");
-
-const authMiddleware = require("../middleware/authMiddleware");
-const roleMiddleware = require("../middleware/roleMiddleware");
-
 const router = express.Router();
+const authMiddleware = require("../middleware/authMiddleware");
+const {
+  createAssignment,
+  getAssignments,
+  getAssignmentById,
+  updateAssignment,
+  deleteAssignment,
+} = require("../controllers/AssignmentControllers");
 
-// =====================================================
-// CURRENT APPLICATION FORM
-// =====================================================
+// GET all assignments
+router.get("/", authMiddleware, getAssignments);
 
-// GET /api/application-forms
-// Used by FormBuilder & Applicants
-router.get(
-  "/",
-  getCurrentApplicationForm
-);
+// GET single assignment
+router.get("/:id", authMiddleware, getAssignmentById);
 
-// =====================================================
-// CURRENT APPLICATION FORM
-// =====================================================
+// POST create assignment
+router.post("/", authMiddleware, createAssignment);
 
-// GET /api/application-forms/current
-// Used when the current application form is needed.
+// PUT update assignment
+router.put("/:id", authMiddleware, updateAssignment);
 
-router.get(
-  "/current",
-  getCurrentApplicationForm
-);
-
-// =====================================================
-// GET APPLICATION FORM BY SEASON
-// =====================================================
-
-// GET /api/application-forms/:seasonId
-
-router.get(
-  "/:seasonId",
-  getApplicationForm
-);
-
-// =====================================================
-// CREATE APPLICATION FORM
-// =====================================================
-
-// POST /api/application-forms
-router.post(
-  "/",
-  authMiddleware,
-  roleMiddleware("admin"),
-  createApplicationForm
-);
-
-// POST /api/application-forms/:seasonId
-router.post(
-  "/:seasonId",
-  authMiddleware,
-  roleMiddleware("admin"),
-  createApplicationForm
-);
-
-// =====================================================
-// UPDATE APPLICATION FORM
-// =====================================================
-
-// PUT /api/application-forms/:id
-router.put(
-  "/:id",
-  authMiddleware,
-  roleMiddleware("admin"),
-  updateApplicationForm
-);
-
-// PATCH /api/application-forms/:seasonId
-router.patch(
-  "/:seasonId",
-  authMiddleware,
-  roleMiddleware("admin"),
-  updateApplicationForm
-);
+// DELETE assignment
+router.delete("/:id", authMiddleware, deleteAssignment);
 
 module.exports = router;

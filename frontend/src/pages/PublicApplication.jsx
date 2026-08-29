@@ -150,13 +150,13 @@ function PublicApplication() {
 
   if (loadingSeason) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] dark:bg-[#070e1b] flex items-center justify-center px-6">
 
         <div className="text-center">
 
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900" />
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 dark:border-[#15253f] border-t-gray-900" />
 
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-slate-300">
             Checking registration availability...
           </p>
 
@@ -172,11 +172,11 @@ function PublicApplication() {
 
   if (error && !seasonId) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] dark:bg-[#070e1b] flex items-center justify-center px-6">
 
-        <div className="w-full max-w-lg rounded-xl bg-white p-8 text-center shadow-lg">
+        <div className="w-full max-w-lg rounded-xl bg-white dark:bg-[#0b1528] p-8 text-center shadow-lg">
 
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-[#070e1b]">
 
             <span className="text-2xl">
               !
@@ -184,11 +184,11 @@ function PublicApplication() {
 
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             Registration Unavailable
           </h1>
 
-          <p className="mt-3 text-gray-600">
+          <p className="mt-3 text-gray-600 dark:text-slate-300">
             {error}
           </p>
 
@@ -197,7 +197,7 @@ function PublicApplication() {
             onClick={() =>
               window.location.reload()
             }
-            className="mt-6 rounded-lg bg-[#071629] px-6 py-3 text-sm font-medium text-white hover:bg-[#10233b]"
+            className="mt-6 rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-6 py-3 text-sm font-medium text-white hover:bg-[#1f6f5b] hover:bg-[#185848]"
           >
             Try Again
           </button>
@@ -214,9 +214,9 @@ function PublicApplication() {
 
   if (loadingForm) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] dark:bg-[#070e1b] flex items-center justify-center">
 
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-slate-300">
           Loading application form...
         </p>
 
@@ -229,11 +229,11 @@ function PublicApplication() {
   // =========================================================
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-12">
+    <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] dark:bg-[#070e1b] px-4 py-12">
 
       <div className="mx-auto max-w-2xl">
 
-        <div className="rounded-xl bg-white p-8 shadow-lg">
+        <div className="rounded-xl bg-white dark:bg-[#0b1528] p-8 shadow-lg">
 
           {/* =================================================
               HEADER
@@ -241,21 +241,21 @@ function PublicApplication() {
 
           <div className="mb-8">
 
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
               Bootcamp Application
             </h1>
 
             {season?.name && (
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-gray-600 dark:text-slate-300">
                 Applying for:
                 {" "}
-                <span className="font-semibold text-gray-900">
+                <span className="font-semibold text-slate-900 dark:text-white">
                   {season.name}
                 </span>
               </p>
             )}
 
-            <p className="mt-3 text-gray-600">
+            <p className="mt-3 text-gray-600 dark:text-slate-300">
               Complete the form below to apply for the
               bootcamp.
             </p>
@@ -295,9 +295,9 @@ function PublicApplication() {
 
           ) : (
 
-            <div className="rounded-lg bg-gray-50 p-6 text-center">
+            <div className="rounded-lg bg-slate-50 dark:bg-[#070e1b] p-6 text-center">
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-slate-400">
                 The application form has not been configured
                 yet.
               </p>

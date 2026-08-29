@@ -6,35 +6,27 @@ import {
   BookOpen,
   Calendar,
   Clock,
+  ArrowUpRight,
+  ClipboardList,
+  GraduationCap,
 } from "lucide-react";
 import apiClient from "../services/apiClient";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
 
 function MentorDashboard() {
-  console.log("🔥 MENTOR DASHBOARD IS RENDERING");
-
   const navigate = useNavigate();
 
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ==========================================
-  // FETCH ASSIGNMENTS
-  // ==========================================
   useEffect(() => {
-    console.log("🔥 MENTOR DASHBOARD MOUNTED");
     fetchAssignments();
   }, []);
 
   const fetchAssignments = async () => {
-    console.log("=================================");
-    console.log("🔥 FETCHING ASSIGNMENTS");
-    console.log("=================================");
-
     const token = localStorage.getItem("token");
-
-    console.log("TOKEN:", token);
-
     if (!token) {
       setError("No login token found. Please login again.");
       setLoading(false);
@@ -46,36 +38,14 @@ function MentorDashboard() {
       setError("");
 
       const response = await apiClient.get("/assignments");
-
-      console.log("✅ RESPONSE STATUS:", response.status);
-      console.log("✅ RESPONSE DATA:", response.data);
-
       const data =
         response.data?.assignments ||
         response.data?.data ||
         [];
 
-      console.log("✅ ASSIGNMENTS ARRAY:", data);
-
-      if (Array.isArray(data)) {
-        setAssignments(data);
-      } else {
-        setAssignments([]);
-      }
+      setAssignments(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("❌ ASSIGNMENT REQUEST FAILED");
-      console.error(error);
-
-      console.error(
-        "Status:",
-        error.response?.status
-      );
-
-      console.error(
-        "Backend:",
-        error.response?.data
-      );
-
+      console.error("ASSIGNMENT REQUEST FAILED:", error);
       setError(
         error.response?.data?.message ||
           error.message ||
@@ -83,371 +53,196 @@ function MentorDashboard() {
       );
     } finally {
       setLoading(false);
-
-      console.log("🔥 ASSIGNMENT FETCH FINISHED");
     }
   };
 
-  // ==========================================
-  // LOADING
-  // ==========================================
+  const totalAssignments = assignments.length;
+  const publishedAssignments = assignments.filter(
+    (a) => a.isPublished || a.status === "published"
+  ).length;
+  const draftAssignments = totalAssignments - publishedAssignments;
+
   if (loading) {
     return (
-      <div className="w-full bg-gray-50 px-4 py-8 sm:px-6 md:px-8">
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
-          <p className="text-gray-600">
-            Loading assignments...
-          </p>
-        </div>
+      <div className="flex items-center justify-center py-24">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#1f6f5b] border-t-transparent" />
       </div>
     );
   }
 
-  // ==========================================
-  // DASHBOARD
-  // ==========================================
   return (
-    <div className="w-full bg-gray-50">
-      <div className="w-full px-4 pb-8 pt-4 sm:px-6 md:px-8">
+    <div className="space-y-8">
+      {/* PAGE HEADING */}
+      <div>
+        <p className="text-[10px] font-extrabold tracking-widest text-[#1f6f5b] dark:text-emerald-400 uppercase">
+          MENTORSHIP
+        </p>
+        <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+          Mentor Workspace
+        </h1>
+        <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+          Manage coursework, student assignments, and cohort announcements.
+        </p>
+      </div>
 
-        {/* ==========================================
-            HEADER
-        ========================================== */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Mentor Dashboard
-          </h1>
+      {error && (
+        <Card className="border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/20">
+          <p className="font-semibold text-red-700 dark:text-red-300 text-xs">{error}</p>
+          <Button size="sm" onClick={fetchAssignments} className="mt-3">
+            Try Again
+          </Button>
+        </Card>
+      )}
 
-          <p className="mt-1 text-sm text-gray-500">
-            Manage and view your assignments.
+      {/* QUICK ACTIONS */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* ANNOUNCEMENTS CARD */}
+        <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#e5f1ed] text-[#1f6f5b] dark:bg-[#10261f] dark:text-[#34d399] shadow-xs">
+                <Megaphone size={20} />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  Send Announcement
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Cohort Broadcast Center
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-4 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+              Broadcast updates, session reminders, guidelines, or event details
+              directly to your assigned students and batch members.
+            </p>
+          </div>
+
+          <div className="mt-6">
+            <Button
+              onClick={() => navigate("/mentor/announcements")}
+              className="w-full sm:w-auto"
+            >
+              <Megaphone size={16} />
+              Send Announcement
+            </Button>
+          </div>
+        </div>
+
+        {/* ASSIGNMENTS CARD */}
+        <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#e5f1ed] text-[#1f6f5b] dark:bg-[#10261f] dark:text-[#34d399] shadow-xs">
+                <PlusCircle size={20} />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                  Create Assignments
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Coursework Workspace
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-4 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+              Create new coding tasks, homework assignments, or lab exercises
+              and track student submissions.
+            </p>
+          </div>
+
+          <div className="mt-6">
+            <Button
+              onClick={() => navigate("/mentor/assignments")}
+              className="w-full sm:w-auto"
+            >
+              <PlusCircle size={16} />
+              Create Assignment
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* STAT CARDS */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
+          <p className="text-xs font-semibold text-slate-400">Total Assignments</p>
+          <p className="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white">
+            {totalAssignments}
           </p>
         </div>
 
-        {/* ==========================================
-            ERROR
-        ========================================== */}
-        {error && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-5">
-            <p className="font-medium text-red-700">
-              {error}
-            </p>
-
-            <button
-              type="button"
-              onClick={fetchAssignments}
-              className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
-            >
-              Try Again
-            </button>
-          </div>
-        )}
-
-        {/* ==========================================
-            SEPARATED QUICK ACTIONS
-        ========================================== */}
-        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-
-          {/* ==========================================
-              ANNOUNCEMENTS SPACE
-          ========================================== */}
-          <div className="flex flex-col justify-between rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/80 to-indigo-50/50 p-6 shadow-sm">
-
-            <div>
-              <div className="flex items-center gap-3">
-
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md">
-                  <Megaphone size={22} />
-                </div>
-
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900">
-                    Send Announcement
-                  </h2>
-
-                  <p className="text-xs text-gray-500">
-                    Mentor Announcements Center
-                  </p>
-                </div>
-
-              </div>
-
-              <p className="mt-4 text-xs leading-5 text-gray-600">
-                Broadcast updates, session reminders, guidelines,
-                or event details directly to your assigned students
-                and batch members.
-              </p>
-            </div>
-
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={() =>
-                  navigate("/mentor/announcements")
-                }
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md sm:w-auto"
-              >
-                <Megaphone size={16} />
-                Send Announcement
-              </button>
-            </div>
-
-          </div>
-
-          {/* ==========================================
-              ASSIGNMENTS SPACE
-          ========================================== */}
-          <div className="flex flex-col justify-between rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50/80 to-teal-50/50 p-6 shadow-sm">
-
-            <div>
-              <div className="flex items-center gap-3">
-
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md">
-                  <PlusCircle size={22} />
-                </div>
-
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900">
-                    Create Assignment & Tasks
-                  </h2>
-
-                  <p className="text-xs text-gray-500">
-                    Assignment Workspace
-                  </p>
-                </div>
-
-              </div>
-
-              <p className="mt-4 text-xs leading-5 text-gray-600">
-                Create new coding tasks, homework assignments,
-                or lab exercises and track student submissions.
-              </p>
-            </div>
-
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={() =>
-                  navigate("/mentor/assignments")
-                }
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md sm:w-auto"
-              >
-                <PlusCircle size={16} />
-                Create Assignment
-              </button>
-            </div>
-
-          </div>
-
+        <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
+          <p className="text-xs font-semibold text-slate-400">Published</p>
+          <p className="mt-1 text-3xl font-extrabold text-[#1f6f5b] dark:text-emerald-400">
+            {publishedAssignments}
+          </p>
         </div>
 
-        {/* ==========================================
-            STATISTICS
-        ========================================== */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-
-          {/* TOTAL */}
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-gray-500">
-              Total Assignments
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-gray-900">
-              {assignments.length}
-            </p>
-          </div>
-
-          {/* COURSES */}
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-gray-500">
-              Courses
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-gray-900">
-              {
-                new Set(
-                  assignments
-                    .map(
-                      (assignment) =>
-                        assignment.course?._id
-                    )
-                    .filter(Boolean)
-                ).size
-              }
-            </p>
-          </div>
-
-          {/* UPCOMING */}
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <p className="text-sm text-gray-500">
-              Upcoming
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-gray-900">
-              {
-                assignments.filter(
-                  (assignment) =>
-                    assignment.deadline &&
-                    new Date(assignment.deadline) >=
-                      new Date()
-                ).length
-              }
-            </p>
-          </div>
-
+        <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 shadow-xs dark:border-[#15253f] dark:bg-[#0b1528]">
+          <p className="text-xs font-semibold text-slate-400">Drafts</p>
+          <p className="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white">
+            {draftAssignments}
+          </p>
         </div>
+      </div>
 
-        {/* ==========================================
-            ASSIGNMENTS
-        ========================================== */}
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-
-          {/* TITLE */}
-          <div className="border-b border-gray-200 p-5">
-
-            <h2 className="text-lg font-semibold text-gray-900">
-              Assignments
+      {/* ASSIGNMENTS LIST */}
+      <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-xs dark:border-[#15253f] dark:bg-[#0b1528] overflow-hidden">
+        <div className="border-b border-slate-100 p-6 dark:border-[#15253f] flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              Assignments Directory
             </h2>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Assignments fetched from the backend.
+            <p className="text-xs text-slate-400">
+              Manage your cohort coursework and review submissions
             </p>
-
           </div>
 
-          {/* ==========================================
-              EMPTY
-          ========================================== */}
+          <Button
+            size="sm"
+            onClick={() => navigate("/mentor/assignments")}
+          >
+            Manage
+          </Button>
+        </div>
+
+        <div className="p-6">
           {assignments.length === 0 ? (
-            <div className="px-6 py-16 text-center">
-
-              <p className="text-gray-500">
-                No assignments available.
-              </p>
-
-              <button
-                type="button"
-                onClick={fetchAssignments}
-                className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-              >
-                Refresh
-              </button>
-
+            <div className="rounded-xl border border-dashed border-slate-200 dark:border-[#15253f] p-10 text-center">
+              <p className="text-xs text-slate-400">No assignments created yet.</p>
             </div>
           ) : (
-
-            /* ==========================================
-               LIST
-            ========================================== */
-            <div className="divide-y divide-gray-100">
-
+            <div className="space-y-3">
               {assignments.map((assignment) => (
-
                 <div
                   key={assignment._id}
-                  className="p-5 transition hover:bg-gray-50"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-xl border border-slate-100 p-4 transition hover:border-[#1f6f5b] dark:border-[#15253f] dark:bg-[#070e1b]"
                 >
-
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-
-                    {/* ==========================================
-                        LEFT
-                    ========================================== */}
-                    <div className="min-w-0">
-
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {assignment.title}
-                      </h3>
-
-                      <p className="mt-1 text-sm text-gray-500">
-                        {assignment.description ||
-                          "No description available."}
-                      </p>
-
-                      {/* ==========================================
-                          BADGES
-                      ========================================== */}
-                      <div className="mt-3 flex flex-wrap gap-2">
-
-                        {/* COURSE */}
-                        {assignment.course && (
-                          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-                            Course:{" "}
-                            {assignment.course?.name ||
-                              "Unknown Course"}
-                          </span>
-                        )}
-
-                        {/* BATCH */}
-                        {assignment.batchId && (
-                          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                            Batch:{" "}
-                            {assignment.batchId?.name ||
-                              assignment.batchId}
-                          </span>
-                        )}
-
-                      </div>
-
-                      {/* ==========================================
-                          DETAILS
-                      ========================================== */}
-                      <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-500">
-
-                        <span>
-                          Students:{" "}
-                          {assignment.assignedStudents?.length ||
-                            0}
-                        </span>
-
-                        <span>
-                          Max Score:{" "}
-                          {assignment.maxScore ?? 0}
-                        </span>
-
-                        {assignment.deadline && (
-                          <span>
-                            Deadline:{" "}
-                            {new Date(
-                              assignment.deadline
-                            ).toLocaleDateString()}
-                          </span>
-                        )}
-
-                      </div>
-
-                    </div>
-
-                    {/* ==========================================
-                        RIGHT
-                    ========================================== */}
-                    <div className="shrink-0">
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          navigate(
-                            `/mentor/assignments/${assignment._id}`
-                          )
-                        }
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
-                      >
-                        View Assignment
-                      </button>
-
-                    </div>
-
+                  <div>
+                    <h3 className="text-xs font-bold text-slate-900 dark:text-white">
+                      {assignment.title}
+                    </h3>
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      Level {assignment.level || 1} • Due {assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString() : "No deadline"}
+                    </p>
                   </div>
 
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/mentor/assignments/${assignment._id}/submissions`)}
+                  >
+                    Submissions
+                    <ArrowUpRight size={13} />
+                  </Button>
                 </div>
-
               ))}
-
             </div>
-
           )}
-
         </div>
-
       </div>
     </div>
   );

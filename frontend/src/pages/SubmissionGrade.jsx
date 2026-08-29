@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import {
   ArrowLeft,
   CheckCircle,
@@ -6,7 +7,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import apiClient from "../api/apiClient";
+import apiClient from "../services/apiClient";
 
 function SubmissionGrade() {
   const { submissionId } = useParams();
@@ -156,14 +157,6 @@ function SubmissionGrade() {
     setError("");
     setSuccess("");
 
-    if (
-      !window.confirm(
-        "Request a resubmission from this student?"
-      )
-    ) {
-      return;
-    }
-
     try {
       setSaving(true);
 
@@ -173,6 +166,7 @@ function SubmissionGrade() {
           feedback,
         }
       );
+      toast.success("Resubmission requested successfully");
 
       setSubmission(
         response.data.submission
@@ -201,7 +195,7 @@ function SubmissionGrade() {
   if (loading) {
     return (
       <div className="flex min-h-full items-center justify-center p-8">
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-slate-300">
           Loading submission...
         </p>
       </div>
@@ -210,12 +204,12 @@ function SubmissionGrade() {
 
   if (error && !submission) {
     return (
-      <div className="min-h-full bg-gray-50 p-8">
+      <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-8">
         <button
           onClick={() =>
             navigate("/mentor/submissions")
           }
-          className="mb-6 flex items-center gap-2 rounded-lg border border-transparent px-4 py-2 hover:border-gray-900 hover:bg-gray-100"
+          className="mb-6 flex items-center gap-2 rounded-lg border border-transparent px-4 py-2 hover:border-gray-900 hover:bg-gray-100 dark:bg-[#070e1b]"
         >
           <ArrowLeft size={18} />
           Back to Submissions
@@ -238,13 +232,13 @@ function SubmissionGrade() {
     submission?.submissionData || {};
 
   return (
-    <div className="min-h-full bg-gray-50 p-8">
+    <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-8">
       {/* BACK */}
       <button
         onClick={() =>
           navigate("/mentor/submissions")
         }
-        className="mb-6 flex items-center gap-2 rounded-lg border border-transparent px-4 py-2 text-gray-700 hover:border-gray-900 hover:bg-gray-100"
+        className="mb-6 flex items-center gap-2 rounded-lg border border-transparent px-4 py-2 text-gray-700 dark:text-slate-200 hover:border-gray-900 hover:bg-gray-100 dark:bg-[#070e1b]"
       >
         <ArrowLeft size={18} />
         Back to Submissions
@@ -252,11 +246,11 @@ function SubmissionGrade() {
 
       {/* HEADER */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
           Submission Review
         </h1>
 
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-gray-600 dark:text-slate-300">
           Review the student's work and provide a
           grade.
         </p>
@@ -280,47 +274,47 @@ function SubmissionGrade() {
         {/* LEFT */}
         <div className="space-y-6 lg:col-span-2">
           {/* STUDENT + ASSIGNMENT */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-5 text-xl font-bold text-gray-900">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
+            <h2 className="mb-5 text-xl font-bold text-slate-900 dark:text-white">
               Submission Information
             </h2>
 
             <div className="grid gap-5 md:grid-cols-2">
               <div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-slate-400">
                   Student
                 </p>
 
-                <p className="mt-1 font-semibold text-gray-900">
+                <p className="mt-1 font-semibold text-slate-900 dark:text-white">
                   {student?.fullName ||
                     student?.name ||
                     "Unknown Student"}
                 </p>
 
                 {student?.email && (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-slate-400">
                     {student.email}
                   </p>
                 )}
               </div>
 
               <div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-slate-400">
                   Assignment
                 </p>
 
-                <p className="mt-1 font-semibold text-gray-900">
+                <p className="mt-1 font-semibold text-slate-900 dark:text-white">
                   {assignment?.title ||
                     "Unknown Assignment"}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-slate-400">
                   Submitted
                 </p>
 
-                <p className="mt-1 font-medium text-gray-900">
+                <p className="mt-1 font-medium text-slate-900 dark:text-white">
                   {submission?.submittedAt
                     ? new Date(
                         submission.submittedAt
@@ -330,11 +324,11 @@ function SubmissionGrade() {
               </div>
 
               <div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-slate-400">
                   Status
                 </p>
 
-                <p className="mt-1 font-medium text-gray-900">
+                <p className="mt-1 font-medium text-slate-900 dark:text-white">
                   {submission?.status}
                 </p>
               </div>
@@ -342,15 +336,15 @@ function SubmissionGrade() {
           </div>
 
           {/* SUBMISSION DATA */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-5 text-xl font-bold text-gray-900">
+          <div className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
+            <h2 className="mb-5 text-xl font-bold text-slate-900 dark:text-white">
               Student Submission
             </h2>
 
             {Object.keys(
               submissionData
             ).length === 0 ? (
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-slate-400">
                 No submission data available.
               </p>
             ) : (
@@ -365,9 +359,9 @@ function SubmissionGrade() {
                   return (
                     <div
                       key={key}
-                      className="rounded-lg border border-gray-200 bg-gray-50 p-4"
+                      className="rounded-lg border border-gray-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-4"
                     >
-                      <p className="mb-2 text-sm font-semibold capitalize text-gray-600">
+                      <p className="mb-2 text-sm font-semibold capitalize text-gray-600 dark:text-slate-300">
                         {key.replace(
                           /([A-Z])/g,
                           " $1"
@@ -379,7 +373,7 @@ function SubmissionGrade() {
                           href={value}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-2 break-all text-gray-900 underline hover:text-gray-600"
+                          className="flex items-center gap-2 break-all text-slate-900 dark:text-white underline hover:text-gray-600 dark:text-slate-300"
                         >
                           {value}
                           <ExternalLink
@@ -387,7 +381,7 @@ function SubmissionGrade() {
                           />
                         </a>
                       ) : (
-                        <p className="whitespace-pre-wrap break-words text-gray-800">
+                        <p className="whitespace-pre-wrap break-words text-gray-800 dark:text-slate-100">
                           {String(value)}
                         </p>
                       )}
@@ -401,8 +395,8 @@ function SubmissionGrade() {
 
         {/* RIGHT: GRADING */}
         <div>
-          <div className="sticky top-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-6 text-xl font-bold text-gray-900">
+          <div className="sticky top-6 rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-6 shadow-sm">
+            <h2 className="mb-6 text-xl font-bold text-slate-900 dark:text-white">
               Grade Submission
             </h2>
 
@@ -412,13 +406,13 @@ function SubmissionGrade() {
             >
               {/* GRADE */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200">
                   Grade
                   {assignment?.maxScore !==
                     undefined &&
                     assignment?.maxScore !==
                       null && (
-                      <span className="ml-2 font-normal text-gray-500">
+                      <span className="ml-2 font-normal text-gray-500 dark:text-slate-400">
                         / {assignment.maxScore}
                       </span>
                     )}
@@ -437,13 +431,13 @@ function SubmissionGrade() {
                     setGrade(e.target.value)
                   }
                   placeholder="Enter grade"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
+                  className="w-full rounded-lg border border-gray-300 dark:border-[#15253f] px-4 py-3 outline-none focus:border-gray-900"
                 />
               </div>
 
               {/* FEEDBACK */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200">
                   Feedback
                 </label>
 
@@ -454,7 +448,7 @@ function SubmissionGrade() {
                     setFeedback(e.target.value)
                   }
                   placeholder="Write feedback for the student..."
-                  className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-gray-900"
+                  className="w-full resize-none rounded-lg border border-gray-300 dark:border-[#15253f] px-4 py-3 outline-none focus:border-gray-900"
                 />
               </div>
 
@@ -462,7 +456,7 @@ function SubmissionGrade() {
               <button
                 type="submit"
                 disabled={saving}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-900 bg-gray-900 px-4 py-3 font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-900 bg-[#1f6f5b] px-4 py-3 font-semibold text-white hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <CheckCircle size={19} />
 
@@ -476,7 +470,7 @@ function SubmissionGrade() {
                 type="button"
                 onClick={handleResubmission}
                 disabled={saving}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-900 bg-white px-4 py-3 font-semibold text-gray-900 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border dark:border-[#15253f] border-gray-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-4 py-3 font-semibold text-slate-900 dark:text-white hover:bg-gray-100 dark:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <RotateCcw size={19} />
                 Request Resubmission

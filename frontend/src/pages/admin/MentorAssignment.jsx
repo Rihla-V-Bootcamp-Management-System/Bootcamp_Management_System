@@ -454,12 +454,12 @@ function MentorAssignment() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] p-6 text-slate-900">
+      <div className="space-y-6">
         <div className="flex min-h-[500px] items-center justify-center">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-[#00b87c]" />
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 dark:border-[#15253f] border-t-[#00b87c]" />
 
-            <p className="text-slate-500">
+            <p className="text-slate-500 dark:text-slate-400">
               Loading mentor assignments...
             </p>
           </div>
@@ -473,18 +473,18 @@ function MentorAssignment() {
   // =========================================================
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-6 text-slate-900">
+    <div className="space-y-6">
 
       {/* =====================================================
           HEADER
       ===================================================== */}
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
           Mentor Assignment
         </h1>
 
-        <p className="mt-2 text-slate-500">
+        <p className="mt-2 text-slate-500 dark:text-slate-400">
           Assign mentors to students and manage
           mentorship relationships.
         </p>
@@ -516,7 +516,7 @@ function MentorAssignment() {
 
         {/* ACTIVE LINKS */}
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-7 shadow-sm">
           <div className="flex items-center gap-5">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-green-200 bg-green-50">
               <Link2
@@ -526,11 +526,11 @@ function MentorAssignment() {
             </div>
 
             <div>
-              <p className="text-3xl font-bold text-slate-900">
+              <p className="text-3xl font-bold text-slate-900 dark:text-white">
                 {activeLinks}
               </p>
 
-              <p className="text-sm uppercase tracking-wide text-slate-500">
+              <p className="text-sm uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Active Links
               </p>
             </div>
@@ -539,9 +539,9 @@ function MentorAssignment() {
 
         {/* JUNIOR */}
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-7 shadow-sm">
           <div className="flex items-center gap-5">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-200 bg-blue-50">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-blue-200 bg-[#e5f1ed]">
               <Users
                 size={27}
                 className="text-blue-500"
@@ -549,11 +549,11 @@ function MentorAssignment() {
             </div>
 
             <div>
-              <p className="text-3xl font-bold text-slate-900">
+              <p className="text-3xl font-bold text-slate-900 dark:text-white">
                 {juniorMentors.length}
               </p>
 
-              <p className="text-sm uppercase tracking-wide text-slate-500">
+              <p className="text-sm uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Junior Slots
               </p>
             </div>
@@ -562,7 +562,7 @@ function MentorAssignment() {
 
         {/* SENIOR */}
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-7 shadow-sm">
           <div className="flex items-center gap-5">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-purple-200 bg-purple-50">
               <GraduationCap
@@ -572,11 +572,11 @@ function MentorAssignment() {
             </div>
 
             <div>
-              <p className="text-3xl font-bold text-slate-900">
+              <p className="text-3xl font-bold text-slate-900 dark:text-white">
                 {seniorMentors.length}
               </p>
 
-              <p className="text-sm uppercase tracking-wide text-slate-500">
+              <p className="text-sm uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Senior Slots
               </p>
             </div>
@@ -585,7 +585,7 @@ function MentorAssignment() {
 
         {/* STUDENTS */}
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-7 shadow-sm">
           <div className="flex items-center gap-5">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-yellow-200 bg-yellow-50">
               <Users
@@ -595,11 +595,11 @@ function MentorAssignment() {
             </div>
 
             <div>
-              <p className="text-3xl font-bold text-slate-900">
+              <p className="text-3xl font-bold text-slate-900 dark:text-white">
                 {students.length}
               </p>
 
-              <p className="text-sm uppercase tracking-wide text-slate-500">
+              <p className="text-sm uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Students Covered
               </p>
             </div>
@@ -611,7 +611,7 @@ function MentorAssignment() {
           ASSIGNMENT FORM
       ===================================================== */}
 
-      <div className="mb-10 rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+      <div className="mb-10 rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-7 shadow-sm">
 
         <div className="mb-7 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50">
@@ -621,7 +621,7 @@ function MentorAssignment() {
             />
           </div>
 
-          <h2 className="text-xl font-bold text-slate-900">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
             Assign mentor slot
           </h2>
         </div>
@@ -631,7 +631,7 @@ function MentorAssignment() {
           {/* STUDENT */}
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-600">
+            <label className="mb-2 block text-sm font-medium text-slate-600 dark:text-slate-300">
               Student
             </label>
 
@@ -646,7 +646,7 @@ function MentorAssignment() {
                   setError("");
                   setSuccess("");
                 }}
-                className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-4 pr-10 text-slate-900 outline-none transition focus:border-[#00b87c] focus:ring-2 focus:ring-[#00b87c]/20"
+                className="w-full appearance-none rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-4 pr-10 text-slate-900 dark:text-white outline-none transition focus:border-[#00b87c] focus:ring-2 focus:ring-[#00b87c]/20"
               >
                 <option value="">
                   Select student
@@ -678,7 +678,7 @@ function MentorAssignment() {
           {/* MENTOR ROLE */}
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-600">
+            <label className="mb-2 block text-sm font-medium text-slate-600 dark:text-slate-300">
               Mentor role
             </label>
 
@@ -694,7 +694,7 @@ function MentorAssignment() {
 
                   setError("");
                 }}
-                className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-4 pr-10 text-slate-900 outline-none transition focus:border-[#00b87c] focus:ring-2 focus:ring-[#00b87c]/20"
+                className="w-full appearance-none rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-4 pr-10 text-slate-900 dark:text-white outline-none transition focus:border-[#00b87c] focus:ring-2 focus:ring-[#00b87c]/20"
               >
                 <option value="junior">
                   Junior mentor
@@ -715,7 +715,7 @@ function MentorAssignment() {
           {/* MENTOR */}
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-600">
+            <label className="mb-2 block text-sm font-medium text-slate-600 dark:text-slate-300">
               Mentor ({mentorRole})
             </label>
 
@@ -730,7 +730,7 @@ function MentorAssignment() {
                   setError("");
                   setSuccess("");
                 }}
-                className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-4 pr-10 text-slate-900 outline-none transition focus:border-[#00b87c] focus:ring-2 focus:ring-[#00b87c]/20"
+                className="w-full appearance-none rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-4 pr-10 text-slate-900 dark:text-white outline-none transition focus:border-[#00b87c] focus:ring-2 focus:ring-[#00b87c]/20"
               >
                 <option value="">
                   Select {mentorRole} mentor
@@ -764,7 +764,7 @@ function MentorAssignment() {
           {/* NOTES */}
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-600">
+            <label className="mb-2 block text-sm font-medium text-slate-600 dark:text-slate-300">
               Notes
             </label>
 
@@ -775,7 +775,7 @@ function MentorAssignment() {
                 setNotes(e.target.value)
               }
               placeholder="Optional"
-              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-4 text-slate-900 placeholder-slate-400 outline-none transition focus:border-[#00b87c] focus:ring-2 focus:ring-[#00b87c]/20"
+              className="w-full rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-4 py-4 text-slate-900 dark:text-white placeholder-slate-400 outline-none transition focus:border-[#00b87c] focus:ring-2 focus:ring-[#00b87c]/20"
             />
           </div>
         </div>
@@ -790,7 +790,7 @@ function MentorAssignment() {
             !selectedStudent ||
             !selectedMentor
           }
-          className="mt-7 flex items-center gap-3 rounded-xl bg-[#00a878] px-7 py-4 font-semibold text-white transition hover:bg-[#00bf89] disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-7 flex items-center gap-3 rounded-xl bg-[#1f6f5b] hover:bg-[#185848] px-7 py-4 font-semibold text-white transition hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {assigning ? (
             <>
@@ -824,12 +824,12 @@ function MentorAssignment() {
               setSearch(e.target.value)
             }
             placeholder="Search students by name or email..."
-            className="w-full rounded-2xl border border-slate-200 bg-white py-5 pl-12 pr-5 text-slate-900 placeholder-slate-400 shadow-sm outline-none transition focus:border-[#00b87c] focus:ring-2 focus:ring-[#00b87c]/20"
+            className="w-full rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] py-5 pl-12 pr-5 text-slate-900 dark:text-white placeholder-slate-400 shadow-sm outline-none transition focus:border-[#00b87c] focus:ring-2 focus:ring-[#00b87c]/20"
           />
         </div>
 
         <div className="mt-2 flex items-center justify-between px-1">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {search
               ? `${filteredStudents.length} student(s) found`
               : `${students.length} student(s)`}
@@ -851,32 +851,32 @@ function MentorAssignment() {
           STUDENTS TABLE
       ===================================================== */}
 
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
         <div className="overflow-x-auto">
 
           <table className="w-full min-w-[900px]">
 
-            <thead className="border-b border-slate-200 bg-slate-50">
+            <thead className="border-b border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b]">
               <tr className="text-left">
 
-                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Student
                 </th>
 
-                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Role
                 </th>
 
-                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Mentor
                 </th>
 
-                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-6 py-5 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Course
                 </th>
 
-                <th className="px-6 py-5 text-right text-sm font-semibold uppercase tracking-wide text-slate-500">
+                <th className="px-6 py-5 text-right text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Actions
                 </th>
 
@@ -893,14 +893,14 @@ function MentorAssignment() {
                   >
                     <div className="flex flex-col items-center">
 
-                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
+                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-[#070e1b]">
                         <Search
                           size={25}
                           className="text-slate-400"
                         />
                       </div>
 
-                      <p className="font-medium text-slate-700">
+                      <p className="font-medium text-slate-700 dark:text-slate-200">
                         No students found
                       </p>
 
@@ -916,18 +916,18 @@ function MentorAssignment() {
                   (student) => (
                     <tr
                       key={student._id}
-                      className="border-b border-slate-100 transition hover:bg-slate-50"
+                      className="border-b border-slate-100 dark:border-[#15253f] transition hover:bg-slate-50 dark:bg-[#070e1b]"
                     >
 
                       {/* STUDENT */}
 
                       <td className="px-6 py-5">
-                        <p className="font-semibold text-slate-900">
+                        <p className="font-semibold text-slate-900 dark:text-white">
                           {student.name ||
                             "Unknown student"}
                         </p>
 
-                        <p className="mt-1 text-sm text-slate-500">
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                           {student.email ||
                             "No email"}
                         </p>
@@ -936,7 +936,7 @@ function MentorAssignment() {
                       {/* ROLE */}
 
                       <td className="px-6 py-5">
-                        <span className="rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-xs font-semibold uppercase text-blue-600">
+                        <span className="rounded-full border border-blue-200 bg-[#e5f1ed] px-4 py-1.5 text-xs font-semibold uppercase text-[#1f6f5b]">
                           Student
                         </span>
                       </td>
@@ -946,7 +946,7 @@ function MentorAssignment() {
                       <td className="px-6 py-5">
                         {student.assignedMentor ? (
                           <div>
-                            <p className="font-medium text-slate-900">
+                            <p className="font-medium text-slate-900 dark:text-white">
                               {
                                 student
                                   .assignedMentor
@@ -954,7 +954,7 @@ function MentorAssignment() {
                               }
                             </p>
 
-                            <p className="mt-1 text-sm text-slate-500">
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                               {
                                 student
                                   .assignedMentor
@@ -971,7 +971,7 @@ function MentorAssignment() {
 
                       {/* COURSE */}
 
-                      <td className="px-6 py-5 text-slate-600">
+                      <td className="px-6 py-5 text-slate-600 dark:text-slate-300">
                         {student.course ||
                           student.program ||
                           "Full Stack Web Development"}
@@ -992,12 +992,12 @@ function MentorAssignment() {
                               removing ===
                               student._id
                             }
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] text-slate-500 dark:text-slate-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
                             title="Remove mentor"
                           >
                             {removing ===
                             student._id ? (
-                              <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-red-500" />
+                              <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 dark:border-[#15253f] border-t-red-500" />
                             ) : (
                               <Trash2
                                 size={19}

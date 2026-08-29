@@ -9,25 +9,33 @@ const {
   assignStudentsToMentor,
   getBatches,
   getBatchById,
+  getMentorBatches,
   updateBatch,
+  deleteBatch,
 } = require("../controllers/batchControllers");
 
 // =========================================================
 // GET ALL BATCHES
-// Supports:
-// /api/batches?page=1&limit=10
+// Supports: /api/batches?page=1&limit=10
 // =========================================================
 
 router.get(
   "/",
   authMiddleware,
-  roleMiddleware(
-    "superadmin",
-    "admin",
-    "mentor",
-    "student"
-  ),
+  roleMiddleware("superadmin", "admin", "mentor", "student"),
   getBatches
+);
+
+// =========================================================
+// GET MENTOR BATCHES
+// GET /api/batches/mentor
+// =========================================================
+
+router.get(
+  "/mentor",
+  authMiddleware,
+  roleMiddleware("superadmin", "admin", "mentor"),
+  getMentorBatches
 );
 
 // =========================================================
@@ -37,45 +45,52 @@ router.get(
 router.get(
   "/:id",
   authMiddleware,
-  roleMiddleware(
-    "superadmin",
-    "admin",
-    "mentor",
-    "student"
-  ),
+  roleMiddleware("superadmin", "admin", "mentor", "student"),
   getBatchById
 );
 
+
 // =========================================================
-// CREATE BATCH
+// CREATE BATCH (Superadmin & Admin)
 // =========================================================
 
 router.post(
   "/",
   authMiddleware,
-  roleMiddleware("superadmin"),
+  roleMiddleware("superadmin", "admin"),
   createBatch
 );
 
 // =========================================================
-// UPDATE BATCH
+// UPDATE BATCH (Superadmin & Admin)
 // =========================================================
 
 router.put(
   "/:id",
   authMiddleware,
-  roleMiddleware("superadmin"),
+  roleMiddleware("superadmin", "admin"),
   updateBatch
 );
 
 // =========================================================
-// ASSIGN STUDENTS TO MENTOR
+// DELETE BATCH (Superadmin & Admin)
+// =========================================================
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("superadmin", "admin"),
+  deleteBatch
+);
+
+// =========================================================
+// ASSIGN STUDENTS TO MENTOR (Superadmin & Admin)
 // =========================================================
 
 router.post(
   "/:id/assign-mentor",
   authMiddleware,
-  roleMiddleware("superadmin"),
+  roleMiddleware("superadmin", "admin"),
   assignStudentsToMentor
 );
 

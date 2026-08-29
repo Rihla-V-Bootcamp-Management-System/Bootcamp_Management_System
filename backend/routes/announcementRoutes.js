@@ -4,6 +4,11 @@ const {
   createAnnouncement,
   getAnnouncements,
   getMyAnnouncements,
+  getMentorBatches,
+  getMentorStudents,
+  getMentorAnnouncements,
+  getStudentAnnouncements,
+  markAnnouncementAsRead,
   getAnnouncementById,
   updateAnnouncement,
   deleteAnnouncement,
@@ -16,90 +21,115 @@ const roleMiddleware = require("../middleware/roleMiddleware");
 const router = express.Router();
 
 // =========================================================
-// GET ANNOUNCEMENTS FOR CURRENT USER
+// MENTOR-SPECIFIC ROUTES (Must precede /:id)
 // =========================================================
 
 router.get(
-  "/",
+  "/mentor/batches",
   authMiddleware,
-  roleMiddleware(
-    "superadmin",
-    "admin",
-    "mentor",
-    "student"
-  ),
-  getAnnouncements
+  roleMiddleware("mentor", "admin", "superadmin"),
+  getMentorBatches
+);
+
+router.get(
+  "/mentor/students",
+  authMiddleware,
+  roleMiddleware("mentor", "admin", "superadmin"),
+  getMentorStudents
+);
+
+router.get(
+  "/mentor",
+  authMiddleware,
+  roleMiddleware("mentor", "admin", "superadmin"),
+  getMentorAnnouncements
+);
+
+router.post(
+  "/mentor",
+  authMiddleware,
+  roleMiddleware("mentor", "admin", "superadmin"),
+  createAnnouncement
+);
+
+router.delete(
+  "/mentor/:id",
+  authMiddleware,
+  roleMiddleware("mentor", "admin", "superadmin"),
+  deleteAnnouncement
 );
 
 // =========================================================
-// GET ADMIN'S OWN ANNOUNCEMENTS
-// IMPORTANT: MUST COME BEFORE /:id
+// STUDENT-SPECIFIC ROUTES
+// =========================================================
+
+router.get(
+  "/student",
+  authMiddleware,
+  roleMiddleware("student", "admin", "superadmin"),
+  getStudentAnnouncements
+);
+
+router.patch(
+  "/:id/read",
+  authMiddleware,
+  markAnnouncementAsRead
+);
+
+router.post(
+  "/:id/read",
+  authMiddleware,
+  markAnnouncementAsRead
+);
+
+// =========================================================
+// GENERAL / ADMIN ROUTES
 // =========================================================
 
 router.get(
   "/mine",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("admin", "superadmin", "mentor"),
   getMyAnnouncements
 );
 
-// =========================================================
-// GET SINGLE ANNOUNCEMENT
-// =========================================================
+router.get(
+  "/",
+  authMiddleware,
+  getAnnouncements
+);
 
 router.get(
   "/:id",
   authMiddleware,
-  roleMiddleware(
-    "superadmin",
-    "admin",
-    "mentor",
-    "student"
-  ),
   getAnnouncementById
 );
-
-// =========================================================
-// CREATE
-// =========================================================
 
 router.post(
   "/",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("admin", "superadmin"),
   createAnnouncement
 );
-
-// =========================================================
-// UPDATE
-// =========================================================
 
 router.put(
   "/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("admin", "superadmin", "mentor"),
   updateAnnouncement
 );
-
-// =========================================================
-// DELETE
-// =========================================================
 
 router.delete(
   "/:id",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("admin", "superadmin", "mentor"),
   deleteAnnouncement
 );
-
-// =========================================================
-// PUBLISH
-// =========================================================
 
 router.post(
   "/:id/publish",
   authMiddleware,
-  roleMiddleware("admin"),
+  roleMiddleware("admin", "superadmin", "mentor"),
   publishAnnouncement
 );
 

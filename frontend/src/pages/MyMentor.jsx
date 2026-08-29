@@ -45,12 +45,12 @@ function MyMentor() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white p-6 text-slate-900">
+      <div className="min-h-screen bg-white dark:bg-[#0b1528] p-6 text-slate-900 dark:text-white">
         <div className="flex min-h-[500px] items-center justify-center">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-500" />
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 dark:border-[#15253f] border-t-emerald-500" />
 
-            <p className="text-slate-500">
+            <p className="text-slate-500 dark:text-slate-400">
               Loading your mentor...
             </p>
           </div>
@@ -64,17 +64,17 @@ function MyMentor() {
   // =========================================================
 
   return (
-    <div className="min-h-screen bg-white p-6 text-slate-900">
+    <div className="min-h-screen bg-white dark:bg-[#0b1528] p-6 text-slate-900 dark:text-white">
       {/* =====================================================
           HEADER
       ===================================================== */}
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
           My Mentor
         </h1>
 
-        <p className="mt-2 text-slate-500">
+        <p className="mt-2 text-slate-500 dark:text-slate-400">
           View the mentor assigned to you and their contact
           information.
         </p>
@@ -108,7 +108,7 @@ function MyMentor() {
       ===================================================== */}
 
       {!error && !mentor && (
-        <div className="rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-10 shadow-sm">
           <div className="mx-auto flex max-w-md flex-col items-center text-center">
             <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-amber-50">
               <UserRound
@@ -117,11 +117,11 @@ function MyMentor() {
               />
             </div>
 
-            <h2 className="text-2xl font-bold text-slate-900">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
               No Mentor Assigned Yet
             </h2>
 
-            <p className="mt-3 leading-6 text-slate-500">
+            <p className="mt-3 leading-6 text-slate-500 dark:text-slate-400">
               You don't have a mentor assigned to you yet.
               Please wait for an administrator to assign a
               mentor.
@@ -129,7 +129,7 @@ function MyMentor() {
 
             <button
               onClick={loadMentor}
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#1f6f5b] px-5 py-3 font-semibold text-white transition hover:bg-[#185848]"
             >
               <RefreshCw size={18} />
               Check Again
@@ -144,10 +144,10 @@ function MyMentor() {
 
       {!error && mentor && (
         <div className="max-w-4xl">
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
             {/* TOP SECTION */}
 
-            <div className="border-b border-slate-200 bg-slate-50 px-8 py-8">
+            <div className="border-b border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] px-8 py-8">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
                 {/* AVATAR */}
 
@@ -172,11 +172,11 @@ function MyMentor() {
                     />
                   </div>
 
-                  <h2 className="text-3xl font-bold text-slate-900">
+                  <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
                     {mentor.name}
                   </h2>
 
-                  <p className="mt-1 text-slate-500">
+                  <p className="mt-1 text-slate-500 dark:text-slate-400">
                     Your assigned mentor
                   </p>
                 </div>
@@ -188,12 +188,12 @@ function MyMentor() {
             <div className="grid grid-cols-1 gap-5 p-8 md:grid-cols-2">
               {/* NAME */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#e5f1ed]">
                     <UserRound
                       size={22}
-                      className="text-blue-600"
+                      className="text-[#1f6f5b]"
                     />
                   </div>
 
@@ -202,7 +202,7 @@ function MyMentor() {
                       Name
                     </p>
 
-                    <p className="mt-1 font-semibold text-slate-900">
+                    <p className="mt-1 font-semibold text-slate-900 dark:text-white">
                       {mentor.name}
                     </p>
                   </div>
@@ -211,7 +211,7 @@ function MyMentor() {
 
               {/* EMAIL */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5">
                 <div className="flex items-center gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50">
                     <Mail
@@ -225,7 +225,7 @@ function MyMentor() {
                       Email
                     </p>
 
-                    <p className="mt-1 truncate font-semibold text-slate-900">
+                    <p className="mt-1 truncate font-semibold text-slate-900 dark:text-white">
                       {mentor.email}
                     </p>
                   </div>
@@ -234,7 +234,7 @@ function MyMentor() {
 
               {/* ROLE */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5">
                 <div className="flex items-center gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50">
                     <GraduationCap
@@ -248,7 +248,7 @@ function MyMentor() {
                       Role
                     </p>
 
-                    <p className="mt-1 font-semibold capitalize text-slate-900">
+                    <p className="mt-1 font-semibold capitalize text-slate-900 dark:text-white">
                       {mentor.mentorRole ||
                         mentor.level ||
                         "Mentor"}
@@ -259,7 +259,7 @@ function MyMentor() {
 
               {/* STATUS */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5">
                 <div className="flex items-center gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50">
                     <ShieldCheck
@@ -283,10 +283,10 @@ function MyMentor() {
 
             {/* CONTACT */}
 
-            <div className="border-t border-slate-200 p-8">
+            <div className="border-t border-slate-200 dark:border-[#15253f] p-8">
               <a
                 href={`mailto:${mentor.email}`}
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white transition hover:bg-emerald-700"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#1f6f5b] px-6 py-3 font-semibold text-white transition hover:bg-[#185848]"
               >
                 <Mail size={19} />
                 Contact Mentor

@@ -316,8 +316,8 @@ function FormBuilder() {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
-          <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-800" />
-          <p className="text-sm text-slate-500">
+          <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-4 border-slate-200 dark:border-[#15253f] border-t-slate-800" />
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Loading application form...
           </p>
         </div>
@@ -330,29 +330,29 @@ function FormBuilder() {
   // =====================================================
 
   return (
-    <div className="min-h-full bg-slate-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-full bg-slate-50 dark:bg-[#070e1b] p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
 
         {/* =================================================
             HEADER
         ================================================= */}
 
-        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] px-6 py-6 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Application Form Builder
               </h1>
 
-              <p className="mt-1 max-w-2xl text-sm text-slate-500">
+              <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
                 Create and manage the questions students will
                 see on the application form.
               </p>
             </div>
 
             {season && (
-              <div className="shrink-0 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
+              <div className="shrink-0 rounded-xl border border-blue-100 bg-[#e5f1ed] px-4 py-3">
                 <p className="text-xs font-medium uppercase tracking-wide text-blue-500">
                   Current Season
                 </p>
@@ -394,14 +394,14 @@ function FormBuilder() {
           ================================================= */}
 
           <div className="xl:col-span-2">
-            <div className="h-full rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="h-full rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
-              <div className="border-b border-slate-200 px-6 py-5">
-                <h2 className="text-lg font-semibold text-slate-900">
+              <div className="border-b border-slate-200 dark:border-[#15253f] px-6 py-5">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                   Add Application Question
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Create a question and choose how students
                   should answer it.
                 </p>
@@ -415,7 +415,7 @@ function FormBuilder() {
                 {/* QUESTION */}
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Question
                   </label>
 
@@ -427,14 +427,14 @@ function FormBuilder() {
                       setLabel(e.target.value)
                     }
                     placeholder="Example: What is your motivation for joining?"
-                    className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-100"
+                    className="w-full rounded-xl border border-slate-300 dark:border-[#15253f] px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-100"
                   />
                 </div>
 
                 {/* TYPE */}
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
                     Answer Type
                   </label>
 
@@ -443,7 +443,7 @@ function FormBuilder() {
                     onChange={(e) =>
                       handleTypeChange(e.target.value)
                     }
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-100"
+                    className="w-full rounded-xl border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-4 py-3 text-sm text-slate-900 dark:text-white outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-100"
                   >
                     <option value="text">
                       Short Answer
@@ -482,14 +482,14 @@ function FormBuilder() {
                 {/* OPTIONS */}
 
                 {(type === "select" || type === "radio") && (
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="rounded-xl border border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] p-4">
 
                     <div className="mb-4">
-                      <h3 className="text-sm font-semibold text-slate-800">
+                      <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                         Choices
                       </h3>
 
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                         Add the choices students can select.
                       </p>
                     </div>
@@ -510,7 +510,7 @@ function FormBuilder() {
                               )
                             }
                             placeholder={`Choice ${index + 1}`}
-                            className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-100"
+                            className="min-w-0 flex-1 rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-3 py-2.5 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-100"
                           />
 
                           {options.length > 2 && (
@@ -532,7 +532,7 @@ function FormBuilder() {
                     <button
                       type="button"
                       onClick={handleAddOption}
-                      className="mt-4 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                      className="mt-4 rounded-lg border dark:border-[#15253f] border-slate-200 dark:border-[#15253f] bg-white dark:bg-[#0b1528] px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 transition hover:bg-slate-100 dark:bg-[#070e1b]"
                     >
                       + Add Choice
                     </button>
@@ -541,22 +541,22 @@ function FormBuilder() {
 
                 {/* REQUIRED */}
 
-                <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] px-4 py-3">
                   <input
                     type="checkbox"
                     checked={required}
                     onChange={(e) =>
                       setRequired(e.target.checked)
                     }
-                    className="h-4 w-4 rounded border-slate-300"
+                    className="h-4 w-4 rounded border-slate-300 dark:border-[#15253f]"
                   />
 
                   <div>
-                    <p className="text-sm font-medium text-slate-700">
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
                       Required question
                     </p>
 
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       Students must answer this question.
                     </p>
                   </div>
@@ -566,7 +566,7 @@ function FormBuilder() {
 
                 <button
                   type="submit"
-                  className="w-full rounded-xl bg-[#071629] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#10233b]"
+                  className="w-full rounded-xl bg-[#1f6f5b] hover:bg-[#185848] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1f6f5b] hover:bg-[#185848]"
                 >
                   + Add Question
                 </button>
@@ -580,24 +580,24 @@ function FormBuilder() {
           ================================================= */}
 
           <div className="xl:col-span-3">
-            <div className="h-full rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="h-full rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
               {/* HEADER */}
 
-              <div className="flex flex-col gap-3 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 border-b border-slate-200 dark:border-[#15253f] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
-                  <h2 className="text-lg font-semibold text-slate-900">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                     Current Application Questions
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     These are the questions students will see
                     on the application form.
                   </p>
                 </div>
 
-                <span className="w-fit rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+                <span className="w-fit rounded-full bg-slate-100 dark:bg-[#070e1b] px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
                   {fields.length}{" "}
                   {fields.length === 1
                     ? "Question"
@@ -609,17 +609,17 @@ function FormBuilder() {
 
               <div className="p-6">
                 {fields.length === 0 ? (
-                  <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 text-center">
+                  <div className="flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] px-6 text-center">
 
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-xl shadow-sm">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-[#0b1528] text-xl shadow-sm">
                       ?
                     </div>
 
-                    <p className="text-sm font-medium text-slate-700">
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
                       No application questions yet
                     </p>
 
-                    <p className="mt-1 max-w-sm text-xs text-slate-500">
+                    <p className="mt-1 max-w-sm text-xs text-slate-500 dark:text-slate-400">
                       Add your first question using the form
                       on the left.
                     </p>
@@ -630,7 +630,7 @@ function FormBuilder() {
                     {fields.map((field, index) => (
                       <div
                         key={field.id}
-                        className="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm"
+                        className="rounded-xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] p-5 transition hover:border-slate-300 dark:border-[#15253f] hover:shadow-sm"
                       >
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 
@@ -640,11 +640,11 @@ function FormBuilder() {
                             {/* QUESTION NUMBER */}
 
                             <div className="flex items-start gap-3">
-                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700">
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-[#070e1b] text-xs font-bold text-slate-700 dark:text-slate-200">
                                 {index + 1}
                               </span>
 
-                              <p className="pt-1 text-sm font-semibold leading-6 text-slate-900">
+                              <p className="pt-1 text-sm font-semibold leading-6 text-slate-900 dark:text-white">
                                 {field.label}
                               </p>
                             </div>
@@ -653,7 +653,7 @@ function FormBuilder() {
 
                             <div className="mt-3 flex flex-wrap gap-2 pl-10">
 
-                              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                              <span className="rounded-full bg-slate-100 dark:bg-[#070e1b] px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                                 {field.type === "text"
                                   ? "Short Answer"
                                   : field.type === "textarea"
@@ -674,7 +674,7 @@ function FormBuilder() {
                               </span>
 
                               {field.required && (
-                                <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                                <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-[#185848]">
                                   Required
                                 </span>
                               )}
@@ -686,7 +686,7 @@ function FormBuilder() {
                               field.type === "radio") &&
                               field.options?.length > 0 && (
                                 <div className="mt-4 pl-10">
-                                  <p className="text-xs font-semibold text-slate-500">
+                                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                                     Choices
                                   </p>
 
@@ -695,7 +695,7 @@ function FormBuilder() {
                                       (option, optionIndex) => (
                                         <span
                                           key={`${option}-${optionIndex}`}
-                                          className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600"
+                                          className="rounded-lg border border-slate-200 dark:border-[#15253f] bg-slate-50 dark:bg-[#070e1b] px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300"
                                         >
                                           {option}
                                         </span>
@@ -713,7 +713,7 @@ function FormBuilder() {
                             onClick={() =>
                               handleRemoveField(field.id)
                             }
-                            className="shrink-0 rounded-lg border border-red-200 bg-white px-4 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
+                            className="shrink-0 rounded-lg border dark:border-[#15253f] border-red-200 bg-white dark:bg-[#0b1528] px-4 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50"
                           >
                             Remove
                           </button>
@@ -733,15 +733,15 @@ function FormBuilder() {
             SAVE BAR
         ================================================= */}
 
-        <div className="sticky bottom-4 z-10 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur">
+        <div className="sticky bottom-4 z-10 rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528]/95 p-4 shadow-lg backdrop-blur">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
             <div>
-              <p className="text-sm font-semibold text-slate-800">
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                 Ready to publish your changes?
               </p>
 
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Save the application form after adding or
                 removing questions.
               </p>
@@ -751,7 +751,7 @@ function FormBuilder() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="w-full rounded-xl bg-[#071629] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#10233b] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+              className="w-full rounded-xl bg-[#1f6f5b] hover:bg-[#185848] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#1f6f5b] hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
               {saving
                 ? "Saving..."

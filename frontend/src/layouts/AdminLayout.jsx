@@ -5,7 +5,7 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 
 function AdminLayout() {
   return (
-    <div className="min-h-screen bg-[#F7F5EF] text-white-900">
+    <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] text-white-900">
       <AdminSidebar />
 
       <div className="ml-64">

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import apiClient from "../../services/apiClient";
 
@@ -25,11 +26,7 @@ function FAQs() {
       setFaqs(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("LOAD FAQ ERROR:", error);
-
-      alert(
-        error.response?.data?.message ||
-          "Failed to load FAQs."
-      );
+      toast.error(error.response?.data?.message || "Failed to load FAQs.");
     } finally {
       setLoading(false);
     }
@@ -75,7 +72,7 @@ function FAQs() {
     const trimmedAnswer = answer.trim();
 
     if (!trimmedQuestion || !trimmedAnswer) {
-      alert("Question and answer are required.");
+      toast.error("Question and answer are required.");
       return;
     }
 
@@ -127,33 +124,23 @@ function FAQs() {
         }
       }
 
+      toast.success(editingFaq ? "FAQ updated successfully!" : "FAQ created successfully!");
       setModalOpen(false);
       resetForm();
     } catch (error) {
       console.error("SAVE FAQ ERROR:", error);
-
-      alert(
-        error.response?.data?.message ||
-          "Failed to save FAQ."
-      );
+      toast.error(error.response?.data?.message || "Failed to save FAQ.");
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (faq) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete this FAQ?\n\n"${faq.question}"`
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     try {
       setDeletingId(faq._id);
 
       await apiClient.delete(`/faqs/${faq._id}`);
+      toast.success("FAQ deleted successfully");
 
       setFaqs((currentFaqs) =>
         currentFaqs.filter(
@@ -162,11 +149,7 @@ function FAQs() {
       );
     } catch (error) {
       console.error("DELETE FAQ ERROR:", error);
-
-      alert(
-        error.response?.data?.message ||
-          "Failed to delete FAQ."
-      );
+      toast.error(error.response?.data?.message || "Failed to delete FAQ.");
     } finally {
       setDeletingId(null);
     }
@@ -221,17 +204,17 @@ function FAQs() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc] p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#050b14] p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
 
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
 
           <div>
-            <h1 className="text-2xl font-bold text-[#071629]">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
               Frequently Asked Questions
             </h1>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
               Manage the questions and answers shown on the public website.
             </p>
           </div>
@@ -239,7 +222,7 @@ function FAQs() {
           <button
             type="button"
             onClick={openCreateModal}
-            className="flex items-center justify-center gap-2 rounded-lg bg-[#1769e0] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#2878ed]"
+            className="flex items-center justify-center gap-2 rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#185848]"
           >
             <Plus size={18} />
             Add FAQ
@@ -247,27 +230,27 @@ function FAQs() {
 
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-[#15253f] dark:bg-[#0b1528] shadow-sm">
 
           {loading ? (
-            <div className="p-10 text-center text-sm text-gray-500">
+            <div className="p-10 text-center text-sm text-gray-500 dark:text-slate-400">
               Loading FAQs...
             </div>
           ) : faqs.length === 0 ? (
             <div className="p-12 text-center">
 
-              <h2 className="text-lg font-semibold text-[#071629]">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                 No FAQs yet
               </h2>
 
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-gray-500 dark:text-slate-400">
                 Add the first frequently asked question.
               </p>
 
               <button
                 type="button"
                 onClick={openCreateModal}
-                className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#1769e0] px-5 py-2.5 text-sm font-semibold text-white"
+                className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-5 py-2.5 text-sm font-semibold text-white"
               >
                 <Plus size={17} />
                 Add FAQ
@@ -275,23 +258,23 @@ function FAQs() {
 
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 dark:divide-[#15253f]">
 
               {faqs.map((faq) => (
                 <div
                   key={faq._id}
-                  className="p-6 transition hover:bg-gray-50"
+                  className="p-6 transition hover:bg-slate-50 dark:bg-[#070e1b]"
                 >
 
                   <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
 
                     <div className="min-w-0 flex-1">
 
-                      <h3 className="text-base font-semibold text-[#071629]">
+                      <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                         {faq.question}
                       </h3>
 
-                      <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+                      <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600 dark:text-slate-300">
                         {faq.answer}
                       </p>
 
@@ -332,7 +315,7 @@ function FAQs() {
                         disabled={
                           deletingId === faq._id
                         }
-                        className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-[#15253f] px-3 py-2 text-sm font-medium text-gray-700 dark:text-slate-200 transition hover:bg-gray-100 dark:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Pencil size={16} />
                         Edit
@@ -372,18 +355,18 @@ function FAQs() {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6 backdrop-blur-sm">
 
-          <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
+          <div className="w-full max-w-2xl rounded-2xl bg-white dark:bg-[#0b1528] shadow-2xl">
 
-            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-[#15253f] px-6 py-5">
 
               <div>
-                <h2 className="text-xl font-bold text-[#071629]">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                   {editingFaq
                     ? "Edit FAQ"
                     : "Add FAQ"}
                 </h2>
 
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
                   This information can appear on the public FAQ section.
                 </p>
               </div>
@@ -392,7 +375,7 @@ function FAQs() {
                 type="button"
                 onClick={closeModal}
                 disabled={saving}
-                className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 dark:bg-[#070e1b] hover:text-gray-700 dark:text-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <X size={20} />
               </button>
@@ -405,7 +388,7 @@ function FAQs() {
             >
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200">
                   Question
                 </label>
 
@@ -416,13 +399,13 @@ function FAQs() {
                     setQuestion(e.target.value)
                   }
                   placeholder="Enter the frequently asked question"
-                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-[#1769e0] focus:ring-2 focus:ring-[#1769e0]/10"
+                  className="w-full rounded-lg border border-gray-200 dark:border-[#15253f] px-4 py-3 text-sm outline-none transition focus:border-[#1769e0] focus:ring-2 focus:ring-[#1769e0]/10"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-slate-200">
                   Answer
                 </label>
 
@@ -433,7 +416,7 @@ function FAQs() {
                   }
                   placeholder="Enter the answer"
                   rows={6}
-                  className="w-full resize-none rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-[#1769e0] focus:ring-2 focus:ring-[#1769e0]/10"
+                  className="w-full resize-none rounded-lg border border-gray-200 dark:border-[#15253f] px-4 py-3 text-sm outline-none transition focus:border-[#1769e0] focus:ring-2 focus:ring-[#1769e0]/10"
                   required
                 />
               </div>
@@ -449,19 +432,19 @@ function FAQs() {
                   className="h-4 w-4"
                 />
 
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-gray-700 dark:text-slate-200">
                   Publish this FAQ
                 </span>
 
               </label>
 
-              <div className="flex justify-end gap-3 border-t border-gray-100 pt-5">
+              <div className="flex justify-end gap-3 border-t border-gray-100 dark:border-[#15253f] pt-5">
 
                 <button
                   type="button"
                   onClick={closeModal}
                   disabled={saving}
-                  className="rounded-lg border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-lg border border-gray-200 dark:border-[#15253f] px-5 py-2.5 text-sm font-semibold text-gray-600 dark:text-slate-300 hover:bg-slate-50 dark:bg-[#070e1b] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -469,7 +452,7 @@ function FAQs() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="rounded-lg bg-[#1769e0] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2878ed] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-lg bg-[#1f6f5b] hover:bg-[#185848] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#185848] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {saving
                     ? editingFaq
